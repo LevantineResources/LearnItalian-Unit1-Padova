@@ -24,6 +24,11 @@
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
+/* no back / forward from a sideways swipe (the playtest of 21 Nov, a phone): Chrome's overscroll-to-navigate stops at a scroll container whose
+   overscroll-behavior-x is none, so every element has it (it only acts on scroll containers: the Albero, the handbook's tabs, the sheets, the bank…).
+   The phones' own edge swipes (iOS Safari, Android's back gesture) can't be stopped by a page: there nothing scrolls sideways within 24 px of the
+   screen's edges (the Albero is a list there; the tabs row is inset: below, "a touch screen"). */
+html,body,*{overscroll-behavior-x:none}
 body{background:var(--notte);color:var(--inchiostro);font-family:var(--body);font-size:16px;-webkit-font-smoothing:antialiased;overflow:hidden}
 button{font-family:inherit}
 :focus-visible{outline:3px solid var(--giallo);outline-offset:2px}
@@ -375,8 +380,15 @@ ul.albero li.lv-2 > ul::before{height:46px}
 .tp-note{font-size:13.5px;color:var(--muted)}
 .tp-card .play{position:absolute;top:8px;right:8px}
 .tp-end-t{font-size:16px}
-@media (max-width:640px){
-  .al-wrap{overflow:visible}
+/* a phone (upright ≤ 640 px wide, or on its side ≤ 500 px high) or a small touch tablet: the tree as an indented list, top to bottom (the
+   core lessons, then each branch with its forks under it), so nothing scrolls sideways (the playtest of 21 Nov: a sideways swipe on the tree was
+   the browser's "back"); only vertical panning on it. The query is ui/tree.js TREE_LIST_MQ. */
+@media (max-width:640px), (max-height:500px), (pointer:coarse) and (max-width:1024px){
+  .al-wrap{overflow:visible;touch-action:pan-y}
+  .al-gate-line{display:none}
+  .al-panel{touch-action:pan-y}
+  .tn-top{font-size:12px}
+  .tn-lead{font-size:12px}
   ul.albero, ul.albero ul{display:block;width:auto;min-width:0}
   ul.albero ul, ul.albero li.lv-2 > ul{padding:0 0 0 16px;margin-left:12px}
   ul.albero li{display:block;padding:10px 0 0}
@@ -386,9 +398,21 @@ ul.albero li.lv-2 > ul::before{height:46px}
   ul.albero ul > li::after{display:block;content:'';position:absolute;left:-16px;top:0;bottom:0;width:0;height:auto;border:0;border-left:2px solid var(--al-line);border-radius:0;margin:0}
   ul.albero ul > li:last-child::after{bottom:auto;height:34px}
   ul.albero ul > li::before{display:block;content:'';position:absolute;left:-16px;right:auto;top:34px;width:14px;height:0;border:0;border-top:2px solid var(--al-line);border-radius:0;margin:0}
-  .tn{width:100%;height:auto}
+  .tn{width:100%;height:auto;min-height:44px}
   .tp-card{padding:16px 40px}
   .tp-it{font-size:26px}
+}
+/* the list on a wide, short screen (a phone on its side, 844 × 390; a tablet): each card one compact block, its title and line on the left, the
+   words and the person on the right, so two or three cards are on screen at once */
+@media (min-width:641px) and (max-height:500px), (min-width:641px) and (pointer:coarse) and (max-width:1024px){
+  ul.albero{max-width:760px}
+  .tn{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);grid-template-areas:"top top" "t meta" "en who";column-gap:16px;row-gap:2px;padding:6px 12px 7px}
+  .tn-top{grid-area:top} .tn-t{grid-area:t;align-self:end} .tn-en{grid-area:en;-webkit-line-clamp:1}
+  .tn-meta{grid-area:meta;margin-top:0;padding-top:0;align-self:end} .tn-who{grid-area:who;-webkit-line-clamp:1}
+  .tn-who > span{-webkit-line-clamp:1}
+  ul.albero li{padding-top:8px}
+  ul.albero ul > li::before{top:30px}
+  ul.albero ul > li:last-child::after{height:30px}
 }
 .dialogue li{grid-template-columns:70px 1fr 34px}
 .listino{background:var(--notte);color:var(--carta);border-radius:12px;padding:14px 18px 10px;border:3px double var(--giallo);margin-top:8px}
@@ -476,6 +500,8 @@ ul.albero li.lv-2 > ul::before{height:46px}
 .replies{display:flex;gap:8px;flex-wrap:wrap;padding:10px 14px 16px;justify-content:flex-end}
 .conjwrap{overflow-x:auto;margin:8px 0 6px}
 .conj{border-collapse:collapse;width:100%;min-width:600px;background:#fffdf8;border:1.5px solid rgba(28,61,143,.22);border-radius:10px;overflow:hidden}
+/* a phone upright: a table of forms not in a scrolling .conjwrap (Venezia's chapters) fits the page, so the handbook's body never scrolls sideways */
+@media (max-width:640px){ :not(.conjwrap) > table.conj{min-width:0} }
 .conj th{font-family:var(--display);font-size:17px;color:var(--cobalto);padding:8px 8px 6px;text-align:left;background:rgba(28,61,143,.06)}
 .conj th span{display:block;font-family:var(--body);font-size:11.5px;font-weight:600;color:var(--muted)}
 .conj td{padding:6px 8px;border-top:1px solid rgba(28,61,143,.1);font-weight:600}
@@ -1724,6 +1750,12 @@ ul.albero li.lv-2 > ul::before{height:46px}
   .sheet.book .sheet-body{padding:10px 14px 18px}
   .hb-lessons{padding:0}
   .hb-lessons-in{width:100%;border-radius:0;border:0;height:100%}
+}
+/* a touch screen upright: what scrolls sideways (the tabs row, a conjugation table) keeps ≥ 24 px from the screen's edges, where a swipe is the
+   phone's back / forward (iOS Safari, Android); on its side the tabs row sits between the title and Lezioni ▾ already. tests/venezia/tree-phone.js */
+@media (pointer:coarse) and (max-width:640px){
+  .hb-top .tabs{margin:0 24px 0 18px;padding:0 4px}
+  .conjwrap{margin-left:10px;margin-right:10px}
 }
 /* a short screen (a phone on its side): the title, the tabs, Lezioni ▾ and × on one row */
 @media (max-height:500px){
@@ -9401,6 +9433,15 @@ function renderPractice(body, L){
       if (isTreeKey(L.n)) renderTreeStudy(); else if (isQuestKey(L.n)) renderScheda(); else renderHandbook();
     };
   };
+  /* a question answered right and then left before Next (the sheet closed: ×, Esc, a tap beside it; or another tab): drawn again as it was
+     left, the right answer marked and Next (or Finish) waiting. (The playtest of 21 Nov: it came back unanswered with P.answered still set,
+     and every option, tile and Check ignored the taps, so the practice could never go on.) */
+  const resume = () => {
+    if (!P.answered) return;
+    if (ex.opts) body.querySelectorAll(`[data-opt="${ex.a}"]`).forEach(b => b.classList.add('right'));
+    const inp = $('#pxIn'); if (inp){ inp.value = fill(ex.answer || ''); inp.disabled = true; }
+    good();
+  };
   const bad = (extra = '') => { fb.innerHTML = `<div class="feedback bad"><p><b>Not quite.</b> ${extra}${esc(fill(ex.nudge))}</p></div>`; };
   const sayBtn = () => { const b = body.querySelector('[data-px-say]'); if (b) b.onclick = () => speak(fill(ex.say), 1, false, P.answered ? 0.75 : 0.9); };
   sayBtn();
@@ -9433,8 +9474,8 @@ function renderPractice(body, L){
       else bad();
     };
     $('#pxCheck').onclick = check;
-    inp.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); check(); } });
-    setTimeout(() => inp.focus({ preventScroll:true }), 30);
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); check(); } else if (e.key === 'Escape'){ e.preventDefault(); closeModal(); } });   // (Esc closes the sheet from the box too, as the word check's does)
+    if (!P.answered) setTimeout(() => { if (inp.isConnected && !inp.disabled) inp.focus({ preventScroll:true }); }, 30);
   } else if (ex.type === 'mc'){
     body.querySelectorAll('[data-opt]').forEach(b => b.onclick = () => {
       if (P.answered) return;
@@ -9471,6 +9512,7 @@ function renderPractice(body, L){
       else bad();
     };
   }
+  resume();
 }
 function finishPractice(n){
   const dict = $('#btnDict');
@@ -13114,8 +13156,8 @@ window.__ruleOfThree = window.__heardUsed = () => treeRule3().concat(lessonRule3
    - The handbook's tabs row gets an "Albero" tab after the chapter's own (hbTreeButton(), when the unit has a tree and
      UNIT.treeShown() is not false); hbTab 'albero' shows the page (renderTree()): the gate's line (Per il prossimo sestiere: 1/3), the
      unit's note under the gate (UNIT.treeGateNote(district, gate): HTML, e.g. what the gate leads to in the story), the
-     district's tree drawn top-down (the core node at the top, its branches below, with connectors; on a narrow screen an indented
-     list), each node a card: its level, its state, its title and line, its word count and strength meter, and where its person is.
+     district's tree drawn top-down (the core node at the top, its branches below, with connectors; on a phone, upright or on its side,
+     and a small touch tablet an indented list, top to bottom, that never scrolls sideways: TREE_LIST_MQ, page.list in __dbg().tree), each node a card: its level, its state, its title and line, its word count and strength meter, and where its person is.
    - Tapping a node opens its panel over the page: open → where to go, and Sulla mappa (the unit's map, the pin picked out: UNIT.openMap
      ({ focus:'tree-<id>' })); done → its words as flashcards (Lo so! / Non ancora count in the weak-word record, S.study, and so in the
      meter); locked → what opens it (the parent, with a button to it; the lesson; the district before).
@@ -13196,9 +13238,12 @@ function treeCenter(){
   const w = wrap.getBoundingClientRect(), mid = (Math.min(...top.map(r => r.left)) + Math.max(...top.map(r => r.right))) / 2;
   wrap.scrollLeft += mid - (w.left + w.width / 2);
 }
+/* the tree as a list, top to bottom (a phone upright or on its side, a small touch tablet: engine/styles.css, the same query): nothing scrolls sideways */
+const TREE_LIST_MQ = '(max-width:640px), (max-height:500px), (pointer:coarse) and (max-width:1024px)';
+const treeListMode = () => !!(window.matchMedia && matchMedia(TREE_LIST_MQ).matches);
 /* the gate drawn across the tree, under level 2 (the wide layout only) */
 function treeGateLine(){
-  const wrap = sheet.querySelector('.al-wrap'); if (!wrap || (window.matchMedia && matchMedia('(max-width:640px)').matches)) return;
+  const wrap = sheet.querySelector('.al-wrap'); if (!wrap || treeListMode()) return;
   const gate = [...wrap.querySelectorAll('.tn.gate')], deeper = [...wrap.querySelectorAll('.tn:not(.gate)')];
   if (!gate.length || !deeper.length) return;
   const top = wrap.getBoundingClientRect().top - wrap.scrollTop, a = Math.max(...gate.map(b => b.getBoundingClientRect().bottom)), b = Math.min(...deeper.map(x => x.getBoundingClientRect().top));
@@ -13382,7 +13427,7 @@ function treeDbg(){
   return { shown:treeShown(), districts:TREE.map(D => ({ id:D.id, title:D.title, open:treeDistrictOpen(D.id), gate:treeGate(D.id) })), nodes,
     gate:Object.fromEntries(TREE.map(D => [D.id, treeGateOpen(D.id)])),
     save:{ done:Object.keys(R.done || {}), seen:{ ...(R.seen || {}) }, unseen:!!R.unseen, point:R.point ? R.point.what : null, begun:Object.keys(R.begun || {}), lead:{ ...(R.lead || {}) } },
-    page:{ open, district:open ? TREEUI.district : null, sel:open ? TREEUI.sel : null, panel:open && TREEUI.sel && TREEUI.panel && TREEUI.panel.id === TREEUI.sel ? { ...TREEUI.panel } : null,
+    page:{ open, list:treeListMode(), district:open ? TREEUI.district : null, sel:open ? TREEUI.sel : null, panel:open && TREEUI.sel && TREEUI.panel && TREEUI.panel.id === TREEUI.sel ? { ...TREEUI.panel } : null,
       cards:open && TREEUI.cards ? { ...TREEUI.cards } : null, point:!!sheet.querySelector('.hb-al-btn.hb-point') },
     tutor:{ seen:!!(R.tutor && R.tutor.done), on:TREEUI.tutor !== null && TREEUI.tutor !== undefined, step:TREEUI.tutor, hud:!!document.querySelector('.al-coach-hud') },
     studyPage:TSTUDY.id && modalOpen && sheet.classList.contains('tstudy') ? { id:TSTUDY.id, tab:TSTUDY.tab } : null,

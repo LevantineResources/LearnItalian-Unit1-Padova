@@ -24,6 +24,11 @@
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
+/* no back / forward from a sideways swipe (the playtest of 21 Nov, a phone): Chrome's overscroll-to-navigate stops at a scroll container whose
+   overscroll-behavior-x is none, so every element has it (it only acts on scroll containers: the Albero, the handbook's tabs, the sheets, the bank…).
+   The phones' own edge swipes (iOS Safari, Android's back gesture) can't be stopped by a page: there nothing scrolls sideways within 24 px of the
+   screen's edges (the Albero is a list there; the tabs row is inset: below, "a touch screen"). */
+html,body,*{overscroll-behavior-x:none}
 body{background:var(--notte);color:var(--inchiostro);font-family:var(--body);font-size:16px;-webkit-font-smoothing:antialiased;overflow:hidden}
 button{font-family:inherit}
 :focus-visible{outline:3px solid var(--giallo);outline-offset:2px}
@@ -375,8 +380,15 @@ ul.albero li.lv-2 > ul::before{height:46px}
 .tp-note{font-size:13.5px;color:var(--muted)}
 .tp-card .play{position:absolute;top:8px;right:8px}
 .tp-end-t{font-size:16px}
-@media (max-width:640px){
-  .al-wrap{overflow:visible}
+/* a phone (upright ≤ 640 px wide, or on its side ≤ 500 px high) or a small touch tablet: the tree as an indented list, top to bottom (the
+   core lessons, then each branch with its forks under it), so nothing scrolls sideways (the playtest of 21 Nov: a sideways swipe on the tree was
+   the browser's "back"); only vertical panning on it. The query is ui/tree.js TREE_LIST_MQ. */
+@media (max-width:640px), (max-height:500px), (pointer:coarse) and (max-width:1024px){
+  .al-wrap{overflow:visible;touch-action:pan-y}
+  .al-gate-line{display:none}
+  .al-panel{touch-action:pan-y}
+  .tn-top{font-size:12px}
+  .tn-lead{font-size:12px}
   ul.albero, ul.albero ul{display:block;width:auto;min-width:0}
   ul.albero ul, ul.albero li.lv-2 > ul{padding:0 0 0 16px;margin-left:12px}
   ul.albero li{display:block;padding:10px 0 0}
@@ -386,9 +398,21 @@ ul.albero li.lv-2 > ul::before{height:46px}
   ul.albero ul > li::after{display:block;content:'';position:absolute;left:-16px;top:0;bottom:0;width:0;height:auto;border:0;border-left:2px solid var(--al-line);border-radius:0;margin:0}
   ul.albero ul > li:last-child::after{bottom:auto;height:34px}
   ul.albero ul > li::before{display:block;content:'';position:absolute;left:-16px;right:auto;top:34px;width:14px;height:0;border:0;border-top:2px solid var(--al-line);border-radius:0;margin:0}
-  .tn{width:100%;height:auto}
+  .tn{width:100%;height:auto;min-height:44px}
   .tp-card{padding:16px 40px}
   .tp-it{font-size:26px}
+}
+/* the list on a wide, short screen (a phone on its side, 844 × 390; a tablet): each card one compact block, its title and line on the left, the
+   words and the person on the right, so two or three cards are on screen at once */
+@media (min-width:641px) and (max-height:500px), (min-width:641px) and (pointer:coarse) and (max-width:1024px){
+  ul.albero{max-width:760px}
+  .tn{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);grid-template-areas:"top top" "t meta" "en who";column-gap:16px;row-gap:2px;padding:6px 12px 7px}
+  .tn-top{grid-area:top} .tn-t{grid-area:t;align-self:end} .tn-en{grid-area:en;-webkit-line-clamp:1}
+  .tn-meta{grid-area:meta;margin-top:0;padding-top:0;align-self:end} .tn-who{grid-area:who;-webkit-line-clamp:1}
+  .tn-who > span{-webkit-line-clamp:1}
+  ul.albero li{padding-top:8px}
+  ul.albero ul > li::before{top:30px}
+  ul.albero ul > li:last-child::after{height:30px}
 }
 .dialogue li{grid-template-columns:70px 1fr 34px}
 .listino{background:var(--notte);color:var(--carta);border-radius:12px;padding:14px 18px 10px;border:3px double var(--giallo);margin-top:8px}
@@ -476,6 +500,8 @@ ul.albero li.lv-2 > ul::before{height:46px}
 .replies{display:flex;gap:8px;flex-wrap:wrap;padding:10px 14px 16px;justify-content:flex-end}
 .conjwrap{overflow-x:auto;margin:8px 0 6px}
 .conj{border-collapse:collapse;width:100%;min-width:600px;background:#fffdf8;border:1.5px solid rgba(28,61,143,.22);border-radius:10px;overflow:hidden}
+/* a phone upright: a table of forms not in a scrolling .conjwrap (Venezia's chapters) fits the page, so the handbook's body never scrolls sideways */
+@media (max-width:640px){ :not(.conjwrap) > table.conj{min-width:0} }
 .conj th{font-family:var(--display);font-size:17px;color:var(--cobalto);padding:8px 8px 6px;text-align:left;background:rgba(28,61,143,.06)}
 .conj th span{display:block;font-family:var(--body);font-size:11.5px;font-weight:600;color:var(--muted)}
 .conj td{padding:6px 8px;border-top:1px solid rgba(28,61,143,.1);font-weight:600}
@@ -1725,6 +1751,12 @@ ul.albero li.lv-2 > ul::before{height:46px}
   .hb-lessons{padding:0}
   .hb-lessons-in{width:100%;border-radius:0;border:0;height:100%}
 }
+/* a touch screen upright: what scrolls sideways (the tabs row, a conjugation table) keeps ≥ 24 px from the screen's edges, where a swipe is the
+   phone's back / forward (iOS Safari, Android); on its side the tabs row sits between the title and Lezioni ▾ already. tests/venezia/tree-phone.js */
+@media (pointer:coarse) and (max-width:640px){
+  .hb-top .tabs{margin:0 24px 0 18px;padding:0 4px}
+  .conjwrap{margin-left:10px;margin-right:10px}
+}
 /* a short screen (a phone on its side): the title, the tabs, Lezioni ▾ and × on one row */
 @media (max-height:500px){
   .hb-top{display:flex;align-items:center;gap:6px;padding:0 4px 0 10px}
@@ -2102,6 +2134,13 @@ body.tp-walk .guide{opacity:.35}
 .v5-mattina { margin:12px 0; }
 .v5-mattina img { width:100%; height:auto; border-radius:8px; display:block; }
 .v5-mattina figcaption { margin-top:6px; }
+/* the district's map on a phone held upright (world/map.js; the playtest of 21 Nov): the map the whole width, the overview and the key under it,
+   so the sheet never scrolls sideways (tests/venezia/tree-phone.js) */
+@media (max-width:640px){
+  .vzmap-wrap{flex-direction:column}
+  .vzmap-wrap #vzMap{width:100% !important}
+  .vzmap-wrap .vzmap-side{min-width:0 !important;width:100%}
+}
 </style>
 </head>
 <body>
@@ -4444,8 +4483,8 @@ const V4_CHAPTER = {
     { type:'mc', q:'«Checco ___ le casse.» (scaricare, right now)', opts:['scarica sempre', 'sta scaricando', 'stanno scaricando'], a:1, why:'Sta scaricando: he is unloading them now. Stare + the gerund (-are → -ando).', nudge:'Right now, and one person: stare (he) + the -ando form.' },
     { type:'type', q:'stare, io: «___ mettendo le mele davanti.»', answer:'Sto', why:'Sto mettendo: I am putting. Io → sto.', nudge:'The io form of stare (Unit 1’s set phrase about learning has it).' },
     { type:'mc', q:'«Tita e Checco ___ caricando il pesce.»', opts:['sta', 'stanno', 'sto'], a:1, why:'Two of them: stanno.', nudge:'Tita and Checco: how many people?' },
-    { type:'type', q:'The gerund of fare (doing):', answer:'facendo', why:'Fare → facendo: one of the odd ones.', nudge:'Fare is odd: the handbook’s table, section 1.' },
-    { type:'type', q:'The gerund of mettere (putting):', answer:'mettendo', why:'Mettere: -ere → -endo, mettendo.', nudge:'An -ere verb: drop -ere, add the -endo ending.' },
+    { type:'type', q:'What is the gerund of fare (doing)?', answer:'facendo', why:'Fare → facendo: one of the odd ones.', nudge:'Fare is odd: the handbook’s table, section 1.' },
+    { type:'type', q:'What is the gerund of mettere (putting)?', answer:'mettendo', why:'Mettere: -ere → -endo, mettendo.', nudge:'An -ere verb: drop -ere, add the -endo ending.' },
     { type:'order', q:'Build it: "What is that man doing?"', tiles:['Cosa', 'sta', 'stanno', 'facendo', 'fare', 'quell’uomo'], answer:'cosa sta facendo quell’uomo', why:'Cosa sta facendo quell’uomo? One man: sta.', nudge:'What + stare (one person) + the gerund of fare + that man.' },
     { type:'listen', q:'Listen. What did Checco say?', say:'Biscuit sta correndo dietro al gatto!', opts:['Biscuit is running after the cat!', 'Biscuit is sleeping under the cart.', 'The cat is running after Biscuit!'], a:0,
       why:'Biscuit sta correndo dietro al gatto! · Biscuit is running after the cat!', nudge:'Listen again: who is running (the first name), and dietro al… what?' },
@@ -4461,7 +4500,7 @@ const V4_CHAPTER = {
     { type:'mc', q:'«Vorrei ___ mela.» (a few)', opts:['qualche', 'tutte', 'altre'], a:0, why:'Qualche mela: a few apples. Qualche takes a singular noun.', nudge:'A few: the one that goes with a singular noun.' },
     { type:'mc', q:'«___ qui ha il suo gatto.» (everyone, each one)', opts:['Tutti', 'Ognuno', 'Qualche'], a:1, why:'Ognuno ha: each one has. The verb is singular.', nudge:'Each one: and the verb is singular (ha).' },
     { type:'order', q:'Build it: "I’m taking out the ugly apple."', tiles:['Tolgo', 'Toglie', 'la mela', 'brutta', 'bella'], answer:'tolgo la mela brutta', why:'Tolgo la mela brutta. Togliere, io: tolgo.', nudge:'I take out (io) + the apple + ugly.' },
-    { type:'mc', q:'"I’ll pull, you push!" (to Lei)', opts:['Io spingo, Lei tira!', 'Io tiro, Lei spinge!', 'Io tiro, tu spingi!'], a:1, why:'Io tiro, Lei spinge! Tirare: to pull; spingere: to push. Lei: spinge.', nudge:'Which verb is pull, which is push? And Lei, not tu.' },
+    { type:'mc', q:'How do you say "I’ll pull, you push!" to someone you call Lei?', opts:['Io spingo, Lei tira!', 'Io tiro, Lei spinge!', 'Io tiro, tu spingi!'], a:1, why:'Io tiro, Lei spinge! Tirare: to pull; spingere: to push. Lei: spinge.', nudge:'Which verb is pull, which is push? And Lei, not tu.' },
   ],
   doneTitle:'Cosa sta facendo? · practised!',
   doneGo:'Back to Nives',
@@ -4665,10 +4704,10 @@ const V5_CHAPTER = {
     { type:'mc', q:'«Di solito ___ alle sette.» (svegliarsi, io)', opts:['mi sveglio', 'sveglio', 'si sveglia'], a:0, why:'Mi sveglio: I wake (myself) up. Svegliarsi, io: mi.', nudge:'A reflexive verb: which pronoun goes with io?' },
     { type:'type', q:'alzarsi, Margaret: «Margaret ___ presto.»', answer:'si alza', accept:['si alza'], why:'Si alza: she gets up. Lui / lei: si.', nudge:'Margaret is she: the pronoun for lui / lei, and alzare’s lei form.' },
     { type:'mc', q:'«Noi ___ gli stivali.» (mettersi)', opts:['ci mettiamo', 'mi metto', 'si mettono'], a:0, why:'Ci mettiamo: we put on. Noi: ci.', nudge:'Noi: which pronoun? And which ending?' },
-    { type:'mc', q:'"I lift the crate."', opts:['Alzo la cassa.', 'Mi alzo la cassa.', 'Si alza la cassa.'], a:0, why:'Alzo la cassa: a thing, so no mi.', nudge:'You lift a thing, not yourself.' },
-    { type:'mc', q:'"I get up."', opts:['Alzo.', 'Mi alzo.', 'Mi alza.'], a:1, why:'Mi alzo: I get (myself) up.', nudge:'Yourself, this time: a pronoun, and the io ending.' },
+    { type:'mc', q:'How do you say "I lift the crate"?', opts:['Alzo la cassa.', 'Mi alzo la cassa.', 'Si alza la cassa.'], a:0, why:'Alzo la cassa: a thing, so no mi.', nudge:'You lift a thing, not yourself.' },
+    { type:'mc', q:'How do you say "I get up"?', opts:['Alzo.', 'Mi alzo.', 'Mi alza.'], a:1, why:'Mi alzo: I get (myself) up.', nudge:'Yourself, this time: a pronoun, and the io ending.' },
     { type:'order', q:'Build it: "I’m putting on the boots."', tiles:['Mi', 'Si', 'sto', 'mettendo', 'metto', 'gli stivali'], answer:'mi sto mettendo gli stivali', why:'Mi sto mettendo gli stivali: with stare, the mi goes in front.', nudge:'The pronoun, then stare (io), then the gerund of mettere, then the boots.' },
-    { type:'mc', q:'(to Alvise, Lei) "What time do you wake up?"', opts:['A che ora si sveglia?', 'A che ora ti svegli?', 'A che ora mi sveglio?'], a:0, why:'Lei: si sveglia.', nudge:'Alvise is Lei: Lei takes si.' },
+    { type:'mc', q:'How do you ask Alvise (Lei) "What time do you wake up?"', opts:['A che ora si sveglia?', 'A che ora ti svegli?', 'A che ora mi sveglio?'], a:0, why:'Lei: si sveglia.', nudge:'Alvise is Lei: Lei takes si.' },
     { type:'mc', q:'«Oggi ___ con la sirena.» (I woke up)', opts:['mi sono svegliato / svegliata', 'mi sveglio', 'ho svegliato'], a:0, why:'Mi sono svegliato (a man) / svegliata (a woman): the past of a reflexive takes essere.', nudge:'The past: the chunk from section 3.' },
     { type:'listen', q:'Listen. What did Alvise say?', say:'Stavo dormendo quando è suonata la sirena.', opts:['I was sleeping when the siren went off.', 'I always sleep through the siren.', 'The siren woke the dog.'], a:0,
       why:'Stavo dormendo quando è suonata la sirena · I was sleeping when the siren went off.', nudge:'Listen again: stavo dormendo… quando… la sirena.' },
@@ -8397,6 +8436,15 @@ function renderPractice(body, L){
       if (isTreeKey(L.n)) renderTreeStudy(); else if (isQuestKey(L.n)) renderScheda(); else renderHandbook();
     };
   };
+  /* a question answered right and then left before Next (the sheet closed: ×, Esc, a tap beside it; or another tab): drawn again as it was
+     left, the right answer marked and Next (or Finish) waiting. (The playtest of 21 Nov: it came back unanswered with P.answered still set,
+     and every option, tile and Check ignored the taps, so the practice could never go on.) */
+  const resume = () => {
+    if (!P.answered) return;
+    if (ex.opts) body.querySelectorAll(`[data-opt="${ex.a}"]`).forEach(b => b.classList.add('right'));
+    const inp = $('#pxIn'); if (inp){ inp.value = fill(ex.answer || ''); inp.disabled = true; }
+    good();
+  };
   const bad = (extra = '') => { fb.innerHTML = `<div class="feedback bad"><p><b>Not quite.</b> ${extra}${esc(fill(ex.nudge))}</p></div>`; };
   const sayBtn = () => { const b = body.querySelector('[data-px-say]'); if (b) b.onclick = () => speak(fill(ex.say), 1, false, P.answered ? 0.75 : 0.9); };
   sayBtn();
@@ -8429,8 +8477,8 @@ function renderPractice(body, L){
       else bad();
     };
     $('#pxCheck').onclick = check;
-    inp.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); check(); } });
-    setTimeout(() => inp.focus({ preventScroll:true }), 30);
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); check(); } else if (e.key === 'Escape'){ e.preventDefault(); closeModal(); } });   // (Esc closes the sheet from the box too, as the word check's does)
+    if (!P.answered) setTimeout(() => { if (inp.isConnected && !inp.disabled) inp.focus({ preventScroll:true }); }, 30);
   } else if (ex.type === 'mc'){
     body.querySelectorAll('[data-opt]').forEach(b => b.onclick = () => {
       if (P.answered) return;
@@ -8467,6 +8515,7 @@ function renderPractice(body, L){
       else bad();
     };
   }
+  resume();
 }
 function finishPractice(n){
   const dict = $('#btnDict');
@@ -12110,8 +12159,8 @@ window.__ruleOfThree = window.__heardUsed = () => treeRule3().concat(lessonRule3
    - The handbook's tabs row gets an "Albero" tab after the chapter's own (hbTreeButton(), when the unit has a tree and
      UNIT.treeShown() is not false); hbTab 'albero' shows the page (renderTree()): the gate's line (Per il prossimo sestiere: 1/3), the
      unit's note under the gate (UNIT.treeGateNote(district, gate): HTML, e.g. what the gate leads to in the story), the
-     district's tree drawn top-down (the core node at the top, its branches below, with connectors; on a narrow screen an indented
-     list), each node a card: its level, its state, its title and line, its word count and strength meter, and where its person is.
+     district's tree drawn top-down (the core node at the top, its branches below, with connectors; on a phone, upright or on its side,
+     and a small touch tablet an indented list, top to bottom, that never scrolls sideways: TREE_LIST_MQ, page.list in __dbg().tree), each node a card: its level, its state, its title and line, its word count and strength meter, and where its person is.
    - Tapping a node opens its panel over the page: open → where to go, and Sulla mappa (the unit's map, the pin picked out: UNIT.openMap
      ({ focus:'tree-<id>' })); done → its words as flashcards (Lo so! / Non ancora count in the weak-word record, S.study, and so in the
      meter); locked → what opens it (the parent, with a button to it; the lesson; the district before).
@@ -12192,9 +12241,12 @@ function treeCenter(){
   const w = wrap.getBoundingClientRect(), mid = (Math.min(...top.map(r => r.left)) + Math.max(...top.map(r => r.right))) / 2;
   wrap.scrollLeft += mid - (w.left + w.width / 2);
 }
+/* the tree as a list, top to bottom (a phone upright or on its side, a small touch tablet: engine/styles.css, the same query): nothing scrolls sideways */
+const TREE_LIST_MQ = '(max-width:640px), (max-height:500px), (pointer:coarse) and (max-width:1024px)';
+const treeListMode = () => !!(window.matchMedia && matchMedia(TREE_LIST_MQ).matches);
 /* the gate drawn across the tree, under level 2 (the wide layout only) */
 function treeGateLine(){
-  const wrap = sheet.querySelector('.al-wrap'); if (!wrap || (window.matchMedia && matchMedia('(max-width:640px)').matches)) return;
+  const wrap = sheet.querySelector('.al-wrap'); if (!wrap || treeListMode()) return;
   const gate = [...wrap.querySelectorAll('.tn.gate')], deeper = [...wrap.querySelectorAll('.tn:not(.gate)')];
   if (!gate.length || !deeper.length) return;
   const top = wrap.getBoundingClientRect().top - wrap.scrollTop, a = Math.max(...gate.map(b => b.getBoundingClientRect().bottom)), b = Math.min(...deeper.map(x => x.getBoundingClientRect().top));
@@ -12378,7 +12430,7 @@ function treeDbg(){
   return { shown:treeShown(), districts:TREE.map(D => ({ id:D.id, title:D.title, open:treeDistrictOpen(D.id), gate:treeGate(D.id) })), nodes,
     gate:Object.fromEntries(TREE.map(D => [D.id, treeGateOpen(D.id)])),
     save:{ done:Object.keys(R.done || {}), seen:{ ...(R.seen || {}) }, unseen:!!R.unseen, point:R.point ? R.point.what : null, begun:Object.keys(R.begun || {}), lead:{ ...(R.lead || {}) } },
-    page:{ open, district:open ? TREEUI.district : null, sel:open ? TREEUI.sel : null, panel:open && TREEUI.sel && TREEUI.panel && TREEUI.panel.id === TREEUI.sel ? { ...TREEUI.panel } : null,
+    page:{ open, list:treeListMode(), district:open ? TREEUI.district : null, sel:open ? TREEUI.sel : null, panel:open && TREEUI.sel && TREEUI.panel && TREEUI.panel.id === TREEUI.sel ? { ...TREEUI.panel } : null,
       cards:open && TREEUI.cards ? { ...TREEUI.cards } : null, point:!!sheet.querySelector('.hb-al-btn.hb-point') },
     tutor:{ seen:!!(R.tutor && R.tutor.done), on:TREEUI.tutor !== null && TREEUI.tutor !== undefined, step:TREEUI.tutor, hud:!!document.querySelector('.al-coach-hud') },
     studyPage:TSTUDY.id && modalOpen && sheet.classList.contains('tstudy') ? { id:TSTUDY.id, tab:TSTUDY.tab } : null,
@@ -18071,15 +18123,15 @@ const A2_STUDY = {
   numbers:{ min:700, max:2020, master:3, title:'I numeri · gli anni', sub:'Listen to years said in words (settecento… duemilaventi), then type them in figures.',
     html:'<p>The numbers you need for dates, heard as Italians say years: <i>millecinquecentosettantuno</i> (1571), <i>millesettecentonovantasette</i> (1797), <i>millenovecentodue</i> (1902)… The <b>Studia</b> tab has how they are built.</p>' },
   exercises:[
-    { type:'mc', q:'The first month of the year?', opts:['giugno', 'gennaio', 'luglio'], a:1, why:'Gennaio: January.', nudge:'The year starts in winter.' },
-    { type:'mc', q:'The month after February?', opts:['maggio', 'novembre', 'marzo'], a:2, why:'Febbraio, marzo, aprile…', nudge:'February, then…?' },
+    { type:'mc', q:'What is the first month of the year?', opts:['giugno', 'gennaio', 'luglio'], a:1, why:'Gennaio: January.', nudge:'The year starts in winter.' },
+    { type:'mc', q:'Which month comes after February?', opts:['maggio', 'novembre', 'marzo'], a:2, why:'Febbraio, marzo, aprile…', nudge:'February, then…?' },
     { type:'mc', q:'«Il Carnevale è a ___, d\'inverno.»', opts:['febbraio', 'agosto'], a:0, why:'The Carnival: in February, in winter.', nudge:'Winter: which of the two?' },
     { type:'order', q:'Build it: "In spring, in April."', tiles:['In', 'primavera', 'estate', 'ad', 'a', 'aprile'], answer:'in primavera ad aprile', why:'In primavera, ad aprile: ad before a vowel.', nudge:'In + the season; a month starting with a vowel takes ad.' },
     { type:'order', q:'Build it: "In summer: from June to August."', tiles:["D'estate", 'da', 'giugno', 'a', 'ad', 'agosto'], answer:"d'estate da giugno ad agosto", why:"D'estate, da giugno ad agosto.", nudge:'From… to…: da … ad (before a vowel).' },
     { type:'order', q:'Build it: "In autumn, in September."', tiles:['In', 'autunno', 'inverno', 'a', 'settembre'], answer:'in autunno a settembre', why:'In autunno, a settembre.', nudge:'In + the season; a + the month.' },
     { type:'order', q:'Build it: "In winter, in December."', tiles:["D'inverno", 'in', 'a', 'dicembre', 'luglio'], answer:"d'inverno a dicembre", why:"D'inverno, a dicembre.", nudge:"d' + the season; a + the month." },
-    { type:'mc', q:'"In October" (before a vowel…)', opts:['a ottobre', 'ad ottobre'], a:1, why:'Ad ottobre: a becomes ad before a vowel.', nudge:'Ottobre starts with a vowel.' },
-    { type:'mc', q:'The month after April?', opts:['maggio', 'marzo', 'giugno'], a:0, why:'Aprile, maggio, giugno.', nudge:'April, then…?' },
+    { type:'mc', q:'How do you say "in October"?', opts:['a ottobre', 'ad ottobre'], a:1, why:'Ad ottobre: a becomes ad before a vowel.', nudge:'Ottobre starts with a vowel.' },
+    { type:'mc', q:'Which month comes after April?', opts:['maggio', 'marzo', 'giugno'], a:0, why:'Aprile, maggio, giugno.', nudge:'April, then…?' },
     { type:'mc', q:'«Siamo a ___: è autunno.»', opts:['novembre', 'luglio', 'aprile'], a:0, why:'Novembre: in autumn.', nudge:'Which one is in autumn?' },
     { type:'mc', q:'«Il Redentore è a ___, d\'estate.»', opts:['gennaio', 'luglio'], a:1, why:'Luglio: July, in summer.', nudge:'Summer: which one?' },
     { type:'mc', q:'«I turisti arrivano a ___, d\'estate.» (in June)', opts:['giugno', 'gennaio'], a:0, why:'Giugno: June.', nudge:'June: the start of summer.' },
@@ -18903,7 +18955,7 @@ const A4A_STUDY = {
     { type:'mc', q:'«Il primo ___ è del 1320.» (the ledger)', opts:['registro', 'documento', 'secolo'], a:0, why:'Il registro: ledger, register.', nudge:'The book where things are written day by day.' },
     { type:'mc', q:'«Il Cinquecento: l’___ di Lepanto.» (the age)', opts:['epoca', 'origine', 'storia'], a:0, why:'L’epoca: the age, the era.', nudge:'A period of time.' },
     { type:'mc', q:'«La ___ dell’Arsenale è lunga: nove secoli.»', opts:['storia', 'tradizionale', 'epoca'], a:0, why:'La storia: history.', nudge:'Nine centuries of…' },
-    { type:'mc', q:'History has documents; ___ is what is told.', opts:['la tradizione', 'il registro', "l'origine"], a:0, why:'La tradizione: tradition.', nudge:'Passed down by word of mouth.' },
+    { type:'mc', q:'History has its documents. What do you call the story people pass down by word of mouth?', opts:['la tradizione', 'il registro', "l'origine"], a:0, why:'La tradizione: tradition.', nudge:'Not written in a ledger: told, from one generation to the next.' },
     { type:'order', q:'Ask it: "According to tradition?"', tiles:['Secondo', 'la', 'tradizione', 'storia', 'Qual è'], answer:'secondo la tradizione', why:'Secondo la tradizione?', nudge:'secondo: according to.' },
   ],
 };
@@ -19357,7 +19409,7 @@ const A4B_STUDY = {
     ["Ci sono paratoie intorno alla laguna che salgono per fermare l'acqua.", 'There are gates around the lagoon that rise to stop the water.', 'salire, fermare']],
   vocab:[{ group:'Il tempo', words:A4B_WORDS.filter(w => /passato|presente|futuro|avvenire/.test(w.it)) }, { group:'Il MOSE', words:A4B_WORDS.filter(w => /proteggere|marea|paratoie|salire|fermare/.test(w.it)) }],
   exercises:[
-    { type:'mc', q:'1966 is in Venice’s ___.', opts:['passato', 'futuro', 'presente'], a:0, why:'Il passato: the past.', nudge:'Long ago.' },
+    { type:'mc', q:'Where does 1966 belong in Venice’s story?', opts:['passato', 'futuro', 'presente'], a:0, why:'Il passato: the past.', nudge:'Long ago.' },
     { type:'order', q:'Build it: "The present is the MOSE."', tiles:['Il', 'presente', 'futuro', 'è', 'il', 'MOSE'], answer:'il presente è il mose', why:'Il presente è il MOSE.', nudge:'Now: il presente.' },
     { type:'order', q:'Ask it: "What protects Venice against the tides?"', tiles:['Che cosa', 'protegge', 'Venezia', 'dalle', 'maree', 'paratoie'], answer:'che cosa protegge venezia dalle maree', why:'Che cosa protegge Venezia dalle maree?', nudge:'What: che cosa.' },
     { type:'mc', q:'«Controllo la ___.» (the tide)', opts:['marea', 'paratoia', 'laguna'], a:0, why:'La marea: the tide.', nudge:'The sea going up and down.' },
@@ -19968,17 +20020,17 @@ const C2_STUDY = {
   ],
   vocab:[{ group:'Il viso', words:C2_WORDS.filter(w => !/indossare|cappello/.test(w.it)) }, { group:'Indossare', words:C2_WORDS.filter(w => /indossare|cappello/.test(w.it)) }],
   exercises:[
-    { type:'mc', q:'You see with them.', opts:['gli occhi', 'le orecchie', 'i denti'], a:0, why:'Gli occhi: the eyes.', nudge:'Not the ears, not the teeth.' },
-    { type:'mc', q:'You hear with them.', opts:['le labbra', 'le orecchie', 'gli occhiali'], a:1, why:'Le orecchie: the ears.', nudge:'Hearing…' },
-    { type:'mc', q:'In the middle of the face, above the mouth.', opts:['il naso', 'il collo', 'la testa'], a:0, why:'Il naso: the nose.', nudge:'You smell with it.' },
-    { type:'mc', q:'Between the head and the shoulders.', opts:['il viso', 'il collo', 'il dente'], a:1, why:'Il collo: the neck.', nudge:'It holds the head up.' },
+    { type:'mc', q:'What do you see with?', opts:['gli occhi', 'le orecchie', 'i denti'], a:0, why:'Gli occhi: the eyes.', nudge:'Not the ears, not the teeth.' },
+    { type:'mc', q:'What do you hear with?', opts:['le labbra', 'le orecchie', 'gli occhiali'], a:1, why:'Le orecchie: the ears.', nudge:'Hearing…' },
+    { type:'mc', q:'What is in the middle of the face, above the mouth?', opts:['il naso', 'il collo', 'la testa'], a:0, why:'Il naso: the nose.', nudge:'You smell with it.' },
+    { type:'mc', q:'What is between the head and the shoulders?', opts:['il viso', 'il collo', 'il dente'], a:1, why:'Il collo: the neck.', nudge:'It holds the head up.' },
     { type:'mc', q:'«Ha i ___ corti.» (his hair)', opts:['capelli', 'capello', 'cappelli'], a:0, why:'I capelli: hair is plural in Italian (cappelli are hats!).', nudge:'Hair is plural; one p.' },
     { type:'mc', q:'«Non indossa un ___.» (a hat)', opts:['cappello', 'capello', 'collo'], a:0, why:'Un cappello: a hat (two p).', nudge:'What goes on your head? Two p.' },
     { type:'mc', q:'«Non vedo bene senza gli ___.» (my glasses)', opts:['occhi', 'occhiali', 'orecchi'], a:1, why:'Gli occhiali: glasses.', nudge:'You wear them on your nose.' },
-    { type:'mc', q:'Plural of «il labbro».', opts:['i labbri', 'le labbra', 'gli labbri'], a:1, why:'Le labbra: one of the odd plurals.', nudge:'An odd one: feminine in the plural.' },
+    { type:'mc', q:'What is the plural of «il labbro»?', opts:['i labbri', 'le labbra', 'gli labbri'], a:1, why:'Le labbra: one of the odd plurals.', nudge:'An odd one: feminine in the plural.' },
     { type:'mc', q:'«Sorride: ha un ___ d\'oro!»', opts:['dente', 'naso', 'collo'], a:0, why:"Un dente d'oro: a gold tooth.", nudge:'What shines when he smiles?' },
     { type:'mc', q:'«Un ragazzo con uno ___ dolce.» (a sweet look)', opts:['sguardo', 'viso', 'occhio'], a:0, why:'Uno sguardo dolce: a sweet look.', nudge:'Uno: before s + a consonant.' },
-    { type:'mc', q:'The word for face in books and paintings.', opts:['il volto', 'la bocca', 'la testa'], a:0, why:'Il volto: face (in writing). Ricordo i volti.', nudge:'Three words for face: faccia, viso, and…' },
+    { type:'mc', q:'Which word for face do books and paintings use?', opts:['il volto', 'la bocca', 'la testa'], a:0, why:'Il volto: face (in writing). Ricordo i volti.', nudge:'Three words for face: faccia, viso, and…' },
     { type:'mc', q:'«In ___, un cappello.» (on his head)', opts:['testa', 'collo', 'bocca'], a:0, why:'In testa: on his head.', nudge:'Where does a hat go?' },
     { type:'mc', q:'«___ un cappello?» (Is he wearing a hat?)', opts:['Indossa', 'Indossava', 'Ha fatto'], a:0, why:'Indossa: he is wearing (now, in the photo).', nudge:'To wear: indossare.' },
     { type:'order', q:'Build it: "He has a thin face and a long neck."', tiles:['Ha', 'il viso', 'magro', 'magri', 'e', 'il collo', 'lungo', 'lunga'], answer:'ha il viso magro e il collo lungo', why:'Ha il viso magro e il collo lungo.', nudge:'The adjective after the noun, and it agrees.' },
@@ -20171,12 +20223,12 @@ const C3A_STUDY = {
   phrases:[['Conosce questa giacca?', 'Do you know this jacket?', 'Polite.'], ['Che tipo di abito è?', 'What kind of suit is it?', ''], ["Sulla tasca c'è un drago.", "There's a dragon on the pocket.", "c'è: there is."], ['Quando era il matrimonio?', 'When was the wedding?', 'era: was.']],
   vocab:[{ group:'I vestiti', words:C3A_WORDS }],
   exercises:[
-    { type:'mc', q:'You wear it over a shirt; it has buttons and pockets.', opts:['la giacca', 'la scarpa', 'la maglia'], a:0, why:'La giacca: the jacket.', nudge:'Not on your feet, not knitted.' },
-    { type:'mc', q:'A man’s jacket and trousers together.', opts:["l'abito", 'la maglia', 'la tasca'], a:0, why:"L'abito: a suit.", nudge:'Jacket and trousers together.' },
-    { type:'mc', q:'You put your hands in it.', opts:['la tasca', "l'anello", 'il tipo'], a:0, why:'La tasca: the pocket.', nudge:'Part of the jacket.' },
-    { type:'mc', q:'You wear it on a finger.', opts:["l'anello", 'la tasca', 'la scarpa'], a:0, why:"L'anello: the ring.", nudge:'Round, on your hand.' },
-    { type:'mc', q:'Warm, knitted, under the jacket.', opts:['la maglia', 'la scarpa', "l'abito"], a:0, why:'La maglia: a jumper.', nudge:'In winter.' },
-    { type:'mc', q:'You wear them on your legs.', opts:['i pantaloni', 'le scarpe', 'le tasche'], a:0, why:'I pantaloni: trousers (plural, as in English).', nudge:'Not on your feet: higher up.' },
+    { type:'mc', q:'What do you wear over a shirt, with buttons and pockets?', opts:['la giacca', 'la scarpa', 'la maglia'], a:0, why:'La giacca: the jacket.', nudge:'Not on your feet, not knitted.' },
+    { type:'mc', q:'What do you call a man’s jacket and trousers together?', opts:["l'abito", 'la maglia', 'la tasca'], a:0, why:"L'abito: a suit.", nudge:'One word for the two pieces, made to match.' },
+    { type:'mc', q:'What do you put your hands in, on a jacket?', opts:['la tasca', "l'anello", 'il tipo'], a:0, why:'La tasca: the pocket.', nudge:'Part of the jacket.' },
+    { type:'mc', q:'What do you wear on a finger?', opts:["l'anello", 'la tasca', 'la scarpa'], a:0, why:"L'anello: the ring.", nudge:'Round, on your hand.' },
+    { type:'mc', q:'What warm, knitted thing do you wear under the jacket?', opts:['la maglia', 'la scarpa', "l'abito"], a:0, why:'La maglia: a jumper.', nudge:'In winter.' },
+    { type:'mc', q:'What do you wear on your legs?', opts:['i pantaloni', 'le scarpe', 'le tasche'], a:0, why:'I pantaloni: trousers (plural, as in English).', nudge:'Not on your feet: higher up.' },
     { type:'mc', q:'«Che ___ di abito è?» (what kind)', opts:['tipo', 'tasca', 'anello'], a:0, why:'Che tipo di…? What kind of…?', nudge:'Kind, type.' },
     { type:'mc', q:'«Ha le scarpe ___.» (small)', opts:['piccole', 'piccoli', 'piccolo'], a:0, why:'Le scarpe: feminine plural → piccole.', nudge:'Scarpe is feminine plural.' },
     { type:'order', q:'Build it: "What kind of suit is it?"', tiles:['Che', 'tipo', 'di', 'abito', 'è', 'la'], answer:'che tipo di abito è', why:'Che tipo di abito è?', nudge:'No article after di.' },
@@ -20379,10 +20431,10 @@ const C3B_STUDY = {
   phrases:[['Lei è il cameriere?', 'Are you the waiter?', 'Lei: polite.'], ["C'è una data?", 'Is there a date?', ''], ['La sposa era inglese.', 'The bride was English.', 'era: was.']],
   vocab:[{ group:'Il ristorante', words:C3B_WORDS }],
   exercises:[
-    { type:'mc', q:'He brings the plates to your table.', opts:['il cameriere', 'lo sposo', 'il sarto'], a:0, why:'Il cameriere: the waiter.', nudge:'He works in a restaurant.' },
-    { type:'mc', q:'Where you eat out: tables, a menu, a waiter.', opts:['il ristorante', 'la chiesa', 'la data'], a:0, why:'Il ristorante.', nudge:'Not a church.' },
-    { type:'mc', q:'On the wedding day, the woman who marries is…', opts:['la sposa', 'la data', 'la cameriera'], a:0, why:'La sposa: the bride (lo sposo: the groom).', nudge:'The bride.' },
-    { type:'mc', q:'On the wedding day, the man who marries is…', opts:['lo sposo', 'il cameriere', 'il ristorante'], a:0, why:'Lo sposo: the groom.', nudge:'The groom.' },
+    { type:'mc', q:'Who brings the plates to your table?', opts:['il cameriere', 'lo sposo', 'il sarto'], a:0, why:'Il cameriere: the waiter.', nudge:'He works in a restaurant.' },
+    { type:'mc', q:'Where do you eat out, with tables, a menu and a waiter?', opts:['il ristorante', 'la chiesa', 'la data'], a:0, why:'Il ristorante.', nudge:'Not a church.' },
+    { type:'mc', q:'On the wedding day, what is the woman who marries called?', opts:['la sposa', 'la data', 'la cameriera'], a:0, why:'La sposa: the bride (lo sposo: the groom).', nudge:'The bride.' },
+    { type:'mc', q:'On the wedding day, what is the man who marries called?', opts:['lo sposo', 'il cameriere', 'il ristorante'], a:0, why:'Lo sposo: the groom.', nudge:'The groom.' },
     { type:'mc', q:'«___ una data?» (Is there a date?)', opts:["C'è", 'È', 'Ha'], a:0, why:"C'è: is there / there is.", nudge:'Is there…?' },
     { type:'order', q:'Ask it (to a waiter): "Are you the waiter?"', tiles:['Lei', 'è', 'il cameriere', 'Tu', 'sei'], answer:'lei è il cameriere', why:'Lei è il cameriere? (polite)', nudge:'A stranger: Lei.' },
     { type:'order', q:'Build it: "The bride was English."', tiles:['La sposa', 'Lo sposo', 'era', 'è', 'inglese'], answer:'la sposa era inglese', why:'La sposa era inglese.', nudge:'In the past: era.' },
@@ -20562,16 +20614,16 @@ const C4B_STUDY = {
   phrases:[['Le ombre sono lunghe.', 'The shadows are long.', ''], ['Lei conosceva una ragazza inglese?', 'Did you know an English girl?', 'Conoscere over time: the imperfect.'], ['Viene qui ogni sera, fino al buio?', 'Do you come here every evening, until dark?', 'Polite: viene.']],
   vocab:[{ group:'Il cielo e la luce', words:C4B_WORDS }],
   exercises:[
-    { type:'mc', q:'It shines at night, and changes shape every week.', opts:['la luna', 'la stella', "l'alba"], a:0, why:'La luna: the moon.', nudge:'Full, half…' },
+    { type:'mc', q:'What shines at night and changes shape every week?', opts:['la luna', 'la stella', "l'alba"], a:0, why:'La luna: the moon.', nudge:'Full, half…' },
     { type:'mc', q:'«Venere non è una stella: è un ___.»', opts:['pianeta', 'raggio', 'cielo'], a:0, why:'Un pianeta (masculine).', nudge:'Like the Earth.' },
-    { type:'mc', q:'When the sun comes up.', opts:["l'alba", 'il buio', "l'ombra"], a:0, why:"L'alba: dawn.", nudge:'The start of the day.' },
+    { type:'mc', q:'What do you call the time when the sun comes up?', opts:["l'alba", 'il buio', "l'ombra"], a:0, why:"L'alba: dawn.", nudge:'The start of the day.' },
     { type:'mc', q:'«Le ___ sono lunghe: è sera.»', opts:['ombre', 'stelle', 'lune'], a:0, why:'Le ombre: shadows.', nudge:'Low sun, long…' },
     { type:'mc', q:'«Che bel ___ rosso!» (sky)', opts:['cielo', 'buio', 'raggio'], a:0, why:'Il cielo.', nudge:'Above you.' },
     { type:'mc', q:'«L\'ultimo ___ di sole.»', opts:['raggio', 'pianeta', 'universo'], a:0, why:'Un raggio di sole: a ray of sunshine.', nudge:'A beam of light.' },
     { type:'mc', q:'«Fino al ___.» (until dark)', opts:['buio', 'alba', 'cielo'], a:0, why:'Fino al buio.', nudge:'When there is no light.' },
     { type:'mc', q:'«La ___ della sera.» (light)', opts:['luce', 'luna', 'stella'], a:0, why:'La luce della sera: the evening light.', nudge:'What the sun gives.' },
     { type:'mc', q:'«Per me lei era tutto l\'___.»', opts:['universo', 'alba', 'ombra'], a:0, why:"Tutto l'universo: the whole universe.", nudge:'Everything there is.' },
-    { type:'mc', q:'At night, many little lights in the sky.', opts:['le stelle', 'le ombre', 'i raggi'], a:0, why:'Le stelle: stars.', nudge:'Twinkle, twinkle…' },
+    { type:'mc', q:'What are the many little lights in the night sky?', opts:['le stelle', 'le ombre', 'i raggi'], a:0, why:'Le stelle: stars.', nudge:'Twinkle, twinkle…' },
     { type:'type', q:'Type it: "The shadows are long."', answer:'le ombre sono lunghe', accept:["l'ombra è lunga"], why:'Le ombre sono lunghe.', nudge:'Shadows: le ombre (feminine plural).' },
     { type:'type', q:'Type it: "Look, the moon!" (polite)', answer:'guardi la luna', accept:['ecco la luna'], why:'Guardi, la luna!', nudge:'Polite: guardi.' },
     { type:'type', q:'Type it: "Is it a star or a planet?"', answer:'è una stella o un pianeta', why:'È una stella o un pianeta?', nudge:'Un pianeta: masculine.' },
@@ -21170,12 +21222,12 @@ const B2_STUDY = {
     { group:'Il compleanno', words:B2_WORDS.filter(w => /compleanno|anno/.test(w.it)) },
   ],
   exercises:[
-    { type:'mc', q:'Your father’s mother?', opts:['mia nonna', 'mia zia', 'mia madre'], a:0, why:'Mia nonna: my grandmother.', nudge:'One generation up from your father.' },
-    { type:'mc', q:'Your aunt’s son?', opts:['mio fratello', 'mio cugino', 'mio nonno'], a:1, why:'Mio cugino: my cousin.', nudge:'Not your brother: your aunt’s child.' },
-    { type:'mc', q:'Your mother’s brother?', opts:['mio zio', 'mio cugino', 'mio nonno'], a:0, why:'Mio zio: my uncle.', nudge:'Your parent’s brother.' },
+    { type:'mc', q:'Who is your father’s mother?', opts:['mia nonna', 'mia zia', 'mia madre'], a:0, why:'Mia nonna: my grandmother.', nudge:'One generation up from your father.' },
+    { type:'mc', q:'Who is your aunt’s son?', opts:['mio fratello', 'mio cugino', 'mio nonno'], a:1, why:'Mio cugino: my cousin.', nudge:'Not your brother: your aunt’s child.' },
+    { type:'mc', q:'Who is your mother’s brother?', opts:['mio zio', 'mio cugino', 'mio nonno'], a:0, why:'Mio zio: my uncle.', nudge:'Your parent’s brother.' },
     { type:'mc', q:'«Lina è la ___ di Maria.» (Maria is her mother)', opts:['figlia', 'sorella', 'zia'], a:0, why:'La figlia: the daughter.', nudge:'Maria is her mother.' },
     { type:'mc', q:'«Nino è il ___ di Lina.» (they have the same parents)', opts:['fratello', 'cugino', 'figlio'], a:0, why:'Il fratello: the brother.', nudge:'The same mother and father.' },
-    { type:'mc', q:'The day you were born, every year?', opts:['il compleanno', 'la famiglia', 'il nonno'], a:0, why:'Il compleanno: the birthday.', nudge:'Candles on a cake.' },
+    { type:'mc', q:'What do you celebrate every year on the day you were born?', opts:['il compleanno', 'la famiglia', 'il nonno'], a:0, why:'Il compleanno: the birthday.', nudge:'Candles on a cake.' },
     { type:'mc', q:'«Mia madre ___ trentatré anni.» (she is thirty-three)', opts:['ha', 'è', 'sono'], a:0, why:'Avere + the years: ha trentatré anni.', nudge:'In Italian you "have" your years.' },
     { type:'mc', q:'What a child calls her mother?', opts:['mamma', 'nonna', 'zia'], a:0, why:'Mamma: mum. Papà: dad.', nudge:'The word for mum.' },
     { type:'order', q:'Build it: "Happy birthday!"', tiles:['Buon', 'compleanno', 'Buongiorno', 'anni'], answer:'buon compleanno', why:'Buon compleanno!', nudge:'Birthday: il compleanno.' },
@@ -21684,11 +21736,11 @@ const B3A_STUDY = {
     { group:'In sacrestia', words:B3A_WORDS.filter(w => /registro|parroco|candela/.test(w.it)) },
   ],
   exercises:[
-    { type:'mc', q:'The opposite of «morto»?', opts:['vivo', 'vecchio', 'nato'], a:0, why:'Vivo: alive. Morto: dead.', nudge:'Not dead…' },
-    { type:'mc', q:'The opposite of «giovane»?', opts:['vecchio', 'vivo', 'piccolo'], a:0, why:'Vecchio: old (a woman: vecchia).', nudge:'Not young…' },
+    { type:'mc', q:'What is the opposite of «morto»?', opts:['vivo', 'vecchio', 'nato'], a:0, why:'Vivo: alive. Morto: dead.', nudge:'Not dead…' },
+    { type:'mc', q:'What is the opposite of «giovane»?', opts:['vecchio', 'vivo', 'piccolo'], a:0, why:'Vecchio: old (a woman: vecchia).', nudge:'Not young…' },
     { type:'mc', q:'«La ___ di Nino: il 3 marzo 1952.» (the day he was born)', opts:['nascita', 'morte', 'età'], a:0, why:'La nascita: the birth.', nudge:'The day you come into the world.' },
     { type:'mc', q:'«La sua ___ non è nel registro.» (he hasn’t died)', opts:['morte', 'vita', 'nascita'], a:0, why:'La morte: death.', nudge:'The end of a life.' },
-    { type:'mc', q:'The grandfather, the father, the son: three…', opts:['generazioni', 'famiglie', 'età'], a:0, why:'Tre generazioni.', nudge:'Three steps of a family, one after another.' },
+    { type:'mc', q:'The grandfather, the father and the son: three what?', opts:['generazioni', 'famiglie', 'età'], a:0, why:'Tre generazioni.', nudge:'Three steps of a family, one after another.' },
     { type:'mc', q:'«Che ___ ha?» (how old is he?)', opts:['età', 'vita', 'nascita'], a:0, why:'Che età ha? = Quanti anni ha?', nudge:'The word for age.' },
     { type:'mc', q:'«Cinquant’anni senza una lettera… è la ___!» (that’s life)', opts:['vita', 'morte', 'nascita'], a:0, why:'È la vita!', nudge:'What everyone lives.' },
     { type:'mc', q:'«Nino ___ al Lido.» (he lives there)', opts:['vive', 'vivo', 'nato'], a:0, why:'Vive: he lives (vivere). Vivo: alive.', nudge:'The verb, not the adjective.' },
@@ -21950,9 +22002,9 @@ const B3B_STUDY = {
     { group:'Gli amici', words:B3B_WORDS.filter(w => /amico|amicizia|compagno|fondamenta/.test(w.it)) },
   ],
   exercises:[
-    { type:'mc', q:'Two people in love, together?', opts:['una coppia', 'un’amicizia', 'un bacio'], a:0, why:'Una coppia: a couple.', nudge:'Two people, together.' },
+    { type:'mc', q:'What do you call two people in love, together?', opts:['una coppia', 'un’amicizia', 'un bacio'], a:0, why:'Una coppia: a couple.', nudge:'Two people, together.' },
     { type:'mc', q:'«Era il mio primo ___.» (first love)', opts:['amore', 'amico', 'matrimonio'], a:0, why:'Il primo amore.', nudge:'Love, the noun.' },
-    { type:'mc', q:'The day two people get married?', opts:['il matrimonio', 'il compleanno', 'la coppia'], a:0, why:'Il matrimonio: the wedding.', nudge:'Rings, a church, a dress…' },
+    { type:'mc', q:'What do you call the day two people get married?', opts:['il matrimonio', 'il compleanno', 'la coppia'], a:0, why:'Il matrimonio: the wedding.', nudge:'Rings, a church, a dress…' },
     { type:'mc', q:'What two friends have?', opts:['un’amicizia', 'un matrimonio', 'una coppia'], a:0, why:'L’amicizia: friendship.', nudge:'From amico.' },
     { type:'mc', q:'«Anna ___ Nino: per lei era tutto.» (adored)', opts:['adorava', 'abbracciava', 'sposava'], a:0, why:'Adorava: adored.', nudge:'More than loved.' },
     { type:'mc', q:'«Anna era ___ di Nino.» (in love with)', opts:['innamorata', 'innamorato', 'amica'], a:0, why:'Innamorata: Anna is a woman.', nudge:'In love; Anna is a woman.' },
@@ -22856,18 +22908,18 @@ const D2A2_STUDY = {
   exercises:[
     { type:'mc', q:'«Le pere ___ tre euro.»', opts:['costano', 'costa', 'costate'], a:0, why:'Le pere: more than one, so costano.', nudge:'Pears: one, or more than one?' },
     { type:'mc', q:'«La zucca ___ un euro e ottanta.»', opts:['costa', 'costano', 'costo'], a:0, why:'La zucca: one, so costa.', nudge:'One pumpkin.' },
-    { type:'mc', q:'2,50 € is…', opts:['due euro e cinquanta', 'due euri e cinquanta', 'venticinque euro'], a:0, why:'Euro never changes: due euro e cinquanta.', nudge:'Two, and fifty cents.' },
+    { type:'mc', q:'How do you say 2,50 €?', opts:['due euro e cinquanta', 'due euri e cinquanta', 'venticinque euro'], a:0, why:'Euro never changes: due euro e cinquanta.', nudge:'Two, and fifty cents.' },
     { type:'mc', q:'Where do you pay?', opts:['alla cassa', 'al conto', 'allo sconto'], a:0, why:'Pago alla cassa: at the till.', nudge:'The cash box.' },
-    { type:'mc', q:'Tonon wants to pay less: he wants…', opts:['uno sconto', 'un conto', 'un costo'], a:0, why:'Lo sconto: a discount.', nudge:'Less than the price.' },
-    { type:'mc', q:'«Il conto, per favore!» means…', opts:['The bill, please!', 'The change, please!', 'The discount, please!'], a:0, why:'Il conto: the bill.', nudge:'At the end, what you pay.' },
+    { type:'mc', q:'Tonon wants to pay less. What does he ask for?', opts:['uno sconto', 'un conto', 'un costo'], a:0, why:'Lo sconto: a discount.', nudge:'Less than the price.' },
+    { type:'mc', q:'What does «Il conto, per favore!» mean?', opts:['The bill, please!', 'The change, please!', 'The discount, please!'], a:0, why:'Il conto: the bill.', nudge:'At the end, what you pay.' },
     { type:'mc', q:'«L’uva è troppo ___!»', opts:['cara', 'caro', 'cari'], a:0, why:'L’uva is feminine: cara.', nudge:'l’uva: masculine or feminine?' },
     { type:'mc', q:'«Il radicchio non è ___.» (included)', opts:['compreso', 'compresa', 'comprato'], a:0, why:'Il radicchio: masculine, compreso.', nudge:'Not comprato (bought).' },
-    { type:'mc', q:'Nives at the stall all day: she…', opts:['vende la frutta', 'compra la frutta', 'spende la frutta'], a:0, why:'Vendere: to sell.', nudge:'The seller.' },
+    { type:'mc', q:'What does Nives do at her stall all day?', opts:['vende la frutta', 'compra la frutta', 'spende la frutta'], a:0, why:'Vendere: to sell.', nudge:'The seller.' },
     { type:'mc', q:'«Quanto ___ per due chili di mele?» (How much will I spend…?)', opts:['spendo', 'spende', 'vendo'], a:0, why:'Io: spendo.', nudge:'I spend…' },
-    { type:'mc', q:'Everyday Italian for money:', opts:['i soldi', 'il resto', 'la spesa'], a:0, why:'I soldi: money (il denaro is formal).', nudge:'What is in the till.' },
-    { type:'mc', q:'A sign in a shop: «ACQUISTI SOPRA 20 €: CONSEGNA A CASA» means…', opts:['Purchases over 20 €: home delivery', 'Discounts over 20 €', 'Customers over 20'], a:0, why:'Gli acquisti: the purchases (formal, on signs).', nudge:'acquistare: to buy (formal).' },
+    { type:'mc', q:'What is the everyday word for money?', opts:['i soldi', 'il resto', 'la spesa'], a:0, why:'I soldi: money (il denaro is formal).', nudge:'What is in the till.' },
+    { type:'mc', q:'A sign in a shop says «ACQUISTI SOPRA 20 €: CONSEGNA A CASA». What does it mean?', opts:['Purchases over 20 €: home delivery', 'Discounts over 20 €', 'Customers over 20'], a:0, why:'Gli acquisti: the purchases (formal, on signs).', nudge:'acquistare: to buy (formal).' },
     { type:'mc', q:'«Quanti ___!» (So many customers!)', opts:['clienti', 'costi', 'conti'], a:0, why:'Il cliente, i clienti.', nudge:'The people who buy.' },
-    { type:'mc', q:'Saturday Nives has no time for…', opts:['la spesa', 'il prezzo', 'lo sconto'], a:0, why:'La spesa: the shopping (fare la spesa).', nudge:'Buying the food.' },
+    { type:'mc', q:'What has Nives got no time for on Saturday?', opts:['la spesa', 'il prezzo', 'lo sconto'], a:0, why:'La spesa: the shopping (fare la spesa).', nudge:'Buying the food.' },
     { type:'mc', q:'«Il ___ della vita» (the cost of living)', opts:['costo', 'conto', 'prezzo'], a:0, why:'Il costo.', nudge:'Not the bill.' },
     { type:'order', q:'Build it: "Yes, you pay here, at the till."', tiles:['Sì', 'paga', 'paghi', 'qui', 'alla cassa'], answer:'sì paga qui alla cassa', why:'Sì, paga qui, alla cassa. (Lei: paga)', nudge:'A customer: Lei.' },
     { type:'order', q:'Build it: "Here’s your change: six euros."', tiles:['Ecco', 'il resto', 'il conto', 'sei', 'euro'], answer:'ecco il resto sei euro', why:'Ecco il resto: sei euro.', nudge:'Ecco…' },
@@ -23312,20 +23364,20 @@ const D2A3A_STUDY = {
     ['Mangiamo pesce: vino bianco, per favore.', 'We’re eating fish: white wine, please.', ''], ['Ho speso settantuno euro.', 'I spent seventy-one euros.', '']],
   vocab:[{ group:'La spesa', words:D2A3A_WORDS }],
   exercises:[
-    { type:'mc', q:'A long Italian loaf:', opts:['il filone', 'il panino', 'il litro'], a:0, why:'Il filone: a long loaf.', nudge:'Long, not small.' },
-    { type:'mc', q:'A small bread roll:', opts:['il panino', 'il filone', 'il pane'], a:0, why:'Il panino.', nudge:'Small.' },
-    { type:'mc', q:'Venice’s thick spaghetti, from a press:', opts:['i bigoli', 'i panini', 'i filoni'], a:0, why:'I bigoli.', nudge:'Pasta.' },
-    { type:'mc', q:'Renzo sells it fresh: bigoli, tagliatelle…', opts:['la pasta', 'il pane', 'il vino'], a:0, why:'La pasta.', nudge:'Pasta.' },
+    { type:'mc', q:'What do you call a long Italian loaf?', opts:['il filone', 'il panino', 'il litro'], a:0, why:'Il filone: a long loaf.', nudge:'Long, not small.' },
+    { type:'mc', q:'What do you call a small bread roll?', opts:['il panino', 'il filone', 'il pane'], a:0, why:'Il panino.', nudge:'Small.' },
+    { type:'mc', q:'What are Venice’s thick spaghetti, made in a press, called?', opts:['i bigoli', 'i panini', 'i filoni'], a:0, why:'I bigoli.', nudge:'Pasta.' },
+    { type:'mc', q:'Renzo makes bigoli and tagliatelle fresh. What does he sell?', opts:['la pasta', 'il pane', 'il vino'], a:0, why:'La pasta: fresh pasta, from the pastificio.', nudge:'Not baked, not poured: it goes into boiling water.' },
     { type:'mc', q:'«Due ___ di latte.» (two litres)', opts:['litri', 'chili', 'filoni'], a:0, why:'Il litro, i litri.', nudge:'Milk is in litres.' },
-    { type:'mc', q:'For the cake, Franca has long-life…', opts:['latte', 'vino', 'pane'], a:0, why:'Il latte a lunga conservazione.', nudge:'White, from cows.' },
-    { type:'mc', q:'The party starts at one: it’s…', opts:['un pranzo', 'una cena', 'una colazione'], a:0, why:'All’una: il pranzo, lunch.', nudge:'At midday or so.' },
-    { type:'mc', q:'At eight in the evening you eat…', opts:['la cena', 'il pranzo', 'il panino'], a:0, why:'La cena: dinner.', nudge:'The evening meal.' },
-    { type:'mc', q:'With the fish: white…', opts:['vino', 'acqua', 'latte'], a:0, why:'Il vino bianco.', nudge:'From Dario’s barrels.' },
-    { type:'mc', q:'For those who don’t drink wine: there is…', opts:['l’acqua', 'il vino', 'la cena'], a:0, why:'L’acqua.', nudge:'From the tap.' },
-    { type:'mc', q:'Wine from the barrel, not in bottles, is…', opts:['sfuso', 'fresco', 'finito'], a:0, why:'Vino sfuso.', nudge:'Loose.' },
+    { type:'mc', q:'Franca had no fresh milk for the cake. What did you buy instead?', opts:['il latte a lunga conservazione', 'il latte fresco', 'il vino sfuso'], a:0, why:'Il latte fresco è finito: il latte a lunga conservazione, long-life milk.', nudge:'The fresh milk had run out: you took the kind that keeps for months.' },
+    { type:'mc', q:'The party starts at one o’clock. What kind of meal is it?', opts:['un pranzo', 'una cena', 'una colazione'], a:0, why:'All’una: il pranzo, lunch.', nudge:'At midday or so.' },
+    { type:'mc', q:'Which meal do you eat at eight in the evening?', opts:['la cena', 'il pranzo', 'il panino'], a:0, why:'La cena: dinner.', nudge:'The evening meal.' },
+    { type:'mc', q:'Everyone is eating fish at the party. Which wine do you buy from Dario?', opts:['il vino bianco', 'il vino rosso', 'il latte'], a:0, why:'Il vino bianco con il pesce.', nudge:'Fish takes the pale wine, not the dark one.' },
+    { type:'mc', q:'What is there for the people who don’t drink wine?', opts:['l’acqua', 'il vino', 'la cena'], a:0, why:'L’acqua.', nudge:'From the tap.' },
+    { type:'mc', q:'What do you call wine sold from the barrel, not in bottles?', opts:['sfuso', 'fresco', 'finito'], a:0, why:'Vino sfuso.', nudge:'Loose.' },
     { type:'mc', q:'«E per chi non ___ vino?» (doesn’t drink)', opts:['beve', 'mangia', 'compra'], a:0, why:'Bere: beve.', nudge:'To drink.' },
     { type:'mc', q:'«Che ___ c’è alla festa?» (What food is there?)', opts:['cibo', 'vino', 'litro'], a:0, why:'Il cibo: food.', nudge:'Food in general.' },
-    { type:'mc', q:'Nives wrote it on a paper bag:', opts:['la lista', 'la cena', 'la pasta'], a:0, why:'La lista: the list.', nudge:'What to buy.' },
+    { type:'mc', q:'What did Nives write on the back of a paper bag?', opts:['la lista', 'la cena', 'la pasta'], a:0, why:'La lista: the list.', nudge:'What to buy.' },
     { type:'order', q:'Build it: "Four loaves and twenty rolls, please."', tiles:['Quattro', 'filoni', 'e', 'venti', 'panini', 'per favore', 'litri'], answer:'quattro filoni e venti panini per favore', why:'Quattro filoni e venti panini, per favore.', nudge:'Loaves, then rolls.' },
     { type:'order', q:'Answer Franca: "For lunch."', tiles:['Per', 'pranzo', 'cena'], answer:'per pranzo', why:'Per pranzo: the party starts at one.', nudge:'Not the evening.' },
   ],
@@ -23698,20 +23750,20 @@ const D2A4A_STUDY = {
     { type:'type', q:'Type it (to Mattia): "you pour"', answer:'versi', accept:['versi'], why:'Versare: tu versi.', nudge:'versare → tu …' },
     { type:'type', q:'Type it (to Mattia): "you mix"', answer:'mescoli', accept:['mescoli'], why:'Mescolare: tu mescoli.', nudge:'mescolare → tu …' },
     { type:'type', q:'Type it (to Mattia): "you cook it" (the pumpkin)', answer:'la cucini', accept:['la cucini'], why:'La zucca: la cucini.', nudge:'cucinare → tu …, with “it” (feminine) first.' },
-    { type:'mc', q:'Three…', opts:['uova', 'uovi', 'uove'], a:0, why:'L’uovo, le uova.', nudge:'Irregular: like le labbra.' },
-    { type:'mc', q:'White and sweet, in the cake:', opts:['lo zucchero', 'il sale', 'la farina'], a:0, why:'Lo zucchero: sugar.', nudge:'Not the salt!' },
-    { type:'mc', q:'White powder for the dough:', opts:['la farina', 'lo zucchero', 'l’olio'], a:0, why:'La farina: flour.', nudge:'Ground wheat.' },
+    { type:'mc', q:'Three eggs: which plural is right?', opts:['uova', 'uovi', 'uove'], a:0, why:'L’uovo, le uova.', nudge:'Irregular: like le labbra.' },
+    { type:'mc', q:'What goes into the cake, white and sweet?', opts:['lo zucchero', 'il sale', 'la farina'], a:0, why:'Lo zucchero: sugar.', nudge:'Not the salt!' },
+    { type:'mc', q:'What white powder goes into the dough?', opts:['la farina', 'lo zucchero', 'l’olio'], a:0, why:'La farina: flour.', nudge:'Ground wheat.' },
     { type:'mc', q:'«Un po’ d’___ nella farina.»', opts:['olio', 'uova', 'forno'], a:0, why:'Un po’ d’olio: a little oil.', nudge:'A liquid.' },
-    { type:'mc', q:'You cut with…', opts:['il coltello', 'il piatto', 'la teglia'], a:0, why:'Il coltello: the knife.', nudge:'Sharp.' },
-    { type:'mc', q:'The cake bakes in…', opts:['il forno', 'l’orto', 'la bottiglia'], a:0, why:'Il forno: the oven.', nudge:'Hot.' },
-    { type:'mc', q:'Everything goes into the baking…', opts:['teglia', 'ricetta', 'fattoria'], a:0, why:'La teglia: the tin.', nudge:'Round, metal.' },
-    { type:'mc', q:'Thirty people: thirty…', opts:['piatti', 'coltelli di zucchero', 'forni'], a:0, why:'Il piatto, i piatti.', nudge:'On the table.' },
-    { type:'mc', q:'The wine goes from the demijohn into the…', opts:['bottiglie', 'teglie', 'farine'], a:0, why:'La bottiglia, le bottiglie.', nudge:'Glass, with a cork.' },
-    { type:'mc', q:'Nonna Bruna never wrote it down: la…', opts:['ricetta', 'fattoria', 'topa'], a:0, why:'La ricetta: the recipe.', nudge:'How to make it.' },
+    { type:'mc', q:'What do you cut with?', opts:['il coltello', 'il piatto', 'la teglia'], a:0, why:'Il coltello: the knife.', nudge:'Sharp.' },
+    { type:'mc', q:'Where does the cake bake?', opts:['il forno', 'l’orto', 'la bottiglia'], a:0, why:'Il forno: the oven.', nudge:'Hot.' },
+    { type:'mc', q:'What does the cake mixture go into before the oven?', opts:['teglia', 'ricetta', 'fattoria'], a:0, why:'La teglia: the tin.', nudge:'Round, metal.' },
+    { type:'mc', q:'Thirty people at the table: thirty what, one each to eat from?', opts:['piatti', 'forni', 'orti'], a:0, why:'Il piatto, i piatti: thirty plates.', nudge:'On the table, under the food.' },
+    { type:'mc', q:'The wine goes from the demijohn into what?', opts:['bottiglie', 'teglie', 'farine'], a:0, why:'La bottiglia, le bottiglie.', nudge:'Glass, with a cork.' },
+    { type:'mc', q:'What did Nonna Bruna never write down?', opts:['la ricetta', 'la fattoria', 'la topa'], a:0, why:'La ricetta: the recipe.', nudge:'How to make it.' },
     { type:'mc', q:'«Mattia ___ (cooks), e io dico la ricetta.»', opts:['cucina', 'versa', 'taglio'], a:0, why:'Cucinare: lui cucina.', nudge:'He cooks.' },
-    { type:'mc', q:'Gigi’s flat, wide working boat:', opts:['la topa', 'la gondola', 'il vaporetto'], a:0, why:'La topa.', nudge:'Not the black one.' },
-    { type:'mc', q:'Rosanna’s home on Sant’Erasmo:', opts:['la fattoria', 'il forno', 'la teglia'], a:0, why:'La fattoria: the farm.', nudge:'Fields, animals.' },
-    { type:'mc', q:'Where the artichokes grow:', opts:['l’orto', 'il forno', 'la cassa'], a:0, why:'L’orto: the vegetable garden.', nudge:'Outside.' },
+    { type:'mc', q:'What is Gigi’s flat, wide working boat called?', opts:['la topa', 'la gondola', 'il vaporetto'], a:0, why:'La topa.', nudge:'Not the black one.' },
+    { type:'mc', q:'What is Rosanna’s home on Sant’Erasmo?', opts:['la fattoria', 'il forno', 'la teglia'], a:0, why:'La fattoria: the farm.', nudge:'Fields, animals.' },
+    { type:'mc', q:'Where do the artichokes grow?', opts:['l’orto', 'il forno', 'la cassa'], a:0, why:'L’orto: the vegetable garden.', nudge:'Outside.' },
     { type:'mc', q:'«I ___ dell’orto» (the garden’s fruits)', opts:['frutti', 'frutta', 'fruttini'], a:0, why:'Il frutto, i frutti: of a tree, a garden (la frutta: fruit in general).', nudge:'Plural of il frutto.' },
     { type:'mc', q:'«Da ___ entro il 30/11» on a label means best before 30/11:', opts:['consumare', 'versare', 'mescolare'], a:0, why:'Da consumare entro…', nudge:'To use up, to eat.' },
   ],
@@ -24109,19 +24161,19 @@ const D2A3B_STUDY = {
     ['Non è il denaro, è il valore.', 'It isn’t the money, it’s the value.', '']],
   vocab:[{ group:'Le lire', words:D2A3B_WORDS }],
   exercises:[
-    { type:'mc', q:'Italy’s money before the euro:', opts:['la lira', 'la moneta', 'il denaro'], a:0, why:'La lira, le lire: until 2002.', nudge:'Before the euro.' },
+    { type:'mc', q:'What was Italy’s money before the euro?', opts:['la lira', 'la moneta', 'il denaro'], a:0, why:'La lira, le lire: until 2002.', nudge:'Before the euro.' },
     { type:'mc', q:'«Un caffè ___ mille lire.» (then)', opts:['costava', 'costa', 'costano'], a:0, why:'Then: the imperfect, costava.', nudge:'In the nineties.' },
     { type:'mc', q:'«Non ___ niente.» (It’s worth nothing)', opts:['vale', 'valore', 'paga'], a:0, why:'Valere: vale.', nudge:'To be worth.' },
     { type:'mc', q:'«Non è il denaro: è il ___.»', opts:['valore', 'debito', 'credito'], a:0, why:'Il valore: what it’s worth to someone.', nudge:'Worth.' },
     { type:'mc', q:'«Quanto ___?» (How much did you earn? Lei)', opts:['guadagnava', 'costava', 'valeva'], a:0, why:'Guadagnare: guadagnava.', nudge:'Earn.' },
-    { type:'mc', q:'Bepi, with no work in 1985, was…', opts:['povero', 'ricco', 'prezioso'], a:0, why:'Povero: poor.', nudge:'Little money.' },
+    { type:'mc', q:'Bepi had no work in 1985. What was he?', opts:['povero', 'ricco', 'prezioso'], a:0, why:'Povero: poor.', nudge:'Little money.' },
     { type:'mc', q:'«Gigi era ___?» (rich)', opts:['ricco', 'povero', 'caro'], a:0, why:'Ricco: rich.', nudge:'Lots of money.' },
-    { type:'mc', q:'What you still have to pay back:', opts:['il debito', 'il credito', 'il tesoro'], a:0, why:'Il debito: a debt.', nudge:'You owe it.' },
-    { type:'mc', q:'Fruit now, money later: Gigi gave it…', opts:['a credito', 'a debito', 'a prezzo'], a:0, why:'A credito: on tick.', nudge:'Paid later.' },
-    { type:'mc', q:'A formal word for money:', opts:['il denaro', 'i soldi', 'la cassa'], a:0, why:'Il denaro (everyday: i soldi).', nudge:'Not everyday.' },
+    { type:'mc', q:'What do you call money you still have to pay back?', opts:['il debito', 'il credito', 'il tesoro'], a:0, why:'Il debito: a debt.', nudge:'You owe it.' },
+    { type:'mc', q:'Gigi gave Bepi fruit and let him pay later. How did he give it?', opts:['a credito', 'a debito', 'a prezzo'], a:0, why:'A credito: on tick.', nudge:'Paid later.' },
+    { type:'mc', q:'Which is the formal word for money?', opts:['il denaro', 'i soldi', 'la cassa'], a:0, why:'Il denaro (everyday: i soldi).', nudge:'Not everyday.' },
     { type:'mc', q:'«La moneta è ___.» (precious)', opts:['preziosa', 'prezioso', 'preziosi'], a:0, why:'La moneta: feminine, preziosa.', nudge:'Agreement.' },
     { type:'mc', q:'Bepi on Gigi’s sign: «È un ___.» (a treasure)', opts:['tesoro', 'valore', 'debito'], a:0, why:'Il tesoro.', nudge:'Treasure.' },
-    { type:'mc', q:'Five hundred lire, in metal:', opts:['una moneta', 'una lira', 'un cartello'], a:0, why:'La moneta: a coin.', nudge:'In your pocket.' },
+    { type:'mc', q:'What do you call money made of metal, like the five hundred lire piece?', opts:['una moneta', 'una lira', 'un cartello'], a:0, why:'La moneta: a coin.', nudge:'In your pocket.' },
     { type:'order', q:'Build it: "He never paid the debt."', tiles:['Non', 'ha mai pagato', 'il debito', 'il credito'], answer:'non ha mai pagato il debito', why:'Non ha mai pagato il debito.', nudge:'Non … mai.' },
   ],
 };
@@ -25402,15 +25454,15 @@ const D2B2_STUDY = {
     { group:"L'annuncio", words:D2B2_WORDS.filter(w => /annuncio|coinquilino|affitto|libero|altana|abitare/.test(w.it)) },
   ],
   exercises:[
-    { type:'mc', q:'Where you cook?', opts:['la cucina', 'il bagno', 'il soggiorno'], a:0, why:'La cucina: the kitchen.', nudge:'The cooker and the sink are there.' },
-    { type:'mc', q:'Where you sleep?', opts:['la camera', "l'ingresso", 'il tetto'], a:0, why:'La camera (da letto): the bedroom.', nudge:'The bed is there.' },
-    { type:'mc', q:'The first room you walk into?', opts:["l'ingresso", 'il giardino', 'la cucina'], a:0, why:"L'ingresso: the entrance hall.", nudge:'Just inside the front door.' },
-    { type:'mc', q:'What you pay the landlord every month?', opts:["l'affitto", "l'annuncio", 'il piano'], a:0, why:"L'affitto: the rent.", nudge:'Money, every month.' },
-    { type:'mc', q:'Someone you share a flat with?', opts:['il coinquilino', 'il padrone di casa', 'il soggiorno'], a:0, why:'Il coinquilino / la coinquilina: the flatmate.', nudge:'Lukas, soon, for Giulia.' },
+    { type:'mc', q:'Where do you cook?', opts:['la cucina', 'il bagno', 'il soggiorno'], a:0, why:'La cucina: the kitchen.', nudge:'The cooker and the sink are there.' },
+    { type:'mc', q:'Where do you sleep?', opts:['la camera', "l'ingresso", 'il tetto'], a:0, why:'La camera (da letto): the bedroom.', nudge:'The bed is there.' },
+    { type:'mc', q:'Which is the first room you walk into?', opts:["l'ingresso", 'il giardino', 'la cucina'], a:0, why:"L'ingresso: the entrance hall.", nudge:'Just inside the front door.' },
+    { type:'mc', q:'What do you pay the landlord every month?', opts:["l'affitto", "l'annuncio", 'il piano'], a:0, why:"L'affitto: the rent.", nudge:'Money, every month.' },
+    { type:'mc', q:'What do you call someone you share a flat with?', opts:['il coinquilino', 'il padrone di casa', 'il soggiorno'], a:0, why:'Il coinquilino / la coinquilina: the flatmate.', nudge:'Lukas, soon, for Giulia.' },
     { type:'mc', q:'«___ tre camere.» (there are three bedrooms)', opts:['Ci sono', "C'è", 'Sono'], a:0, why:'More than one: ci sono.', nudge:'Three bedrooms: more than one.' },
     { type:'mc', q:'«___ un bagno solo.» (there is only one bathroom)', opts:["C'è", 'Ci sono', 'È'], a:0, why:"One thing: c'è.", nudge:'One bathroom.' },
     { type:'mc', q:'«L’appartamento è ___ terzo piano.»', opts:['al', 'nel', 'in'], a:0, why:'Floors: al terzo piano.', nudge:'Floors take al.' },
-    { type:'mc', q:'Giulia is losing her…?', opts:['casa', 'giardino', 'tetto'], a:0, why:'Perdo la casa! I lose my home.', nudge:'Where she lives.' },
+    { type:'mc', q:'What is Giulia losing?', opts:['casa', 'giardino', 'tetto'], a:0, why:'Perdo la casa! I lose my home.', nudge:'Where she lives.' },
     { type:'mc', q:'«Io ___ a Venezia.» (I live in Venice)', opts:['abito', 'abitano', 'abiti'], a:0, why:'Io abito: I live.', nudge:'Io: -o.' },
     { type:'order', q:'Build it: "The flat is on the third floor."', tiles:["L'appartamento", 'è', 'al', 'terzo', 'piano', 'nel', 'secondo'], answer:"l'appartamento è al terzo piano", why:"L'appartamento è al terzo piano.", nudge:'Floors: al.' },
     { type:'order', q:'Build it: "There are three bedrooms and a kitchen."', tiles:['Ci sono', 'tre', 'camere', 'e', 'una cucina', "C'è", 'un bagno'], answer:'ci sono tre camere e una cucina', why:'Ci sono tre camere e una cucina.', nudge:'More than one: ci sono.' },
@@ -25859,13 +25911,13 @@ const D2B3A_STUDY = {
   vocab:[{ group:'Le pulizie', words:D2B3A_WORDS.filter(w => /pulire|lavare|sporco|macchia|sistemare|riempire|spazzatura|lavatrice/.test(w.it)) },
     { group:'Il fumo e la casa', words:D2B3A_WORDS.filter(w => /fumare|sigaretta|spegnere|accendere|abituarsi|turno|tocca/.test(w.it)) }],
   exercises:[
-    { type:'mc', q:'What you do to the dishes?', opts:['lavare', 'fumare', 'accendere'], a:0, why:'Lavare i piatti: to wash the dishes.', nudge:'Water and soap.' },
-    { type:'mc', q:'The opposite of «accendere»?', opts:['spegnere', 'riempire', 'pulire'], a:0, why:'Accendere / spegnere: switch on / switch off.', nudge:'The light goes off.' },
+    { type:'mc', q:'What do you do to the dishes?', opts:['lavare', 'fumare', 'accendere'], a:0, why:'Lavare i piatti: to wash the dishes.', nudge:'Water and soap.' },
+    { type:'mc', q:'What is the opposite of «accendere»?', opts:['spegnere', 'riempire', 'pulire'], a:0, why:'Accendere / spegnere: switch on / switch off.', nudge:'The light goes off.' },
     { type:'mc', q:'What goes out in the morning, to the barge?', opts:['la spazzatura', 'la lavatrice', 'la macchia'], a:0, why:'La spazzatura: the rubbish.', nudge:'The bin bag.' },
-    { type:'mc', q:'A dark mark on the sofa?', opts:['una macchia', 'un turno', 'una sigaretta'], a:0, why:'La macchia: the stain.', nudge:'It won’t come off.' },
+    { type:'mc', q:'What is a dark mark on the sofa?', opts:['una macchia', 'un turno', 'una sigaretta'], a:0, why:'La macchia: the stain.', nudge:'It won’t come off.' },
     { type:'mc', q:'«La cucina è ___!» (dirty)', opts:['sporca', 'sporco', 'pulito'], a:0, why:'La cucina (feminine): sporca.', nudge:'Cucina is feminine.' },
     { type:'mc', q:'«Lunedì ___ a te.» (it’s your turn)', opts:['tocca', 'fuma', 'lava'], a:0, why:'Tocca a te: it’s your turn.', nudge:'Turns: tocca a…' },
-    { type:'mc', q:'«Io ___ i piatti.» / «Io ___ (myself).»', opts:['lavo · mi lavo', 'mi lavo · lavo', 'lava · si lava'], a:0, why:'Lavo i piatti; mi lavo.', nudge:'The dishes: no mi. Yourself: mi.' },
+    { type:'mc', q:'Which pair fills the gaps? «Io ___ i piatti.» (the dishes) · «Io ___.» (myself)', opts:['lavo · mi lavo', 'mi lavo · lavo', 'lava · si lava'], a:0, why:'Lavo i piatti; mi lavo.', nudge:'The dishes: no mi. Yourself: mi.' },
     { type:'mc', q:'«Non mi ___!» (I can’t get used to it)', opts:['abituo', 'sistemo', 'spengo'], a:0, why:'Abituarsi: non mi abituo.', nudge:'To get used to…' },
     { type:'order', q:'Build it (to Matteo): "Sara says you never clean."', tiles:['Sara', 'dice', 'che', 'non', 'pulisci', 'mai', 'pulisce', 'sempre'], answer:'sara dice che non pulisci mai', why:'Sara dice che non pulisci mai.', nudge:'To Matteo: tu, pulisci.' },
     { type:'order', q:'Build it: "Put out the cigarette, please." (tu)', tiles:['Spegni', 'la sigaretta', 'per favore', 'Accendi', 'la luce'], answer:'spegni la sigaretta per favore', why:'Spegni la sigaretta, per favore.', nudge:'Put out: spegni.' },
@@ -26309,13 +26361,13 @@ const D2B4A_STUDY = {
   vocab:[{ group:'I mobili', words:D2B4A_WORDS.filter(w => /porta|specchio|divano|tenda|mobile|letto|finestra|tavolo|sedia/.test(w.it)) },
     { group:"L'ispezione", words:D2B4A_WORDS.filter(w => /muro|parete|entrata|umidità|rotto|bagnato|inventario/.test(w.it)) }],
   exercises:[
-    { type:'mc', q:'You look at yourself in it?', opts:['lo specchio', 'la tenda', 'il muro'], a:0, why:'Lo specchio: the mirror.', nudge:'In the hall, by the door.' },
-    { type:'mc', q:'Four of them round the table?', opts:['le sedie', 'le tende', 'le finestre'], a:0, why:'Le sedie: the chairs.', nudge:'You sit on them.' },
-    { type:'mc', q:'A wall of a room, inside?', opts:['la parete', 'il tetto', 'il divano'], a:0, why:'La parete: the wall of a room (il muro: a wall, outside or thick).', nudge:'Inside a room.' },
+    { type:'mc', q:'What do you look at yourself in?', opts:['lo specchio', 'la tenda', 'il muro'], a:0, why:'Lo specchio: the mirror.', nudge:'In the hall, by the door.' },
+    { type:'mc', q:'What are there four of, round the table?', opts:['le sedie', 'le tende', 'le finestre'], a:0, why:'Le sedie: the chairs.', nudge:'You sit on them.' },
+    { type:'mc', q:'What is the word for the wall of a room, inside?', opts:['la parete', 'il tetto', 'il divano'], a:0, why:'La parete: the wall of a room (il muro: a wall, outside or thick).', nudge:'Inside a room.' },
     { type:'mc', q:'What the water leaves in a wall?', opts:["l'umidità", "l'inventario", 'il mobile'], a:0, why:"L'umidità: damp.", nudge:'After the high water.' },
     { type:'mc', q:'«Lo specchio ___ già rotto.» (before)', opts:['era', 'è', 'sono'], a:0, why:'Before: era già rotto.', nudge:'Two years ago: the imperfect.' },
     { type:'mc', q:'«La parete è ___.» (wet)', opts:['bagnata', 'bagnato', 'rotto'], a:0, why:'La parete (feminine): bagnata.', nudge:'Parete is feminine.' },
-    { type:'mc', q:'To the landlord (Lei): "look!"', opts:['Guardi!', 'Guarda!', 'Guardo!'], a:0, why:'Lei: guardi!', nudge:'Polite: -i.' },
+    { type:'mc', q:'How do you say "look!" to the landlord (Lei)?', opts:['Guardi!', 'Guarda!', 'Guardo!'], a:0, why:'Lei: guardi!', nudge:'Polite: -i.' },
     { type:'type', q:'Type it: "the bed"', answer:'il letto', accept:['letto'], why:'Il letto.', nudge:'Lesson 1’s room had two.' },
     { type:'type', q:'Type it: "the furniture" (more than one piece)', answer:'i mobili', accept:['mobili'], why:'Il mobile · i mobili.', nudge:'A piece of furniture: il mobile.' },
     { type:'type', q:'Type it: "the door is broken"', answer:'la porta è rotta', accept:['la porta e rotta'], why:'La porta è rotta (feminine).', nudge:'Porta is feminine: rotta.' },
@@ -26761,14 +26813,14 @@ const D2B3B_STUDY = {
   vocab:[{ group:"L'università", words:D2B3B_WORDS.filter(w => /università|corso|filosofia|tesi|laboratorio|studio|studente|professore/.test(w.it)) },
     { group:"L'esame", words:D2B3B_WORDS.filter(w => /esame|appello|segreteria|pratica|iscriversi/.test(w.it)) }],
   exercises:[
-    { type:'mc', q:'Where you go for your papers at the university?', opts:['la segreteria', 'il laboratorio', 'la tesi'], a:0, why:'La segreteria: the office.', nudge:'Forms, stamps, a counter.' },
-    { type:'mc', q:'The long piece of writing at the end of a degree?', opts:['la tesi', 'il corso', "l'appello"], a:0, why:'La tesi: the thesis.', nudge:'Giulia’s is on Plato.' },
-    { type:'mc', q:'One of the dates you can sit an exam?', opts:["l'appello", 'la pratica', 'lo studio'], a:0, why:"L'appello: an exam sitting.", nudge:'Each exam has several.' },
-    { type:'mc', q:'A professor’s room?', opts:['lo studio', 'la segreteria', "l'università"], a:0, why:'Lo studio del professore: his study.', nudge:'Books to the ceiling.' },
+    { type:'mc', q:'Where do you go for your papers at the university?', opts:['la segreteria', 'il laboratorio', 'la tesi'], a:0, why:'La segreteria: the office.', nudge:'Forms, stamps, a counter.' },
+    { type:'mc', q:'What is the long piece of writing at the end of a degree?', opts:['la tesi', 'il corso', "l'appello"], a:0, why:'La tesi: the thesis.', nudge:'Giulia’s is on Plato.' },
+    { type:'mc', q:'What do you call one of the dates when you can sit an exam?', opts:["l'appello", 'la pratica', 'lo studio'], a:0, why:"L'appello: an exam sitting.", nudge:'Each exam has several.' },
+    { type:'mc', q:'What is a professor’s room called?', opts:['lo studio', 'la segreteria', "l'università"], a:0, why:'Lo studio del professore: his study.', nudge:'Books to the ceiling.' },
     { type:'mc', q:'«Giulia è ___ al terzo anno.»', opts:['iscritta', 'iscritto', 'iscriversi'], a:0, why:'Giulia (a woman): iscritta.', nudge:'Giulia is a woman.' },
     { type:'mc', q:'«Lukas è uno ___.» (a student)', opts:['studente', 'studentessa', 'studio'], a:0, why:'Lo studente; a woman: la studentessa.', nudge:'Lukas is a man.' },
-    { type:'mc', q:'Politely, to the professor: "could you…?"', opts:['Potrebbe…?', 'Puoi…?', 'Posso…?'], a:0, why:'Potrebbe…? (Lei, softer than Può…?).', nudge:'Lei, and very polite.' },
-    { type:'mc', q:'Paperwork, a procedure?', opts:['la pratica', 'la filosofia', 'il corso'], a:0, why:'La pratica.', nudge:'Only the professor can do it.' },
+    { type:'mc', q:'How do you start "could you…?" politely, to the professor?', opts:['Potrebbe…?', 'Puoi…?', 'Posso…?'], a:0, why:'Potrebbe…? (Lei, softer than Può…?).', nudge:'Lei, and very polite.' },
+    { type:'mc', q:'What is the word for a piece of paperwork, a procedure?', opts:['la pratica', 'la filosofia', 'il corso'], a:0, why:'La pratica.', nudge:'Only the professor can do it.' },
     { type:'order', q:'Build it: "Where is the office?"', tiles:["Dov'è", 'la segreteria', 'il laboratorio', 'Chi è'], answer:"dov'è la segreteria", why:"Dov'è la segreteria?", nudge:'Where is: dov’è.' },
     { type:'order', q:'Build it: "She has lost her voice."', tiles:['Ha perso', 'la voce', 'la tesi', 'Ha', 'perde'], answer:'ha perso la voce', why:'Ha perso la voce.', nudge:'Lost: ha perso.' },
     { type:'order', q:'Build it (Lei): "Excuse me, professor! Have you got a minute?"', tiles:['Scusi', 'professore', 'Ha', 'un minuto', 'Scusa', 'Hai'], answer:'scusi professore ha un minuto', why:'Scusi, professore! Ha un minuto?', nudge:'Lei: scusi, ha.' },
@@ -27487,16 +27539,16 @@ const D2C2_STUDY = {
   ],
   vocab:[{ group:"L'arte", words:D2C2_WORDS.filter(w => !/primo|sfondo|legno/.test(w.it)) }, { group:'Descrivere un quadro', words:D2C2_WORDS.filter(w => /primo|sfondo|legno/.test(w.it)) }],
   exercises:[
-    { type:'mc', q:'What’s near you in a painting.', opts:['in primo piano', 'sullo sfondo', 'in fondo'], a:0, why:'In primo piano: in the foreground.', nudge:'The front of the picture.' },
+    { type:'mc', q:'Where in a painting is the part nearest to you?', opts:['in primo piano', 'sullo sfondo', 'in fondo'], a:0, why:'In primo piano: in the foreground.', nudge:'The front of the picture.' },
     { type:'mc', q:'«E ___ c’è il ponte.» (in the background)', opts:['sullo sfondo', 'nello sfondo', 'in primo piano'], a:0, why:'Sullo sfondo: su + lo sfondo.', nudge:'Su + lo…' },
     { type:'mc', q:'«___ quattro figure.» (there are)', opts:['Ci sono', 'C’è', 'Sono'], a:0, why:'Ci sono: more than one.', nudge:'More than one thing.' },
     { type:'mc', q:'«Un pescatore sta ___ la rete.»', opts:['tirando', 'tirare', 'tira'], a:0, why:'Sta tirando: stare + the gerund.', nudge:'Stare + the -ando form.' },
-    { type:'mc', q:'A painting, a statue, a building by an artist.', opts:["un'opera", 'una mostra', 'un disegno'], a:0, why:"Un'opera: a work (of art).", nudge:'The general word.' },
-    { type:'mc', q:'The rooms where paintings are shown for a few months.', opts:['la mostra', "l'opera", 'la figura'], a:0, why:'La mostra: the exhibition.', nudge:'It opens on Saturday.' },
+    { type:'mc', q:'What is the general word for a painting, a statue or a building by an artist?', opts:["un'opera", 'una mostra', 'un disegno'], a:0, why:"Un'opera: a work (of art).", nudge:'Any one thing an artist made.' },
+    { type:'mc', q:'What is it called when paintings are shown in rooms for a few months?', opts:['la mostra', "l'opera", 'la figura'], a:0, why:'La mostra: the exhibition.', nudge:'It opens on Saturday.' },
     { type:'mc', q:'«Lo ___ nella prima sala.» (they put it on show)', opts:['espongono', 'esponono', 'esporre'], a:0, why:'Espongono: an odd verb (esporre).', nudge:'Like porre: pongono.' },
     { type:'mc', q:'«Carpaccio lo ha ___.» (inspired)', opts:['ispirato', 'disegnato', 'esposto'], a:0, why:'Ha ispirato: inspired.', nudge:'He gave him the idea.' },
     { type:'mc', q:'«Un ponte di ___.» (wooden)', opts:['legno', 'pietra', 'mostra'], a:0, why:'Di legno: made of wood.', nudge:'From trees.' },
-    { type:'mc', q:'A picture in pencil.', opts:['il disegno', 'il quadro', 'la mostra'], a:0, why:'Il disegno: a drawing (disegnare: to draw).', nudge:'Not painted.' },
+    { type:'mc', q:'What is a picture in pencil?', opts:['il disegno', 'il quadro', 'la mostra'], a:0, why:'Il disegno: a drawing (disegnare: to draw).', nudge:'Not painted.' },
     { type:'order', q:'Build it: "There are four figures and a cat."', tiles:['Ci sono', "C'è", 'quattro', 'figure', 'e', 'un gatto'], answer:'ci sono quattro figure e un gatto', why:'Ci sono quattro figure e un gatto.', nudge:'More than one: ci sono.' },
     { type:'order', q:'Build it: "In the foreground, a fisherman is pulling a net."', tiles:['In primo piano', 'un pescatore', 'sta', 'tirando', 'tirare', 'una rete'], answer:'in primo piano un pescatore sta tirando una rete', why:'In primo piano, un pescatore sta tirando una rete.', nudge:'Stare + the gerund.' },
     { type:'order', q:'Build it: "In the background there’s the old wooden bridge."', tiles:['Sullo sfondo', 'Nello sfondo', "c'è", 'il vecchio', 'ponte', 'di legno'], answer:"sullo sfondo c'è il vecchio ponte di legno", why:"Sullo sfondo c'è il vecchio ponte di legno.", nudge:'Su + lo = sullo.' },
@@ -28317,14 +28369,14 @@ const D2C4A_STUDY = {
     ["Dietro, sul legno, c'è il timbro dell'Accademia.", 'On the back, on the wood, there’s the Accademia’s stamp.', 'The curator’s line, from C2.']],
   vocab:[{ group:'Il corpo', words:D2C4A_WORDS.filter(w => !/riproduzione|falso|originale/.test(w.it)) }, { group:'Il falso', words:D2C4A_WORDS.filter(w => /riproduzione|falso|originale/.test(w.it)) }],
   exercises:[
-    { type:'mc', q:'Plural of «il dito».', opts:['le dita', 'i diti', 'le dite'], a:0, why:'Le dita: an odd plural, feminine.', nudge:'Like le braccia.' },
+    { type:'mc', q:'What is the plural of «il dito»?', opts:['le dita', 'i diti', 'le dite'], a:0, why:'Le dita: an odd plural, feminine.', nudge:'Like le braccia.' },
     { type:'mc', q:'«___ mano destra.» (the)', opts:['La', 'Il', 'Lo'], a:0, why:'La mano: feminine, though it ends in -o.', nudge:'An exception.' },
-    { type:'mc', q:'You carry a crate on it.', opts:['la spalla', 'il ginocchio', 'il petto'], a:0, why:'Sulla spalla: on the shoulder.', nudge:'Between the neck and the arm.' },
+    { type:'mc', q:'What do you carry a crate on?', opts:['la spalla', 'il ginocchio', 'il petto'], a:0, why:'Sulla spalla: on the shoulder.', nudge:'Between the neck and the arm.' },
     { type:'mc', q:'«Ha i ___ nudi.» (feet)', opts:['piedi', 'mani', 'fianchi'], a:0, why:'I piedi nudi: bare feet.', nudge:'You walk on them.' },
     { type:'mc', q:'«La gamba è piegata al ___.»', opts:['ginocchio', 'fianco', 'dito'], a:0, why:'Al ginocchio: at the knee.', nudge:'In the middle of the leg.' },
     { type:'mc', q:'«La mano sul ___.» (her hip)', opts:['fianco', 'petto', 'piede'], a:0, why:'Sul fianco: on her hip.', nudge:'Hands on hips…' },
-    { type:'mc', q:'The opposite of the chest.', opts:['la schiena', 'la spalla', 'la gamba'], a:0, why:'La schiena: the back.', nudge:'Behind you.' },
-    { type:'mc', q:'A painting that only looks like the real one.', opts:['un falso', "l'originale", 'il corpo'], a:0, why:'Un falso: a fake.', nudge:'Not the real one.' },
+    { type:'mc', q:'Which part of the body is opposite the chest?', opts:['la schiena', 'la spalla', 'la gamba'], a:0, why:'La schiena: the back.', nudge:'Behind you.' },
+    { type:'mc', q:'What is a painting that only looks like the real one?', opts:['un falso', "l'originale", 'il corpo'], a:0, why:'Un falso: a fake.', nudge:'Not the real one.' },
     { type:'type', q:'Type it: "the hands"', answer:'le mani', why:'Le mani.', nudge:'La mano → le mani.' },
     { type:'type', q:'Type it: "six fingers"', answer:'sei dita', accept:['6 dita'], why:'Sei dita.', nudge:'Il dito → le dita.' },
     { type:'type', q:'Type it: "on the right shoulder"', answer:'sulla spalla destra', why:'Sulla spalla destra.', nudge:'Su + la = sulla.' },
@@ -28923,12 +28975,12 @@ const D2C4B_STUDY = {
   phrases:[['È una ferita profonda: ha bisogno di un medico.', 'It’s a deep wound: he needs a doctor.', ''], ['Si è tagliato la mano con la sega.', 'He cut his hand with the saw.', 'Tagliarsi: essere.'], ['Non è mai malato, e non prende medicine.', 'He’s never ill, and he doesn’t take medicines.', 'Non… mai.']],
   vocab:[{ group:'La salute', words:D2C4B_WORDS }],
   exercises:[
-    { type:'mc', q:'Where you go with a deep wound.', opts:['il pronto soccorso', 'la farmacia', 'lo squero'], a:0, why:'Il pronto soccorso: A&E.', nudge:'Emergencies.' },
+    { type:'mc', q:'Where do you go with a deep wound?', opts:['il pronto soccorso', 'la farmacia', 'lo squero'], a:0, why:'Il pronto soccorso: A&E.', nudge:'Emergencies.' },
     { type:'mc', q:'«Ha bisogno di un ___.» (a doctor)', opts:['medico', 'malato', 'dolore'], a:0, why:'Un medico.', nudge:'Who treats you.' },
     { type:'mc', q:'«È una ___ profonda.» (wound)', opts:['ferita', 'malattia', 'medicina'], a:0, why:'Una ferita: a cut, a wound.', nudge:'From the saw.' },
     { type:'mc', q:'«Si è ___ con la sega.» (cut himself)', opts:['tagliato', 'fatto', 'curato'], a:0, why:'Si è tagliato: tagliarsi, with essere.', nudge:'A reflexive.' },
     { type:'mc', q:'«Ha molto ___.» (pain)', opts:['dolore', 'medico', 'sano'], a:0, why:'Il dolore: pain.', nudge:'From one to ten…' },
-    { type:'mc', q:'The opposite of «malato».', opts:['sano', 'ferito', 'allergico'], a:0, why:'Sano: healthy.', nudge:'Sano come un pesce.' },
+    { type:'mc', q:'What is the opposite of «malato»?', opts:['sano', 'ferito', 'allergico'], a:0, why:'Sano: healthy.', nudge:'Sano come un pesce.' },
     { type:'mc', q:'«Ha ___?» (any illnesses?)', opts:['malattie', 'medicine', 'ferite'], a:0, why:'La malattia → le malattie.', nudge:'Being ill.' },
     { type:'mc', q:'«La ___ per il dolore.» (the medicine)', opts:['medicina', 'malattia', 'ferita'], a:0, why:'La medicina: a medicine.', nudge:'Three times a day.' },
     { type:'mc', q:'«La ___ bene.» (we’ll treat it)', opts:['curiamo', 'soffriamo', 'tagliamo'], a:0, why:'Curare: to treat, look after.', nudge:'What a doctor does.' },
