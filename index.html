@@ -1888,6 +1888,121 @@ body.tp-on .guide a,body.tp-on .guide button,body.tp-on .guide [data-v5start]{po
 body.tp-walk .guide{opacity:.35}
 @media (max-height:520px){ body.tp-on .guide:not(.low){top:6px;width:min(560px,calc(100% - 340px));font-size:13px;line-height:1.35;padding:6px 10px;gap:8px}
   body.tp-on .guide .tag{font-size:10px;padding:2px 5px} }
+
+/* ---------- the phone's apps (ui/camera.js): the home screen, the album, the camera's viewfinder over the world ---------- */
+.phone-screen.ph-apps-on{background:#f3efe6;min-height:min(560px,84vh);max-height:min(720px,88vh)}
+.phone-screen.ph-home{background:linear-gradient(170deg,#1c3d8f 0%,#2f5aa8 38%,#3f8aa0 70%,#f0b86a 100%);color:#fff}
+.ph-status{display:flex;align-items:center;justify-content:space-between;padding:10px 12px 0 22px;font:700 13px var(--body);letter-spacing:.04em}
+.ph-status .x{color:#fff;background:rgba(0,0,0,.18);border-color:rgba(255,255,255,.4)}
+.ph-wall{text-align:center;padding:22px 0 26px}
+.ph-clock{font:400 58px/1 var(--display);letter-spacing:.02em;text-shadow:0 2px 12px rgba(10,20,60,.35)}
+.ph-date{font:600 14px var(--body);opacity:.9;margin-top:6px}
+.ph-apps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px 10px;padding:6px 18px 10px}
+.ph-app{border:0;background:none;color:#fff;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;padding:4px;border-radius:14px;min-height:44px}
+.ph-app:hover .ph-ai,.ph-app:focus-visible .ph-ai{transform:translateY(-2px);box-shadow:0 8px 18px rgba(5,12,40,.4)}
+.ph-ai{position:relative;width:62px;height:62px;border-radius:17px;background:#fffdf8;display:grid;place-items:center;box-shadow:0 4px 12px rgba(5,12,40,.3);transition:transform .12s,box-shadow .12s}
+.ph-ai svg{width:44px;height:44px}
+.ph-app b{font:700 13px var(--body);text-shadow:0 1px 4px rgba(5,12,40,.5)}
+.ph-app small{font:600 11px var(--body);opacity:.85;margin-top:-4px}
+.ph-badge{position:absolute;top:-5px;right:-5px;min-width:20px;height:20px;border-radius:10px;background:var(--rosso);color:#fff;font:700 11px/20px var(--body);font-style:normal;padding:0 5px;border:2px solid #fff}
+.ph-hint{text-align:center;font-size:12.5px;opacity:.85;margin:auto 0 18px;padding:0 16px}
+.ph-hint kbd{background:rgba(255,255,255,.85)}
+.ph-top{padding:10px 10px 10px 6px}
+.ph-back{border:0;background:rgba(255,255,255,.16);color:#fff;font:700 14px var(--body);border-radius:999px;padding:6px 10px;cursor:pointer;white-space:nowrap;min-height:36px}
+.phone-screen.ph-apps-on .ph-body{flex:1;overflow-y:auto;padding:12px 12px 16px;overscroll-behavior:contain}
+.ph-albumcard{display:flex;align-items:center;gap:12px;width:100%;border:1.5px solid rgba(28,61,143,.18);background:#fffdf8;border-radius:14px;padding:8px;margin-bottom:10px;cursor:pointer;text-align:left;min-height:64px}
+.ph-albumcard:hover{border-color:var(--cobalto)}
+.ph-cov{width:64px;height:48px;border-radius:8px;overflow:hidden;background:#e8e1d2;display:grid;place-items:center;flex:none}
+.ph-cov img{width:100%;height:100%;object-fit:cover}
+.ph-cov i{font:700 22px var(--display);color:var(--muted);font-style:normal}
+.ph-at{flex:1;display:flex;flex-direction:column;line-height:1.25}
+.ph-at b{font:700 15px var(--body);color:var(--cobalto)}
+.ph-at small{color:var(--muted);font-size:12.5px}
+.ph-go{font:700 22px var(--body);color:var(--muted)}
+.ph-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px 8px}
+.ph-pol{border:0;background:#fffdf8;border-radius:4px;padding:5px 5px 4px;box-shadow:0 2px 6px rgba(20,20,40,.18);display:flex;flex-direction:column;gap:3px;cursor:pointer;min-height:44px}
+.ph-pol:nth-child(3n+1){transform:rotate(-1.4deg)} .ph-pol:nth-child(3n+2){transform:rotate(.9deg)} .ph-pol:nth-child(3n){transform:rotate(-.5deg)}
+.ph-pol:hover{box-shadow:0 4px 12px rgba(20,20,40,.28)}
+.ph-ph{aspect-ratio:4/3;background:#2a2c33;border-radius:2px;overflow:hidden;display:grid;place-items:center}
+.ph-ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ph-pol.blank .ph-ph{background:repeating-linear-gradient(45deg,#ece4d4 0 6px,#e3dac8 6px 12px)}
+.ph-ph i{font:400 30px var(--display);color:#a99c84;font-style:normal}
+.ph-pol b{font:700 12px var(--body);color:var(--inchiostro);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ph-pol.blank b{color:#a99c84}
+.ph-pol.miss{opacity:.7}
+.ph-page{display:flex;flex-direction:column;align-items:stretch}
+.ph-big{margin:0;background:#fffdf8;padding:8px 8px 10px;border-radius:4px;box-shadow:0 4px 14px rgba(20,20,40,.22);transform:rotate(-1deg)}
+.ph-big img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:2px}
+.ph-big i{display:grid;place-items:center;aspect-ratio:4/3;font:400 64px var(--display);color:#a99c84;font-style:normal;background:repeating-linear-gradient(45deg,#ece4d4 0 8px,#e3dac8 8px 16px)}
+.ph-pt{font:600 26px var(--display);color:var(--cobalto);margin:14px 0 0;text-align:center}
+.ph-ps{text-align:center;color:var(--muted);font-size:13.5px;margin:2px 0 6px}
+.ph-it{font:600 17px var(--body);margin:8px 0 0;display:flex;align-items:center;gap:8px;justify-content:center;text-align:center}
+.ph-it .spk{border:0;background:var(--carta);border-radius:50%;width:34px;height:34px;cursor:pointer;flex:none}
+.ph-en{font-style:italic;color:var(--muted);text-align:center;margin:3px 0 0;font-size:14px}
+.ph-nav{display:flex;justify-content:space-between;margin-top:auto;padding-top:14px}
+.ph-nav .btn{min-width:64px;min-height:44px;font-size:20px}
+.ph-note{font-size:12.5px;color:var(--muted);margin:12px 2px 0}
+.ph-empty{color:var(--muted);text-align:center;margin:30px 10px}
+/* the camera: the viewfinder over the canvas (.pcam-view: placed on the canvas each frame), its controls at the stage's bottom right (on a
+   phone held upright: in the letterbox under the canvas) */
+.pcam{position:absolute;inset:0;z-index:28;pointer-events:none;animation:pcamIn .22s ease}
+.pcam.out{opacity:0;transition:opacity .2s}
+@keyframes pcamIn{from{opacity:0}to{opacity:1}}
+.pcam-view{position:absolute;overflow:hidden;border-radius:6px}
+.pcam-vig{position:absolute;inset:0;box-shadow:inset 0 0 0 9999px rgba(8,12,24,0);background:radial-gradient(ellipse at 50% 50%,transparent 55%,rgba(5,8,20,.5) 100%)}
+.pcam-frame{position:absolute;left:19%;top:17%;width:62%;height:62%;box-shadow:0 0 0 9999px rgba(5,8,20,.32)}
+.pcam-frame .c{position:absolute;width:26px;height:26px;border:3.5px solid #fffdf8;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));transition:border-color .15s}
+.pcam-frame .tl{left:-2px;top:-2px;border-right:0;border-bottom:0;border-top-left-radius:6px}
+.pcam-frame .tr{right:-2px;top:-2px;border-left:0;border-bottom:0;border-top-right-radius:6px}
+.pcam-frame .bl{left:-2px;bottom:-2px;border-right:0;border-top:0;border-bottom-left-radius:6px}
+.pcam-frame .br{right:-2px;bottom:-2px;border-left:0;border-top:0;border-bottom-right-radius:6px}
+.pcam-dot{position:absolute;left:50%;top:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border:2px solid rgba(255,253,248,.85);border-radius:50%}
+.pcam-frame.near .c{border-color:#f4b928}
+.pcam-frame.good .c{border-color:#6fe08a}
+.pcam-frame.good .pcam-dot{border-color:#6fe08a;background:rgba(111,224,138,.35)}
+.pcam-top{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:10px;padding:8px 10px;background:linear-gradient(rgba(5,8,20,.55),transparent);color:#fff;font:700 13px var(--body)}
+.pcam-rec{letter-spacing:.12em}
+.pcam-rec::first-letter{color:#ff5a4a}
+.pcam-z{background:rgba(0,0,0,.35);border-radius:999px;padding:2px 9px;font-variant-numeric:tabular-nums}
+.pcam-x{margin-left:auto;pointer-events:auto;width:40px;height:40px;border-radius:50%;border:2px solid rgba(255,255,255,.7);background:rgba(5,8,20,.45);color:#fff;font:700 22px/1 var(--body);cursor:pointer}
+.pcam-say{position:absolute;left:50%;bottom:5%;transform:translateX(-50%);max-width:min(560px,90%);margin:0;background:rgba(15,34,96,.88);color:#fff;border-radius:12px;padding:8px 14px;font:600 15px/1.35 var(--body);text-align:center;box-shadow:0 6px 16px rgba(5,8,20,.35);transition:opacity .5s}
+.pcam-say.pop{animation:pcamPop .25s ease}
+.pcam-say.fade{opacity:0}
+.pcam-say kbd{font-size:11px}
+@keyframes pcamPop{from{transform:translateX(-50%) scale(.9);opacity:0}to{transform:translateX(-50%) scale(1);opacity:1}}
+.pcam-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+.pcam-flash.go{animation:pcamFlash .35s ease-out}
+@keyframes pcamFlash{0%{opacity:.85}100%{opacity:0}}
+.pcam-ctl{position:absolute;right:max(14px,env(safe-area-inset-right,0px));bottom:max(16px,calc(env(safe-area-inset-bottom,0px) + 10px));display:flex;flex-direction:column;align-items:center;gap:12px;pointer-events:none}
+.pcam-ctl button{pointer-events:auto;touch-action:none;cursor:pointer}
+.pcam-zoom{display:flex;flex-direction:column;align-items:center;gap:6px;background:rgba(5,8,20,.5);border-radius:999px;padding:6px}
+.pcam-zoom button{width:40px;height:40px;border-radius:50%;border:2px solid rgba(255,255,255,.7);background:rgba(255,255,255,.12);color:#fff;font:700 22px/1 var(--body)}
+.pcam-zbar{position:relative;width:6px;height:54px;border-radius:3px;background:rgba(255,255,255,.25);overflow:hidden}
+.pcam-zbar i{position:absolute;left:0;right:0;bottom:0;height:0;background:var(--giallo);transition:height .15s}
+.pcam-shut{width:80px;height:80px;border-radius:50%;border:5px solid #fffdf8;background:rgba(255,255,255,.18);display:grid;place-items:center;box-shadow:0 6px 18px rgba(5,8,20,.45)}
+.pcam-shut i{width:58px;height:58px;border-radius:50%;background:#fffdf8;transition:transform .08s}
+.pcam-shut:active i{transform:scale(.86)}
+.pcam-last{width:56px;height:42px;border-radius:8px;border:2.5px solid #fffdf8;padding:0;overflow:hidden;background:#222;box-shadow:0 4px 12px rgba(5,8,20,.4)}
+.pcam-last[hidden]{display:none}
+.pcam-last img{width:100%;height:100%;object-fit:cover;display:block}
+.pcam-last.pop{animation:pcamThumb .4s ease}
+@keyframes pcamThumb{0%{transform:scale(1.8) translateX(-40px);opacity:0}100%{transform:none;opacity:1}}
+.pcam-row{display:flex;align-items:center;gap:12px}
+/* a phone held upright: the canvas at the top, the controls in the letterbox under it, at the right (clear of the stick): the zoom across, the shutter
+   under it where the action button is */
+.pcam.below .pcam-ctl{align-items:flex-end;gap:10px}
+.pcam.below .pcam-zoom{flex-direction:row-reverse}
+@media (max-width:640px){ .pcam-say{font-size:13px;padding:6px 11px;bottom:3%;max-width:86%} .pcam-top{padding:6px 8px} }
+.pcam.below .pcam-zbar{width:54px;height:6px}
+.pcam.below .pcam-zbar i{top:0;bottom:0;right:auto;height:auto !important;width:var(--zw,0)}
+body.phonecam #guide{display:none}
+body.phonecam .tpad .tp-act,body.phonecam .tpad .tp-phone,body.phonecam .tpad .tp-gear{opacity:0 !important;visibility:hidden !important}
+/* the phone's button by the touch controls' gear */
+.tp-phone{width:46px;height:46px;border-radius:50%;padding:0;display:grid;place-items:center;cursor:pointer;background:var(--cobalto);color:var(--carta);border:2.5px solid rgba(243,233,212,.8);
+  box-shadow:0 4px 10px rgba(5,12,40,.35);opacity:0;visibility:hidden;transition:opacity .18s ease,visibility 0s linear .18s}
+.tp-phone svg{width:24px;height:24px}
+.tpad.phone-on .tp-phone{opacity:1;visibility:visible;transition:opacity .18s ease}
+.tpad .tp-side>.tp-phone{pointer-events:auto;touch-action:manipulation}
 </style>
 </head>
 <body>
@@ -6094,8 +6209,8 @@ const keys = new Set();
 /* running (a scene with run: × its walking speed): Shift held (ui/keyboard.js), or a double tap (and hold) on the canvas
    (world/update.js): the walk to that spot is run */
 const RUN = { key:false, tap:false, stick:false };      // (stick: the touch thumbstick pushed to its rim, ui/touchpad.js)
-const running = () => !!(scene().run && (RUN.key || RUN.tap || RUN.stick));
-const walkSpeed = () => (scene().speed || 170) * (running() ? scene().run : 1);
+const running = () => !!(scene().run && (RUN.key || RUN.tap || RUN.stick)) && !phoneCamOn();      // (the phone's camera up: never running, ui/camera.js)
+const walkSpeed = () => (scene().speed || 170) * (running() ? scene().run : 1) * (phoneCamOn() ? 0.5 : 1);      // (…and a slow walk)
 const frozen = () => introOpen || dialogOpen || modalOpen || traveling || pickOpen;
 /* which scene an NPC is in. Lesson hooks can move someone for their lesson: sceneOf(n) returns a scene key
    (Lesson 8 puts Lucia and Mark at the market); otherwise the unit's default (UNIT.defaultScene(n)), the NPC's own
@@ -9630,16 +9745,23 @@ function hbDbg(){ const hl = sheet.querySelector('.hb-hl'); return { open:modalO
   notes:hbNotes().map(N => ({ id:N.id, cards:N.cards.map(c => c.id) })) }; }
 
 /* ===== engine/ui/phone.js ===== */
-/* The phone: its Messaggi tab (the unit's texts: UNIT.phoneMessages()) and the tabs of ui/quests.js. */
+/* The phone: its Messaggi tab (the unit's texts: UNIT.phoneMessages()) and the tabs of ui/quests.js; with apps (ui/camera.js: a unit that
+   gives the phone any, PHONE_APPS) it opens on a home screen of apps instead. */
 
 /* ---------- phone ---------- */
 function openPhone(tab){
   if (introOpen || !unitHook('phoneShown')) return;
   S.phoneUnread = false; save(); renderHUD();
+  if (typeof phoneCamOn === 'function' && phoneCamOn()) phoneCamClose();
+  if (typeof phoneHome === 'function' && phoneHome(tab)) return;      // (the apps' home: ui/camera.js)
   openModal('phone');
   /* Lesson 12 on: the tabs, Messaggi · Compiti · Borsa · Passaporto (ui/quests.js) */
   PHONE_TAB = phoneTabsOn() ? (tab || PHONE_TAB || 'msg') : 'msg';
   if (PHONE_TAB !== 'msg'){ sheet.innerHTML = `<div class="phone-screen tab-${PHONE_TAB}">${phoneTabHTML(PHONE_TAB)}${phoneTabBar()}</div>`; return; }
+  openPhoneMsgs();
+}
+function openPhoneMsgs(){
+  if (!modalOpen) openModal('phone');
   if (unitHook('phoneMessages')) return;            // the unit's messages (Padova: Mark's texts, Lessons 3 and 5)
   sheet.innerHTML = `<div class="phone-screen">
     <div class="phone-top"><div><b>Messaggi</b></div><button class="x" data-close aria-label="Close phone">×</button></div>
@@ -11884,6 +12006,294 @@ sheet.addEventListener('click', e => {
 });
 $('#btnBag').onclick = () => openPhone('bag');
 Object.assign(window.__debug, { scheda(id, tab){ openScheda(id, tab); }, spot(id){ goSpot(id); } });
+
+/* ===== engine/ui/camera.js ===== */
+/* The phone's apps (every unit; generic, no unit's content): a home screen, the Camera and the Album.
+   - The HOME: once a unit gives the phone an app it can show (PHONE_APPS: { id, label, icon (html), shown?(), open(), sub?(), badge?() }), the phone
+     (ui/phone.js openPhone: the header's 📱 button, P; on a touch screen the 📱 beside the action button, ui/touchpad.js) opens on a home screen of
+     app icons. A unit without one (Padova) is unchanged: its Messaggi and tabs as before.
+   - The CAMERA (the engine's own app, shown while unitHook('phoneCamera') is true): a viewfinder over the live world (the world goes on; you walk
+     slowly with it up, never run): the frame's corners in the middle of the view, the zoom (×1 to ×2.5: −/+ buttons, the keys − and +, the wheel), the
+     shutter (the round button, Space, Enter or E), × or Esc closes it. Held up, the view looks ahead the way you face (further ahead zoomed in) and
+     the name tags and prompts are not drawn. What is in the picture is asked of the hooks: cameraSubjects() → [{ id, x, y (its feet), h (px tall),
+     still (not moving), label }] (every hook's, together); a subject counts when it is inside the frame, within CAM_RANGE × the zoom of you, still,
+     and you are not running. The shot is judged (cam.judge: 'ok' | 'none' | 'far' | 'moving' | 'running'), the picture cut from the canvas (a
+     small JPEG), kept on the camera roll (S.camera.roll, the last CAM_ROLL), and given to the hooks' cameraShot(shot) → { ok, title, msg } (a
+     unit keeps it in an album of its own); the viewfinder says it.
+   - The ALBUM: the units' albums (PHONE_ALBUMS: { id, title, sub?(), shown?(), cover?(), pages() → [{ id, img | null, title, sub?, it?, en?, html? }] }):
+     a grid of pages (a blank one a "?"), a page at a time (‹ ›); and the camera roll.
+   - Events for a unit's tutorial: hooksEach('phoneEvent', name, o): 'home', 'camera', 'shot' (o: the shot), 'cameraClose', 'album' (o.id), 'page'.
+   Tests: __dbg().phone = { open, view, apps, camera:{ on, zoom, status, shots }, roll }; __debug.phoneCam(on), phoneZoom(z), phoneShoot(),
+   phoneView(view), cameraSubjects(). */
+const PHONE_APPS = [];
+const PHONE_ALBUMS = [];
+const CAM_ZOOM = { min:1, max:2.5, step:0.25 };
+const CAM_ROLL = 10;                                  // (photos kept on the roll: small JPEGs in the save)
+const camM = () => UNIT.cameraScale || 24;            // (world px a metre: Venezia's 24)
+const CAM_RANGE = 4.5;                                // (metres at ×1; × the zoom)
+const PHONECAM = { on:false, zoom:1, el:null, lead:{ x:0, y:0 }, status:null, shots:0, last:null, msgT:null, raf:0, frames:0 };
+let PHONE_VIEW = 'home';
+const phoneApps = () => PHONE_APPS.filter(a => { try { return !a.shown || a.shown(); } catch (e){ return false; } });
+const phoneAlbums = () => PHONE_ALBUMS.filter(a => { try { return !a.shown || a.shown(); } catch (e){ return false; } });
+const phoneCamOn = () => PHONECAM.on;
+const phoneCamZoom = () => PHONECAM.on ? PHONECAM.zoom : 1;
+const phoneCamLead = () => PHONECAM.on ? PHONECAM.lead : { x:0, y:0 };
+function phoneEvent(name, o){ try { hooksEach('phoneEvent', name, o || {}); } catch (e){ console.error(e); } }
+function cameraRec(){ if (!S.camera || typeof S.camera !== 'object') S.camera = { roll:[], shots:0 }; S.camera.roll = S.camera.roll || []; return S.camera; }
+
+/* the engine's two apps */
+const PH_ICONS = {
+  camera:'<svg viewBox="0 0 48 48" aria-hidden="true"><rect x="5" y="13" width="38" height="27" rx="6" fill="#2b2f38"/><path d="M17 13l3-5h8l3 5z" fill="#2b2f38"/><circle cx="24" cy="26.5" r="9.5" fill="#cfd8e3"/><circle cx="24" cy="26.5" r="6.5" fill="#1c3d8f"/><circle cx="21.6" cy="24.2" r="2" fill="#fff" opacity=".8"/><circle cx="37" cy="18" r="1.8" fill="#f4b928"/></svg>',
+  album:'<svg viewBox="0 0 48 48" aria-hidden="true"><rect x="9" y="7" width="28" height="34" rx="3" fill="#c23b2a" transform="rotate(-8 23 24)"/><rect x="11" y="8" width="28" height="33" rx="3" fill="#fffdf6" stroke="#d8cfbc"/><rect x="14.5" y="11.5" width="21" height="17" fill="#7fb0cf"/><path d="M14.5 28.5l7-8 5 5 3-3 6 6z" fill="#3f8a5e"/><circle cx="31" cy="16" r="2.4" fill="#f4b928"/><rect x="14.5" y="32" width="14" height="2" fill="#b8ad98"/><rect x="14.5" y="36" width="9" height="2" fill="#d2c8b4"/></svg>',
+  msg:'<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 12h32a4 4 0 0 1 4 4v15a4 4 0 0 1-4 4H22l-8 7v-7H8a4 4 0 0 1-4-4V16a4 4 0 0 1 4-4z" fill="#3f9a5e"/><circle cx="16" cy="23.5" r="2.4" fill="#fff"/><circle cx="24" cy="23.5" r="2.4" fill="#fff"/><circle cx="32" cy="23.5" r="2.4" fill="#fff"/></svg>',
+};
+PHONE_APPS.push(
+  { id:'camera', label:'Fotocamera', en:'Camera', icon:PH_ICONS.camera, shown:() => !!unitHook('phoneCamera'), open:() => phoneCamOpen() },
+  { id:'album', label:'Album', en:'Photos', icon:PH_ICONS.album, shown:() => !!unitHook('phoneCamera') || phoneAlbums().length > 0, open:() => phoneView('albums'),
+    badge:() => { const n = (cameraRec().roll || []).length; return n ? String(n) : ''; } },
+);
+
+/* ---------- the home screen and the album (inside the phone's sheet: ui/phone.js openPhone) ---------- */
+const phTime = () => { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
+const phBack = (to, label) => `<button class="ph-back" data-ph-view="${to}" aria-label="Back">‹ ${label}</button>`;
+function phoneHomeHTML(){
+  const apps = phoneApps(), msgs = typeof UNIT.phoneMessages === 'function';
+  const days = ['domenica', 'lunedì', 'martedì', 'mercoledì', 'giovedì', 'venerdì', 'sabato'], months = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'], d = new Date();
+  const icon = a => `<button class="ph-app" data-ph-app="${a.id}" aria-label="${esc(a.label)}${a.en ? ' (' + esc(a.en) + ')' : ''}"><span class="ph-ai">${a.icon || ''}${a.badge && a.badge() ? `<i class="ph-badge">${esc(a.badge())}</i>` : ''}</span><b>${esc(a.label)}</b>${a.sub ? `<small>${esc(a.sub() || '')}</small>` : ''}</button>`;
+  return `<div class="ph-status"><span>${phTime()}</span><button class="x" data-close aria-label="Close phone">×</button></div>
+    <div class="ph-wall"><div class="ph-clock">${phTime()}</div><div class="ph-date">${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}</div></div>
+    <div class="ph-apps">${apps.map(icon).join('')}${msgs ? icon({ id:'msg', label:'Messaggi', en:'Messages', icon:PH_ICONS.msg }) : ''}</div>
+    <p class="ph-hint">${typeof TP !== 'undefined' && TP.touch ? 'Tap an app.' : 'Tap an app. <kbd>Esc</kbd> closes the phone.'}</p>`;
+}
+function phoneAlbumsHTML(){
+  const A = phoneAlbums(), roll = cameraRec().roll;
+  const card = a => { const P = a.pages(), got = P.filter(p => p.img).length, cov = (a.cover && a.cover()) || (P.find(p => p.img) || {}).img;
+    return `<button class="ph-albumcard" data-ph-view="album:${a.id}"><span class="ph-cov">${cov ? `<img src="${cov}" alt="">` : '<i>?</i>'}</span>
+      <span class="ph-at"><b>${esc(a.title)}</b><small>${esc((a.sub && a.sub()) || `${got} / ${P.length}`)}</small></span><span class="ph-go">›</span></button>`; };
+  return `<div class="phone-top ph-top">${phBack('home', 'Home')}<div><b>Album</b><small>Your photos</small></div><button class="x" data-close aria-label="Close phone">×</button></div>
+    <div class="ph-body ph-albums">${A.map(card).join('')}
+      <button class="ph-albumcard roll" data-ph-view="roll"><span class="ph-cov">${roll[0] ? `<img src="${roll[0].img}" alt="">` : '<i>📷</i>'}</span>
+        <span class="ph-at"><b>Rullino</b><small>Camera roll · ${roll.length} ${roll.length === 1 ? 'photo' : 'photos'}</small></span><span class="ph-go">›</span></button></div>`;
+}
+function phoneAlbumHTML(id){
+  const a = PHONE_ALBUMS.find(q => q.id === id); if (!a) return phoneAlbumsHTML();
+  const P = a.pages(), got = P.filter(p => p.img).length;
+  return `<div class="phone-top ph-top">${phBack('albums', 'Album')}<div><b>${esc(a.title)}</b><small>${esc((a.sub && a.sub()) || `${got} / ${P.length}`)}</small></div><button class="x" data-close aria-label="Close phone">×</button></div>
+    <div class="ph-body"><div class="ph-grid">${P.map((p, i) => `<button class="ph-pol${p.img ? '' : ' blank'}" data-ph-view="page:${id}:${i}" aria-label="${esc(p.img ? p.title : 'Not found yet')}">
+      <span class="ph-ph">${p.img ? `<img src="${p.img}" alt="">` : '<i>?</i>'}</span><b>${esc(p.img ? p.title : '?')}</b></button>`).join('')}</div>
+      ${a.foot ? `<p class="ph-note">${a.foot()}</p>` : ''}</div>`;
+}
+function phonePageHTML(id, i){
+  const a = PHONE_ALBUMS.find(q => q.id === id); if (!a) return phoneAlbumsHTML();
+  const P = a.pages(), n = P.length; i = ((i % n) + n) % n; const p = P[i];
+  return `<div class="phone-top ph-top">${phBack('album:' + id, esc(a.title))}<div><b>${i + 1} / ${n}</b><small>${esc(a.title)}</small></div><button class="x" data-close aria-label="Close phone">×</button></div>
+    <div class="ph-body ph-page${p.img ? '' : ' blank'}">
+      <figure class="ph-big">${p.img ? `<img src="${p.img}" alt="${esc(p.title)}">` : '<i>?</i>'}</figure>
+      <h3 class="ph-pt">${esc(p.img ? p.title : '?')}</h3>${p.sub ? `<p class="ph-ps">${p.sub}</p>` : ''}
+      ${p.it ? `<p class="ph-it"><button class="spk" data-say="${esc(p.it)}" aria-label="Listen">🔊</button> <span lang="it">${esc(p.it)}</span></p>${p.en ? `<p class="ph-en">${esc(p.en)}</p>` : ''}` : ''}
+      ${p.html || ''}
+      <div class="ph-nav"><button class="btn" data-ph-view="page:${id}:${i - 1}" aria-label="Previous page">‹</button><button class="btn" data-ph-view="page:${id}:${i + 1}" aria-label="Next page">›</button></div></div>`;
+}
+function phoneRollHTML(){
+  const R = cameraRec().roll;
+  return `<div class="phone-top ph-top">${phBack('albums', 'Album')}<div><b>Rullino</b><small>The last ${CAM_ROLL} photos</small></div><button class="x" data-close aria-label="Close phone">×</button></div>
+    <div class="ph-body">${R.length ? `<div class="ph-grid roll">${R.map(r => `<span class="ph-pol${r.ok ? '' : ' miss'}"><span class="ph-ph"><img src="${r.img}" alt=""></span><b>${esc(r.label || '')}</b></span>`).join('')}</div>` : '<p class="ph-empty">No photos yet. Open the camera: <b>Fotocamera</b>.</p>'}</div>`;
+}
+/* show a view of the phone (opening the phone first if it is closed): 'home', 'albums', 'album:<id>', 'page:<id>:<i>', 'roll' */
+function phoneView(v){
+  if (!modalOpen || !sheet.classList.contains('phone')){ if (introOpen) return; openModal('phone'); }
+  PHONE_VIEW = v || 'home';
+  const [k, id, i] = PHONE_VIEW.split(':');
+  const html = k === 'albums' ? phoneAlbumsHTML() : k === 'album' ? phoneAlbumHTML(id) : k === 'page' ? phonePageHTML(id, +i) : k === 'roll' ? phoneRollHTML() : phoneHomeHTML();
+  sheet.innerHTML = `<div class="phone-screen ph-apps-on ph-${k}">${html}</div>`;
+  phoneEvent(k === 'home' ? 'home' : k === 'albums' ? 'albums' : k, { id, i:+i });
+}
+/* ui/phone.js asks: a unit with apps opens on the home screen (or the app asked for) */
+function phoneHome(tab){
+  if (!phoneApps().length) return false;
+  if (tab && tab !== 'home' && !PHONE_APPS.some(a => a.id === tab) && !/^(albums|album:|page:|roll)/.test(tab)) return false;    // (a tab of ui/quests.js: as before)
+  if (tab === 'camera'){ phoneCamOpen(); return true; }
+  const app = PHONE_APPS.find(a => a.id === tab);
+  if (app && app.id !== 'album'){ openModal('phone'); phoneView('home'); app.open(); return true; }
+  openModal('phone'); phoneView(app ? 'albums' : tab || 'home');
+  return true;
+}
+sheet.addEventListener('click', e => {
+  if (!sheet.classList.contains('phone')) return;
+  const ap = e.target.closest('[data-ph-app]');
+  if (ap){ const id = ap.dataset.phApp; if (id === 'msg'){ PHONE_VIEW = 'msg'; PHONE_TAB = 'msg'; openPhoneMsgs(); return; } const a = PHONE_APPS.find(q => q.id === id); if (a) a.open(); return; }
+  const v = e.target.closest('[data-ph-view]'); if (v){ phoneView(v.dataset.phView); return; }
+});
+
+/* ---------- the camera ---------- */
+function phoneCamOpen(){
+  if (PHONECAM.on) return true;
+  if (modalOpen) closeModal();
+  if (dialogOpen || traveling || introOpen) return false;
+  Object.assign(PHONECAM, { on:true, zoom:1, lead:{ x:0, y:0 }, status:null, frames:0 });
+  keys.clear(); target = null; route = [];
+  const el = document.createElement('div');
+  el.className = 'pcam'; el.setAttribute('role', 'application'); el.setAttribute('aria-label', 'Camera');
+  el.innerHTML = `<div class="pcam-view"><div class="pcam-vig"></div>
+      <div class="pcam-frame"><i class="c tl"></i><i class="c tr"></i><i class="c bl"></i><i class="c br"></i><i class="pcam-dot"></i></div>
+      <div class="pcam-top"><span class="pcam-rec">● FOTO</span><span class="pcam-z">×1</span><button class="pcam-x" data-pc="x" aria-label="Close the camera (Esc)">×</button></div>
+      <p class="pcam-say" aria-live="polite"></p><div class="pcam-flash"></div></div>
+    <div class="pcam-ctl"><div class="pcam-zoom"><button data-pc="zin" aria-label="Zoom in (+)">+</button><span class="pcam-zbar"><i></i></span><button data-pc="zout" aria-label="Zoom out (−)">−</button></div>
+      <div class="pcam-row"><button class="pcam-last" data-pc="last" aria-label="The album" hidden></button><button class="pcam-shut" data-pc="shoot" aria-label="Take a picture (Space)"><i></i></button></div></div>`;
+  ($('#stage') || document.body).appendChild(el);
+  PHONECAM.el = el;
+  el.addEventListener('pointerdown', e => { const b = e.target.closest('[data-pc]'); if (!b) return; e.preventDefault(); e.stopPropagation(); phoneCamButton(b.dataset.pc); });
+  el.addEventListener('click', e => { if (e.target.closest('[data-pc]')) { e.preventDefault(); e.stopPropagation(); } });
+  el.addEventListener('wheel', e => { e.preventDefault(); phoneCamZoomBy(e.deltaY < 0 ? 1 : -1); }, { passive:false });
+  document.addEventListener('keydown', phoneCamKey, true);
+  document.body.classList.add('phonecam');
+  const last = cameraRec().roll[0]; if (last) phoneCamThumb(last.img);
+  phoneEvent('camera');
+  const touch = typeof TP !== 'undefined' && TP.touch;
+  phoneCamSay(unitHook('cameraHint') || askHooks('cameraHint') || (touch ? 'Frame it, then the round button. <b>− +</b> zoom · <b>×</b> closes.' : 'Frame it, then the round button (or <kbd>Space</kbd>). <kbd>+</kbd> <kbd>−</kbd> zoom · <kbd>Esc</kbd> closes.'), 4200);
+  cancelAnimationFrame(PHONECAM.raf); PHONECAM.raf = requestAnimationFrame(phoneCamFrame);
+  return true;
+}
+function phoneCamClose(o = {}){
+  if (!PHONECAM.on) return;
+  PHONECAM.on = false; cancelAnimationFrame(PHONECAM.raf);
+  document.removeEventListener('keydown', phoneCamKey, true);
+  document.body.classList.remove('phonecam');
+  const el = PHONECAM.el; PHONECAM.el = null; if (el){ el.classList.add('out'); setTimeout(() => el.remove(), 220); }
+  keys.clear();
+  phoneEvent('cameraClose');
+  if (o.album) setTimeout(() => openPhone('albums'), 60);
+  else if (o.home) setTimeout(() => openPhone(), 60);
+}
+function phoneCamButton(k){
+  if (k === 'x') phoneCamClose({ home:true });
+  else if (k === 'zin') phoneCamZoomBy(1);
+  else if (k === 'zout') phoneCamZoomBy(-1);
+  else if (k === 'shoot') phoneCamShoot();
+  else if (k === 'last') phoneCamClose({ album:true });
+}
+function phoneCamZoomBy(d){ phoneCamSetZoom(PHONECAM.zoom + d * CAM_ZOOM.step); }
+function phoneCamSetZoom(z){
+  PHONECAM.zoom = Math.max(CAM_ZOOM.min, Math.min(CAM_ZOOM.max, Math.round(z / CAM_ZOOM.step) * CAM_ZOOM.step));
+  const el = PHONECAM.el; if (!el) return PHONECAM.zoom;
+  el.querySelector('.pcam-z').textContent = '×' + (Math.round(PHONECAM.zoom * 100) / 100);
+  { const i = el.querySelector('.pcam-zbar i'), pc = (100 * (PHONECAM.zoom - CAM_ZOOM.min) / (CAM_ZOOM.max - CAM_ZOOM.min)) + '%'; i.style.height = pc; i.style.setProperty('--zw', pc); }
+  return PHONECAM.zoom;
+}
+function phoneCamKey(e){
+  if (!PHONECAM.on) return;
+  const k = e.key;
+  if (e.target && e.target.matches && e.target.matches('input, textarea')) return;
+  if (modalOpen || dialogOpen) return;
+  if (DIRS[k.toLowerCase()] && !e.metaKey && !e.ctrlKey) return;          // (walking: the world's)
+  if (k === 'Shift') return;
+  e.preventDefault(); e.stopPropagation();
+  if (e.repeat && (k === ' ' || k === 'Enter' || k === 'e' || k === 'E')) return;
+  if (k === 'Escape' || k === 'p' || k === 'P') phoneCamClose({ home:k !== 'Escape' });
+  else if (k === ' ' || k === 'Enter' || k === 'e' || k === 'E') phoneCamShoot();
+  else if (k === '+' || k === '=' || k === 'ArrowUp' && e.shiftKey) phoneCamZoomBy(1);
+  else if (k === '-' || k === '_') phoneCamZoomBy(-1);
+}
+/* the frame (CSS px of the page) and the world's rect under it */
+function phoneCamFrameRect(){
+  const el = PHONECAM.el; if (!el) return null;
+  const f = el.querySelector('.pcam-frame').getBoundingClientRect(), c = cv.getBoundingClientRect(), v = window.__view ? __view() : { x:cam.x, y:cam.y, z:camZoom() };
+  const s = c.width / W * v.z;                                             // (CSS px per world px: the canvas's scale × the zoom)
+  return { css:f, canvas:c, world:{ x:v.x + (f.left - c.left) / s, y:v.y + (f.top - c.top) / s, w:f.width / s, h:f.height / s } };
+}
+/* every hook's subjects, each judged: in the frame (its middle), near enough (CAM_RANGE × the zoom), still */
+function phoneCamSubjects(){
+  const out = []; hooks().forEach(h => { if (typeof h.cameraSubjects === 'function') try { (h.cameraSubjects() || []).forEach(s => out.push(s)); } catch (e){ console.error(e); } });
+  const F = phoneCamFrameRect(); if (!F) return [];
+  const R = F.world, range = CAM_RANGE * camM() * PHONECAM.zoom;
+  return out.map(s => { const h = s.h || 18, cx = s.x, cy = s.y - h / 2, inFrame = cx > R.x && cx < R.x + R.w && cy > R.y && cy < R.y + R.h;
+    const dist = Math.hypot(s.x - player.x, s.y - player.y);
+    return { ...s, inFrame, dist:Math.round(dist), near:dist <= range, m:Math.round(dist / camM() * 10) / 10 }; });
+}
+function phoneCamJudge(list){
+  const inF = list.filter(s => s.inFrame), run = !!(player.running);
+  const ok = inF.filter(s => s.near && s.still).sort((a, b) => a.dist - b.dist);
+  if (!inF.length) return { judge:'none', subject:null };
+  if (run) return { judge:'running', subject:inF[0] };
+  if (ok.length) return { judge:'ok', subject:ok[0] };
+  const far = inF.filter(s => s.still && !s.near).sort((a, b) => a.dist - b.dist)[0];
+  if (far) return { judge:'far', subject:far };
+  return { judge:'moving', subject:inF.sort((a, b) => a.dist - b.dist)[0] };
+}
+const CAM_SAY = { none:'Nothing in the picture: frame it inside the corners.', far:'Too far: go closer, or zoom in (+).', moving:'Blurred: it moved. Wait till it is still.', running:'Blurred: you were running. Walk, or stop.' };
+function phoneCamFrame(){
+  if (!PHONECAM.on) return;
+  PHONECAM.frames++;
+  if (traveling || dialogOpen || introOpen || (typeof cutsceneOn === 'function' && cutsceneOn())){ phoneCamClose(); return; }
+  /* the view over the canvas (on a phone held upright the canvas is the top of the stage: the controls go in the letterbox under it) */
+  const el = PHONECAM.el, st = $('#stage').getBoundingClientRect(), c = cv.getBoundingClientRect();
+  const v = el.querySelector('.pcam-view'); v.style.left = (c.left - st.left) + 'px'; v.style.top = (c.top - st.top) + 'px'; v.style.width = c.width + 'px'; v.style.height = c.height + 'px';
+  el.classList.toggle('below', st.bottom - c.bottom > 150);
+  /* the lead: the view looks ahead the way you face, further zoomed in (eased) */
+  const f = player.face || { x:0, y:1 }, l = Math.hypot(f.x, f.y) || 1, M = camM(), d = (1.2 + 2.4 * (PHONECAM.zoom - 1)) * M;
+  const tx = f.x / l * d, ty = f.y / l * d, k = RM ? 1 : 0.12;
+  PHONECAM.lead.x += (tx - PHONECAM.lead.x) * k; PHONECAM.lead.y += (ty - PHONECAM.lead.y) * k;
+  /* the corners: green when a picture now would count, amber when something is framed but not right */
+  if (PHONECAM.frames % 3 === 0){ const J = phoneCamJudge(phoneCamSubjects()); PHONECAM.status = J;
+    const fr = el.querySelector('.pcam-frame'); fr.classList.toggle('good', J.judge === 'ok'); fr.classList.toggle('near', J.judge !== 'ok' && J.judge !== 'none'); }
+  PHONECAM.raf = requestAnimationFrame(phoneCamFrame);
+}
+function phoneCamSay(html, ms){
+  const el = PHONECAM.el; if (!el) return; const p = el.querySelector('.pcam-say');
+  p.innerHTML = html; p.classList.remove('pop'); void p.offsetWidth; p.classList.add('pop'); p.hidden = false;
+  clearTimeout(PHONECAM.msgT); PHONECAM.msgT = setTimeout(() => { if (p) p.classList.add('fade'); }, ms || 2600);
+  p.classList.remove('fade');
+}
+function phoneCamThumb(img){ const b = PHONECAM.el && PHONECAM.el.querySelector('.pcam-last'); if (!b) return; b.hidden = false; b.innerHTML = `<img src="${img}" alt="">`; b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop'); }
+/* the picture: the frame's part of the canvas, as a small JPEG (240 × 180); with a subject that counts, the part round it (the camera's focus:
+   CAM_SHOT metres wide at ×1, less zoomed in), so the album's photo is of the cat, not of the street */
+const CAM_SHOT = 6;
+function phoneCamCapture(subject){
+  const F = phoneCamFrameRect(); if (!F) return null;
+  const k = cv.width / F.canvas.width;
+  let sx = (F.css.left - F.canvas.left) * k, sy = (F.css.top - F.canvas.top) * k, sw = F.css.width * k, sh = F.css.height * k;
+  if (subject){ const v = __view(), cpx = F.canvas.width / W * v.z * k;          // (canvas px per world px)
+    const ww = Math.min(sw, CAM_SHOT * camM() / PHONECAM.zoom * cpx), hh = ww * sh / sw;
+    const cx = (subject.x - v.x) * cpx, cy = (subject.y - (subject.h || 18) / 2 - v.y) * cpx;
+    sx = Math.max(0, Math.min(cv.width - ww, cx - ww / 2)); sy = Math.max(0, Math.min(cv.height - hh, cy - hh * 0.55)); sw = ww; sh = hh; }
+  const c = document.createElement('canvas'); c.width = 240; c.height = Math.round(240 * F.css.height / F.css.width);
+  const g = c.getContext('2d'); g.fillStyle = '#222'; g.fillRect(0, 0, c.width, c.height);
+  try { g.drawImage(cv, sx, sy, sw, sh, 0, 0, c.width, c.height); return c.toDataURL('image/jpeg', 0.74); } catch (e){ return null; }
+}
+function phoneCamShoot(){
+  if (!PHONECAM.on) return null;
+  const list = phoneCamSubjects(), J = phoneCamJudge(list), img = phoneCamCapture(J.judge === 'ok' ? J.subject : null);
+  const shot = { t:Date.now(), img, judge:J.judge, subject:J.subject ? { id:J.subject.id, label:J.subject.label, m:J.subject.m, still:J.subject.still } : null, zoom:PHONECAM.zoom, scene:S.scene,
+    framed:list.filter(s => s.inFrame).map(s => s.id) };
+  PHONECAM.shots++; PHONECAM.last = shot;
+  const el = PHONECAM.el, fl = el.querySelector('.pcam-flash'); fl.classList.remove('go'); void fl.offsetWidth; fl.classList.add('go');
+  try { if (S.sound !== false){ const A = window.AudioContext || window.webkitAudioContext; if (A){ const a = phoneCamShoot.ac || (phoneCamShoot.ac = new A()), o = a.createOscillator(), g = a.createGain(); o.type = 'square'; o.frequency.value = 2400; g.gain.setValueAtTime(0.05, a.currentTime); g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + 0.07); o.connect(g).connect(a.destination); o.start(); o.stop(a.currentTime + 0.08); } } } catch (e){}
+  /* the unit's answer (an album of its own), else the camera's own words */
+  let res = null; for (const h of hooks()){ if (typeof h.cameraShot === 'function'){ const r = h.cameraShot(shot); if (r){ res = r; break; } } }
+  const R = cameraRec();
+  if (img){ R.roll.unshift({ t:shot.t, img, ok:J.judge === 'ok', label:(res && res.label) || (J.subject && J.judge === 'ok' ? J.subject.label : '') || '', scene:S.scene }); R.roll.length = Math.min(R.roll.length, CAM_ROLL); }
+  R.shots = (R.shots || 0) + 1; save();
+  if (img) phoneCamThumb(img);
+  phoneCamSay(res && res.msg ? res.msg : J.judge === 'ok' ? `📷 <b>${esc(J.subject.label || 'Got it!')}</b>` : CAM_SAY[J.judge], res && res.ms || 2800);
+  phoneEvent('shot', shot);
+  return shot;
+}
+
+/* ---------- tests ---------- */
+dbgField('phone', () => ({ open:modalOpen && sheet.classList.contains('phone'), view:modalOpen && sheet.classList.contains('phone') ? PHONE_VIEW : null, shown:!!unitHook('phoneShown'),
+  apps:phoneApps().map(a => a.id), albums:phoneAlbums().map(a => ({ id:a.id, pages:a.pages().length, got:a.pages().filter(p => p.img).length })),
+  camera:{ on:PHONECAM.on, zoom:PHONECAM.zoom, shots:PHONECAM.shots, status:PHONECAM.status ? { judge:PHONECAM.status.judge, subject:PHONECAM.status.subject ? PHONECAM.status.subject.id : null } : null,
+    last:PHONECAM.last ? { judge:PHONECAM.last.judge, subject:PHONECAM.last.subject, framed:PHONECAM.last.framed, img:!!PHONECAM.last.img, zoom:PHONECAM.last.zoom } : null,
+    frame:PHONECAM.on ? (r => r && { x:Math.round(r.world.x), y:Math.round(r.world.y), w:Math.round(r.world.w), h:Math.round(r.world.h), css:{ x:Math.round(r.css.left), y:Math.round(r.css.top), w:Math.round(r.css.width), h:Math.round(r.css.height) } })(phoneCamFrameRect()) : null,
+    shutter:PHONECAM.on ? (b => b && { x:Math.round(b.left + b.width / 2), y:Math.round(b.top + b.height / 2), w:Math.round(b.width) })(PHONECAM.el.querySelector('.pcam-shut').getBoundingClientRect()) : null },
+  roll:(S.camera && S.camera.roll || []).length }));
+Object.assign(window.__debug, {
+  phoneCam(on = true){ return on ? phoneCamOpen() : (phoneCamClose(), false); },
+  phoneZoom(z){ return phoneCamSetZoom(z); },
+  phoneShoot(){ const s = phoneCamShoot(); return s && { judge:s.judge, subject:s.subject, framed:s.framed, img:!!s.img }; },
+  phoneView(v){ phoneView(v); return PHONE_VIEW; },
+  cameraSubjects(){ return phoneCamSubjects(); },
+});
 
 /* ===== engine/world/travel.js ===== */
 /* travelTo() between scenes, and the stats block on lesson-complete screens. */
@@ -31166,7 +31576,7 @@ const scene = () => SCENES[S.scene] || SCENES[UNIT.start.scene];
    viewH), so below 1 more of the world is in view; draw() scales by it and the pointer divides by it. */
 const cam = { x:0, y:0, overview:false };
 const sceneW = () => scene().w || W, sceneH = () => scene().h || H;
-const camZoom = () => cam.overview ? 1 : scene().zoom || 1;
+const camZoom = () => cam.overview ? 1 : (scene().zoom || 1) * phoneCamZoom();      // (× the phone's camera's zoom while it is up: ui/camera.js)
 const viewW = () => W / camZoom(), viewH = () => H / camZoom();
 /* the world point under a point of the canvas (cx, cy in canvas px, 0–W × 0–H), and back (tests: window.__view) */
 const screenToWorld = (cx, cy) => ({ x:cx / camZoom() + cam.x, y:cy / camZoom() + cam.y });
@@ -31177,10 +31587,11 @@ function updateCam(){
   const midX = sc.camCenter && sw < W ? (sw - W) / 2 : null, midY = sc.camCenter && sh < H ? (sh - H) / 2 : null;
   const clampX = v => midX !== null ? midX : Math.max(0, Math.min(sw - W, v)), clampY = v => midY !== null ? midY : Math.max(0, Math.min(sh - H, v));
   if (cam.overview || (sw <= W && sh <= H)){ cam.x = cam.overview || midX === null ? 0 : Math.round(midX); cam.y = cam.overview || midY === null ? 0 : Math.round(midY); return; }
-  const fx = sc.focusX ? sc.focusX() : player.x;          // (a scene can look elsewhere for a moment: the night train's beats; focusY too)
+  const PL = phoneCamLead();                               // (the phone's camera up: the view looks ahead the way you face, ui/camera.js)
+  const fx = (sc.focusX ? sc.focusX() : player.x) + PL.x;          // (a scene can look elsewhere for a moment: the night train's beats; focusY too)
   /* a big map's chunk keeps the camera inside its camBox, and may follow with smoothing (camEase: world/tilemap.js) */
   const B = sc.camBox || { x:0, y:0, w:sw, h:sh };
-  const tx = Math.max(B.x, Math.min(B.x + Math.max(0, B.w - W), fx - W / 2)), ty = Math.max(B.y, Math.min(B.y + Math.max(0, B.h - H), (sc.focusY ? sc.focusY() : player.y) - H * (sc.camAnchor || 0.5)));   // (camAnchor: how far down the view the player is)
+  const tx = Math.max(B.x, Math.min(B.x + Math.max(0, B.w - W), fx - W / 2)), ty = Math.max(B.y, Math.min(B.y + Math.max(0, B.h - H), (sc.focusY ? sc.focusY() : player.y) + PL.y - H * (phoneCamOn() ? 0.5 : sc.camAnchor || 0.5)));   // (camAnchor: how far down the view the player is)
   if (!sc.camEase){ cam.x = Math.round(clampX(tx)); cam.y = Math.round(clampY(ty)); return; }
   const now = performance.now(), dt = Math.min(0.1, (now - (cam.lt || now)) / 1000); cam.lt = now;
   if (cam.trav !== traveling || cam.fx === undefined || Math.hypot(tx - cam.fx, ty - cam.fy) > 1.5 * W || RM){ cam.fx = tx; cam.fy = ty; }   // (through a door: no slide; into the next chunk: a slide)
@@ -31646,6 +32057,8 @@ window.addEventListener('resize', fit);
    - The BUTTON does what E does (a real 'e' keydown: every unit's key hook, cutscenes, landmarks, people, doors), labelled with
      the verb of the E prompt drawn this frame (render/sprites.js pill(): any pill ending "· E": Parla, Entra, Guarda, Raccogli,
      Permesso!…), dimmed when there is none; a light haptic tap.
+   - The PHONE (a unit that shows it: unitHook('phoneShown')): a small 📱 button above the gear, the header's 📱 or P (ui/phone.js; its camera hides
+     the button and the phone's button: it has a shutter of its own there, ui/camera.js).
    - Each control follows its own pointer (multi-touch: walk and press at once). Touches on them never reach the canvas, so
      tap-to-walk works everywhere else.
    Tests: window.__touch() (below); tests/padova/touch-controls.js, tests/venezia/touch-controls.js. */
@@ -31662,6 +32075,7 @@ const tpCoarse = () => !!(window.matchMedia && matchMedia('(pointer: coarse)').m
 TP.touch = tpCoarse();
 
 const TP_GEAR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>';
+const TP_PHONE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.2"/><path d="M10.5 18.5h3"/></svg>';
 const TP_HAND = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V12"/><path d="M11 11.5v-2a1.5 1.5 0 0 1 3 0V12"/><path d="M14 10.5a1.5 1.5 0 0 1 3 0V12"/><path d="M17 11.5a1.5 1.5 0 0 1 3 0V16a6 6 0 0 1-6 6h-2a6 6 0 0 1-5-2.7l-2.6-4a1.6 1.6 0 0 1 2.6-1.9L8 15"/></svg>';
 
 function tpBuild(){
@@ -31669,11 +32083,13 @@ function tpBuild(){
   el.id = 'tpad'; el.className = 'tpad'; el.hidden = true;
   el.innerHTML = `<div id="tpStick" class="tp-zone" aria-hidden="true"><div class="tp-base"><div class="tp-knob"></div></div></div>
     <div class="tp-side"><button id="tpAct" class="tp-act" type="button" aria-label="Action (E)"><span class="tp-lbl"></span></button>
-      <button id="tpGear" class="tp-gear" type="button" aria-label="Touch controls: settings" title="Touch controls">${TP_GEAR}</button></div>`;
+      <button id="tpGear" class="tp-gear" type="button" aria-label="Touch controls: settings" title="Touch controls">${TP_GEAR}</button>
+      <button id="tpPhone" class="tp-phone" type="button" aria-label="Phone (P)" title="Phone">${TP_PHONE}</button></div>`;
   $('#stage').appendChild(el);
   TP.el = el;
-  const zone = $('#tpStick'), act = $('#tpAct'), gear = $('#tpGear');
-  for (const n of [zone, act, gear]) n.addEventListener('contextmenu', e => e.preventDefault());
+  const zone = $('#tpStick'), act = $('#tpAct'), gear = $('#tpGear'), ph = $('#tpPhone');
+  ph.addEventListener('click', e => { e.preventDefault(); openPhone(); });      // (the phone: ui/phone.js, its apps ui/camera.js)
+  for (const n of [zone, act, gear, ph]) n.addEventListener('contextmenu', e => e.preventDefault());
   zone.addEventListener('pointerdown', tpStickDown);
   zone.addEventListener('pointermove', tpStickMove);
   for (const t of ['pointerup', 'pointercancel', 'lostpointercapture']) zone.addEventListener(t, e => { if (e.pointerId === TP.id) tpRelease(); });
@@ -31784,6 +32200,7 @@ function tpUpdate(){
   TP.el.classList.toggle('act-on', act);
   TP.el.classList.toggle('gear-only', !!gearOnly);
   TP.el.classList.toggle('gear-on', world);
+  TP.el.classList.toggle('phone-on', world && tpOn() && !!unitHook('phoneShown'));      // (the phone's button, when the unit shows the phone)
   TP.shown = { stick, act };
   if (label !== TP.label){
     TP.label = label;
@@ -31831,7 +32248,7 @@ window.__touch = () => {
   const r = id => { const n = $(id); if (!n || !TP.el || TP.el.hidden) return null; const b = n.getBoundingClientRect(); return b.width ? { x:Math.round(b.left), y:Math.round(b.top), w:Math.round(b.width), h:Math.round(b.height) } : null; };
   return { touch:TP.touch, prefs:{ ...TP.prefs }, built:!!TP.el, shown:{ ...TP.shown }, held:TP.id !== null, m:+TP.m.toFixed(3), amt:+TP.amt.toFixed(3), run:TP.run,
     dir:keys.has('stick') ? [...DIRS.stick] : null, label:TP.label, presses:TP.presses,
-    stick:TP.shown.stick ? r('#tpStick') : null, act:TP.shown.act ? r('#tpAct') : null, gear:r('#tpGear') };
+    stick:TP.shown.stick ? r('#tpStick') : null, act:TP.shown.act ? r('#tpAct') : null, gear:r('#tpGear'), phone:TP.el && TP.el.classList.contains('phone-on') ? r('#tpPhone') : null };
 };
 window.__debug = Object.assign(window.__debug || {}, { touchPrefs(o){ Object.assign(TP.prefs, o); tpSave(); tpLayout(); tpUpdate(); } });
 if (TP.touch) tpBuild();
@@ -35319,8 +35736,9 @@ function draw(t){
   const qm = questMarkerIds();                     // quest givers and the people the current steps need (engine/quests.js)
   const lift = scene().personLift || 0;            // (people drawn upright: their heads are higher, world/tilemap.js)
   /* the name tags (and the marks of people not known yet): laid out first, so none covers another, a bubble or the E prompt */
-  const speaking = bubbleSpeakers(), tags = [];
+  const speaking = bubbleSpeakers(), tags = [], camUp = phoneCamOn();      // (the phone's camera up: no tags, no marks, no prompt: ui/camera.js)
   for (const n of activeNpcs()){
+    if (camUp) break;
     const isGoal = n.id === goal || qm.has(n.id), talking = speaking.has(n) && S.known[n.id] && !n.crowd;
     if ((n.crowd || n.ambient) && !isGoal && !talking) continue;   // the crowd, museum visitors: no names, no question marks (unless one speaks: their name under the bubble)
     if (S.known[n.id]){ const T = { n, x:n.x, y:n.y - 24 - lift, text:n.name, quest:isGoal, fill:isGoal ? '#f4b928' : '#1c3d8f', ink:isGoal ? '#0f2260' : '#f4b928', prio:(talking ? 4 : 0) + (isGoal ? 2 : 0) - Math.hypot(n.x - player.x, n.y - player.y) / 1e4 }; T.r = tagRect(T.x, T.y, T.text, T.quest); tags.push(T); }
@@ -35329,8 +35747,9 @@ function draw(t){
   }
   /* the E prompt: a lesson whose own key takes E here (a thing to pick up: its ePrompt() hook → { x, y, label }) shows that prompt instead */
   let prompt = null;
-  const own = !frozen() && cutscenePrompt() ? askHooks('ePrompt') : null;
-  if (own) prompt = { x:own.x, y:own.y, text:own.label + '  ·  E' };
+  const own = !frozen() && !camUp && cutscenePrompt() ? askHooks('ePrompt') : null;
+  if (camUp) { /* none */ }
+  else if (own) prompt = { x:own.x, y:own.y, text:own.label + '  ·  E' };
   else if (!frozen() && cutscenePrompt()){
     const n = nearLandmark() ? null : nearestNpc();
     if (n){ const o = n.promptOffset || { x:0, y:50 }; prompt = { x:n.x + o.x, y:n.y + o.y, text:n.crowd ? 'E' : 'Parla  ·  E', n }; }

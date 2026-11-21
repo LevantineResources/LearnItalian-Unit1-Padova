@@ -1889,6 +1889,121 @@ body.tp-walk .guide{opacity:.35}
 @media (max-height:520px){ body.tp-on .guide:not(.low){top:6px;width:min(560px,calc(100% - 340px));font-size:13px;line-height:1.35;padding:6px 10px;gap:8px}
   body.tp-on .guide .tag{font-size:10px;padding:2px 5px} }
 
+/* ---------- the phone's apps (ui/camera.js): the home screen, the album, the camera's viewfinder over the world ---------- */
+.phone-screen.ph-apps-on{background:#f3efe6;min-height:min(560px,84vh);max-height:min(720px,88vh)}
+.phone-screen.ph-home{background:linear-gradient(170deg,#1c3d8f 0%,#2f5aa8 38%,#3f8aa0 70%,#f0b86a 100%);color:#fff}
+.ph-status{display:flex;align-items:center;justify-content:space-between;padding:10px 12px 0 22px;font:700 13px var(--body);letter-spacing:.04em}
+.ph-status .x{color:#fff;background:rgba(0,0,0,.18);border-color:rgba(255,255,255,.4)}
+.ph-wall{text-align:center;padding:22px 0 26px}
+.ph-clock{font:400 58px/1 var(--display);letter-spacing:.02em;text-shadow:0 2px 12px rgba(10,20,60,.35)}
+.ph-date{font:600 14px var(--body);opacity:.9;margin-top:6px}
+.ph-apps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px 10px;padding:6px 18px 10px}
+.ph-app{border:0;background:none;color:#fff;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;padding:4px;border-radius:14px;min-height:44px}
+.ph-app:hover .ph-ai,.ph-app:focus-visible .ph-ai{transform:translateY(-2px);box-shadow:0 8px 18px rgba(5,12,40,.4)}
+.ph-ai{position:relative;width:62px;height:62px;border-radius:17px;background:#fffdf8;display:grid;place-items:center;box-shadow:0 4px 12px rgba(5,12,40,.3);transition:transform .12s,box-shadow .12s}
+.ph-ai svg{width:44px;height:44px}
+.ph-app b{font:700 13px var(--body);text-shadow:0 1px 4px rgba(5,12,40,.5)}
+.ph-app small{font:600 11px var(--body);opacity:.85;margin-top:-4px}
+.ph-badge{position:absolute;top:-5px;right:-5px;min-width:20px;height:20px;border-radius:10px;background:var(--rosso);color:#fff;font:700 11px/20px var(--body);font-style:normal;padding:0 5px;border:2px solid #fff}
+.ph-hint{text-align:center;font-size:12.5px;opacity:.85;margin:auto 0 18px;padding:0 16px}
+.ph-hint kbd{background:rgba(255,255,255,.85)}
+.ph-top{padding:10px 10px 10px 6px}
+.ph-back{border:0;background:rgba(255,255,255,.16);color:#fff;font:700 14px var(--body);border-radius:999px;padding:6px 10px;cursor:pointer;white-space:nowrap;min-height:36px}
+.phone-screen.ph-apps-on .ph-body{flex:1;overflow-y:auto;padding:12px 12px 16px;overscroll-behavior:contain}
+.ph-albumcard{display:flex;align-items:center;gap:12px;width:100%;border:1.5px solid rgba(28,61,143,.18);background:#fffdf8;border-radius:14px;padding:8px;margin-bottom:10px;cursor:pointer;text-align:left;min-height:64px}
+.ph-albumcard:hover{border-color:var(--cobalto)}
+.ph-cov{width:64px;height:48px;border-radius:8px;overflow:hidden;background:#e8e1d2;display:grid;place-items:center;flex:none}
+.ph-cov img{width:100%;height:100%;object-fit:cover}
+.ph-cov i{font:700 22px var(--display);color:var(--muted);font-style:normal}
+.ph-at{flex:1;display:flex;flex-direction:column;line-height:1.25}
+.ph-at b{font:700 15px var(--body);color:var(--cobalto)}
+.ph-at small{color:var(--muted);font-size:12.5px}
+.ph-go{font:700 22px var(--body);color:var(--muted)}
+.ph-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px 8px}
+.ph-pol{border:0;background:#fffdf8;border-radius:4px;padding:5px 5px 4px;box-shadow:0 2px 6px rgba(20,20,40,.18);display:flex;flex-direction:column;gap:3px;cursor:pointer;min-height:44px}
+.ph-pol:nth-child(3n+1){transform:rotate(-1.4deg)} .ph-pol:nth-child(3n+2){transform:rotate(.9deg)} .ph-pol:nth-child(3n){transform:rotate(-.5deg)}
+.ph-pol:hover{box-shadow:0 4px 12px rgba(20,20,40,.28)}
+.ph-ph{aspect-ratio:4/3;background:#2a2c33;border-radius:2px;overflow:hidden;display:grid;place-items:center}
+.ph-ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ph-pol.blank .ph-ph{background:repeating-linear-gradient(45deg,#ece4d4 0 6px,#e3dac8 6px 12px)}
+.ph-ph i{font:400 30px var(--display);color:#a99c84;font-style:normal}
+.ph-pol b{font:700 12px var(--body);color:var(--inchiostro);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ph-pol.blank b{color:#a99c84}
+.ph-pol.miss{opacity:.7}
+.ph-page{display:flex;flex-direction:column;align-items:stretch}
+.ph-big{margin:0;background:#fffdf8;padding:8px 8px 10px;border-radius:4px;box-shadow:0 4px 14px rgba(20,20,40,.22);transform:rotate(-1deg)}
+.ph-big img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:2px}
+.ph-big i{display:grid;place-items:center;aspect-ratio:4/3;font:400 64px var(--display);color:#a99c84;font-style:normal;background:repeating-linear-gradient(45deg,#ece4d4 0 8px,#e3dac8 8px 16px)}
+.ph-pt{font:600 26px var(--display);color:var(--cobalto);margin:14px 0 0;text-align:center}
+.ph-ps{text-align:center;color:var(--muted);font-size:13.5px;margin:2px 0 6px}
+.ph-it{font:600 17px var(--body);margin:8px 0 0;display:flex;align-items:center;gap:8px;justify-content:center;text-align:center}
+.ph-it .spk{border:0;background:var(--carta);border-radius:50%;width:34px;height:34px;cursor:pointer;flex:none}
+.ph-en{font-style:italic;color:var(--muted);text-align:center;margin:3px 0 0;font-size:14px}
+.ph-nav{display:flex;justify-content:space-between;margin-top:auto;padding-top:14px}
+.ph-nav .btn{min-width:64px;min-height:44px;font-size:20px}
+.ph-note{font-size:12.5px;color:var(--muted);margin:12px 2px 0}
+.ph-empty{color:var(--muted);text-align:center;margin:30px 10px}
+/* the camera: the viewfinder over the canvas (.pcam-view: placed on the canvas each frame), its controls at the stage's bottom right (on a
+   phone held upright: in the letterbox under the canvas) */
+.pcam{position:absolute;inset:0;z-index:28;pointer-events:none;animation:pcamIn .22s ease}
+.pcam.out{opacity:0;transition:opacity .2s}
+@keyframes pcamIn{from{opacity:0}to{opacity:1}}
+.pcam-view{position:absolute;overflow:hidden;border-radius:6px}
+.pcam-vig{position:absolute;inset:0;box-shadow:inset 0 0 0 9999px rgba(8,12,24,0);background:radial-gradient(ellipse at 50% 50%,transparent 55%,rgba(5,8,20,.5) 100%)}
+.pcam-frame{position:absolute;left:19%;top:17%;width:62%;height:62%;box-shadow:0 0 0 9999px rgba(5,8,20,.32)}
+.pcam-frame .c{position:absolute;width:26px;height:26px;border:3.5px solid #fffdf8;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));transition:border-color .15s}
+.pcam-frame .tl{left:-2px;top:-2px;border-right:0;border-bottom:0;border-top-left-radius:6px}
+.pcam-frame .tr{right:-2px;top:-2px;border-left:0;border-bottom:0;border-top-right-radius:6px}
+.pcam-frame .bl{left:-2px;bottom:-2px;border-right:0;border-top:0;border-bottom-left-radius:6px}
+.pcam-frame .br{right:-2px;bottom:-2px;border-left:0;border-top:0;border-bottom-right-radius:6px}
+.pcam-dot{position:absolute;left:50%;top:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border:2px solid rgba(255,253,248,.85);border-radius:50%}
+.pcam-frame.near .c{border-color:#f4b928}
+.pcam-frame.good .c{border-color:#6fe08a}
+.pcam-frame.good .pcam-dot{border-color:#6fe08a;background:rgba(111,224,138,.35)}
+.pcam-top{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:10px;padding:8px 10px;background:linear-gradient(rgba(5,8,20,.55),transparent);color:#fff;font:700 13px var(--body)}
+.pcam-rec{letter-spacing:.12em}
+.pcam-rec::first-letter{color:#ff5a4a}
+.pcam-z{background:rgba(0,0,0,.35);border-radius:999px;padding:2px 9px;font-variant-numeric:tabular-nums}
+.pcam-x{margin-left:auto;pointer-events:auto;width:40px;height:40px;border-radius:50%;border:2px solid rgba(255,255,255,.7);background:rgba(5,8,20,.45);color:#fff;font:700 22px/1 var(--body);cursor:pointer}
+.pcam-say{position:absolute;left:50%;bottom:5%;transform:translateX(-50%);max-width:min(560px,90%);margin:0;background:rgba(15,34,96,.88);color:#fff;border-radius:12px;padding:8px 14px;font:600 15px/1.35 var(--body);text-align:center;box-shadow:0 6px 16px rgba(5,8,20,.35);transition:opacity .5s}
+.pcam-say.pop{animation:pcamPop .25s ease}
+.pcam-say.fade{opacity:0}
+.pcam-say kbd{font-size:11px}
+@keyframes pcamPop{from{transform:translateX(-50%) scale(.9);opacity:0}to{transform:translateX(-50%) scale(1);opacity:1}}
+.pcam-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+.pcam-flash.go{animation:pcamFlash .35s ease-out}
+@keyframes pcamFlash{0%{opacity:.85}100%{opacity:0}}
+.pcam-ctl{position:absolute;right:max(14px,env(safe-area-inset-right,0px));bottom:max(16px,calc(env(safe-area-inset-bottom,0px) + 10px));display:flex;flex-direction:column;align-items:center;gap:12px;pointer-events:none}
+.pcam-ctl button{pointer-events:auto;touch-action:none;cursor:pointer}
+.pcam-zoom{display:flex;flex-direction:column;align-items:center;gap:6px;background:rgba(5,8,20,.5);border-radius:999px;padding:6px}
+.pcam-zoom button{width:40px;height:40px;border-radius:50%;border:2px solid rgba(255,255,255,.7);background:rgba(255,255,255,.12);color:#fff;font:700 22px/1 var(--body)}
+.pcam-zbar{position:relative;width:6px;height:54px;border-radius:3px;background:rgba(255,255,255,.25);overflow:hidden}
+.pcam-zbar i{position:absolute;left:0;right:0;bottom:0;height:0;background:var(--giallo);transition:height .15s}
+.pcam-shut{width:80px;height:80px;border-radius:50%;border:5px solid #fffdf8;background:rgba(255,255,255,.18);display:grid;place-items:center;box-shadow:0 6px 18px rgba(5,8,20,.45)}
+.pcam-shut i{width:58px;height:58px;border-radius:50%;background:#fffdf8;transition:transform .08s}
+.pcam-shut:active i{transform:scale(.86)}
+.pcam-last{width:56px;height:42px;border-radius:8px;border:2.5px solid #fffdf8;padding:0;overflow:hidden;background:#222;box-shadow:0 4px 12px rgba(5,8,20,.4)}
+.pcam-last[hidden]{display:none}
+.pcam-last img{width:100%;height:100%;object-fit:cover;display:block}
+.pcam-last.pop{animation:pcamThumb .4s ease}
+@keyframes pcamThumb{0%{transform:scale(1.8) translateX(-40px);opacity:0}100%{transform:none;opacity:1}}
+.pcam-row{display:flex;align-items:center;gap:12px}
+/* a phone held upright: the canvas at the top, the controls in the letterbox under it, at the right (clear of the stick): the zoom across, the shutter
+   under it where the action button is */
+.pcam.below .pcam-ctl{align-items:flex-end;gap:10px}
+.pcam.below .pcam-zoom{flex-direction:row-reverse}
+@media (max-width:640px){ .pcam-say{font-size:13px;padding:6px 11px;bottom:3%;max-width:86%} .pcam-top{padding:6px 8px} }
+.pcam.below .pcam-zbar{width:54px;height:6px}
+.pcam.below .pcam-zbar i{top:0;bottom:0;right:auto;height:auto !important;width:var(--zw,0)}
+body.phonecam #guide{display:none}
+body.phonecam .tpad .tp-act,body.phonecam .tpad .tp-phone,body.phonecam .tpad .tp-gear{opacity:0 !important;visibility:hidden !important}
+/* the phone's button by the touch controls' gear */
+.tp-phone{width:46px;height:46px;border-radius:50%;padding:0;display:grid;place-items:center;cursor:pointer;background:var(--cobalto);color:var(--carta);border:2.5px solid rgba(243,233,212,.8);
+  box-shadow:0 4px 10px rgba(5,12,40,.35);opacity:0;visibility:hidden;transition:opacity .18s ease,visibility 0s linear .18s}
+.tp-phone svg{width:24px;height:24px}
+.tpad.phone-on .tp-phone{opacity:1;visibility:visible;transition:opacity .18s ease}
+.tpad .tp-side>.tp-phone{pointer-events:auto;touch-action:manipulation}
+
 /* Venezia's own CSS (appended to engine/styles.css by the build: unit.json "styles") */
 /* Lesson 1's handbook sections */
 .hb-box .hb-important{display:inline-block;background:var(--rosso);color:#fff;border-radius:8px;padding:3px 10px;margin:0 0 8px;font-size:14px}
@@ -2144,6 +2259,26 @@ body.tp-walk .guide{opacity:.35}
 .v5-mattina { margin:12px 0; }
 .v5-mattina img { width:100%; height:auto; border-radius:8px; display:block; }
 .v5-mattina figcaption { margin-top:6px; }
+
+/* ---------- Le maschere e i gatti (world/gatti.js): the handbook's census card, the album's pages ---------- */
+.gt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:10px;margin:6px 0 10px}
+.gt-pol{margin:0;background:#fffdf8;padding:4px 4px 3px;border-radius:3px;box-shadow:0 2px 6px rgba(20,20,40,.18);display:flex;flex-direction:column;gap:2px}
+.gt-pol:nth-child(odd){transform:rotate(-1.2deg)} .gt-pol:nth-child(even){transform:rotate(.8deg)}
+.gt-pol img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;border-radius:2px}
+.gt-pol i{display:grid;place-items:center;aspect-ratio:4/3;font:400 26px var(--display);color:#a99c84;font-style:normal;background:repeating-linear-gradient(45deg,#ece4d4 0 6px,#e3dac8 6px 12px);border-radius:2px}
+.gt-pol figcaption{font:700 12px var(--body);text-align:center;color:var(--inchiostro)}
+.gt-pol.blank figcaption{color:#a99c84}
+.gt-list{list-style:none;padding:0;margin:6px 0;columns:2;column-gap:18px;font-size:14px}
+.gt-list li{break-inside:avoid;padding:2px 0;color:var(--muted)}
+.gt-list li.got{color:var(--inchiostro)}
+.gt-list li span{font-size:12.5px;color:var(--muted)}
+@media (max-width:640px){ .gt-list{columns:1} }
+.ph-ps .gt-way{display:inline-block;background:var(--carta);border-radius:999px;padding:0 8px;font-size:12px;color:var(--cobalto);font-weight:700}
+.picture-card.gt-card .pc-cap{font-size:15px;line-height:1.5}
+.picture-card.gt-card .pc-fig img{max-height:min(48vh,420px)}
+.hb-notes #hbn-gt-censimento{grid-template-columns:1fr}
+.hb-notes #hbn-gt-censimento .gt-grid{grid-template-columns:repeat(6,minmax(0,1fr))}
+@media (max-width:640px){ .hb-notes #hbn-gt-censimento .gt-grid{grid-template-columns:repeat(3,minmax(0,1fr))} }
 </style>
 </head>
 <body>
@@ -2804,7 +2939,7 @@ const VZ_SKETCHES = {
 
 /* ===== (generated from assets/venezia/pictures/) ===== */
 /* generated by scripts/build.js from assets/venezia/pictures/: the picture cards' images (a file each, loaded by relative URL) and the photos' regions */
-Object.assign(PICTURES, {"album-1953":"pictures/album-1953.svg","banco-acqua":"pictures/banco-acqua.svg","banco-nives":"pictures/banco-nives.svg","d2a-cartello":"pictures/d2a-cartello.svg","d2a-cucina":"pictures/d2a-cucina.svg","d2a-libro":"pictures/d2a-libro.svg","d2a-lista-000":"pictures/d2a-lista-000.svg","d2a-lista-001":"pictures/d2a-lista-001.svg","d2a-lista-010":"pictures/d2a-lista-010.svg","d2a-lista-011":"pictures/d2a-lista-011.svg","d2a-lista-100":"pictures/d2a-lista-100.svg","d2a-lista-101":"pictures/d2a-lista-101.svg","d2a-lista-110":"pictures/d2a-lista-110.svg","d2a-lista-111":"pictures/d2a-lista-111.svg","d2a-listino":"pictures/d2a-listino.svg","d2a-moneta":"pictures/d2a-moneta.svg","d2a-ricetta":"pictures/d2a-ricetta.svg","d2a-topa":"pictures/d2a-topa.svg","d2a-torta":"pictures/d2a-torta.svg","d2b-altana":"pictures/d2b-altana.svg","d2b-annuncio-1":"pictures/d2b-annuncio-1.svg","d2b-annuncio-2":"pictures/d2b-annuncio-2.svg","d2b-annuncio-nuovo":"pictures/d2b-annuncio-nuovo.svg","d2b-ingresso-2024":"pictures/d2b-ingresso-2024.svg","d2b-inventario":"pictures/d2b-inventario.svg","d2b-pianta-giulia":"pictures/d2b-pianta-giulia.svg","d2b-pulizie":"pictures/d2b-pulizie.svg","d2b-studio":"pictures/d2b-studio.svg","d2b-turni-2":"pictures/d2b-turni-2.svg","d2b-turni":"pictures/d2b-turni.svg","d2c-barca-ospedale":"pictures/d2c-barca-ospedale.svg","d2c-falso-a":"pictures/d2c-falso-a.svg","d2c-falso-b":"pictures/d2c-falso-b.svg","d2c-falso-c":"pictures/d2c-falso-c.svg","d2c-falso-d":"pictures/d2c-falso-d.svg","d2c-gondola-schema":"pictures/d2c-gondola-schema.svg","d2c-laboratorio-vuoto":"pictures/d2c-laboratorio-vuoto.svg","d2c-mappa-sanbarnaba":"pictures/d2c-mappa-sanbarnaba.svg","d2c-ospedale":"pictures/d2c-ospedale.svg","d2c-pescheria-foto":"pictures/d2c-pescheria-foto.svg","d2c-retro-nuovo":"pictures/d2c-retro-nuovo.svg","d2c-retro":"pictures/d2c-retro.svg","erberia-chi":"pictures/erberia-chi.svg","ivy-1956":"pictures/ivy-1956.svg","lepanto-battle":"pictures/lepanto-battle.jpg","lido-1972":"pictures/lido-1972.svg","mattina-l5":"pictures/mattina-l5.svg","mose-diagram":"pictures/mose-diagram.svg","nane-giacca":"pictures/nane-giacca.svg","nane-ristorante":"pictures/nane-ristorante.svg","rialto-oggi":"pictures/rialto-oggi.svg","sirena-codice":"pictures/sirena-codice.svg","venier":"pictures/venier.jpg"});
+Object.assign(PICTURES, {"album-1953":"pictures/album-1953.svg","banco-acqua":"pictures/banco-acqua.svg","banco-nives":"pictures/banco-nives.svg","d2a-cartello":"pictures/d2a-cartello.svg","d2a-cucina":"pictures/d2a-cucina.svg","d2a-libro":"pictures/d2a-libro.svg","d2a-lista-000":"pictures/d2a-lista-000.svg","d2a-lista-001":"pictures/d2a-lista-001.svg","d2a-lista-010":"pictures/d2a-lista-010.svg","d2a-lista-011":"pictures/d2a-lista-011.svg","d2a-lista-100":"pictures/d2a-lista-100.svg","d2a-lista-101":"pictures/d2a-lista-101.svg","d2a-lista-110":"pictures/d2a-lista-110.svg","d2a-lista-111":"pictures/d2a-lista-111.svg","d2a-listino":"pictures/d2a-listino.svg","d2a-moneta":"pictures/d2a-moneta.svg","d2a-ricetta":"pictures/d2a-ricetta.svg","d2a-topa":"pictures/d2a-topa.svg","d2a-torta":"pictures/d2a-torta.svg","d2b-altana":"pictures/d2b-altana.svg","d2b-annuncio-1":"pictures/d2b-annuncio-1.svg","d2b-annuncio-2":"pictures/d2b-annuncio-2.svg","d2b-annuncio-nuovo":"pictures/d2b-annuncio-nuovo.svg","d2b-ingresso-2024":"pictures/d2b-ingresso-2024.svg","d2b-inventario":"pictures/d2b-inventario.svg","d2b-pianta-giulia":"pictures/d2b-pianta-giulia.svg","d2b-pulizie":"pictures/d2b-pulizie.svg","d2b-studio":"pictures/d2b-studio.svg","d2b-turni-2":"pictures/d2b-turni-2.svg","d2b-turni":"pictures/d2b-turni.svg","d2c-barca-ospedale":"pictures/d2c-barca-ospedale.svg","d2c-falso-a":"pictures/d2c-falso-a.svg","d2c-falso-b":"pictures/d2c-falso-b.svg","d2c-falso-c":"pictures/d2c-falso-c.svg","d2c-falso-d":"pictures/d2c-falso-d.svg","d2c-gondola-schema":"pictures/d2c-gondola-schema.svg","d2c-laboratorio-vuoto":"pictures/d2c-laboratorio-vuoto.svg","d2c-mappa-sanbarnaba":"pictures/d2c-mappa-sanbarnaba.svg","d2c-ospedale":"pictures/d2c-ospedale.svg","d2c-pescheria-foto":"pictures/d2c-pescheria-foto.svg","d2c-retro-nuovo":"pictures/d2c-retro-nuovo.svg","d2c-retro":"pictures/d2c-retro.svg","erberia-chi":"pictures/erberia-chi.svg","gt-bauta":"pictures/gt-bauta.svg","gt-carnevale":"pictures/gt-carnevale.svg","gt-colombina":"pictures/gt-colombina.svg","gt-gnaga":"pictures/gt-gnaga.svg","gt-medico":"pictures/gt-medico.svg","gt-moretta":"pictures/gt-moretta.svg","ivy-1956":"pictures/ivy-1956.svg","lepanto-battle":"pictures/lepanto-battle.jpg","lido-1972":"pictures/lido-1972.svg","mattina-l5":"pictures/mattina-l5.svg","mose-diagram":"pictures/mose-diagram.svg","nane-giacca":"pictures/nane-giacca.svg","nane-ristorante":"pictures/nane-ristorante.svg","rialto-oggi":"pictures/rialto-oggi.svg","sirena-codice":"pictures/sirena-codice.svg","venier":"pictures/venier.jpg"});
 Object.assign(PICTURE_REGIONS, {"album-1953":{"regions":{"nonno":{"cx":0.1667,"cy":0.5444,"rx":0.085,"ry":0.27},"nonna":{"cx":0.2792,"cy":0.5556,"rx":0.075,"ry":0.26},"nonni":{"cx":0.2208,"cy":0.55,"rx":0.15,"ry":0.29},"padre":{"cx":0.4625,"cy":0.5222,"rx":0.075,"ry":0.29},"madre":{"cx":0.575,"cy":0.5389,"rx":0.08,"ry":0.28},"genitori":{"cx":0.5183,"cy":0.5278,"rx":0.135,"ry":0.3},"nino":{"cx":0.5542,"cy":0.4556,"rx":0.06,"ry":0.07},"lina":{"cx":0.8458,"cy":0.6056,"rx":0.075,"ry":0.21}}},"banco-acqua":{"regions":{"cavalletti":{"cx":0.4,"cy":0.5022,"rx":0.275,"ry":0.0578},"banco":{"cx":0.4,"cy":0.2622,"rx":0.25,"ry":0.0444},"acqua":{"cx":0.4,"cy":0.8778,"rx":0.35,"ry":0.0778}}},"banco-nives":{"regions":{"intorno":{"cx":0.375,"cy":0.1867,"rx":0.3083,"ry":0.0333},"in-fondo":{"cx":0.375,"cy":0.2778,"rx":0.1667,"ry":0.0533},"davanti":{"cx":0.375,"cy":0.4356,"rx":0.1917,"ry":0.0511},"dentro":{"cx":0.3292,"cy":0.7111,"rx":0.1375,"ry":0.0578},"sotto":{"cx":0.5933,"cy":0.7111,"rx":0.0767,"ry":0.0578},"lato":{"cx":0.1067,"cy":0.5778,"rx":0.065,"ry":0.1667},"fuori":{"cx":0.3833,"cy":0.9133,"rx":0.275,"ry":0.0556}}},"d2a-cucina":{"regions":{"tagliere":{"cx":0.2708,"cy":0.5944,"rx":0.1375,"ry":0.1278},"ciotola":{"cx":0.5333,"cy":0.6222,"rx":0.1167,"ry":0.1111},"teglia":{"cx":0.7708,"cy":0.6167,"rx":0.1042,"ry":0.1389},"forno":{"cx":0.7958,"cy":0.25,"rx":0.1042,"ry":0.1167},"credenza":{"cx":0.35,"cy":0.2722,"rx":0.2333,"ry":0.1056}}},"d2a-libro":{"regions":{"bepi":{"cx":0.5167,"cy":0.5651,"rx":0.3917,"ry":0.0512}}},"d2a-listino":{"regions":{"mele":{"cx":0.5,"cy":0.2178,"rx":0.275,"ry":0.0233},"pere":{"cx":0.5,"cy":0.2667,"rx":0.275,"ry":0.0233},"uva":{"cx":0.5,"cy":0.3156,"rx":0.275,"ry":0.0233},"cachi":{"cx":0.5,"cy":0.3644,"rx":0.275,"ry":0.0233},"zucca":{"cx":0.5,"cy":0.4133,"rx":0.275,"ry":0.0233},"radicchio":{"cx":0.5,"cy":0.4622,"rx":0.275,"ry":0.0233},"castagne":{"cx":0.5,"cy":0.5111,"rx":0.275,"ry":0.0233},"cassa":{"cx":0.8917,"cy":0.5556,"rx":0.0833,"ry":0.0667},"bilancia":{"cx":0.1375,"cy":0.5556,"rx":0.0792,"ry":0.0611},"borsa":{"cx":0.8833,"cy":0.8556,"rx":0.0833,"ry":0.1},"banco":{"cx":0.4667,"cy":0.7667,"rx":0.275,"ry":0.0667}}},"d2b-annuncio-nuovo":{"regions":{"riga1":{"cx":0.5,"cy":0.32,"rx":0.3667,"ry":0.0364},"riga2":{"cx":0.5,"cy":0.4109,"rx":0.3667,"ry":0.0364},"riga3":{"cx":0.5,"cy":0.5018,"rx":0.3667,"ry":0.0364},"riga4":{"cx":0.5,"cy":0.5927,"rx":0.3667,"ry":0.0364},"riga5":{"cx":0.5,"cy":0.6836,"rx":0.3667,"ry":0.0364}}},"d2b-ingresso-2024":{"regions":{"crepa":{"cx":0.525,"cy":0.2111,"rx":0.0708,"ry":0.0778},"specchio":{"cx":0.475,"cy":0.3333,"rx":0.1333,"ry":0.2222},"giulia":{"cx":0.3417,"cy":0.6222,"rx":0.1,"ry":0.3333},"sara":{"cx":0.5333,"cy":0.6556,"rx":0.0917,"ry":0.3111},"data":{"cx":0.8417,"cy":0.9044,"rx":0.0917,"ry":0.0333}}},"d2b-inventario":{"regions":{"specchio":{"cx":0.3133,"cy":0.3244,"rx":0.025,"ry":0.0289},"mobile":{"cx":0.3133,"cy":0.3656,"rx":0.025,"ry":0.0289},"divano":{"cx":0.3133,"cy":0.4578,"rx":0.025,"ry":0.0289},"tavolo":{"cx":0.3133,"cy":0.4989,"rx":0.025,"ry":0.0289},"sedie":{"cx":0.3133,"cy":0.54,"rx":0.025,"ry":0.0289},"tende":{"cx":0.3133,"cy":0.5811,"rx":0.025,"ry":0.0289},"porta":{"cx":0.3133,"cy":0.6733,"rx":0.025,"ry":0.0289},"letto":{"cx":0.3133,"cy":0.7656,"rx":0.025,"ry":0.0289},"armadio":{"cx":0.3133,"cy":0.8067,"rx":0.025,"ry":0.0289},"finestra":{"cx":0.3133,"cy":0.8478,"rx":0.025,"ry":0.0289},"firma":{"cx":0.6417,"cy":0.8611,"rx":0.0917,"ry":0.05}}},"d2b-pianta-giulia":{"regions":{"soggiorno":{"cx":0.2667,"cy":0.3444,"rx":0.1667,"ry":0.1778},"camera-libera":{"cx":0.5333,"cy":0.3444,"rx":0.1,"ry":0.1778},"cucina":{"cx":0.7667,"cy":0.3444,"rx":0.1333,"ry":0.1778},"ingresso":{"cx":0.2167,"cy":0.6722,"rx":0.1167,"ry":0.15},"bagno":{"cx":0.4167,"cy":0.6722,"rx":0.0833,"ry":0.15},"camera-giulia":{"cx":0.6,"cy":0.6722,"rx":0.1,"ry":0.15},"camera-sara":{"cx":0.8,"cy":0.6722,"rx":0.1,"ry":0.15},"scale":{"cx":0.2333,"cy":0.9078,"rx":0.1167,"ry":0.0778},"altana":{"cx":0.7167,"cy":0.9156,"rx":0.1875,"ry":0.0756},"finestra-libera":{"cx":0.5333,"cy":0.1667,"rx":0.0625,"ry":0.0333},"tavolo":{"cx":0.7708,"cy":0.3667,"rx":0.1,"ry":0.0889},"specchio":{"cx":0.115,"cy":0.6056,"rx":0.025,"ry":0.0667},"divano":{"cx":0.2667,"cy":0.4056,"rx":0.1167,"ry":0.0611}}},"d2b-pulizie":{"regions":{"lavandino":{"cx":0.1917,"cy":0.4356,"rx":0.0792,"ry":0.0444},"divano":{"cx":0.575,"cy":0.4944,"rx":0.125,"ry":0.0556},"scaffale":{"cx":0.8125,"cy":0.4444,"rx":0.0625,"ry":0.0667},"pianerottolo":{"cx":0.95,"cy":0.7111,"rx":0.05,"ry":0.0444}}},"d2b-turni":{"regions":{"cucina":{"cx":0.3917,"cy":0.5444,"rx":0.09,"ry":0.2611},"bagno":{"cx":0.5833,"cy":0.5444,"rx":0.09,"ry":0.2611},"spazzatura":{"cx":0.775,"cy":0.5444,"rx":0.09,"ry":0.2611},"regole":{"cx":0.5333,"cy":0.8667,"rx":0.325,"ry":0.05},"giorni":{"cx":0.225,"cy":0.5444,"rx":0.0667,"ry":0.2556}}},"d2c-falso-a":{"regions":{"pescatore-f":{"cx":0.3425,"cy":0.7032,"rx":0.0694,"ry":0.1558},"pescatore-c":{"cx":0.8425,"cy":0.7032,"rx":0.0694,"ry":0.1558},"donna-f":{"cx":0.0627,"cy":0.6642,"rx":0.0347,"ry":0.1947},"donna-c":{"cx":0.5627,"cy":0.6642,"rx":0.0347,"ry":0.1947},"ragazzo-f":{"cx":0.2592,"cy":0.6934,"rx":0.037,"ry":0.1753},"ragazzo-c":{"cx":0.7592,"cy":0.6934,"rx":0.037,"ry":0.1753},"gatto-f":{"cx":0.1658,"cy":0.6886,"rx":0.0278,"ry":0.0292},"gatto-c":{"cx":0.6658,"cy":0.6886,"rx":0.0278,"ry":0.0292},"ponte-f":{"cx":0.2037,"cy":0.4013,"rx":0.111,"ry":0.0682},"ponte-c":{"cx":0.7037,"cy":0.4013,"rx":0.111,"ry":0.0682},"pescatore-mani-f":{"cx":0.3092,"cy":0.6837,"rx":0.0287,"ry":0.0506},"pescatore-mani-c":{"cx":0.8092,"cy":0.6837,"rx":0.0287,"ry":0.0506},"pescatore-schiena-f":{"cx":0.361,"cy":0.6545,"rx":0.0278,"ry":0.0487},"pescatore-schiena-c":{"cx":0.861,"cy":0.6545,"rx":0.0278,"ry":0.0487},"donna-mano-f":{"cx":0.0359,"cy":0.45,"rx":0.0167,"ry":0.0721},"donna-mano-c":{"cx":0.5359,"cy":0.45,"rx":0.0167,"ry":0.0721},"donna-fianco-f":{"cx":0.0493,"cy":0.6662,"rx":0.0148,"ry":0.0448},"donna-fianco-c":{"cx":0.5493,"cy":0.6662,"rx":0.0148,"ry":0.0448},"ragazzo-spalla-f":{"cx":0.2407,"cy":0.5668,"rx":0.0231,"ry":0.0487},"ragazzo-spalla-c":{"cx":0.7408,"cy":0.5668,"rx":0.0231,"ry":0.0487},"ragazzo-piedi-f":{"cx":0.2592,"cy":0.8531,"rx":0.0231,"ry":0.0175},"ragazzo-piedi-c":{"cx":0.7592,"cy":0.8531,"rx":0.0231,"ry":0.0175},"ragazzo-ginocchio-f":{"cx":0.2722,"cy":0.7908,"rx":0.012,"ry":0.0273},"ragazzo-ginocchio-c":{"cx":0.7722,"cy":0.7908,"rx":0.012,"ry":0.0273}}},"d2c-falso-b":{"regions":{"pescatore-f":{"cx":0.3425,"cy":0.7032,"rx":0.0694,"ry":0.1558},"pescatore-c":{"cx":0.8425,"cy":0.7032,"rx":0.0694,"ry":0.1558},"donna-f":{"cx":0.0627,"cy":0.6642,"rx":0.0347,"ry":0.1947},"donna-c":{"cx":0.5627,"cy":0.6642,"rx":0.0347,"ry":0.1947},"ragazzo-f":{"cx":0.2592,"cy":0.6934,"rx":0.037,"ry":0.1753},"ragazzo-c":{"cx":0.7592,"cy":0.6934,"rx":0.037,"ry":0.1753},"gatto-f":{"cx":0.1658,"cy":0.6886,"rx":0.0278,"ry":0.0292},"gatto-c":{"cx":0.6658,"cy":0.6886,"rx":0.0278,"ry":0.0292},"ponte-f":{"cx":0.2037,"cy":0.4013,"rx":0.111,"ry":0.0682},"ponte-c":{"cx":0.7037,"cy":0.4013,"rx":0.111,"ry":0.0682},"pescatore-mani-f":{"cx":0.3092,"cy":0.6837,"rx":0.0287,"ry":0.0506},"pescatore-mani-c":{"cx":0.8092,"cy":0.6837,"rx":0.0287,"ry":0.0506},"pescatore-schiena-f":{"cx":0.361,"cy":0.6545,"rx":0.0278,"ry":0.0487},"pescatore-schiena-c":{"cx":0.861,"cy":0.6545,"rx":0.0278,"ry":0.0487},"donna-mano-f":{"cx":0.0359,"cy":0.45,"rx":0.0167,"ry":0.0721},"donna-mano-c":{"cx":0.5895,"cy":0.45,"rx":0.0167,"ry":0.0721},"donna-fianco-f":{"cx":0.0493,"cy":0.6662,"rx":0.0148,"ry":0.0448},"donna-fianco-c":{"cx":0.5507,"cy":0.6681,"rx":0.0157,"ry":0.0448},"ragazzo-spalla-f":{"cx":0.2407,"cy":0.5668,"rx":0.0231,"ry":0.0487},"ragazzo-spalla-c":{"cx":0.7408,"cy":0.5668,"rx":0.0231,"ry":0.0487},"ragazzo-piedi-f":{"cx":0.2592,"cy":0.8531,"rx":0.0231,"ry":0.0175},"ragazzo-piedi-c":{"cx":0.7592,"cy":0.8531,"rx":0.0231,"ry":0.0175},"ragazzo-ginocchio-f":{"cx":0.2722,"cy":0.7908,"rx":0.012,"ry":0.0273},"ragazzo-ginocchio-c":{"cx":0.7722,"cy":0.7908,"rx":0.012,"ry":0.0273}}},"d2c-falso-c":{"regions":{"pescatore-f":{"cx":0.3425,"cy":0.7032,"rx":0.0694,"ry":0.1558},"pescatore-c":{"cx":0.8425,"cy":0.7032,"rx":0.0694,"ry":0.1558},"donna-f":{"cx":0.0627,"cy":0.6642,"rx":0.0347,"ry":0.1947},"donna-c":{"cx":0.5627,"cy":0.6642,"rx":0.0347,"ry":0.1947},"ragazzo-f":{"cx":0.2592,"cy":0.6934,"rx":0.037,"ry":0.1753},"ragazzo-c":{"cx":0.7592,"cy":0.6934,"rx":0.037,"ry":0.1753},"gatto-f":{"cx":0.1658,"cy":0.6886,"rx":0.0278,"ry":0.0292},"gatto-c":{"cx":0.6658,"cy":0.6886,"rx":0.0278,"ry":0.0292},"ponte-f":{"cx":0.2037,"cy":0.4013,"rx":0.111,"ry":0.0682},"ponte-c":{"cx":0.7037,"cy":0.4013,"rx":0.111,"ry":0.0682},"pescatore-mani-f":{"cx":0.3092,"cy":0.6837,"rx":0.0287,"ry":0.0506},"pescatore-mani-c":{"cx":0.8092,"cy":0.6837,"rx":0.0287,"ry":0.0506},"pescatore-schiena-f":{"cx":0.361,"cy":0.6545,"rx":0.0278,"ry":0.0487},"pescatore-schiena-c":{"cx":0.861,"cy":0.6545,"rx":0.0278,"ry":0.0487},"donna-mano-f":{"cx":0.0359,"cy":0.45,"rx":0.0167,"ry":0.0721},"donna-mano-c":{"cx":0.5359,"cy":0.45,"rx":0.0167,"ry":0.0721},"donna-fianco-f":{"cx":0.0493,"cy":0.6662,"rx":0.0148,"ry":0.0448},"donna-fianco-c":{"cx":0.5493,"cy":0.6662,"rx":0.0148,"ry":0.0448},"ragazzo-spalla-f":{"cx":0.2407,"cy":0.5668,"rx":0.0231,"ry":0.0487},"ragazzo-spalla-c":{"cx":0.7778,"cy":0.5668,"rx":0.0231,"ry":0.0487},"ragazzo-piedi-f":{"cx":0.2592,"cy":0.8531,"rx":0.0231,"ry":0.0175},"ragazzo-piedi-c":{"cx":0.7592,"cy":0.8531,"rx":0.0231,"ry":0.0175},"ragazzo-ginocchio-f":{"cx":0.2722,"cy":0.7908,"rx":0.012,"ry":0.0273},"ragazzo-ginocchio-c":{"cx":0.7722,"cy":0.7908,"rx":0.012,"ry":0.0273}}},"d2c-falso-d":{"regions":{"pescatore-f":{"cx":0.3425,"cy":0.7032,"rx":0.0694,"ry":0.1558},"pescatore-c":{"cx":0.8425,"cy":0.7032,"rx":0.0694,"ry":0.1558},"donna-f":{"cx":0.0627,"cy":0.6642,"rx":0.0347,"ry":0.1947},"donna-c":{"cx":0.5627,"cy":0.6642,"rx":0.0347,"ry":0.1947},"ragazzo-f":{"cx":0.2592,"cy":0.6934,"rx":0.037,"ry":0.1753},"ragazzo-c":{"cx":0.7592,"cy":0.6934,"rx":0.037,"ry":0.1753},"gatto-f":{"cx":0.1658,"cy":0.6886,"rx":0.0278,"ry":0.0292},"gatto-c":{"cx":0.6658,"cy":0.6886,"rx":0.0278,"ry":0.0292},"ponte-f":{"cx":0.2037,"cy":0.4013,"rx":0.111,"ry":0.0682},"ponte-c":{"cx":0.7037,"cy":0.4013,"rx":0.111,"ry":0.0682},"pescatore-mani-f":{"cx":0.3092,"cy":0.6837,"rx":0.0287,"ry":0.0506},"pescatore-mani-c":{"cx":0.8092,"cy":0.6837,"rx":0.0287,"ry":0.0506},"pescatore-schiena-f":{"cx":0.361,"cy":0.6545,"rx":0.0278,"ry":0.0487},"pescatore-schiena-c":{"cx":0.861,"cy":0.6545,"rx":0.0278,"ry":0.0487},"donna-mano-f":{"cx":0.0359,"cy":0.45,"rx":0.0167,"ry":0.0721},"donna-mano-c":{"cx":0.5359,"cy":0.45,"rx":0.0167,"ry":0.0721},"donna-fianco-f":{"cx":0.0493,"cy":0.6662,"rx":0.0148,"ry":0.0448},"donna-fianco-c":{"cx":0.5493,"cy":0.6662,"rx":0.0148,"ry":0.0448},"ragazzo-spalla-f":{"cx":0.2407,"cy":0.5668,"rx":0.0231,"ry":0.0487},"ragazzo-spalla-c":{"cx":0.7408,"cy":0.5668,"rx":0.0231,"ry":0.0487},"ragazzo-piedi-f":{"cx":0.2592,"cy":0.8531,"rx":0.0231,"ry":0.0175},"ragazzo-piedi-c":{"cx":0.7592,"cy":0.8531,"rx":0.0231,"ry":0.0175},"ragazzo-ginocchio-f":{"cx":0.2722,"cy":0.7908,"rx":0.012,"ry":0.0273},"ragazzo-ginocchio-c":{"cx":0.7722,"cy":0.7908,"rx":0.012,"ry":0.0273}}},"d2c-gondola-schema":{"regions":{"storta":{"cx":0.4571,"cy":0.375,"rx":0.3714,"ry":0.1125},"ferro":{"cx":0.9071,"cy":0.3375,"rx":0.0429,"ry":0.0625},"forcola":{"cx":0.2571,"cy":0.325,"rx":0.0357,"ry":0.0625}}},"d2c-mappa-sanbarnaba":{"regions":{"ponte":{"cx":0.775,"cy":0.3667,"rx":0.0583,"ry":0.0778},"campo":{"cx":0.7333,"cy":0.4778,"rx":0.0917,"ry":0.0667},"barnaba":{"cx":0.35,"cy":0.2667,"rx":0.1,"ry":0.0667},"barca":{"cx":0.3,"cy":0.3333,"rx":0.05,"ry":0.0444},"pugni":{"cx":0.2542,"cy":0.3667,"rx":0.05,"ry":0.0444},"toleta":{"cx":0.25,"cy":0.5556,"rx":0.05,"ry":0.1222},"verde":{"cx":0.4333,"cy":0.6667,"rx":0.05,"ry":0.0556},"leg1":{"cx":0.6167,"cy":0.4111,"rx":0.2167,"ry":0.1778},"leg2":{"cx":0.275,"cy":0.35,"rx":0.05,"ry":0.0444},"leg3":{"cx":0.25,"cy":0.4778,"rx":0.0417,"ry":0.1222},"leg4":{"cx":0.3333,"cy":0.6444,"rx":0.1167,"ry":0.0556}}},"d2c-pescheria-foto":{"regions":{"pescatore":{"cx":0.65,"cy":0.6656,"rx":0.1125,"ry":0.16},"donna":{"cx":0.1963,"cy":0.6256,"rx":0.0563,"ry":0.2},"ragazzo":{"cx":0.515,"cy":0.6556,"rx":0.06,"ry":0.18},"gatto":{"cx":0.3635,"cy":0.6506,"rx":0.045,"ry":0.03},"ponte":{"cx":0.425,"cy":0.3556,"rx":0.18,"ry":0.07},"pescatore-mani":{"cx":0.596,"cy":0.6456,"rx":0.0465,"ry":0.052},"pescatore-schiena":{"cx":0.68,"cy":0.6156,"rx":0.045,"ry":0.05},"donna-mano":{"cx":0.1527,"cy":0.4056,"rx":0.027,"ry":0.074},"donna-fianco":{"cx":0.1745,"cy":0.6276,"rx":0.024,"ry":0.046},"ragazzo-spalla":{"cx":0.485,"cy":0.5256,"rx":0.0375,"ry":0.05},"ragazzo-piedi":{"cx":0.515,"cy":0.8196,"rx":0.0375,"ry":0.018},"ragazzo-ginocchio":{"cx":0.536,"cy":0.7556,"rx":0.0195,"ry":0.028}}},"ivy-1956":{"regions":{"nane":{"cx":0.6417,"cy":0.5222,"rx":0.125,"ry":0.3667},"ivy":{"cx":0.4167,"cy":0.5778,"rx":0.125,"ry":0.3222},"viso":{"cx":0.6417,"cy":0.3556,"rx":0.05,"ry":0.1022},"testa":{"cx":0.6417,"cy":0.2944,"rx":0.055,"ry":0.0622},"capelli":{"cx":0.6417,"cy":0.2833,"rx":0.0458,"ry":0.0444},"collo":{"cx":0.6417,"cy":0.4778,"rx":0.0283,"ry":0.0556},"occhi":{"cx":0.6417,"cy":0.3467,"rx":0.0433,"ry":0.0222},"occhiali":{"cx":0.6417,"cy":0.3467,"rx":0.05,"ry":0.0289},"naso":{"cx":0.6442,"cy":0.3711,"rx":0.015,"ry":0.0244},"orecchie":{"cx":0.6417,"cy":0.3589,"rx":0.0683,"ry":0.0444},"bocca":{"cx":0.6417,"cy":0.4056,"rx":0.03,"ry":0.0244},"dente":{"cx":0.6483,"cy":0.4056,"rx":0.0133,"ry":0.0156},"giacca":{"cx":0.6417,"cy":0.6778,"rx":0.125,"ry":0.1889},"ombre":{"cx":0.6833,"cy":0.7889,"rx":0.2833,"ry":0.0556}}},"lido-1972":{"regions":{"gina":{"cx":0.2,"cy":0.5556,"rx":0.075,"ry":0.25},"piero":{"cx":0.375,"cy":0.5444,"rx":0.08,"ry":0.28},"anna":{"cx":0.575,"cy":0.5556,"rx":0.075,"ry":0.25},"nino":{"cx":0.7375,"cy":0.5389,"rx":0.085,"ry":0.28},"barca":{"cx":0.7958,"cy":0.5222,"rx":0.17,"ry":0.2}}},"nane-giacca":{"regions":{"nane":{"cx":0.4833,"cy":0.5,"rx":0.125,"ry":0.3333},"viso":{"cx":0.4833,"cy":0.2722,"rx":0.0433,"ry":0.08},"giacca":{"cx":0.4833,"cy":0.5333,"rx":0.1167,"ry":0.1778},"bottoni":{"cx":0.4833,"cy":0.5556,"rx":0.0333,"ry":0.1111},"tasca":{"cx":0.5508,"cy":0.5389,"rx":0.035,"ry":0.0356},"anello":{"cx":0.5817,"cy":0.6667,"rx":0.02,"ry":0.0244},"scarpe":{"cx":0.4833,"cy":0.8156,"rx":0.0583,"ry":0.02},"insegna":{"cx":0.5,"cy":0.1722,"rx":0.2,"ry":0.0444}}},"nane-ristorante":{"regions":{"nane":{"cx":0.6167,"cy":0.5889,"rx":0.0917,"ry":0.2222},"ivy":{"cx":0.3833,"cy":0.6111,"rx":0.0833,"ry":0.2111},"tavolo":{"cx":0.5,"cy":0.7444,"rx":0.2083,"ry":0.0889},"ombrellone":{"cx":0.5,"cy":0.3333,"rx":0.25,"ry":0.0778},"sanvidal":{"cx":0.25,"cy":0.2778,"rx":0.125,"ry":0.2},"statua":{"cx":0.7583,"cy":0.2778,"rx":0.0667,"ry":0.1889}}},"rialto-oggi":{"regions":{"margaret":{"cx":0.8833,"cy":0.4289,"rx":0.0583,"ry":0.1333},"ponte":{"cx":0.5,"cy":0.4556,"rx":0.3917,"ry":0.2},"portico":{"cx":0.5,"cy":0.2111,"rx":0.0583,"ry":0.1},"botteghe":{"cx":0.6917,"cy":0.3,"rx":0.125,"ry":0.0778},"scalini":{"cx":0.8167,"cy":0.6333,"rx":0.1667,"ry":0.1111}}}});
 
 /* ===== units/shared/cast.js ===== */
@@ -5100,8 +5235,8 @@ const keys = new Set();
 /* running (a scene with run: × its walking speed): Shift held (ui/keyboard.js), or a double tap (and hold) on the canvas
    (world/update.js): the walk to that spot is run */
 const RUN = { key:false, tap:false, stick:false };      // (stick: the touch thumbstick pushed to its rim, ui/touchpad.js)
-const running = () => !!(scene().run && (RUN.key || RUN.tap || RUN.stick));
-const walkSpeed = () => (scene().speed || 170) * (running() ? scene().run : 1);
+const running = () => !!(scene().run && (RUN.key || RUN.tap || RUN.stick)) && !phoneCamOn();      // (the phone's camera up: never running, ui/camera.js)
+const walkSpeed = () => (scene().speed || 170) * (running() ? scene().run : 1) * (phoneCamOn() ? 0.5 : 1);      // (…and a slow walk)
 const frozen = () => introOpen || dialogOpen || modalOpen || traveling || pickOpen;
 /* which scene an NPC is in. Lesson hooks can move someone for their lesson: sceneOf(n) returns a scene key
    (Lesson 8 puts Lucia and Mark at the market); otherwise the unit's default (UNIT.defaultScene(n)), the NPC's own
@@ -8636,16 +8771,23 @@ function hbDbg(){ const hl = sheet.querySelector('.hb-hl'); return { open:modalO
   notes:hbNotes().map(N => ({ id:N.id, cards:N.cards.map(c => c.id) })) }; }
 
 /* ===== engine/ui/phone.js ===== */
-/* The phone: its Messaggi tab (the unit's texts: UNIT.phoneMessages()) and the tabs of ui/quests.js. */
+/* The phone: its Messaggi tab (the unit's texts: UNIT.phoneMessages()) and the tabs of ui/quests.js; with apps (ui/camera.js: a unit that
+   gives the phone any, PHONE_APPS) it opens on a home screen of apps instead. */
 
 /* ---------- phone ---------- */
 function openPhone(tab){
   if (introOpen || !unitHook('phoneShown')) return;
   S.phoneUnread = false; save(); renderHUD();
+  if (typeof phoneCamOn === 'function' && phoneCamOn()) phoneCamClose();
+  if (typeof phoneHome === 'function' && phoneHome(tab)) return;      // (the apps' home: ui/camera.js)
   openModal('phone');
   /* Lesson 12 on: the tabs, Messaggi · Compiti · Borsa · Passaporto (ui/quests.js) */
   PHONE_TAB = phoneTabsOn() ? (tab || PHONE_TAB || 'msg') : 'msg';
   if (PHONE_TAB !== 'msg'){ sheet.innerHTML = `<div class="phone-screen tab-${PHONE_TAB}">${phoneTabHTML(PHONE_TAB)}${phoneTabBar()}</div>`; return; }
+  openPhoneMsgs();
+}
+function openPhoneMsgs(){
+  if (!modalOpen) openModal('phone');
   if (unitHook('phoneMessages')) return;            // the unit's messages (Padova: Mark's texts, Lessons 3 and 5)
   sheet.innerHTML = `<div class="phone-screen">
     <div class="phone-top"><div><b>Messaggi</b></div><button class="x" data-close aria-label="Close phone">×</button></div>
@@ -10890,6 +11032,294 @@ sheet.addEventListener('click', e => {
 });
 $('#btnBag').onclick = () => openPhone('bag');
 Object.assign(window.__debug, { scheda(id, tab){ openScheda(id, tab); }, spot(id){ goSpot(id); } });
+
+/* ===== engine/ui/camera.js ===== */
+/* The phone's apps (every unit; generic, no unit's content): a home screen, the Camera and the Album.
+   - The HOME: once a unit gives the phone an app it can show (PHONE_APPS: { id, label, icon (html), shown?(), open(), sub?(), badge?() }), the phone
+     (ui/phone.js openPhone: the header's 📱 button, P; on a touch screen the 📱 beside the action button, ui/touchpad.js) opens on a home screen of
+     app icons. A unit without one (Padova) is unchanged: its Messaggi and tabs as before.
+   - The CAMERA (the engine's own app, shown while unitHook('phoneCamera') is true): a viewfinder over the live world (the world goes on; you walk
+     slowly with it up, never run): the frame's corners in the middle of the view, the zoom (×1 to ×2.5: −/+ buttons, the keys − and +, the wheel), the
+     shutter (the round button, Space, Enter or E), × or Esc closes it. Held up, the view looks ahead the way you face (further ahead zoomed in) and
+     the name tags and prompts are not drawn. What is in the picture is asked of the hooks: cameraSubjects() → [{ id, x, y (its feet), h (px tall),
+     still (not moving), label }] (every hook's, together); a subject counts when it is inside the frame, within CAM_RANGE × the zoom of you, still,
+     and you are not running. The shot is judged (cam.judge: 'ok' | 'none' | 'far' | 'moving' | 'running'), the picture cut from the canvas (a
+     small JPEG), kept on the camera roll (S.camera.roll, the last CAM_ROLL), and given to the hooks' cameraShot(shot) → { ok, title, msg } (a
+     unit keeps it in an album of its own); the viewfinder says it.
+   - The ALBUM: the units' albums (PHONE_ALBUMS: { id, title, sub?(), shown?(), cover?(), pages() → [{ id, img | null, title, sub?, it?, en?, html? }] }):
+     a grid of pages (a blank one a "?"), a page at a time (‹ ›); and the camera roll.
+   - Events for a unit's tutorial: hooksEach('phoneEvent', name, o): 'home', 'camera', 'shot' (o: the shot), 'cameraClose', 'album' (o.id), 'page'.
+   Tests: __dbg().phone = { open, view, apps, camera:{ on, zoom, status, shots }, roll }; __debug.phoneCam(on), phoneZoom(z), phoneShoot(),
+   phoneView(view), cameraSubjects(). */
+const PHONE_APPS = [];
+const PHONE_ALBUMS = [];
+const CAM_ZOOM = { min:1, max:2.5, step:0.25 };
+const CAM_ROLL = 10;                                  // (photos kept on the roll: small JPEGs in the save)
+const camM = () => UNIT.cameraScale || 24;            // (world px a metre: Venezia's 24)
+const CAM_RANGE = 4.5;                                // (metres at ×1; × the zoom)
+const PHONECAM = { on:false, zoom:1, el:null, lead:{ x:0, y:0 }, status:null, shots:0, last:null, msgT:null, raf:0, frames:0 };
+let PHONE_VIEW = 'home';
+const phoneApps = () => PHONE_APPS.filter(a => { try { return !a.shown || a.shown(); } catch (e){ return false; } });
+const phoneAlbums = () => PHONE_ALBUMS.filter(a => { try { return !a.shown || a.shown(); } catch (e){ return false; } });
+const phoneCamOn = () => PHONECAM.on;
+const phoneCamZoom = () => PHONECAM.on ? PHONECAM.zoom : 1;
+const phoneCamLead = () => PHONECAM.on ? PHONECAM.lead : { x:0, y:0 };
+function phoneEvent(name, o){ try { hooksEach('phoneEvent', name, o || {}); } catch (e){ console.error(e); } }
+function cameraRec(){ if (!S.camera || typeof S.camera !== 'object') S.camera = { roll:[], shots:0 }; S.camera.roll = S.camera.roll || []; return S.camera; }
+
+/* the engine's two apps */
+const PH_ICONS = {
+  camera:'<svg viewBox="0 0 48 48" aria-hidden="true"><rect x="5" y="13" width="38" height="27" rx="6" fill="#2b2f38"/><path d="M17 13l3-5h8l3 5z" fill="#2b2f38"/><circle cx="24" cy="26.5" r="9.5" fill="#cfd8e3"/><circle cx="24" cy="26.5" r="6.5" fill="#1c3d8f"/><circle cx="21.6" cy="24.2" r="2" fill="#fff" opacity=".8"/><circle cx="37" cy="18" r="1.8" fill="#f4b928"/></svg>',
+  album:'<svg viewBox="0 0 48 48" aria-hidden="true"><rect x="9" y="7" width="28" height="34" rx="3" fill="#c23b2a" transform="rotate(-8 23 24)"/><rect x="11" y="8" width="28" height="33" rx="3" fill="#fffdf6" stroke="#d8cfbc"/><rect x="14.5" y="11.5" width="21" height="17" fill="#7fb0cf"/><path d="M14.5 28.5l7-8 5 5 3-3 6 6z" fill="#3f8a5e"/><circle cx="31" cy="16" r="2.4" fill="#f4b928"/><rect x="14.5" y="32" width="14" height="2" fill="#b8ad98"/><rect x="14.5" y="36" width="9" height="2" fill="#d2c8b4"/></svg>',
+  msg:'<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 12h32a4 4 0 0 1 4 4v15a4 4 0 0 1-4 4H22l-8 7v-7H8a4 4 0 0 1-4-4V16a4 4 0 0 1 4-4z" fill="#3f9a5e"/><circle cx="16" cy="23.5" r="2.4" fill="#fff"/><circle cx="24" cy="23.5" r="2.4" fill="#fff"/><circle cx="32" cy="23.5" r="2.4" fill="#fff"/></svg>',
+};
+PHONE_APPS.push(
+  { id:'camera', label:'Fotocamera', en:'Camera', icon:PH_ICONS.camera, shown:() => !!unitHook('phoneCamera'), open:() => phoneCamOpen() },
+  { id:'album', label:'Album', en:'Photos', icon:PH_ICONS.album, shown:() => !!unitHook('phoneCamera') || phoneAlbums().length > 0, open:() => phoneView('albums'),
+    badge:() => { const n = (cameraRec().roll || []).length; return n ? String(n) : ''; } },
+);
+
+/* ---------- the home screen and the album (inside the phone's sheet: ui/phone.js openPhone) ---------- */
+const phTime = () => { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
+const phBack = (to, label) => `<button class="ph-back" data-ph-view="${to}" aria-label="Back">‹ ${label}</button>`;
+function phoneHomeHTML(){
+  const apps = phoneApps(), msgs = typeof UNIT.phoneMessages === 'function';
+  const days = ['domenica', 'lunedì', 'martedì', 'mercoledì', 'giovedì', 'venerdì', 'sabato'], months = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'], d = new Date();
+  const icon = a => `<button class="ph-app" data-ph-app="${a.id}" aria-label="${esc(a.label)}${a.en ? ' (' + esc(a.en) + ')' : ''}"><span class="ph-ai">${a.icon || ''}${a.badge && a.badge() ? `<i class="ph-badge">${esc(a.badge())}</i>` : ''}</span><b>${esc(a.label)}</b>${a.sub ? `<small>${esc(a.sub() || '')}</small>` : ''}</button>`;
+  return `<div class="ph-status"><span>${phTime()}</span><button class="x" data-close aria-label="Close phone">×</button></div>
+    <div class="ph-wall"><div class="ph-clock">${phTime()}</div><div class="ph-date">${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}</div></div>
+    <div class="ph-apps">${apps.map(icon).join('')}${msgs ? icon({ id:'msg', label:'Messaggi', en:'Messages', icon:PH_ICONS.msg }) : ''}</div>
+    <p class="ph-hint">${typeof TP !== 'undefined' && TP.touch ? 'Tap an app.' : 'Tap an app. <kbd>Esc</kbd> closes the phone.'}</p>`;
+}
+function phoneAlbumsHTML(){
+  const A = phoneAlbums(), roll = cameraRec().roll;
+  const card = a => { const P = a.pages(), got = P.filter(p => p.img).length, cov = (a.cover && a.cover()) || (P.find(p => p.img) || {}).img;
+    return `<button class="ph-albumcard" data-ph-view="album:${a.id}"><span class="ph-cov">${cov ? `<img src="${cov}" alt="">` : '<i>?</i>'}</span>
+      <span class="ph-at"><b>${esc(a.title)}</b><small>${esc((a.sub && a.sub()) || `${got} / ${P.length}`)}</small></span><span class="ph-go">›</span></button>`; };
+  return `<div class="phone-top ph-top">${phBack('home', 'Home')}<div><b>Album</b><small>Your photos</small></div><button class="x" data-close aria-label="Close phone">×</button></div>
+    <div class="ph-body ph-albums">${A.map(card).join('')}
+      <button class="ph-albumcard roll" data-ph-view="roll"><span class="ph-cov">${roll[0] ? `<img src="${roll[0].img}" alt="">` : '<i>📷</i>'}</span>
+        <span class="ph-at"><b>Rullino</b><small>Camera roll · ${roll.length} ${roll.length === 1 ? 'photo' : 'photos'}</small></span><span class="ph-go">›</span></button></div>`;
+}
+function phoneAlbumHTML(id){
+  const a = PHONE_ALBUMS.find(q => q.id === id); if (!a) return phoneAlbumsHTML();
+  const P = a.pages(), got = P.filter(p => p.img).length;
+  return `<div class="phone-top ph-top">${phBack('albums', 'Album')}<div><b>${esc(a.title)}</b><small>${esc((a.sub && a.sub()) || `${got} / ${P.length}`)}</small></div><button class="x" data-close aria-label="Close phone">×</button></div>
+    <div class="ph-body"><div class="ph-grid">${P.map((p, i) => `<button class="ph-pol${p.img ? '' : ' blank'}" data-ph-view="page:${id}:${i}" aria-label="${esc(p.img ? p.title : 'Not found yet')}">
+      <span class="ph-ph">${p.img ? `<img src="${p.img}" alt="">` : '<i>?</i>'}</span><b>${esc(p.img ? p.title : '?')}</b></button>`).join('')}</div>
+      ${a.foot ? `<p class="ph-note">${a.foot()}</p>` : ''}</div>`;
+}
+function phonePageHTML(id, i){
+  const a = PHONE_ALBUMS.find(q => q.id === id); if (!a) return phoneAlbumsHTML();
+  const P = a.pages(), n = P.length; i = ((i % n) + n) % n; const p = P[i];
+  return `<div class="phone-top ph-top">${phBack('album:' + id, esc(a.title))}<div><b>${i + 1} / ${n}</b><small>${esc(a.title)}</small></div><button class="x" data-close aria-label="Close phone">×</button></div>
+    <div class="ph-body ph-page${p.img ? '' : ' blank'}">
+      <figure class="ph-big">${p.img ? `<img src="${p.img}" alt="${esc(p.title)}">` : '<i>?</i>'}</figure>
+      <h3 class="ph-pt">${esc(p.img ? p.title : '?')}</h3>${p.sub ? `<p class="ph-ps">${p.sub}</p>` : ''}
+      ${p.it ? `<p class="ph-it"><button class="spk" data-say="${esc(p.it)}" aria-label="Listen">🔊</button> <span lang="it">${esc(p.it)}</span></p>${p.en ? `<p class="ph-en">${esc(p.en)}</p>` : ''}` : ''}
+      ${p.html || ''}
+      <div class="ph-nav"><button class="btn" data-ph-view="page:${id}:${i - 1}" aria-label="Previous page">‹</button><button class="btn" data-ph-view="page:${id}:${i + 1}" aria-label="Next page">›</button></div></div>`;
+}
+function phoneRollHTML(){
+  const R = cameraRec().roll;
+  return `<div class="phone-top ph-top">${phBack('albums', 'Album')}<div><b>Rullino</b><small>The last ${CAM_ROLL} photos</small></div><button class="x" data-close aria-label="Close phone">×</button></div>
+    <div class="ph-body">${R.length ? `<div class="ph-grid roll">${R.map(r => `<span class="ph-pol${r.ok ? '' : ' miss'}"><span class="ph-ph"><img src="${r.img}" alt=""></span><b>${esc(r.label || '')}</b></span>`).join('')}</div>` : '<p class="ph-empty">No photos yet. Open the camera: <b>Fotocamera</b>.</p>'}</div>`;
+}
+/* show a view of the phone (opening the phone first if it is closed): 'home', 'albums', 'album:<id>', 'page:<id>:<i>', 'roll' */
+function phoneView(v){
+  if (!modalOpen || !sheet.classList.contains('phone')){ if (introOpen) return; openModal('phone'); }
+  PHONE_VIEW = v || 'home';
+  const [k, id, i] = PHONE_VIEW.split(':');
+  const html = k === 'albums' ? phoneAlbumsHTML() : k === 'album' ? phoneAlbumHTML(id) : k === 'page' ? phonePageHTML(id, +i) : k === 'roll' ? phoneRollHTML() : phoneHomeHTML();
+  sheet.innerHTML = `<div class="phone-screen ph-apps-on ph-${k}">${html}</div>`;
+  phoneEvent(k === 'home' ? 'home' : k === 'albums' ? 'albums' : k, { id, i:+i });
+}
+/* ui/phone.js asks: a unit with apps opens on the home screen (or the app asked for) */
+function phoneHome(tab){
+  if (!phoneApps().length) return false;
+  if (tab && tab !== 'home' && !PHONE_APPS.some(a => a.id === tab) && !/^(albums|album:|page:|roll)/.test(tab)) return false;    // (a tab of ui/quests.js: as before)
+  if (tab === 'camera'){ phoneCamOpen(); return true; }
+  const app = PHONE_APPS.find(a => a.id === tab);
+  if (app && app.id !== 'album'){ openModal('phone'); phoneView('home'); app.open(); return true; }
+  openModal('phone'); phoneView(app ? 'albums' : tab || 'home');
+  return true;
+}
+sheet.addEventListener('click', e => {
+  if (!sheet.classList.contains('phone')) return;
+  const ap = e.target.closest('[data-ph-app]');
+  if (ap){ const id = ap.dataset.phApp; if (id === 'msg'){ PHONE_VIEW = 'msg'; PHONE_TAB = 'msg'; openPhoneMsgs(); return; } const a = PHONE_APPS.find(q => q.id === id); if (a) a.open(); return; }
+  const v = e.target.closest('[data-ph-view]'); if (v){ phoneView(v.dataset.phView); return; }
+});
+
+/* ---------- the camera ---------- */
+function phoneCamOpen(){
+  if (PHONECAM.on) return true;
+  if (modalOpen) closeModal();
+  if (dialogOpen || traveling || introOpen) return false;
+  Object.assign(PHONECAM, { on:true, zoom:1, lead:{ x:0, y:0 }, status:null, frames:0 });
+  keys.clear(); target = null; route = [];
+  const el = document.createElement('div');
+  el.className = 'pcam'; el.setAttribute('role', 'application'); el.setAttribute('aria-label', 'Camera');
+  el.innerHTML = `<div class="pcam-view"><div class="pcam-vig"></div>
+      <div class="pcam-frame"><i class="c tl"></i><i class="c tr"></i><i class="c bl"></i><i class="c br"></i><i class="pcam-dot"></i></div>
+      <div class="pcam-top"><span class="pcam-rec">● FOTO</span><span class="pcam-z">×1</span><button class="pcam-x" data-pc="x" aria-label="Close the camera (Esc)">×</button></div>
+      <p class="pcam-say" aria-live="polite"></p><div class="pcam-flash"></div></div>
+    <div class="pcam-ctl"><div class="pcam-zoom"><button data-pc="zin" aria-label="Zoom in (+)">+</button><span class="pcam-zbar"><i></i></span><button data-pc="zout" aria-label="Zoom out (−)">−</button></div>
+      <div class="pcam-row"><button class="pcam-last" data-pc="last" aria-label="The album" hidden></button><button class="pcam-shut" data-pc="shoot" aria-label="Take a picture (Space)"><i></i></button></div></div>`;
+  ($('#stage') || document.body).appendChild(el);
+  PHONECAM.el = el;
+  el.addEventListener('pointerdown', e => { const b = e.target.closest('[data-pc]'); if (!b) return; e.preventDefault(); e.stopPropagation(); phoneCamButton(b.dataset.pc); });
+  el.addEventListener('click', e => { if (e.target.closest('[data-pc]')) { e.preventDefault(); e.stopPropagation(); } });
+  el.addEventListener('wheel', e => { e.preventDefault(); phoneCamZoomBy(e.deltaY < 0 ? 1 : -1); }, { passive:false });
+  document.addEventListener('keydown', phoneCamKey, true);
+  document.body.classList.add('phonecam');
+  const last = cameraRec().roll[0]; if (last) phoneCamThumb(last.img);
+  phoneEvent('camera');
+  const touch = typeof TP !== 'undefined' && TP.touch;
+  phoneCamSay(unitHook('cameraHint') || askHooks('cameraHint') || (touch ? 'Frame it, then the round button. <b>− +</b> zoom · <b>×</b> closes.' : 'Frame it, then the round button (or <kbd>Space</kbd>). <kbd>+</kbd> <kbd>−</kbd> zoom · <kbd>Esc</kbd> closes.'), 4200);
+  cancelAnimationFrame(PHONECAM.raf); PHONECAM.raf = requestAnimationFrame(phoneCamFrame);
+  return true;
+}
+function phoneCamClose(o = {}){
+  if (!PHONECAM.on) return;
+  PHONECAM.on = false; cancelAnimationFrame(PHONECAM.raf);
+  document.removeEventListener('keydown', phoneCamKey, true);
+  document.body.classList.remove('phonecam');
+  const el = PHONECAM.el; PHONECAM.el = null; if (el){ el.classList.add('out'); setTimeout(() => el.remove(), 220); }
+  keys.clear();
+  phoneEvent('cameraClose');
+  if (o.album) setTimeout(() => openPhone('albums'), 60);
+  else if (o.home) setTimeout(() => openPhone(), 60);
+}
+function phoneCamButton(k){
+  if (k === 'x') phoneCamClose({ home:true });
+  else if (k === 'zin') phoneCamZoomBy(1);
+  else if (k === 'zout') phoneCamZoomBy(-1);
+  else if (k === 'shoot') phoneCamShoot();
+  else if (k === 'last') phoneCamClose({ album:true });
+}
+function phoneCamZoomBy(d){ phoneCamSetZoom(PHONECAM.zoom + d * CAM_ZOOM.step); }
+function phoneCamSetZoom(z){
+  PHONECAM.zoom = Math.max(CAM_ZOOM.min, Math.min(CAM_ZOOM.max, Math.round(z / CAM_ZOOM.step) * CAM_ZOOM.step));
+  const el = PHONECAM.el; if (!el) return PHONECAM.zoom;
+  el.querySelector('.pcam-z').textContent = '×' + (Math.round(PHONECAM.zoom * 100) / 100);
+  { const i = el.querySelector('.pcam-zbar i'), pc = (100 * (PHONECAM.zoom - CAM_ZOOM.min) / (CAM_ZOOM.max - CAM_ZOOM.min)) + '%'; i.style.height = pc; i.style.setProperty('--zw', pc); }
+  return PHONECAM.zoom;
+}
+function phoneCamKey(e){
+  if (!PHONECAM.on) return;
+  const k = e.key;
+  if (e.target && e.target.matches && e.target.matches('input, textarea')) return;
+  if (modalOpen || dialogOpen) return;
+  if (DIRS[k.toLowerCase()] && !e.metaKey && !e.ctrlKey) return;          // (walking: the world's)
+  if (k === 'Shift') return;
+  e.preventDefault(); e.stopPropagation();
+  if (e.repeat && (k === ' ' || k === 'Enter' || k === 'e' || k === 'E')) return;
+  if (k === 'Escape' || k === 'p' || k === 'P') phoneCamClose({ home:k !== 'Escape' });
+  else if (k === ' ' || k === 'Enter' || k === 'e' || k === 'E') phoneCamShoot();
+  else if (k === '+' || k === '=' || k === 'ArrowUp' && e.shiftKey) phoneCamZoomBy(1);
+  else if (k === '-' || k === '_') phoneCamZoomBy(-1);
+}
+/* the frame (CSS px of the page) and the world's rect under it */
+function phoneCamFrameRect(){
+  const el = PHONECAM.el; if (!el) return null;
+  const f = el.querySelector('.pcam-frame').getBoundingClientRect(), c = cv.getBoundingClientRect(), v = window.__view ? __view() : { x:cam.x, y:cam.y, z:camZoom() };
+  const s = c.width / W * v.z;                                             // (CSS px per world px: the canvas's scale × the zoom)
+  return { css:f, canvas:c, world:{ x:v.x + (f.left - c.left) / s, y:v.y + (f.top - c.top) / s, w:f.width / s, h:f.height / s } };
+}
+/* every hook's subjects, each judged: in the frame (its middle), near enough (CAM_RANGE × the zoom), still */
+function phoneCamSubjects(){
+  const out = []; hooks().forEach(h => { if (typeof h.cameraSubjects === 'function') try { (h.cameraSubjects() || []).forEach(s => out.push(s)); } catch (e){ console.error(e); } });
+  const F = phoneCamFrameRect(); if (!F) return [];
+  const R = F.world, range = CAM_RANGE * camM() * PHONECAM.zoom;
+  return out.map(s => { const h = s.h || 18, cx = s.x, cy = s.y - h / 2, inFrame = cx > R.x && cx < R.x + R.w && cy > R.y && cy < R.y + R.h;
+    const dist = Math.hypot(s.x - player.x, s.y - player.y);
+    return { ...s, inFrame, dist:Math.round(dist), near:dist <= range, m:Math.round(dist / camM() * 10) / 10 }; });
+}
+function phoneCamJudge(list){
+  const inF = list.filter(s => s.inFrame), run = !!(player.running);
+  const ok = inF.filter(s => s.near && s.still).sort((a, b) => a.dist - b.dist);
+  if (!inF.length) return { judge:'none', subject:null };
+  if (run) return { judge:'running', subject:inF[0] };
+  if (ok.length) return { judge:'ok', subject:ok[0] };
+  const far = inF.filter(s => s.still && !s.near).sort((a, b) => a.dist - b.dist)[0];
+  if (far) return { judge:'far', subject:far };
+  return { judge:'moving', subject:inF.sort((a, b) => a.dist - b.dist)[0] };
+}
+const CAM_SAY = { none:'Nothing in the picture: frame it inside the corners.', far:'Too far: go closer, or zoom in (+).', moving:'Blurred: it moved. Wait till it is still.', running:'Blurred: you were running. Walk, or stop.' };
+function phoneCamFrame(){
+  if (!PHONECAM.on) return;
+  PHONECAM.frames++;
+  if (traveling || dialogOpen || introOpen || (typeof cutsceneOn === 'function' && cutsceneOn())){ phoneCamClose(); return; }
+  /* the view over the canvas (on a phone held upright the canvas is the top of the stage: the controls go in the letterbox under it) */
+  const el = PHONECAM.el, st = $('#stage').getBoundingClientRect(), c = cv.getBoundingClientRect();
+  const v = el.querySelector('.pcam-view'); v.style.left = (c.left - st.left) + 'px'; v.style.top = (c.top - st.top) + 'px'; v.style.width = c.width + 'px'; v.style.height = c.height + 'px';
+  el.classList.toggle('below', st.bottom - c.bottom > 150);
+  /* the lead: the view looks ahead the way you face, further zoomed in (eased) */
+  const f = player.face || { x:0, y:1 }, l = Math.hypot(f.x, f.y) || 1, M = camM(), d = (1.2 + 2.4 * (PHONECAM.zoom - 1)) * M;
+  const tx = f.x / l * d, ty = f.y / l * d, k = RM ? 1 : 0.12;
+  PHONECAM.lead.x += (tx - PHONECAM.lead.x) * k; PHONECAM.lead.y += (ty - PHONECAM.lead.y) * k;
+  /* the corners: green when a picture now would count, amber when something is framed but not right */
+  if (PHONECAM.frames % 3 === 0){ const J = phoneCamJudge(phoneCamSubjects()); PHONECAM.status = J;
+    const fr = el.querySelector('.pcam-frame'); fr.classList.toggle('good', J.judge === 'ok'); fr.classList.toggle('near', J.judge !== 'ok' && J.judge !== 'none'); }
+  PHONECAM.raf = requestAnimationFrame(phoneCamFrame);
+}
+function phoneCamSay(html, ms){
+  const el = PHONECAM.el; if (!el) return; const p = el.querySelector('.pcam-say');
+  p.innerHTML = html; p.classList.remove('pop'); void p.offsetWidth; p.classList.add('pop'); p.hidden = false;
+  clearTimeout(PHONECAM.msgT); PHONECAM.msgT = setTimeout(() => { if (p) p.classList.add('fade'); }, ms || 2600);
+  p.classList.remove('fade');
+}
+function phoneCamThumb(img){ const b = PHONECAM.el && PHONECAM.el.querySelector('.pcam-last'); if (!b) return; b.hidden = false; b.innerHTML = `<img src="${img}" alt="">`; b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop'); }
+/* the picture: the frame's part of the canvas, as a small JPEG (240 × 180); with a subject that counts, the part round it (the camera's focus:
+   CAM_SHOT metres wide at ×1, less zoomed in), so the album's photo is of the cat, not of the street */
+const CAM_SHOT = 6;
+function phoneCamCapture(subject){
+  const F = phoneCamFrameRect(); if (!F) return null;
+  const k = cv.width / F.canvas.width;
+  let sx = (F.css.left - F.canvas.left) * k, sy = (F.css.top - F.canvas.top) * k, sw = F.css.width * k, sh = F.css.height * k;
+  if (subject){ const v = __view(), cpx = F.canvas.width / W * v.z * k;          // (canvas px per world px)
+    const ww = Math.min(sw, CAM_SHOT * camM() / PHONECAM.zoom * cpx), hh = ww * sh / sw;
+    const cx = (subject.x - v.x) * cpx, cy = (subject.y - (subject.h || 18) / 2 - v.y) * cpx;
+    sx = Math.max(0, Math.min(cv.width - ww, cx - ww / 2)); sy = Math.max(0, Math.min(cv.height - hh, cy - hh * 0.55)); sw = ww; sh = hh; }
+  const c = document.createElement('canvas'); c.width = 240; c.height = Math.round(240 * F.css.height / F.css.width);
+  const g = c.getContext('2d'); g.fillStyle = '#222'; g.fillRect(0, 0, c.width, c.height);
+  try { g.drawImage(cv, sx, sy, sw, sh, 0, 0, c.width, c.height); return c.toDataURL('image/jpeg', 0.74); } catch (e){ return null; }
+}
+function phoneCamShoot(){
+  if (!PHONECAM.on) return null;
+  const list = phoneCamSubjects(), J = phoneCamJudge(list), img = phoneCamCapture(J.judge === 'ok' ? J.subject : null);
+  const shot = { t:Date.now(), img, judge:J.judge, subject:J.subject ? { id:J.subject.id, label:J.subject.label, m:J.subject.m, still:J.subject.still } : null, zoom:PHONECAM.zoom, scene:S.scene,
+    framed:list.filter(s => s.inFrame).map(s => s.id) };
+  PHONECAM.shots++; PHONECAM.last = shot;
+  const el = PHONECAM.el, fl = el.querySelector('.pcam-flash'); fl.classList.remove('go'); void fl.offsetWidth; fl.classList.add('go');
+  try { if (S.sound !== false){ const A = window.AudioContext || window.webkitAudioContext; if (A){ const a = phoneCamShoot.ac || (phoneCamShoot.ac = new A()), o = a.createOscillator(), g = a.createGain(); o.type = 'square'; o.frequency.value = 2400; g.gain.setValueAtTime(0.05, a.currentTime); g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + 0.07); o.connect(g).connect(a.destination); o.start(); o.stop(a.currentTime + 0.08); } } } catch (e){}
+  /* the unit's answer (an album of its own), else the camera's own words */
+  let res = null; for (const h of hooks()){ if (typeof h.cameraShot === 'function'){ const r = h.cameraShot(shot); if (r){ res = r; break; } } }
+  const R = cameraRec();
+  if (img){ R.roll.unshift({ t:shot.t, img, ok:J.judge === 'ok', label:(res && res.label) || (J.subject && J.judge === 'ok' ? J.subject.label : '') || '', scene:S.scene }); R.roll.length = Math.min(R.roll.length, CAM_ROLL); }
+  R.shots = (R.shots || 0) + 1; save();
+  if (img) phoneCamThumb(img);
+  phoneCamSay(res && res.msg ? res.msg : J.judge === 'ok' ? `📷 <b>${esc(J.subject.label || 'Got it!')}</b>` : CAM_SAY[J.judge], res && res.ms || 2800);
+  phoneEvent('shot', shot);
+  return shot;
+}
+
+/* ---------- tests ---------- */
+dbgField('phone', () => ({ open:modalOpen && sheet.classList.contains('phone'), view:modalOpen && sheet.classList.contains('phone') ? PHONE_VIEW : null, shown:!!unitHook('phoneShown'),
+  apps:phoneApps().map(a => a.id), albums:phoneAlbums().map(a => ({ id:a.id, pages:a.pages().length, got:a.pages().filter(p => p.img).length })),
+  camera:{ on:PHONECAM.on, zoom:PHONECAM.zoom, shots:PHONECAM.shots, status:PHONECAM.status ? { judge:PHONECAM.status.judge, subject:PHONECAM.status.subject ? PHONECAM.status.subject.id : null } : null,
+    last:PHONECAM.last ? { judge:PHONECAM.last.judge, subject:PHONECAM.last.subject, framed:PHONECAM.last.framed, img:!!PHONECAM.last.img, zoom:PHONECAM.last.zoom } : null,
+    frame:PHONECAM.on ? (r => r && { x:Math.round(r.world.x), y:Math.round(r.world.y), w:Math.round(r.world.w), h:Math.round(r.world.h), css:{ x:Math.round(r.css.left), y:Math.round(r.css.top), w:Math.round(r.css.width), h:Math.round(r.css.height) } })(phoneCamFrameRect()) : null,
+    shutter:PHONECAM.on ? (b => b && { x:Math.round(b.left + b.width / 2), y:Math.round(b.top + b.height / 2), w:Math.round(b.width) })(PHONECAM.el.querySelector('.pcam-shut').getBoundingClientRect()) : null },
+  roll:(S.camera && S.camera.roll || []).length }));
+Object.assign(window.__debug, {
+  phoneCam(on = true){ return on ? phoneCamOpen() : (phoneCamClose(), false); },
+  phoneZoom(z){ return phoneCamSetZoom(z); },
+  phoneShoot(){ const s = phoneCamShoot(); return s && { judge:s.judge, subject:s.subject, framed:s.framed, img:!!s.img }; },
+  phoneView(v){ phoneView(v); return PHONE_VIEW; },
+  cameraSubjects(){ return phoneCamSubjects(); },
+});
 
 /* ===== engine/world/travel.js ===== */
 /* travelTo() between scenes, and the stats block on lesson-complete screens. */
@@ -30112,7 +30542,7 @@ const scene = () => SCENES[S.scene] || SCENES[UNIT.start.scene];
    viewH), so below 1 more of the world is in view; draw() scales by it and the pointer divides by it. */
 const cam = { x:0, y:0, overview:false };
 const sceneW = () => scene().w || W, sceneH = () => scene().h || H;
-const camZoom = () => cam.overview ? 1 : scene().zoom || 1;
+const camZoom = () => cam.overview ? 1 : (scene().zoom || 1) * phoneCamZoom();      // (× the phone's camera's zoom while it is up: ui/camera.js)
 const viewW = () => W / camZoom(), viewH = () => H / camZoom();
 /* the world point under a point of the canvas (cx, cy in canvas px, 0–W × 0–H), and back (tests: window.__view) */
 const screenToWorld = (cx, cy) => ({ x:cx / camZoom() + cam.x, y:cy / camZoom() + cam.y });
@@ -30123,10 +30553,11 @@ function updateCam(){
   const midX = sc.camCenter && sw < W ? (sw - W) / 2 : null, midY = sc.camCenter && sh < H ? (sh - H) / 2 : null;
   const clampX = v => midX !== null ? midX : Math.max(0, Math.min(sw - W, v)), clampY = v => midY !== null ? midY : Math.max(0, Math.min(sh - H, v));
   if (cam.overview || (sw <= W && sh <= H)){ cam.x = cam.overview || midX === null ? 0 : Math.round(midX); cam.y = cam.overview || midY === null ? 0 : Math.round(midY); return; }
-  const fx = sc.focusX ? sc.focusX() : player.x;          // (a scene can look elsewhere for a moment: the night train's beats; focusY too)
+  const PL = phoneCamLead();                               // (the phone's camera up: the view looks ahead the way you face, ui/camera.js)
+  const fx = (sc.focusX ? sc.focusX() : player.x) + PL.x;          // (a scene can look elsewhere for a moment: the night train's beats; focusY too)
   /* a big map's chunk keeps the camera inside its camBox, and may follow with smoothing (camEase: world/tilemap.js) */
   const B = sc.camBox || { x:0, y:0, w:sw, h:sh };
-  const tx = Math.max(B.x, Math.min(B.x + Math.max(0, B.w - W), fx - W / 2)), ty = Math.max(B.y, Math.min(B.y + Math.max(0, B.h - H), (sc.focusY ? sc.focusY() : player.y) - H * (sc.camAnchor || 0.5)));   // (camAnchor: how far down the view the player is)
+  const tx = Math.max(B.x, Math.min(B.x + Math.max(0, B.w - W), fx - W / 2)), ty = Math.max(B.y, Math.min(B.y + Math.max(0, B.h - H), (sc.focusY ? sc.focusY() : player.y) + PL.y - H * (phoneCamOn() ? 0.5 : sc.camAnchor || 0.5)));   // (camAnchor: how far down the view the player is)
   if (!sc.camEase){ cam.x = Math.round(clampX(tx)); cam.y = Math.round(clampY(ty)); return; }
   const now = performance.now(), dt = Math.min(0.1, (now - (cam.lt || now)) / 1000); cam.lt = now;
   if (cam.trav !== traveling || cam.fx === undefined || Math.hypot(tx - cam.fx, ty - cam.fy) > 1.5 * W || RM){ cam.fx = tx; cam.fy = ty; }   // (through a door: no slide; into the next chunk: a slide)
@@ -30592,6 +31023,8 @@ window.addEventListener('resize', fit);
    - The BUTTON does what E does (a real 'e' keydown: every unit's key hook, cutscenes, landmarks, people, doors), labelled with
      the verb of the E prompt drawn this frame (render/sprites.js pill(): any pill ending "· E": Parla, Entra, Guarda, Raccogli,
      Permesso!…), dimmed when there is none; a light haptic tap.
+   - The PHONE (a unit that shows it: unitHook('phoneShown')): a small 📱 button above the gear, the header's 📱 or P (ui/phone.js; its camera hides
+     the button and the phone's button: it has a shutter of its own there, ui/camera.js).
    - Each control follows its own pointer (multi-touch: walk and press at once). Touches on them never reach the canvas, so
      tap-to-walk works everywhere else.
    Tests: window.__touch() (below); tests/padova/touch-controls.js, tests/venezia/touch-controls.js. */
@@ -30608,6 +31041,7 @@ const tpCoarse = () => !!(window.matchMedia && matchMedia('(pointer: coarse)').m
 TP.touch = tpCoarse();
 
 const TP_GEAR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>';
+const TP_PHONE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.2"/><path d="M10.5 18.5h3"/></svg>';
 const TP_HAND = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V12"/><path d="M11 11.5v-2a1.5 1.5 0 0 1 3 0V12"/><path d="M14 10.5a1.5 1.5 0 0 1 3 0V12"/><path d="M17 11.5a1.5 1.5 0 0 1 3 0V16a6 6 0 0 1-6 6h-2a6 6 0 0 1-5-2.7l-2.6-4a1.6 1.6 0 0 1 2.6-1.9L8 15"/></svg>';
 
 function tpBuild(){
@@ -30615,11 +31049,13 @@ function tpBuild(){
   el.id = 'tpad'; el.className = 'tpad'; el.hidden = true;
   el.innerHTML = `<div id="tpStick" class="tp-zone" aria-hidden="true"><div class="tp-base"><div class="tp-knob"></div></div></div>
     <div class="tp-side"><button id="tpAct" class="tp-act" type="button" aria-label="Action (E)"><span class="tp-lbl"></span></button>
-      <button id="tpGear" class="tp-gear" type="button" aria-label="Touch controls: settings" title="Touch controls">${TP_GEAR}</button></div>`;
+      <button id="tpGear" class="tp-gear" type="button" aria-label="Touch controls: settings" title="Touch controls">${TP_GEAR}</button>
+      <button id="tpPhone" class="tp-phone" type="button" aria-label="Phone (P)" title="Phone">${TP_PHONE}</button></div>`;
   $('#stage').appendChild(el);
   TP.el = el;
-  const zone = $('#tpStick'), act = $('#tpAct'), gear = $('#tpGear');
-  for (const n of [zone, act, gear]) n.addEventListener('contextmenu', e => e.preventDefault());
+  const zone = $('#tpStick'), act = $('#tpAct'), gear = $('#tpGear'), ph = $('#tpPhone');
+  ph.addEventListener('click', e => { e.preventDefault(); openPhone(); });      // (the phone: ui/phone.js, its apps ui/camera.js)
+  for (const n of [zone, act, gear, ph]) n.addEventListener('contextmenu', e => e.preventDefault());
   zone.addEventListener('pointerdown', tpStickDown);
   zone.addEventListener('pointermove', tpStickMove);
   for (const t of ['pointerup', 'pointercancel', 'lostpointercapture']) zone.addEventListener(t, e => { if (e.pointerId === TP.id) tpRelease(); });
@@ -30730,6 +31166,7 @@ function tpUpdate(){
   TP.el.classList.toggle('act-on', act);
   TP.el.classList.toggle('gear-only', !!gearOnly);
   TP.el.classList.toggle('gear-on', world);
+  TP.el.classList.toggle('phone-on', world && tpOn() && !!unitHook('phoneShown'));      // (the phone's button, when the unit shows the phone)
   TP.shown = { stick, act };
   if (label !== TP.label){
     TP.label = label;
@@ -30777,7 +31214,7 @@ window.__touch = () => {
   const r = id => { const n = $(id); if (!n || !TP.el || TP.el.hidden) return null; const b = n.getBoundingClientRect(); return b.width ? { x:Math.round(b.left), y:Math.round(b.top), w:Math.round(b.width), h:Math.round(b.height) } : null; };
   return { touch:TP.touch, prefs:{ ...TP.prefs }, built:!!TP.el, shown:{ ...TP.shown }, held:TP.id !== null, m:+TP.m.toFixed(3), amt:+TP.amt.toFixed(3), run:TP.run,
     dir:keys.has('stick') ? [...DIRS.stick] : null, label:TP.label, presses:TP.presses,
-    stick:TP.shown.stick ? r('#tpStick') : null, act:TP.shown.act ? r('#tpAct') : null, gear:r('#tpGear') };
+    stick:TP.shown.stick ? r('#tpStick') : null, act:TP.shown.act ? r('#tpAct') : null, gear:r('#tpGear'), phone:TP.el && TP.el.classList.contains('phone-on') ? r('#tpPhone') : null };
 };
 window.__debug = Object.assign(window.__debug || {}, { touchPrefs(o){ Object.assign(TP.prefs, o); tpSave(); tpLayout(); tpUpdate(); } });
 if (TP.touch) tpBuild();
@@ -35645,7 +36082,7 @@ Object.assign(VZ_ROOMS, {
    Tests: __dbg().vzmap = { open, pin:[x, y] (cells), stops:[ids offered], marks:[{ id, label, shown }], anim, tree:[{ id, label, focus }], focus }. */
 const VZM = { open:false, pin:null, stops:[], k:9, marks:[], anim:null, tree:[], focus:null };
 const VZ_MARK_MS = 650;            // a pin's drop
-const vzMapMarks = () => askHooks('mapMarks') || [];
+const vzMapMarks = () => [...(askHooks('mapMarks') || []), ...hooks().flatMap(h => typeof h.sideMarks === 'function' ? h.sideMarks() || [] : [])];      // (a side activity's marks, shown with any lesson's: world/gatti.js)
 /* the places to go straight to: an area once walked in, at its named point (world/sanmarco.js vzPoints) */
 const VZ_FAST = [['vz-piazza', 'Piazza San Marco', 'piazza'], ['vz-molo', 'the Molo', 'molo'], ['vz-calli', 'the hotel', 'hotel'], ['vz-mercerie', 'the Mercerie', 'marzaria'],
   ['vz-stefano', 'Campo Santo Stefano', 'stefano'], ['vz-castello', 'Santa Maria Formosa', 'castello'], ['vz-housing', 'where the Venetians live', 'area-housing']];
@@ -39532,6 +39969,637 @@ function d2cCard(id, o = {}){
   return true;
 }
 
+/* ===== units/venezia/world/gatti.js ===== */
+/* Le maschere e i gatti (the script: docs/lessons/venezia/scripts/d2/x-maschere-gatti.md; as built: docs/venezia-gatti.md): District 2's free-play side
+   activity, after Lesson 5 (as il pozzo is after Lesson 3), not a tree node and not in the gate.
+   - The workshop: Nane Zorzi's mask workshop on Campo San Barnaba's west side (the house that had the CARTOLINE shop, at the corner of the Calle de la
+     Chiesa: its window and sign are masks now, MASCHERE), a door on its front once the activity is open; the room vz-gt-bottega (9 × 6 m): the masks
+     on the back wall (E at each: a picture card, render/gatti.js draws them; the cards' texts and the conversation: world/gatti-script.js), the
+     workbench with Nane behind it, the shop window with Arlecchino asleep on his cushion.
+   - The phone: Nane's tutorial (open the phone, the camera, a picture of Arlecchino, the album) on the engine's phone apps (engine ui/camera.js:
+     PHONE_APPS, PHONE_ALBUMS, the hooks cameraSubjects / cameraShot / phoneEvent); Venezia's phone shows once Nane has asked for the photos.
+   - The census: twelve cats (GT_CATS), Arlecchino and eleven round San Polo and Dorsoduro, none tied to the time of day; each with a look (Lesson 4's
+     tabby varied: render/l4-rialto.js vzCat), a spot, and a way: 'still' (sits there), 'shy' (too fast or too close and it runs to another of its
+     spots: walk, creep, zoom in), 'hide' (two eyes in the dark until you stand still nearby for a few seconds; then it comes out). The album: a page a
+     cat (the photo, the name, where, a line in Italian with its English), "?" for those not found.
+   - The gnaga: the album complete, Nane makes it and gives it to you (worn at once; on or off from the phone, La gnaga, or the handbook's notes); worn,
+     the player's face is a cat's half-mask (render/gatti.js gtGnagaFace, asked by render/people.js), and in a cat's area (GT.AREA m round its spot)
+     the cat comes to you, follows you and rubs round your legs for a while (a purr), then goes home; again once you have left and come back.
+   - Saved: S.gatti (lazy, not in FRESH()): { step, tut, cards, photos:{ id:{ img, t } }, known, given, wear, sc }.
+   - The handbook's ✎ notes: Le maschere e i gatti (the census n/12, the gnaga, the masks seen); the map marks the workshop once you have been in;
+     the dictionary's section once you have met Nane.
+   Tests: tests/venezia/gatti.js, gatti-phone.js, gatti-answers.js; __dbg().gatti, __debug.gtAt(step), gtGo(where), gtPhotos(n), gtCat(id), gtWear(on). */
+
+const GT = { AREA:14, RUB:12, COME:2.4, RUN:5.2, WALK:1.2, HIDE_STILL:3, HIDE_NEAR:6, HIDE_LEAVE:10,
+  SHY:{ run:5, walk:2.5, creep:1.2 },                // (metres: how near a shy cat lets you come, running / walking / creeping)
+  CREEP:0.62 };                                      // (a walk slower than this × the walking speed is a creep: the stick's light push, the camera up)
+const GT_ROOM = 'vz-gt-bottega', GT_DOOR = 'gt-bottega';
+/* open once Lesson 5 is done (any later lesson, the test drive) */
+const gtOn = () => (typeof lessonCompleted === 'function' && lessonCompleted(5)) || S.lesson > 5 || (typeof vzTestDrive === 'function' && vzTestDrive());
+function gtRec(){
+  if (!S.gatti || typeof S.gatti !== 'object') S.gatti = { step:'', tut:null, cards:{}, photos:{}, known:false, given:false, wear:false, sc:{} };
+  const R = S.gatti; R.cards = R.cards || {}; R.photos = R.photos || {}; R.sc = R.sc || {};
+  return R;
+}
+const gtPeek = () => S.gatti && typeof S.gatti === 'object' ? S.gatti : null;
+const GT_STEPS = ['', 'masks', 'tut', 'census', 'done'];
+const gtStepAt = k => GT_STEPS.indexOf((gtPeek() || {}).step || '') >= GT_STEPS.indexOf(k);
+const gtCount = () => Object.keys((gtPeek() || {}).photos || {}).filter(id => GT_CAT[id]).length;
+const gtFull = () => gtCount() >= GT_CATS.length;
+const gtWear = () => !!(S.gatti && S.gatti.given && S.gatti.wear);
+/* the phone shows (and its camera) once Nane has asked for the photos */
+const gtPhone = () => gtStepAt('tut');
+{ const prev = UNIT.phoneShown; UNIT.phoneShown = () => gtPhone() || (prev ? prev() : false); }
+{ const prev = UNIT.phoneCamera; UNIT.phoneCamera = () => gtPhone() || (prev ? !!prev() : false); }
+
+/* ---------- Nane, the mask maker (Lei; behind his workbench) ---------- */
+const GT_NANE = { id:'gt-nane', name:'Nane', where:'Nane Zorzi, the mask maker on Campo San Barnaba', scene:GT_ROOM, district:'sanpolo', formal:true, place:'Le maschere di Nane',
+  baseFace:{ x:0, y:1 }, answerHow:{ it:'Bene, grazie.', en:'Fine, thanks.' }, greet:{ it:'Buongiorno', en:'Good morning' }, agenda:[], revisitAgenda:[], promptOffset:{ x:0, y:26 },
+  body:'#7a1f2e', legs:'#2b2a33', hair:'#e9e5dc', skin:'#efc6a4', glasses:true, apron:'#c9b48a', scarf:'#e8c35a', pron:['He', 'his'], pitch:0.86, x:-999, y:-999,
+  yieldDoor:true, says:{ it:'Maschere fatte a mano!', en:'Handmade masks!' } };      // (yieldDoor: a mask on the wall in reach wins over him for E)
+NPCS.push(GT_NANE); NPC[GT_NANE.id] = GT_NANE;
+GT_NANE.home = { x:0, y:0, face:{ x:0, y:1 } }; GT_NANE.face = { x:0, y:1 };
+
+/* ---------- the workshop: its door on Campo San Barnaba (when San Polo is first built), the room ---------- */
+const GT_SHOP = { at:[90.5, 164], name:'Le maschere di Nane', label:'Entra' };      // (tiles: the shop front on the campo's west side, at the Calle de la Chiesa)
+function gtPlace(id){
+  if (id !== 'sanpolo' || VZ.gtPlaced || !VZ.houses) return;
+  VZ.gtPlaced = true;
+  const T = VZ_TILE, px = GT_SHOP.at[0] * T, yb = GT_SHOP.at[1];
+  /* the house: the shop front nearest the point (its shop: masks now), else any house with a door there */
+  const hs = VZ.houses.filter(q => q.x0 * T <= px + 3 * T && q.x1 * T >= px - 3 * T && Math.abs(q.yb - yb) <= 2 && (q.doors || []).some(d => d.kind === 'door' || d.kind === 'shop'))
+    .sort((a, b) => (b.shopWin ? 1 : 0) - (a.shopWin ? 1 : 0) || Math.abs((a.x0 + a.x1) / 2 * T - px) - Math.abs((b.x0 + b.x1) / 2 * T - px));
+  const h = hs[0]; if (!h) return;
+  const mk = VZ_SHOP_KINDS.find(k => k.key === 'maschere'), M = VZ_M;
+  if (!h.shopWin){ const W = (h.x1 - h.x0) * T, sw = Math.max(2.2 * M, Math.min(W - 2.6 * M, 3.4 * M)), sx = Math.round(h.x0 * T + 0.5 * M);
+    h.shopWin = { x0:sx, x1:Math.round(sx + sw), h:Math.round(VZ_H.shop * M) }; h.doors = h.doors.filter(q => q.kind !== 'door'); h.doors.push({ x:Math.round(sx + sw + 0.9 * M), w:Math.round(VZ_H.doorW * M), h:Math.round(VZ_H.door * M), kind:'shop' }); h.shop = true; h.flowers = false; }
+  if (mk){ h.shopKind = { ...mk, sign:'MASCHERE', seed:1436, cols:['#fffdf8', '#d4a52e', '#1b1820', '#c23b2a', '#f6f1e6', '#7a3aa0'] }; (h.wallProps || []).forEach(q => { if (q.kind === 'insegna'){ q.icon = mk.icon; q.col = mk.cols[0]; } }); }
+  const d = (h.doors || []).filter(q => q.kind === 'shop' || q.kind === 'door').sort((a, b) => (a.kind === 'shop' ? 0 : 1) - (b.kind === 'shop' ? 0 : 1) || Math.abs(a.x - px) - Math.abs(b.x - px))[0];
+  (VZ.shopDoors || []).forEach(s => { if (s.h === h) s.covered = true; });             // (no shopkeeper in the doorway: Nane is inside)
+  VZ.doors.push({ id:GT_DOOR, to:GT_ROOM, name:GT_SHOP.name, label:GT_SHOP.label, x:Math.round(d.x), y:h.yb * T, poi:null, gatti:true, when:gtOn });
+  VZ.gtShop = { h, x:Math.round(d.x), y:h.yb * T };
+  if (typeof vzPropHash === 'function') vzPropHash.m = null;
+  VZ_NAV.grid = null; vzPoints.memo = null;
+  Object.values(VZ_CITY).forEach(sc => { if (sc.made && sc.camBox) sc.doors = vzDoorsIn(sc.camBox); });
+  gtCatsMake(); vzPoints.memo = null;
+}
+{ const prev = vzGiacPlace; vzGiacPlace = function(id){ prev(id); gtPlace(id); }; }
+/* the named points: before the workshop's door; where to stand to photograph each cat */
+{ const prev = vzDistrictPoints;
+  vzDistrictPoints = () => {
+    const P = prev();
+    if (VZD.id === 'sanpolo' && VZ.gtShop){ P['gt-shop'] = VZ.snap(VZ.gtShop.x, VZ.gtShop.y + 1.0 * VZ_M, 12);
+      GT_CATS.forEach(c => { const C = GT_RT[c.id]; if (C && C.home && !c.room) P['gt-stand-' + c.id] = gtStand(c, C.home); }); }      // (where you stand to photograph it: the cat itself may be on a boat)
+    return P;
+  };
+}
+Object.assign(VZ_ROOMS, {
+  [GT_ROOM]:{ kind:'shop', title:'Le maschere di Nane', sub:'Campo San Barnaba · bottega di maschere', door:GT_DOOR, seed:1436, district:'sanpolo', w:9, d:6, wall:3.4,
+    zones:[{ x0:0, x1:9, floor:'cotto', wall:'gtocra' }],
+    exit:{ id:'gt-bottega-exit', x:3.9, w:1.3, leave:GT_DOOR }, spawn:{ x:4.55, y:5.1 },
+    props:[
+      { id:'carnevale', kind:'gtposter', wall:true, x:0.35, w:1.35, z:0.95, h:1.75, it:'il Carnevale', en:'the poster of the carnival', label:'Guarda' },
+      { id:'bauta', kind:'gtmask', mask:'bauta', wall:true, x:2.05, w:0.78, z:1.35, h:0.95, it:'la bauta', en:'the bauta: a white mask over the whole face', label:'Guarda' },
+      { id:'moretta', kind:'gtmask', mask:'moretta', wall:true, x:3.0, w:0.78, z:1.35, h:0.95, it:'la moretta', en:'the moretta: a small oval of black velvet', label:'Guarda' },
+      { id:'medico', kind:'gtmask', mask:'medico', wall:true, x:3.95, w:0.78, z:1.35, h:0.95, it:'il medico della peste', en:'the plague doctor: the long beak', label:'Guarda' },
+      { id:'colombina', kind:'gtmask', mask:'colombina', wall:true, x:4.9, w:0.78, z:1.35, h:0.95, it:'la colombina', en:'the colombina: a gold half-mask', label:'Guarda' },
+      { id:'gnaga', kind:'gtmask', mask:'gnaga', wall:true, x:5.85, w:0.78, z:1.35, h:0.95, it:'la gnaga', en:'the gnaga: the cat mask', label:'Guarda' },
+      { id:'scaffale', kind:'gtshelf', x:7.25, y:0, w:1.55, d:0.45, h:2.3, it:'lo scaffale', en:'the shelf of white masks, waiting for their paint' },
+      { id:'banco', kind:'gtbench', x:5.6, y:1.75, w:2.9, d:0.9, h:0.92, look:false, it:'il banco da lavoro', en:'the workbench: papier-mâché, glue, brushes, a half-made face' },
+      { id:'vetrina', kind:'gtwindow', x:0.25, y:4.55, w:2.6, d:1.0, h:0.62, it:'la vetrina', en:'the shop window: masks on their stands, and Arlecchino asleep on a cushion', label:'Arlecchino' },
+      { id:'sgabello', kind:'stool', x:2.3, y:2.6, w:0.4, d:0.4, h:0.7, round:true, solid:false, look:false },
+    ],
+    people:{ 'gt-nane':{ x:7.05, y:1.25, post:true, talk:{ x:5.3, y:2.55, w:3.5, d:1.2 } } } },
+});
+vzRoomScene(GT_ROOM); VZ_SCENE_D[GT_ROOM] = 'sanpolo';
+
+/* ---------- the twelve cats ----------
+   spot: where it sits (world px): { prop:kind, near:[x, y] } (the nearest such prop of the city to that point), { pt:named point }, { lm:landmark's stand },
+   { boat:[x, y] } (the moored gondola nearest), { at:[x, y] }; dx, dy (metres off it), lift (metres up: a bench, a wellhead, a sill), face 'L' | 'R'.
+   shy cats: alts (more spots, the same way); hiding cats: out (where it comes out to, metres off its spot). look: vzCat's options. */
+const GT_CATS = [
+  { id:'arlecchino', name:'Arlecchino', room:true, way:'still', where:'Nane’s shop window, on the cushion', area:'Nane’s workshop, Campo San Barnaba',
+    it:'Dorme tutto il giorno.', en:'He sleeps all day.',
+    look:{ coat:'#f6f1e6', stripes:false, patches:[[-4, -12, 3.6, 3, '#d9822b'], [2, -6, 3.2, 2.6, '#2b2622'], [-3, -4, 2.4, 2, '#d9822b']], headPatch:'#d9822b', lie:true } },
+  { id:'rosso', name:'Rosso', way:'still', where:'the Erberia, under Nives’s stall', area:'the Rialto market', spot:{ prop:'erberia', near:[6372, 912], dx:0.35, dy:0.55 }, face:'R',
+    it:'È sotto il banco di Nives.', en:'He’s under Nives’s stall.', look:{ coat:'#e08a3a', stripes:'#b35f1e', size:0.74, sit:true } },
+  { id:'moro', name:'Moro', way:'hide', where:'the Pescheria, behind the fish crates', area:'the Rialto market', spot:{ prop:'pesce', near:[6084, 336], dx:0.4, dy:1.15 }, out:[0.2, 1.3], face:'L',
+    it:'Aspetta il pesce, in silenzio.', en:'He waits for the fish, in silence.', look:{ coat:'#26262b', stripes:false, eye:'#e8c33a', sit:true } },
+  { id:'contessa', name:'La Contessa', way:'still', where:'a bench in Campo dei Frari', area:'by the Frari', spot:{ prop:'bench', near:[2976, 1488], dx:0.2, dy:0, lift:0.46 }, face:'L',
+    it:'È bianca e molto bella.', en:'She’s white and very beautiful.', look:{ coat:'#fbfaf6', stripes:false, fluffy:true, eye:'#7fb3d8', sit:true, size:0.72 } },
+  { id:'fumo', name:'Fumo', way:'shy', where:'the wellhead in Campo San Polo', area:'Campo San Polo', spot:{ prop:'well', near:[3600, 1200], dy:0.1, lift:0.92 },
+    alts:[{ prop:'well', near:[4080, 1680], dy:0.1, lift:0.92 }, { pt:'poi-p9', dx:-3, dy:3 }], face:'R',
+    it:'Non gli piacciono le persone.', en:'He doesn’t like people.', look:{ coat:'#8e9196', stripes:'#71747a', sit:true } },
+  { id:'tartufo', name:'Tartufo', way:'hide', where:'under a bench by the Scuola Grande di San Rocco', area:'Campo San Rocco', spot:{ prop:'bench', near:[2112, 1680], dx:0, dy:0.1 }, out:[0.4, 1.2], face:'R',
+    it:'È piccola e ha tre colori.', en:'She’s small and has three colours.', look:{ coat:'#2f2621', stripes:false, patches:[[-4, -11, 3, 2.6, '#c9732e'], [2, -6, 3, 2.4, '#e8b07a'], [-1, -14, 2.4, 2, '#c9732e']], headPatch:'#c9732e', size:0.62, sit:true } },
+  { id:'pepe', name:'Pepe', way:'shy', where:'a bench in Campo Santa Margherita', area:'Campo Santa Margherita', spot:{ prop:'bench', near:[1824, 2832], dx:0.25, lift:0.46 },
+    alts:[{ prop:'bench', near:[1248, 3120], lift:0.46 }, { prop:'bench', near:[1440, 3408], lift:0.46 }, { prop:'bench', near:[1824, 3408], lift:0.46 }], face:'L',
+    it:'È bianco e nero, e mangia tutto.', en:'He’s black and white, and eats everything.', look:{ coat:'#1f1f24', stripes:false, bib:'#fbfaf6', sit:true } },
+  { id:'nuvola', name:'Nuvola', way:'still', where:'a windowsill on Campo San Barnaba', area:'Campo San Barnaba', spot:{ sill:[96.75, 164] }, face:'R',
+    it:'Guarda il campo dalla finestra.', en:'She watches the campo from the window.', look:{ coat:'#a9adb3', stripes:false, bib:'#fbfaf6', fluffy:true, sit:true, size:0.66 } },
+  { id:'capitano', name:'Capitano', way:'still', where:'the vegetable boat by the Ponte dei Pugni', area:'the Ponte dei Pugni', spot:{ prop:'barca', near:[2592, 4488], dx:-3.4, dy:-0.25, lift:0.55, sortDy:2 }, face:'R',
+    it:'Ha un occhio solo, ma vede tutto.', en:'He has only one eye, but he sees everything.', look:{ coat:'#d58440', stripes:'#9a5420', oneEye:true, size:0.8, sit:true } },
+  { id:'tigre', name:'Tigre', way:'hide', where:'a gondola under its cover, by the Squero di San Trovaso', area:'San Trovaso', spot:{ boat:[3234, 5338], dy:-0.15, lift:0.35, sortDy:1.5 }, out:[0, 0], face:'L',
+    it:'Dorme vicino alle gondole.', en:'He sleeps near the gondolas.', look:{ coat:'#8a6a44', stripes:'#4e3a22', sit:true } },
+  { id:'zucchero', name:'Zucchero', way:'shy', where:'the Zattere, in the sun by the water', area:'the Zattere', spot:{ pt:'poi-p24', dx:4, dy:3.0 },
+    alts:[{ pt:'poi-p24', dx:-7, dy:3.0 }, { pt:'poi-p24', dx:12, dy:2.8 }], face:'L',
+    it:'Dorme al sole, sulle Zattere.', en:'He sleeps in the sun, on the Zattere.', look:{ coat:'#ecd9b0', stripes:'#d9bd86', sit:true } },
+  { id:'luna', name:'Luna', way:'still', where:'the steps of the Salute', area:'the Salute', spot:{ lm:'salute', dx:-2.6, dy:-0.35, lift:0.2 }, face:'R',
+    it:'Ha gli occhi blu.', en:'She has blue eyes.', look:{ coat:'#efe3cf', stripes:false, points:'#4a3a30', eye:'#4f8fe0', sit:true, size:0.68 } },
+];
+const GT_CAT = Object.fromEntries(GT_CATS.map(c => [c.id, c]));
+const GT_RT = {};                                   // (the cats' state in the world: not saved)
+/* a spot's place in the world (px), its lift (px) */
+function gtSpotAt(s){
+  if (!s) return null; const M = VZ_M; let b = null;
+  if (s.prop){ const ps = VZ.props.filter(q => q.kind === s.prop); b = ps.sort((a, c) => Math.hypot(a.x - s.near[0], a.y - s.near[1]) - Math.hypot(c.x - s.near[0], c.y - s.near[1]))[0];
+    b = b && Math.hypot(b.x - s.near[0], b.y - s.near[1]) < 12 * M ? { x:b.x, y:b.y } : { x:s.near[0], y:s.near[1] }; }
+  else if (s.pt){ const P = vzPoints()[s.pt]; b = P ? { x:P.x, y:P.y } : null; }
+  else if (s.lm){ const L = (typeof vzDLandmarks === 'function' ? vzDLandmarks() : []).find(l => l.id === s.lm); b = L && L.stand ? { x:L.stand.x, y:L.stand.y } : null; }
+  else if (s.boat){ const G = (VZ.boats || []).filter(q => q.kind === 'gondola' && q.moored).sort((a, c) => Math.hypot(a.x - s.boat[0], a.y - s.boat[1]) - Math.hypot(c.x - s.boat[0], c.y - s.boat[1]))[0];
+    b = G ? { x:G.x, y:G.y, boat:G } : { x:s.boat[0], y:s.boat[1] }; }
+  else if (s.sill){ const T = VZ_TILE, px = s.sill[0] * T, h = VZ.houses.filter(q => q.x0 * T <= px && q.x1 * T >= px && Math.abs(q.yb - s.sill[1]) <= 2)[0];
+    b = { x:px, y:(h ? h.yb : s.sill[1]) * T + 2, sill:true }; }
+  else if (s.at) b = { x:s.at[0], y:s.at[1] };
+  if (!b) return null;
+  return { x:b.x + (s.dx || 0) * M, y:b.y + (s.dy || 0) * M, lift:(s.sill ? 1.02 : s.lift || 0) * M, sortDy:(s.sortDy || 0) * M, boat:b.boat || null, sill:!!b.sill };
+}
+/* where you stand to photograph a cat: in front of its spot (south, then the sides), on walkable ground */
+function gtStand(c, at){
+  const M = VZ_M, tries = [[0, 2.2], [1.8, 1.6], [-1.8, 1.6], [0, 3.2], [2.5, 0], [-2.5, 0], [0, -2.2]];
+  for (const [dx, dy] of tries){ const x = at.x + dx * M, y = at.y + dy * M; if (VZ.clear(x, y, 14)) return { x:Math.round(x), y:Math.round(y) }; }
+  const q = VZ.snap(at.x, at.y + 2 * M, 14); return { x:Math.round(q.x), y:Math.round(q.y) };
+}
+function gtCatsMake(){
+  if (VZD.id !== 'sanpolo') return;
+  GT_CATS.forEach(c => {
+    if (c.room) return;
+    const home = gtSpotAt(c.spot); if (!home) return;
+    const alts = [home, ...(c.alts || []).map(gtSpotAt).filter(Boolean)];
+    const out = c.out ? { x:home.x + c.out[0] * VZ_M, y:home.y + c.out[1] * VZ_M, lift:c.out[0] || c.out[1] ? 0 : home.lift, sortDy:home.sortDy } : null;
+    GT_RT[c.id] = { id:'gt-cat-' + c.id, cat:c, home, alts, out, spot:0, x:home.x, y:home.y, lift:home.lift, sortDy:home.sortDy, mode:c.way === 'hide' ? 'hidden' : 'sit', t:0,
+      face:{ x:c.face === 'L' ? -1 : 1, y:0 }, moving:false, walk:0, still:0, far:0, charmed:false, rub:0, ang:0, kid:true, animal:'cat', ...c.look, sit:true };
+  });
+}
+
+/* ---------- the cats' ways (each frame, in San Polo's streets) ---------- */
+const GT_MOVE = { px:null, py:null, v:0, still:0 };
+function gtTick(dt){
+  if (!gtOn() || !dt) return;
+  const M = VZ_M, city = VZD.id === 'sanpolo' && !!VZ_CITY[S.scene] && !traveling;
+  /* the player's pace (px/s): a walk, a creep, running; still for how long */
+  if (GT_MOVE.px !== null){ const d = Math.hypot(player.x - GT_MOVE.px, player.y - GT_MOVE.py); GT_MOVE.v = d > 60 ? 0 : d / dt; }
+  GT_MOVE.px = player.x; GT_MOVE.py = player.y;
+  GT_MOVE.still = GT_MOVE.v < 4 ? GT_MOVE.still + dt : 0;
+  if (VZD.id === 'sanpolo' && !Object.keys(GT_RT).length && VZ.gtPlaced) gtCatsMake();
+  gtRoomTick(dt);
+  if (!city) return;
+  const run = !!player.running, base = VZ_SPEED, creep = GT_MOVE.v > 4 && GT_MOVE.v < base * GT.CREEP, walking = GT_MOVE.v >= base * GT.CREEP;
+  for (const C of Object.values(GT_RT)){
+    const c = C.cat, d = Math.hypot(player.x - C.x, player.y - C.y) / M, dh = Math.hypot(player.x - C.home.x, player.y - C.home.y) / M;
+    C.t += dt;
+    /* the gnaga: in its area, the cat comes to you (once until you leave the area and come back) */
+    if (dh > GT.AREA + 4) C.charmed = false;
+    if (gtWear() && !C.charmed && dh < GT.AREA && C.mode !== 'come' && C.mode !== 'rub' && gtPathOK(C, player)){ C.mode = 'come'; C.charmed = true; C.t = 0; }
+    if (C.mode === 'come'){
+      if (!gtWear()){ gtGoHome(C); continue; }
+      if (gtStep(C, player.x + (C.x < player.x ? -0.55 : 0.55) * M, player.y + 0.15 * M, GT.COME * M * dt) || d < 0.8){ C.mode = 'rub'; C.t = 0; C.ang = Math.atan2(C.y - player.y, C.x - player.x); gtPurr(C); }
+      if (C.t > 14) gtGoHome(C);
+      continue;
+    }
+    if (C.mode === 'rub'){
+      /* round your legs: a slow circle, a pause against them, the purr now and then; it follows you if you walk */
+      C.ang += dt * (Math.sin(C.t * 0.9) > 0 ? 1.6 : 0.25);
+      const tx = player.x + Math.cos(C.ang) * 0.62 * M, ty = player.y + 0.1 * M + Math.sin(C.ang) * 0.32 * M;
+      const k = Math.min(1, dt * 6); const nx = C.x + (tx - C.x) * k, ny = C.y + (ty - C.y) * k;
+      C.moving = Math.hypot(nx - C.x, ny - C.y) > 0.4; C.walk += Math.hypot(nx - C.x, ny - C.y) / 6; if (Math.abs(nx - C.x) > 0.05) C.face = { x:nx > C.x ? 1 : -1, y:0 };
+      C.x = nx; C.y = ny; C.lift = 0; C.sit = !C.moving;
+      if (C.t % 3.2 < dt) gtPurr(C);
+      if (C.t > GT.RUB || !gtWear() || d > 6) gtGoHome(C);
+      continue;
+    }
+    if (C.mode === 'back' || C.mode === 'run'){
+      const to = C.dest || C.home, sp = (C.mode === 'run' ? GT.RUN : GT.WALK) * M * dt;
+      if (gtStep(C, to.x, to.y, sp)){ C.lift = to.lift || 0; C.sortDy = to.sortDy || 0; C.sit = true; C.moving = false; C.dest = null; C.mode = c.way === 'hide' && to === C.home ? 'hidden' : 'sit'; C.t = 0; }
+      continue;
+    }
+    if (c.way === 'shy' && C.mode === 'sit'){
+      const lim = run ? GT.SHY.run : walking ? GT.SHY.walk : creep ? GT.SHY.creep : 0.7;
+      if (d < lim){ const far = C.alts.map((a, i) => ({ a, i, d:Math.hypot(a.x - player.x, a.y - player.y) })).filter(o => o.i !== C.spot).sort((a, b) => b.d - a.d)[0];
+        if (far){ C.spot = far.i; C.dest = far.a; C.mode = 'run'; C.lift = 0; C.sit = false; C.flee = (C.flee || 0) + 1; } }
+    }
+    if (c.way === 'hide'){
+      if (C.mode === 'hidden' && d < GT.HIDE_NEAR && GT_MOVE.still >= GT.HIDE_STILL){ C.mode = 'back'; C.dest = C.out; C.t = 0; C.sit = false; }
+      else if (C.mode === 'sit' && d > GT.HIDE_LEAVE){ C.far += dt; if (C.far > 2){ C.far = 0; C.mode = 'back'; C.dest = C.home; } }
+      else C.far = 0;
+    }
+  }
+}
+/* a step towards (x, y): true on arriving */
+function gtStep(C, x, y, sp){
+  const dx = x - C.x, dy = y - C.y, d = Math.hypot(dx, dy);
+  if (d <= Math.max(1, sp)){ C.x = x; C.y = y; C.moving = false; return true; }
+  C.x += dx / d * sp; C.y += dy / d * sp; C.moving = true; C.sit = false; C.walk += sp / 7; C.lift = Math.max(0, C.lift - sp * 0.6);
+  if (Math.abs(dx) > 1) C.face = { x:dx > 0 ? 1 : -1, y:0 };
+  return false;
+}
+function gtGoHome(C){ C.mode = 'back'; C.dest = C.cat.way === 'hide' ? C.home : C.alts[C.spot] || C.home; C.t = 0; }
+/* a cat comes only over ground (no rio between you): the straight way sampled every half metre */
+function gtPathOK(C, p){
+  const M = VZ_M, d = Math.hypot(p.x - C.x, p.y - C.y), n = Math.ceil(d / (0.5 * M));
+  for (let k = 1; k < n; k++){ const x = C.x + (p.x - C.x) * k / n, y = C.y + (p.y - C.y) * k / n; if (!VZ.clear(x, y, 4)) return k > n - 3; }
+  return true;
+}
+function gtPurr(C){ if (typeof worldSay === 'function') worldSay(C, Math.random() < 0.5 ? 'rrr… rrr…' : 'Miao… rrr', { ms:1500, silent:true }); C.purrs = (C.purrs || 0) + 1; }
+/* Arlecchino in the shop window: asleep; worn, the gnaga wakes him for a purr */
+const GT_ARL = { purr:0, woke:0 };
+function gtRoomTick(dt){
+  if (S.scene !== GT_ROOM) return;
+  const a = gtArlAt(); if (!a) return;
+  if (gtWear() && Math.hypot(player.x - a.x, player.y - a.y) < 2.4 * VZ_M){ GT_ARL.purr -= dt; if (GT_ARL.purr <= 0){ GT_ARL.purr = 3.5; GT_ARL.woke = performance.now();
+    if (typeof worldSay === 'function') worldSay(gtArlBody(), 'rrr…', { ms:1400, silent:true }); } }
+}
+/* Arlecchino's place: on the cushion in the shop window (the room's prop) */
+function gtArlAt(){ const R = VZ_ROOMS[GT_ROOM], p = R && R.byId && R.byId.vetrina; if (!p) return null; return { x:p.box.x + p.box.w * 0.72, y:p.box.y + p.box.h * 0.55, lift:vzM(p.h) + 2 }; }
+const GT_ARLB = { id:'gt-cat-arlecchino', kid:true, x:0, y:0 };
+function gtArlBody(){ const a = gtArlAt(); if (a){ GT_ARLB.x = a.x; GT_ARLB.y = a.y; } return GT_ARLB; }
+
+/* ---------- the camera: the cats in view are its subjects; a cat's photo goes into the album ---------- */
+function gtSubjects(){
+  if (!gtPhone()) return [];
+  const out = [], M = VZ_M;
+  if (S.scene === GT_ROOM){ const a = gtArlAt(); if (a) out.push({ id:'arlecchino', x:a.x, y:a.y - a.lift + 6, h:16, still:true, label:'Arlecchino' }); return out; }
+  if (VZD.id !== 'sanpolo' || !VZ_CITY[S.scene]) return out;
+  for (const C of Object.values(GT_RT)){ if (C.mode === 'hidden') continue;
+    out.push({ id:C.cat.id, x:C.x, y:C.y - C.lift - (C.home.sill && C.mode === 'sit' ? 0 : 0), h:0.7 * M, still:!C.moving && (C.mode === 'sit' || C.mode === 'rub' && !C.moving), label:C.cat.name }); }
+  return out;
+}
+function gtShot(shot){
+  if (!gtPhone()) return null;
+  const R = gtRec(), s = shot.subject;
+  if (shot.judge === 'ok' && s && GT_CAT[s.id]){
+    const c = GT_CAT[s.id], had = !!R.photos[c.id];
+    if (!had && shot.img){ R.photos[c.id] = { img:shot.img, t:Date.now() }; save(); renderHUD(); }
+    const n = gtCount();
+    if (R.tut === 'shoot' && c.id === 'arlecchino'){ R.tut = 'album'; save(); setTimeout(() => worldSay(GT_NANE, 'Ecco! Bravo!', { ms:1800 }), 250); }
+    const msg = had ? `📷 <b>${esc(c.name)}</b> · already in the album (${n} / ${GT_CATS.length})`
+      : n >= GT_CATS.length ? `📷 <b>${esc(c.name)}</b>! <b>The album is complete: ${n} / ${GT_CATS.length}.</b> Show it to Nane, on Campo San Barnaba.`
+      : `📷 <b>${esc(c.name)}</b> · new in the album: <b>${n} / ${GT_CATS.length}</b>`;
+    return { ok:true, msg, label:c.name, ms:3400 };
+  }
+  if (S.scene === GT_ROOM && R.tut === 'shoot' && shot.judge !== 'ok'){
+    const say = shot.judge === 'far' ? ['Più vicino!', 'Closer!'] : shot.judge === 'none' ? ['No, no: Arlecchino! Lì, nella vetrina!', 'No, no: Arlecchino! There, in the window!'] : ['Piano, piano!', 'Slowly, slowly!'];
+    setTimeout(() => { worldSay(GT_NANE, say[0], { ms:2000 }); }, 200);
+    return null;
+  }
+  return null;
+}
+/* the tutorial follows the phone (engine ui/camera.js phoneEvent) */
+function gtPhoneEvent(name, o){
+  const R = gtPeek(); if (!R || !R.tut) return;
+  const was = R.tut;
+  if (name === 'home' && R.tut === 'phone') R.tut = 'camera';
+  else if (name === 'camera' && (R.tut === 'phone' || R.tut === 'camera')) R.tut = 'shoot';
+  else if ((name === 'album' && o.id === 'gatti' || name === 'page' && o.id === 'gatti') && R.tut === 'album') R.tut = 'talk';
+  if (R.tut !== was){ save(); renderHUD(); }
+}
+
+/* ---------- the album (the phone's Album: engine PHONE_ALBUMS) ---------- */
+PHONE_ALBUMS.push({ id:'gatti', title:'I gatti di Nane', shown:() => gtPhone(),
+  sub:() => `Il censimento · ${gtCount()} / ${GT_CATS.length}`,
+  cover:() => { const p = (gtPeek() || {}).photos || {}; const k = GT_CATS.find(c => p[c.id]); return k ? p[k.id].img : null; },
+  foot:() => gtFull() ? (gtStepAt('done') ? 'The census is done: Nane made the gnaga from these faces.' : '<b>Complete!</b> Show the album to Nane, on Campo San Barnaba.') : 'The cats of San Polo and Dorsoduro: open the camera (<b>Fotocamera</b>) and frame one, close and still.',
+  pages:() => { const p = (gtPeek() || {}).photos || {}; return GT_CATS.map(c => p[c.id]
+    ? { id:c.id, img:p[c.id].img, title:c.name, sub:`${esc(c.where)} · <span class="gt-way">${{ still:'sits still', shy:'shy', hide:'hides' }[c.way]}</span>`, it:c.it, en:c.en }
+    : { id:c.id, img:null, title:c.name, sub:`Not found yet · somewhere near ${esc(c.area)}` }); } });
+/* the gnaga on the phone's home: on or off */
+PHONE_APPS.push({ id:'gnaga', label:'La gnaga', en:'the cat mask', shown:() => !!(gtPeek() || {}).given, sub:() => gtWear() ? 'On' : 'Off',
+  icon:'<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 30c0-9 5-17 6-22l7 8h6l7-8c1 5 6 13 6 22-3 6-9 9-16 9S11 36 8 30z" fill="#d9d4c8"/><path d="M14 10l5 7-6 2zM34 10l-5 7 6 2z" fill="#e8a0a0"/><path d="M13 25c3-3 7-3 9 0-3 2-6 2-9 0zm13 0c2-3 6-3 9 0-3 2-6 2-9 0z" fill="#2b2622"/><path d="M24 29l-2 3h4z" fill="#c76a6a"/><path d="M6 31l10-1M6 35l10-3M42 31l-10-1M42 35l-10-3" stroke="#5a5048" stroke-width="1.2"/></svg>',
+  open:() => { gtWearSet(!gtWear()); if (modalOpen && sheet.classList.contains('phone')) phoneView('home');
+    toast(gtWear() ? '<b>La gnaga</b> · on. The cats know you now.' : '<b>La gnaga</b> · off.'); } });
+function gtWearSet(on){ const R = gtRec(); if (!R.given) return false; R.wear = !!on; save(); return R.wear; }
+
+/* ---------- the hooks (a story hook: ahead of the lessons' guides in the workshop and during the tutorial; each guarded) ---------- */
+const GT_HOOKS = { story:'gatti',
+  door(d){
+    if (!d || S.scene !== GT_ROOM) return undefined;
+    const m = /^pr:(.+)$/.exec(d.id || ''), id = m && m[1]; if (!id) return undefined;
+    if (GT_CARDS[id]){ gtCard(id); return true; }
+    if (id === 'vetrina'){ worldSay(gtArlBody(), gtWear() ? 'rrr… Miao!' : 'Zzz…', { ms:1600, silent:true }); toast('<b>Arlecchino</b> · Nane’s calico, asleep on his cushion in the window.'); return true; }
+    return undefined;
+  },
+  talk(npc){ if (!npc || npc.id !== GT_NANE.id) return undefined; return gtTalk(); },
+  tick(dt){ gtTick(dt); },
+  cityEnts(t){ return typeof gtEnts === 'function' ? gtEnts(t) : []; },
+  cameraSubjects:() => gtSubjects(),
+  cameraShot:shot => gtShot(shot),
+  cameraHint:() => { const R = gtPeek(); return R && R.tut === 'shoot' && S.scene === GT_ROOM ? `Frame <b>Arlecchino</b> in the window (bottom left), then the round button${typeof TP !== 'undefined' && TP.touch ? '' : ' (or <kbd>Space</kbd>)'}.` : null; },
+  phoneEvent:(name, o) => gtPhoneEvent(name, o),
+  sideMarks(){ const R = gtPeek(); if (!R || !R.known || VZD.id !== 'sanpolo' || !VZ.gtShop) return null;
+    return [{ id:'gt-shop', label:'Le maschere di Nane', x:VZ.gtShop.x, y:VZ.gtShop.y + 0.8 * VZ_M, seen:gtStepAt('done') }]; },
+  objective(){ const R = gtPeek(); if (!R) return undefined;
+    if (R.tut) return ({ phone:'Open your phone (📱)', camera:'Open the camera', shoot:'Photograph Arlecchino', album:'See him in the album', talk:'Show Nane the photo' })[R.tut];
+    if (S.scene !== GT_ROOM) return undefined;
+    if (R.step === 'masks') return `Look at the masks (${Math.min(3, Object.keys(R.cards).length)} of 3)`;
+    if (R.step === 'census') return gtFull() ? 'Show Nane the album' : `The cat census: ${gtCount()} of ${GT_CATS.length}`;
+    return undefined; },
+  guide(near){ return gtGuide(near); },
+  notes:() => [],
+};
+STORY_HOOKS.unshift(GT_HOOKS);
+function gtGuide(){
+  const R = gtPeek(); if (!R) return undefined;
+  const cam = '<kbd>P</kbd>', tap = typeof TP !== 'undefined' && TP.touch;
+  if (R.tut === 'phone') return `<b>Nane’s camera.</b> Open your phone: the <b>📱</b> button at the top${tap ? ' (or the 📱 by the action button)' : ''}, or ${cam}.`;
+  if (R.tut === 'camera') return 'On the phone: open the camera, <b>Fotocamera</b>.';
+  if (R.tut === 'shoot') return S.scene === GT_ROOM ? 'Frame <b>Arlecchino</b> in the shop window, then take the picture: the round button (or <kbd>Space</kbd>). Walk closer, or zoom in (<kbd>+</kbd>).' : 'Arlecchino is in Nane’s shop window: open the camera there (📱, <b>Fotocamera</b>).';
+  if (R.tut === 'album') return 'Now see it in the album: close the camera (× or <kbd>Esc</kbd>), then <b>Album</b> on the phone, <b>I gatti di Nane</b>.';
+  if (R.tut === 'talk') return S.scene === GT_ROOM ? 'Close the phone and talk to Nane (<kbd>E</kbd>): show him the photo.' : 'Go back to Nane’s workshop on Campo San Barnaba and show him the photo.';
+  if (S.scene !== GT_ROOM) return undefined;
+  if (R.step === '' ) return 'A mask maker’s workshop. The man at the workbench is <b>Nane</b>: talk to him (<kbd>E</kbd>).';
+  if (R.step === 'masks') return `Look at the masks on the wall: <kbd>E</kbd> at each (${Math.min(3, Object.keys(R.cards).length)} of 3). Each one has its story.`;
+  if (R.step === 'census') return gtFull() ? 'The album is complete! Talk to Nane (<kbd>E</kbd>) and show it to him.' : `Nane’s census: <b>${gtCount()} of ${GT_CATS.length}</b> cats. They are round San Polo and Dorsoduro (the phone’s <b>Album</b> says where to look). Come back with all of them.`;
+  if (R.step === 'done') return `Nane’s workshop. The gnaga is yours: on or off from the phone (<b>La gnaga</b>). The masks’ stories: <kbd>E</kbd> at each.`;
+  return undefined;
+}
+/* entering the workshop: Nane speaks first (the first time); the map knows the workshop from then on */
+{ const prev = UNIT.arrive; UNIT.arrive = sc => { const r = prev ? prev(sc) : undefined;
+  if (sc === GT_ROOM && gtOn()){ const R = gtRec(); if (!R.known){ R.known = true; save(); }
+    if (!R.step) setTimeout(() => { if (S.scene === GT_ROOM && !dialogOpen && !modalOpen && !gtRec().step) openConvo(GT_NANE); }, 900); }
+  return r; }; }
+/* the first time near the workshop after Lesson 5: a toast, once */
+function gtNotice(){
+  if (!gtOn() || VZD.id !== 'sanpolo' || !VZ.gtShop || !VZ_CITY[S.scene]) return;
+  const R = gtPeek(); if (R && (R.noticed || R.known)) return;
+  if (Math.hypot(player.x - VZ.gtShop.x, player.y - VZ.gtShop.y) < 14 * VZ_M){ gtRec().noticed = true; save(); toast('🎭 <b>Le maschere di Nane</b> · a mask maker’s workshop on Campo San Barnaba. Go in (<kbd>E</kbd> at the door).'); }
+}
+{ const t0 = GT_HOOKS.tick; GT_HOOKS.tick = dt => { t0(dt); gtNotice(); }; }
+
+/* ---------- the handbook: ✎ Le maschere e i gatti (the census, the gnaga, the masks seen) ---------- */
+function gtNotes(){
+  const R = gtPeek(); if (!R || !R.step) return [];
+  const cards = [];
+  if (gtStepAt('census') || R.tut){
+    const p = R.photos;
+    cards.push({ id:'gt-censimento', title:'Il censimento dei gatti', sub:`Nane’s album: ${gtCount()} of ${GT_CATS.length}`,
+      html:`<div class="gt-grid">${GT_CATS.map(c => `<figure class="gt-pol${p[c.id] ? '' : ' blank'}">${p[c.id] ? `<img src="${p[c.id].img}" alt="${esc(c.name)}">` : '<i>?</i>'}<figcaption>${p[c.id] ? esc(c.name) : '?'}</figcaption></figure>`).join('')}</div>
+        <ul class="gt-list">${GT_CATS.map(c => `<li class="${p[c.id] ? 'got' : ''}">${p[c.id] ? '✓' : '·'} <b>${p[c.id] ? esc(c.name) : '?'}</b> <span>${p[c.id] ? esc(c.where) : 'somewhere near ' + esc(c.area)}</span></li>`).join('')}</ul>
+        <p class="note">${gtFull() ? (R.given ? 'Done: Nane made the gnaga from these faces.' : '<b>Complete!</b> Show the album to Nane, on Campo San Barnaba.') : 'Some cats are shy (walk, don’t run; zoom in); some hide (stand still nearby, and wait). The phone’s camera: <kbd>P</kbd>, <b>Fotocamera</b>.'}</p>` });
+  }
+  if (R.given) cards.push({ id:'gt-gnaga', title:'La gnaga', sub:'Nane’s cat mask, made from the census', img:'pictures/gt-gnaga.svg',
+    html:`<p>A cat’s half-mask in papier-mâché: grey and white, with whiskers. With it on, the cats come to you.</p>
+      <p><button class="btn ${R.wear ? '' : 'primary'}" data-gt-wear="${R.wear ? 0 : 1}">${R.wear ? 'Take it off' : 'Wear it'}</button> <span class="note">${R.wear ? 'You are wearing it.' : 'In your bag.'} (Also on the phone: <b>La gnaga</b>.)</span></p>` });
+  Object.keys(GT_CARDS).filter(id => R.cards[id]).forEach(id => { const C = GT_CARDS[id]; cards.push({ id:'gt-' + id, title:C.title, sub:C.sub, img:'pictures/gt-' + id + '.svg', html:`<p>${C.text}</p>` }); });
+  return [{ id:'gatti', title:'Le maschere e i gatti', sub:'Nane’s workshop on Campo San Barnaba', intro:'The masks’ stories, the cat census and its album, and what Nane gave you.', cards }];
+}
+{ const prev = UNIT.handbookNotes; UNIT.handbookNotes = () => [...(prev() || []), ...gtNotes()]; }
+document.addEventListener('click', e => {
+  const b = e.target.closest && e.target.closest('[data-gt-wear]'); if (!b) return;
+  gtWearSet(b.dataset.gtWear === '1');
+  if (typeof renderHandbook === 'function' && modalOpen) renderHandbook();
+});
+/* the dictionary: Nane's words, once you have met him (after the lessons, before Unit 1's) */
+const GT_DICT = [
+  { it:'la maschera / le maschere', en:'the mask / the masks' }, { it:'la bottega', en:'a workshop, a craftsman’s shop' }, { it:'la gnaga', en:'the Venetian cat mask' },
+  { it:'il Carnevale', en:'the carnival (the weeks before Lent)' }, { it:'la vetrina', en:'the shop window' }, { it:'le facce', en:'the faces' }, { it:'veloce / veloci', en:'quick' },
+  { it:'dappertutto', en:'everywhere' }, { it:'timido / timida', en:'shy' }, { it:'senza correre', en:'without running' }, { it:'si nasconde', en:'hides (itself)' }, { it:'viene fuori', en:'comes out' },
+  { it:'Ne mancano undici', en:'eleven to go (eleven are missing)' }, { it:'Buona caccia!', en:'happy hunting!' }, { it:'La metta!', en:'put it on! (polite)' }, { it:'Provi!', en:'try it! (polite)' },
+  { it:'Miao!', en:'a cat’s miaow' }, { it:'la fotocamera', en:'the camera (the phone’s)' }, { it:'il censimento', en:'the census, a count' },
+];
+function gtDictSection(){
+  const R = gtPeek(); if (!R || !R.step) return null;
+  return { title:'Le maschere e i gatti', blocks:[{ note:'Nane’s words and the masks’ (everything you say to him is a word you know).', entries:GT_DICT.map(w => ({ w:w.it, en:w.en, key:w.it, say:w.it.split(' / ')[0] })) }] };
+}
+{ const prev = UNIT.dictSections; UNIT.dictSections = P => { const out = prev(P), s = gtDictSection(); if (!s) return out; const i = out.findIndex(x => /^Unità 1/.test(x.title || '')); out.splice(i < 0 ? out.length : i, 0, s); return out; }; }
+
+/* ---------- tests ---------- */
+dbgField('gatti', () => { const R = gtPeek();
+  return { open:gtOn(), step:R ? R.step : null, tut:R ? R.tut : null, cards:R ? Object.keys(R.cards) : [], photos:R ? Object.keys(R.photos) : [], count:gtCount(), full:gtFull(),
+    given:!!(R && R.given), wear:gtWear(), known:!!(R && R.known), phone:gtPhone(), inRoom:S.scene === GT_ROOM, shop:VZ.gtShop ? { x:VZ.gtShop.x, y:VZ.gtShop.y } : null,
+    door:VZD.id === 'sanpolo' ? !!VZ.doors.find(d => d.id === GT_DOOR) : null,
+    cats:Object.fromEntries(Object.values(GT_RT).map(C => [C.cat.id, { x:Math.round(C.x), y:Math.round(C.y), mode:C.mode, way:C.cat.way, moving:!!C.moving, lift:Math.round(C.lift), spot:C.spot, flee:C.flee || 0, purrs:C.purrs || 0, charmed:C.charmed,
+      home:{ x:Math.round(C.home.x), y:Math.round(C.home.y) }, d:Math.round(Math.hypot(player.x - C.x, player.y - C.y) / VZ_M * 10) / 10 }])),
+    move:{ v:Math.round(GT_MOVE.v), still:Math.round(GT_MOVE.still * 10) / 10 }, arl:gtArlAt() }; });
+Object.assign(window.__debug, {
+  /* the activity at a step: 'start' (open, nothing done), 'masks' (Scene 1 done), 'tut' (Nane has asked: the phone), 'census' (the first photo
+     shown: Arlecchino in the album), 'full' (every photo: show Nane), 'done' (the gnaga given and worn) */
+  gtAt(step){
+    const R = gtRec(), img = gtFakePhoto;
+    Object.assign(R, { step:'', tut:null, given:false, wear:false, photos:{}, sc:{} });
+    if (step === 'start'){ save(); renderHUD(); return R.step; }
+    R.known = true; R.step = 'masks';
+    if (step === 'masks'){ save(); renderHUD(); return R.step; }
+    ['bauta', 'moretta', 'gnaga'].forEach(k => { R.cards[k] = R.cards[k] || Date.now(); });
+    R.step = 'tut'; R.tut = 'phone';
+    if (step === 'tut'){ save(); renderHUD(); return R.step; }
+    R.tut = null; R.step = 'census'; R.photos.arlecchino = { img:img('arlecchino'), t:Date.now() };
+    if (step === 'full' || step === 'done') GT_CATS.forEach(c => { R.photos[c.id] = R.photos[c.id] || { img:img(c.id), t:Date.now() }; });
+    if (step === 'done'){ R.step = 'done'; R.given = Date.now(); R.wear = true; }
+    save(); renderHUD(); return R.step;
+  },
+  /* n photos in the album (the first n cats; 0: none) */
+  gtPhotos(n){ const R = gtRec(); R.photos = {}; GT_CATS.slice(0, n).forEach(c => { R.photos[c.id] = { img:gtFakePhoto(c.id), t:Date.now() }; }); save(); return gtCount(); },
+  /* where: 'shop' (before the workshop's door), 'room' (inside), or a cat's id (where to stand to photograph it) */
+  gtGo(where){
+    if (where === 'room'){ travelTo(GT_ROOM, VZ_ROOMS[GT_ROOM].spots.spawn, VZ_ROOMS[GT_ROOM].title, VZ_ROOMS[GT_ROOM].sub, { face:{ x:0, y:-1 } }); return true; }
+    const P = vzPoints(), q = where === 'shop' ? P['gt-shop'] : P['gt-stand-' + where]; if (!q) return false;
+    const a = vzAreaAt(q.x, q.y), ar = a >= 0 ? VZ.areas[a] : null; if (!ar) return false;
+    __debug.go(ar.key, q.x / VZ_TILE - 0.5, q.y / VZ_TILE - 0.5); return true;
+  },
+  gtCat(id){ const C = GT_RT[id], c = GT_CAT[id]; if (!c) return null; const P = vzPoints();
+    return { id, name:c.name, way:c.way, room:!!c.room, it:c.it, en:c.en, spot:C ? { x:Math.round(C.home.x), y:Math.round(C.home.y), lift:Math.round(C.home.lift) } : gtArlAt(), stand:P['gt-stand-' + id] || null,
+      at:C ? { x:Math.round(C.x), y:Math.round(C.y), mode:C.mode, moving:!!C.moving } : null, alts:C ? C.alts.map(a => ({ x:Math.round(a.x), y:Math.round(a.y) })) : [] }; },
+  gtCats(){ return GT_CATS.map(c => __debug.gtCat(c.id)); },
+  gtWear(on = true){ return gtWearSet(on); },
+  gtTalk(){ if (dialogOpen) closeDialog(); openConvo(GT_NANE); return true; },
+  /* Nane's lines in the script (tests: each has its English) and the masks' cards (each ≤ 3 sentences, its picture) */
+  gtLines(){ const L = []; Object.values(GT_SCRIPT.convos || CONVO_SCRIPTS.gatti.convos).forEach(c => c.beats.forEach(b => { (b.say || []).forEach(l => l.who && L.push(l));
+      const s = b.sayit; if (s){ [s.reply, s.partial, s.fill, ...(s.wrong || []).map(w => w.reply || w.echo)].flat().filter(Boolean).forEach(l => l.who && L.push(l)); } }));
+    return { n:L.length, noEn:L.filter(l => !l.en).map(l => l.it) }; },
+  gtCards(){ return Object.entries(GT_CARDS).map(([id, C]) => ({ id, title:C.title, n:(C.text.replace(/<[^>]+>/g, '').match(/[^.!?]+[.!?]+/g) || []).length, pic:!!PICTURES['gt-' + id] })); },
+  gtReset(){ delete S.gatti; Object.keys(GT_RT).forEach(k => delete GT_RT[k]); gtCatsMake(); save(); renderHUD(); return true; },
+});
+/* a stand-in photo for the debug jumps (the cat drawn on a plain ground) */
+function gtFakePhoto(id){
+  const c = document.createElement('canvas'); c.width = 120; c.height = 90; const g = c.getContext('2d');
+  g.fillStyle = '#b8b0a0'; g.fillRect(0, 0, 120, 90); g.fillStyle = '#a09888'; for (let k = 0; k < 6; k++) g.fillRect(0, k * 16, 120, 1);
+  try { g.save(); g.translate(60, 70); g.scale(2.2, 2.2); vzCat(g, { ...(GT_CAT[id] || {}).look, sit:true, lie:false }, 0, 'R'); g.restore(); } catch (e){}
+  return c.toDataURL('image/jpeg', 0.7);
+}
+
+/* ===== units/venezia/world/gatti-script.js ===== */
+/* Le maschere e i gatti: Nane's conversation and the masks' cards (the script: docs/lessons/venezia/scripts/d2/x-maschere-gatti.md, built as written;
+   the place, the cats, the phone, the gnaga: world/gatti.js). One scripted conversation (engine conversation/script.js), 'gatti', Lei both ways:
+     bottega   Scene 1, in the doorway: Buongiorno! Posso guardare? (then the masks on the wall: E at each, three cards)
+     gnaga     Scene 2, after the third card: Mi piacciono molto · the gnaga, the twelve cats (a check) · Dove sono i gatti? · Arlecchino in the window:
+               the tutorial (the phone, the camera, a photo, the album: the guide leads, world/gatti.js)
+     primo     Scene 3, the photo shown: Ecco la foto! Arlecchino dorme · the shy ones and the hiding ones (a check) · Grazie! Arrivederci
+     album     Scene 4, the album complete: Ho trovato dodici gatti: ecco l'album! · the gnaga made and given · Grazie mille! È bellissima!
+   Everything the player says is a word taught before (Lessons 1–5, District 1's Albero, Unit 1); Nane's new words are glossed in his lines. */
+const GTL = (it, en, gloss) => ({ who:'gt-nane', it, en, gloss });
+
+/* ---------- the masks' cards (≤ 3 sentences each; the facts checked: docs/venezia-gatti.md) ---------- */
+const GT_CARDS = {
+  carnevale:{ title:'Il Carnevale', sub:'Venice’s carnival, from 1094 to today',
+    text:'Venice’s carnival is first recorded in 1094, under Doge Vitale Falier, and in 1296 the Senate made the day before Lent a public holiday. The Republic kept rules for masks: in 1268 masked men were forbidden to throw scented eggs, a law of 1339 kept masks out of the convents, and from 1436 the mask makers, the <i>mascareri</i>, had their own guild. When the Republic fell in 1797 the carnival and its masks were banned, and they came back only in 1979.' },
+  bauta:{ title:'La bauta', sub:'The citizen’s mask',
+    text:'A white mask over the whole face, with a strong nose, a jutting chin and no mouth: you could talk, eat and drink without taking it off. In the 1700s it was the citizen’s mask, worn with a black cloak, the <i>tabarro</i>, and a three-cornered hat, and it was required at certain political events. No weapon could be carried behind it.' },
+  moretta:{ title:'La moretta', sub:'The silent mask',
+    text:'A small oval of black velvet, worn by the patrician women. It had no strap and no mouth: you held it on by biting a button inside it, so the woman behind it could not speak. It went out of use around 1760.' },
+  medico:{ title:'Il medico della peste', sub:'The plague doctor',
+    text:'The long beak comes from the plague doctors of the 1600s: the French physician Charles de Lorme made it part of a doctor’s protection, the beak filled with sweet-smelling herbs against the “bad air” thought to carry the disease. As a carnival mask it is a modern one.' },
+  colombina:{ title:'La colombina', sub:'The half-mask',
+    text:'A half-mask over the eyes, the nose and the cheeks, held on a stick or tied with a ribbon, often covered in gold, silver, crystals and feathers. It is named after Colombina, the clever maid of the commedia dell’arte. It looks old, but it is a modern design.' },
+  gnaga:{ title:'La gnaga', sub:'The cat mask',
+    text:'A cat’s half-mask, worn by men dressed as women; its name comes from <i>gnau</i>, a cat’s miaow in Venetian. The <i>gnaghe</i> carried a basket on the arm, often with a kitten in it, and miaowed at the passers-by. It is a mask for laughing, and it still comes out at every carnival.' },
+};
+function gtCard(id){
+  const C = GT_CARDS[id]; if (!C) return false;
+  const R = gtRec(), fresh = !R.cards[id];
+  R.cards[id] = R.cards[id] || Date.now(); save();
+  openPictureCard({ id:'gt-' + id, kicker:'Le maschere', title:C.title, caption:`<b>${esc(C.sub)}.</b> ${C.text}`, alt:C.title, cls:'gt-card',
+    onClose:() => { renderHUD(); if (fresh && R.step === 'masks' && Object.keys(R.cards).length >= 3) gtCallOver(); } });
+  return true;
+}
+/* the third card: Nane calls across the room (a bubble), then talks */
+function gtCallOver(){
+  setTimeout(() => { if (S.scene !== GT_ROOM || dialogOpen) return; worldSay(GT_NANE, 'Allora? Le piacciono?', { ms:1600 });
+    setTimeout(() => { if (S.scene === GT_ROOM && !dialogOpen && !modalOpen) openConvo(GT_NANE); }, 1200); }, 400);
+}
+/* talking to Nane: the conversation the activity is at */
+function gtTalk(){
+  const R = gtRec();
+  if (!R.step) return scriptOpen('gatti', 'bottega');
+  if (R.step === 'masks'){
+    if (Object.keys(R.cards).length >= 3) return scriptOpen('gatti', 'gnaga');
+    convo.mode = 'cutscene'; convo.known = true; S.known[GT_NANE.id] = true;
+    npcLine('Guardi, guardi le maschere! Ogni maschera ha una storia.', 'Look, look at the masks! Every mask has a story.', { gloss:{ 'Guardi, guardi':'look, look (polite)' } });
+    showChoices([{ label:'Look at the masks', primary:true, fn:closeDialog }]); return true;
+  }
+  if (R.step === 'tut'){
+    if (R.tut === 'talk') return scriptOpen('gatti', 'primo');
+    convo.mode = 'cutscene'; convo.known = true;
+    npcLine('Prima, la foto di Arlecchino! Apra il telefono.', 'First, the photo of Arlecchino! Open your phone.', { gloss:{ Apra:'open (polite)' } });
+    showChoices([{ label:'Open the phone', primary:true, fn:() => { closeDialog(); setTimeout(() => openPhone(), 300); } }, { label:'Later', fn:closeDialog }]); return true;
+  }
+  if (R.step === 'census'){
+    if (gtFull()) return scriptOpen('gatti', 'album');
+    const n = gtCount();
+    convo.mode = 'cutscene'; convo.known = true;
+    npcLine(`Allora? Quanti gatti ha trovato? … ${gtNumIt(n)} su dodici! Avanti, avanti!`, `So? How many cats have you found? … ${n} of twelve! Keep going!`, { gloss:{ 'su dodici':'of twelve', 'Avanti, avanti':'keep going!' } });
+    showChoices([{ label:'Leave', primary:true, fn:closeDialog }]); return true;
+  }
+  convo.mode = 'cutscene'; convo.known = true;
+  npcLine('Ah, la mia gnaga preferita! Miao!', 'Ah, my favourite gnaga! Miaow!', { gloss:{ preferita:'favourite' } });
+  showChoices([{ label:'Leave', primary:true, fn:closeDialog }]); return true;
+}
+const GT_NUM = ['zero', 'uno', 'due', 'tre', 'quattro', 'cinque', 'sei', 'sette', 'otto', 'nove', 'dieci', 'undici', 'dodici'];
+const gtNumIt = n => GT_NUM[n] || String(n);
+/* the gnaga given: worn at once, a small toast */
+function gtGive(){
+  const R = gtRec(); if (R.given) return;
+  R.given = Date.now(); R.wear = true; R.step = 'done'; save(); renderHUD();
+  setTimeout(() => toast('<b>La gnaga</b> · Nane’s cat mask. <span style="opacity:.75">(On or off from your phone: <b>La gnaga</b>.)</span>'), 900);
+}
+
+/* ---------- the conversation ---------- */
+const GT_SCRIPT = convoScript({
+  id:'gatti', label:'Le maschere',
+  rec:() => gtRec().sc,
+  huh:GTL('Come, scusi?', 'Sorry, what?'),
+  tiles:{
+    posso:{ label:'Posso', en:'may I, can I', cl:true }, guardare:{ label:'guardare', en:'to look' }, prendere:{ label:'prendere', en:'to take' }, lemaschere:{ label:'le maschere', en:'the masks' },
+    mipiace:{ label:'Mi piace', en:'I like (one thing)', cl:true }, mipiacciono:{ label:'Mi piacciono', en:'I like (more than one)', cl:true }, molto:{ label:'molto', en:'very much, a lot' }, poco:{ label:'poco', en:'not much' },
+    certo:{ label:'Certo!', en:'of course!', ex:true }, dovesono:{ label:'Dove sono', en:'where are', q:true, cl:true }, dovee:{ label:'Dov’è', en:'where is', q:true, cl:true, words:"dov'è" },
+    igatti:{ label:'i gatti', en:'the cats' }, ilgatto:{ label:'il gatto', en:'the cat' }, lefoto:{ label:'le foto', en:'the photos' },
+    ecco:{ label:'Ecco', en:'here is…', cl:true }, lafoto:{ label:'la foto', en:'the photo' }, arlecchino:{ label:'Arlecchino', en:'Arlecchino, Nane’s cat', keep:true },
+    dorme:{ label:'dorme', en:'is sleeping, sleeps' }, dormo:{ label:'dormo', en:'I sleep' }, sta:{ label:'sta', en:'is (…ing)' }, dormendo:{ label:'dormendo', en:'sleeping' },
+    arrivederci:{ label:'Arrivederci', en:'goodbye (polite)' }, apresto:{ label:'A presto', en:'see you soon' },
+    hotrovato:{ label:'Ho trovato', en:'I found', cl:true }, hatrovato:{ label:'Ha trovato', en:'you found (polite) / he found', cl:true }, dodici:{ label:'dodici', en:'twelve' },
+    gatti:{ label:'gatti', en:'cats' }, gatto:{ label:'gatto', en:'cat' }, tutti:{ label:'tutti', en:'all' }, lalbum:{ label:"l'album", en:'the album' },
+    graziemille:{ label:'Grazie mille', en:'thank you very much', raw:true }, ee:{ label:'È', en:'it is', cl:true, words:'è' }, bellissima:{ label:'bellissima', en:'so beautiful (a feminine thing)' },
+    bellissimo:{ label:'bellissimo', en:'so beautiful (a masculine thing)' }, bella:{ label:'bella', en:'beautiful' },
+  },
+  convos:{
+    /* Scene 1 · in the doorway */
+    bottega:{ npc:'gt-nane', label:'La bottega', beats:[
+      { say:[{ sys:'The door opens with a bell. Masks everywhere: white, gold, black, a long beak, a cat. A man in a velvet waistcoat looks up from the workbench.' },
+        GTL('Buongiorno! Benvenuto nella mia bottega!', 'Good morning! Welcome to my workshop!', { bottega:'workshop' })] },
+      { sayit:{ en:'Good morning! May I look?', answer:['buongiorno , posso guardare'], also:['posso guardare', 'buongiorno , posso'], pieces:'buongiorno posso guardare prendere lemaschere',
+        wrong:[{ has:'ciao', near:true, echo:GTL('Ciao?… Buongiorno a Lei!', 'Hi?… Good morning to you!'), fb:'He doesn’t know you, and he is at work: the polite greeting, <b>Buongiorno</b>.' },
+               { has:'prendere', reply:GTL('Prendere? Prima guardi!', 'Take? Look first!', { 'Prima guardi':'look first (polite)' }), fb:'Ask if you may <i>look</i>.' }],
+        more:GTL('Buongiorno! Desidera?', 'Good morning! Can I help you?', { Desidera:'can I help you? (polite)' }),
+        fill:GTL('Vuole guardare? Prego, prego!', 'You want to look? Go ahead, please!', { Vuole:'you want (polite)' }),
+        reply:[GTL('Prego, prego! Guardi pure. Ogni maschera ha una storia.', 'Go ahead, please! Do look. Every mask has a story.', { 'Guardi pure':'do look (polite)', maschera:'mask', storia:'story' })],
+        hint:'Greet him politely, and ask if you may have a look.', strong:'<b>Buongiorno</b>! <b>Posso</b> + to look?' } },
+      { end:true, then:() => { const R = gtRec(); R.step = 'masks'; save(); renderHUD(); } } ] },
+    /* Scene 2 · the gnaga, and the census asked for */
+    gnaga:{ npc:'gt-nane', label:'La gnaga', beats:[
+      { say:[GTL('Allora? Le piacciono le mie maschere?', 'Well? Do you like my masks?', { 'Le piacciono':'do you like (more than one, polite)', maschere:'masks' })] },
+      { sayit:{ en:'Yes! I like them very much.', answer:['sì , mipiacciono molto'], also:['mipiacciono molto', 'mipiacciono'], pieces:'sì mipiace mipiacciono molto poco lemaschere',
+        wrong:[{ has:'mipiace', near:true, echo:GTL('Le piacciono, eh? Tutte!', 'You like them, eh? All of them!', { Tutte:'all of them' }), fb:'More than one mask: <b>Mi piacciono</b>.' },
+               { has:'poco', reply:GTL('Poco? Ahi, ahi!', 'Not much? Ouch!'), fb:'You like them: a lot.' }],
+        fill:GTL('Le piacciono? Lo vedo!', 'You like them? I can see!', { 'Lo vedo':'I can see it' }),
+        reply:[GTL('Grazie! E questa è la gnaga: la maschera del gatto.', 'Thank you! And this is the gnaga: the cat mask.', { gnaga:'the Venetian cat mask' }),
+               { sys:'He holds up a grey papier-mâché mould: a cat’s face, ears and all.' },
+               GTL('Per il Carnevale voglio fare una gnaga nuova, con le facce dei gatti di Venezia. Dodici gatti: i gatti di San Polo e di Dorsoduro.', 'For the Carnival I want to make a new gnaga, with the faces of the cats of Venice. Twelve cats: the cats of San Polo and Dorsoduro.', { Carnevale:'carnival', voglio:'I want', nuova:'new', 'le facce':'the faces' }),
+               GTL('Ma io sono vecchio, e i gatti sono veloci. Lei ha un telefono? Mi fa le foto?', 'But I’m old, and cats are quick. Have you got a phone? Will you take the photos for me?', { veloci:'quick', 'Mi fa le foto':'will you take the photos for me? (polite)' })],
+        hint:'Tell him yes: you like them (they are more than one) very much.', strong:'<b>Sì</b>! <b>Mi piacciono</b> + very much.' } },
+      { check:{ prompt:'What does Nane want?', line:GTL('Voglio fare una gnaga nuova, con le facce dei gatti di Venezia. Dodici gatti. Lei ha un telefono? Mi fa le foto?', 'I want to make a new gnaga, with the faces of the cats of Venice. Twelve cats. Have you got a phone? Will you take the photos for me?'),
+        options:['Photos of twelve cats of San Polo and Dorsoduro, for a new cat mask for the Carnival.', 'A new phone for the shop.', 'Someone to catch his cat.'], a:0,
+        why:'<i>una gnaga nuova, con le facce dei gatti… Mi fa le foto?</i>', nudge:'What is the new mask made with, and what does he ask you for?' } },
+      { sayit:{ en:'Yes, of course! Where are the cats?', answer:['sì , certo , dovesono igatti'], also:['certo , dovesono igatti', 'dovesono igatti', 'sì , certo'], pieces:'sì certo dovesono dovee igatti ilgatto lefoto',
+        wrong:[{ has:'dovee', near:true, echo:GTL('Dove sono? Eh…', 'Where are they? Well…'), fb:'More than one cat: <b>Dove sono</b>.' },
+               { has:'lefoto', reply:GTL('Le foto? Le fa Lei, con il telefono!', 'The photos? You take them, with your phone!'), fb:'Ask where the cats are.' }],
+        fill:GTL('Dove sono i gatti? Eh!', 'Where are the cats? Well!'),
+        reply:[GTL('Dappertutto! Sui ponti, sulle barche, sotto i banchi del mercato…', 'Everywhere! On the bridges, on the boats, under the market stalls…', { Dappertutto:'everywhere', 'sotto i banchi':'under the stalls' }),
+               GTL('Ma prima, il mio gatto: Arlecchino. Dorme lì, nella vetrina. Apra il telefono: Le faccio vedere.', 'But first, my cat: Arlecchino. He’s asleep over there, in the window. Open your phone: I’ll show you.', { vetrina:'the shop window', Apra:'open (polite)', 'Le faccio vedere':'I’ll show you (polite)' })],
+        hint:'Say yes, of course, and ask where the cats are.', strong:'<b>Sì, certo</b>! <b>Dove sono</b> + the cats?' } },
+      { end:true, then:() => { const R = gtRec(); R.step = 'tut'; R.tut = 'phone'; S.phoneUnread = true; save(); renderHUD();
+        setTimeout(() => { if (S.scene === GT_ROOM) vzHighlight(['vetrina'], { ms:3000 }); }, 400); } } ] },
+    /* Scene 3 · the first cat */
+    primo:{ npc:'gt-nane', label:'Il primo gatto', beats:[
+      { say:[GTL('Allora? Ha fatto la foto?', 'So? Did you take the photo?', { 'Ha fatto la foto':'did you take the photo? (polite)' })] },
+      { sayit:{ en:'Here’s the photo! Arlecchino is sleeping.', answer:['ecco lafoto , arlecchino dorme'], also:['ecco lafoto , arlecchino sta dormendo', 'ecco lafoto', 'arlecchino dorme'], pieces:'ecco lafoto ilgatto arlecchino dorme dormo sta dormendo',
+        wrong:[{ has:'dormo', near:true, echo:GTL('Dorme, sì: sempre!', 'He sleeps, yes: always!', { sempre:'always' }), fb:'He is sleeping: <b>dorme</b> (<i>dormo</i> is I).' }],
+        fill:GTL('Ah, la foto! E Arlecchino dorme, come sempre.', 'Ah, the photo! And Arlecchino is asleep, as always.', { 'come sempre':'as always' }),
+        reply:[GTL('Bellissima! È la prima pagina dell’album. Ne mancano undici.', 'Beautiful! It’s the album’s first page. Eleven to go.', { 'prima pagina':'first page', 'Ne mancano undici':'eleven to go' }),
+               GTL('Attenzione: qualcuno è timido. Piano piano, senza correre!', 'Careful: some of them are shy. Slowly, slowly, no running!', { Attenzione:'careful', timido:'shy', 'senza correre':'without running' }),
+               GTL('E qualcuno si nasconde: aspetti in silenzio, e viene fuori.', 'And some hide: wait quietly, and they come out.', { 'si nasconde':'hides', aspetti:'wait (polite)', 'viene fuori':'comes out' })],
+        hint:'Hand him the photo, and say what Arlecchino is doing.', strong:'<b>Ecco la foto</b>! Arlecchino + is sleeping.' } },
+      { check:{ prompt:'What does Nane tell you about the cats?', line:GTL('Qualcuno è timido: piano piano, senza correre! E qualcuno si nasconde: aspetti in silenzio, e viene fuori.', 'Some of them are shy: slowly, no running! And some hide: wait quietly, and they come out.'),
+        options:['Some are shy: go slowly, don’t run. Some hide: wait quietly and they come out.', 'They come when you call them.', 'They only come out at night.'], a:0,
+        why:'<i>timido… senza correre; si nasconde: aspetti in silenzio</i>.', nudge:'Two kinds of cats: the shy ones, the ones that hide.' } },
+      { say:[GTL('Quando ha tutti i gatti, torni qui. Buona caccia!', 'When you have all the cats, come back here. Happy hunting!', { torni:'come back (polite)', 'Buona caccia':'happy hunting!' })] },
+      { sayit:{ en:'Thank you! Goodbye.', answer:['grazie , arrivederci'], also:['grazie', 'arrivederci'], pieces:'grazie arrivederci ciao apresto',
+        wrong:[{ has:'ciao', near:true, echo:GTL('Ciao, ciao… arrivederci!', 'Bye, bye… goodbye!'), fb:'He is <i>Lei</i>: <b>Arrivederci</b>.' }, { has:'apresto', near:true, echo:GTL('A presto! Arrivederci!', 'See you soon! Goodbye!'), fb:'To say goodbye politely: <b>Arrivederci</b>.' }],
+        fill:GTL('Arrivederci, e buona caccia!', 'Goodbye, and happy hunting!'),
+        reply:[GTL('Arrivederci!', 'Goodbye!')],
+        hint:'Thank him, and say goodbye (politely).', strong:'<b>Grazie</b>! + goodbye (Lei).' } },
+      { end:true, then:() => { const R = gtRec(); R.tut = null; R.step = 'census'; save(); renderHUD();
+        setTimeout(() => toast('🐈 <b>Il censimento dei gatti</b> · ' + gtCount() + ' of ' + GT_CATS.length + '. The album is on your phone; the handbook’s ✎ notes have it too.'), 500); } } ] },
+    /* Scene 4 · the album complete: the gnaga */
+    album:{ npc:'gt-nane', label:'L’album', beats:[
+      { say:[GTL('Ah, eccola! Allora?', 'Ah, there you are! Well?')] },
+      { sayit:{ en:'I found twelve cats: here’s the album!', answer:['hotrovato dodici gatti , ecco lalbum'], also:['hotrovato dodici gatti', 'ecco lalbum', 'hotrovato tutti igatti'], pieces:'hotrovato hatrovato dodici gatti gatto tutti igatti ecco lalbum lafoto',
+        wrong:[{ has:'hatrovato', near:true, echo:GTL('Io? No, no: Lei!', 'Me? No, no: you!'), fb:'You found them: the <i>io</i> form, <b>Ho trovato</b>.' },
+               { has:'gatto', near:true, echo:GTL('Dodici gatti!', 'Twelve cats!'), fb:'More than one: <b>gatti</b>.' }],
+        fill:GTL('Dodici gatti? Mi faccia vedere!', 'Twelve cats? Let me see!', { 'Mi faccia vedere':'let me see (polite)' }),
+        reply:[{ sys:'You hold the phone out. Nane turns the album’s pages with one finger: Rosso, the Contessa, Capitano…' },
+               GTL('Che bello! Rosso, la Contessa, Capitano con il suo occhio… Adesso so come fare la mia gnaga. Un momento!', 'How lovely! Rosso, the Contessa, Capitano with his eye… Now I know how to make my gnaga. One moment!', { 'so come fare':'I know how to make', 'Un momento':'one moment' })],
+        hint:'Tell him what you found (and how many), and give him the album.', strong:'<b>Ho trovato</b> + twelve + cats: <b>ecco l’album</b>!' } },
+      { say:[{ sys:'Nane works at the bench: papier-mâché, glue, grey paint, white whiskers. Arlecchino opens one eye.' }] },
+      { say:[GTL('Ecco! La gnaga è per Lei. La metta, la metta!', 'There! The gnaga is for you. Put it on, put it on!', { 'per Lei':'for you (polite)', 'La metta':'put it on (polite)' })] },
+      { do(){ gtGive(); } },
+      { sayit:{ en:'Thank you very much! It’s beautiful!', answer:['graziemille , ee bellissima'], also:['graziemille', 'ee bellissima', 'grazie , ee bellissima'], pieces:'graziemille grazie ee bellissima bellissimo bella',
+        wrong:[{ has:'bellissimo', near:true, echo:GTL('Bellissima, sì: la gnaga!', 'Beautiful, yes: the gnaga!'), fb:'<i>La gnaga</i> is feminine: <b>bellissima</b>.' }],
+        fill:GTL('Le piace? Che bello!', 'You like it? How lovely!'),
+        reply:[GTL('Con la gnaga, i gatti vengono da Lei. Provi! Miao!', 'With the gnaga on, the cats come to you. Try it! Miaow!', { 'vengono da Lei':'come to you', 'Provi!':'try it! (polite)' })],
+        hint:'Thank him warmly, and say it is beautiful.', strong:'<b>Grazie mille</b>! + it’s so beautiful.' } },
+      { end:true } ] },
+  },
+});
+
 /* ===== engine/render/helpers.js ===== */
 /* Canvas drawing helpers. */
 
@@ -40178,8 +41246,9 @@ function draw(t){
   const qm = questMarkerIds();                     // quest givers and the people the current steps need (engine/quests.js)
   const lift = scene().personLift || 0;            // (people drawn upright: their heads are higher, world/tilemap.js)
   /* the name tags (and the marks of people not known yet): laid out first, so none covers another, a bubble or the E prompt */
-  const speaking = bubbleSpeakers(), tags = [];
+  const speaking = bubbleSpeakers(), tags = [], camUp = phoneCamOn();      // (the phone's camera up: no tags, no marks, no prompt: ui/camera.js)
   for (const n of activeNpcs()){
+    if (camUp) break;
     const isGoal = n.id === goal || qm.has(n.id), talking = speaking.has(n) && S.known[n.id] && !n.crowd;
     if ((n.crowd || n.ambient) && !isGoal && !talking) continue;   // the crowd, museum visitors: no names, no question marks (unless one speaks: their name under the bubble)
     if (S.known[n.id]){ const T = { n, x:n.x, y:n.y - 24 - lift, text:n.name, quest:isGoal, fill:isGoal ? '#f4b928' : '#1c3d8f', ink:isGoal ? '#0f2260' : '#f4b928', prio:(talking ? 4 : 0) + (isGoal ? 2 : 0) - Math.hypot(n.x - player.x, n.y - player.y) / 1e4 }; T.r = tagRect(T.x, T.y, T.text, T.quest); tags.push(T); }
@@ -40188,8 +41257,9 @@ function draw(t){
   }
   /* the E prompt: a lesson whose own key takes E here (a thing to pick up: its ePrompt() hook → { x, y, label }) shows that prompt instead */
   let prompt = null;
-  const own = !frozen() && cutscenePrompt() ? askHooks('ePrompt') : null;
-  if (own) prompt = { x:own.x, y:own.y, text:own.label + '  ·  E' };
+  const own = !frozen() && !camUp && cutscenePrompt() ? askHooks('ePrompt') : null;
+  if (camUp) { /* none */ }
+  else if (own) prompt = { x:own.x, y:own.y, text:own.label + '  ·  E' };
   else if (!frozen() && cutscenePrompt()){
     const n = nearLandmark() ? null : nearestNpc();
     if (n){ const o = n.promptOffset || { x:0, y:50 }; prompt = { x:n.x + o.x, y:n.y + o.y, text:n.crowd ? 'E' : 'Parla  ·  E', n }; }
@@ -40270,6 +41340,7 @@ const VZ_PERSON = 1.75 * 24 / 46;
 UNIT.drawPerson = (p, t) => { if (!VZ_SNAP.on) vzPerson(ctx, p, t); return true; };     // (a snapshot of the city: no one: world/sanmarco.js vzSnapshot)
 function vzPerson(g, p, t){
   if (p.isPlayer && typeof pozzoWear === 'function' && pozzoWear()) p = pozzoDress(p);      // (the sailor's outfit: world/pozzo.js, render/pozzo.js)
+  if (p.isPlayer && typeof gtWear === 'function' && gtWear()) p = { ...p, gnaga:true };      // (the gnaga, the cat mask: world/gatti.js, render/gatti.js)
   if (p.carriedBy) return;                         // (a dog in someone's arms is drawn with them: the high water, world/flood.js)
   if (VZ_CITY[S.scene] && vzFloodOn()){ const q = p; if (vzFloodWade(g, p.x, p.y, () => vzPersonDraw(g, q, t), t)) return; return; }      // (wading: render/flood.js)
   vzPersonDraw(g, p, t);
@@ -40451,6 +41522,7 @@ function vzHat(g, p, hy, side, back){
     if (side || back){ g.fillStyle = '#22386e'; g.fillRect(side ? -8.5 : -2.5, hy - 7, 1.8, 6.5); g.fillRect(side ? -6.6 : 0.8, hy - 7, 1.8, 5.5); }
   }
   if (p.toque){ g.fillStyle = '#fffdf8'; rr(g, -6.5, hy - 17, 13, 12, 4); g.fill(); g.strokeStyle = '#d8d2c4'; g.lineWidth = 1; g.stroke(); g.fillStyle = '#efe9db'; g.fillRect(-7, hy - 7, 14, 3); }
+  if (p.gnaga && typeof gtGnagaFace === 'function') gtGnagaFace(g, hy, side, back);      // (the cat mask: render/gatti.js)
 }
 function vzSuitcase(g, p){
   const sx = (p.suitcaseSide || 1) * 15;
@@ -46060,33 +47132,60 @@ function vzGiacDraw(g, p){
   g.fillStyle = '#e4ddcc'; g.fillRect(X(-W2 - 0.6), b - 0.3 * M, (2 * W2 + 1.2) * M, 0.3 * M);
 }
 
-/* ---------- the cat: a tabby, from the side (sitting, washing a paw, or running) ---------- */
+/* ---------- the cat: a tabby, from the side (sitting, washing a paw, or running) ----------
+   The census of Le maschere e i gatti (world/gatti.js) draws its twelve with the same figure, varied (every option off: Lesson 4's tabby as before):
+   stripes:false (a plain coat), patches:[[x, y, rx, ry, colour], …] (calico, tortoiseshell: on the body, in the sitting figure's units; the
+   running one reads them along its back), bib (a white chest and paws: a tuxedo, a grey-and-white), points (a seal point's dark face, ears,
+   tail and paws), oneEye (an old tom's scar over a closed eye), fluffy (long fur: a fuller body and tail), eye (the eye's colour), lie (lying
+   down, curled), roll (rolling over on its back: rubbing round a leg) */
 function vzCat(g, p, t, dir){
-  const s = p.size || 0.7, coat = p.coat || '#c98a4a', st = p.stripes || '#8a5a2a', sit = p.sit && !p.moving, mv = p.moving && !RM;
+  const s = p.size || 0.7, coat = p.coat || '#c98a4a', st = p.stripes === false ? null : p.stripes || '#8a5a2a', sit = p.sit && !p.moving, mv = p.moving && !RM;
+  const lie = p.lie && !p.moving, fl = p.fluffy ? 1.18 : 1, dark = p.points || null;
   g.scale((dir === 'L' ? -1 : 1) * s, s);
   const ph = mv ? Math.sin((p.walk || 0) * 1.6) * 3.5 : 0, sway = RM ? 0 : Math.sin(t * 2.2) * 0.12;
-  /* the tail: up and curled when sitting, out behind when running */
-  g.strokeStyle = coat; g.lineWidth = 3.2; g.lineCap = 'round'; g.beginPath();
-  if (sit){ g.moveTo(-6, -3); g.quadraticCurveTo(-14, -2, -12, -10 + sway * 8); } else { g.moveTo(-10, -12); g.quadraticCurveTo(-18, -14, -21, -20 + ph); }
+  /* the tail: up and curled when sitting, out behind when running, round the body lying down */
+  g.strokeStyle = dark || coat; g.lineWidth = 3.2 * fl * (p.fluffy ? 1.25 : 1); g.lineCap = 'round'; g.beginPath();
+  if (lie){ g.moveTo(-8, -3); g.quadraticCurveTo(-12, 1, -2, 1.2 + sway * 3); }
+  else if (sit){ g.moveTo(-6, -3); g.quadraticCurveTo(-14, -2, -12, -10 + sway * 8); } else { g.moveTo(-10, -12); g.quadraticCurveTo(-18, -14, -21, -20 + ph); }
   g.stroke(); g.lineCap = 'butt';
-  g.fillStyle = shade(coat, -0.12);
-  if (sit){ ell(g, -2, -3, 7, 3); g.fill(); g.fillRect(3, -9, 2.6, 9); }
+  if (p.tailTip){ g.fillStyle = p.tailTip; if (sit) circ(g, -12, -10 + sway * 8, 1.7); else if (!lie) circ(g, -21, -20 + ph, 1.7); if (sit || !lie) g.fill(); }
+  g.fillStyle = shade(dark || coat, -0.12);
+  if (lie){ ell(g, 4, -2, 3.2, 1.8); g.fill(); }
+  else if (sit){ ell(g, -2, -3, 7 * fl, 3); g.fill(); g.fillRect(3, -9, 2.6, 9); }
   else [[-8, ph], [-5, -ph], [5, -ph], [8, ph]].forEach(([x, d]) => g.fillRect(x + d * 0.5, -8, 2.4, 8));
+  if (p.bib && !lie){ g.fillStyle = p.bib; if (sit) g.fillRect(3, -3.2, 2.6, 3.2); else [[-8, ph], [-5, -ph], [5, -ph], [8, ph]].forEach(([x, d]) => g.fillRect(x + d * 0.5, -2.6, 2.4, 2.6)); }
+  if (dark && !lie){ g.fillStyle = dark; if (sit) g.fillRect(3, -3.4, 2.6, 3.4); else [[-8, ph], [-5, -ph], [5, -ph], [8, ph]].forEach(([x, d]) => g.fillRect(x + d * 0.5, -3, 2.4, 3)); }
   g.fillStyle = coat;
-  if (sit){ ell(g, -1, -9, 6.5, 7.5); g.fill(); } else { ell(g, 0, -12, 11, 4.8); g.fill(); }
-  /* the tabby's stripes */
-  g.strokeStyle = st; g.lineWidth = 1.4;
-  if (sit) [-4, -1, 2].forEach(xx => { g.beginPath(); g.moveTo(xx, -15); g.quadraticCurveTo(xx + 1.5, -10, xx, -5); g.stroke(); });
-  else [-6, -2, 2, 6].forEach(xx => { g.beginPath(); g.moveTo(xx, -16.5); g.lineTo(xx + 1, -8.5); g.stroke(); });
-  const hx = sit ? 4 : 11, hy = sit ? -18 : -16;
-  g.fillStyle = coat; circ(g, hx, hy, 4.6); g.fill();
+  if (lie){ ell(g, -1, -4.2, 9.5 * fl, 4.6 * fl); g.fill(); }
+  else if (sit){ ell(g, -1, -9, 6.5 * fl, 7.5 * fl); g.fill(); } else { ell(g, 0, -12, 11 * fl, 4.8 * fl); g.fill(); }
+  /* the coat's markings: patches (clipped to the body), the tabby's stripes, a white chest */
+  if (p.patches){ g.save(); g.beginPath(); if (lie) g.ellipse(-1, -4.2, 9.5 * fl, 4.6 * fl, 0, 0, 7); else if (sit) g.ellipse(-1, -9, 6.5 * fl, 7.5 * fl, 0, 0, 7); else g.ellipse(0, -12, 11 * fl, 4.8 * fl, 0, 0, 7); g.clip();
+    p.patches.forEach(([x, y, rx, ry, c]) => { g.fillStyle = c; if (lie) ell(g, x * 1.3, -4.2 + (y + 9) * 0.5, rx * 1.1, ry * 0.7); else if (sit) ell(g, x, y, rx, ry); else ell(g, x * 1.6, -12 + (y + 9) * 0.55, rx * 1.3, ry * 0.7); g.fill(); });
+    g.restore(); }
+  if (st){ g.strokeStyle = st; g.lineWidth = 1.4;
+    if (lie) [-6, -2, 2].forEach(xx => { g.beginPath(); g.moveTo(xx, -8.5); g.lineTo(xx + 1, -1.5); g.stroke(); });
+    else if (sit) [-4, -1, 2].forEach(xx => { g.beginPath(); g.moveTo(xx, -15); g.quadraticCurveTo(xx + 1.5, -10, xx, -5); g.stroke(); });
+    else [-6, -2, 2, 6].forEach(xx => { g.beginPath(); g.moveTo(xx, -16.5); g.lineTo(xx + 1, -8.5); g.stroke(); }); }
+  if (p.bib && sit){ g.fillStyle = p.bib; ell(g, 3.4, -9.5, 2.6, 4.4); g.fill(); }
+  else if (p.bib && !lie && !sit){ g.fillStyle = p.bib; ell(g, 7, -9.5, 3.4, 2.4); g.fill(); }
+  const hx = lie ? 8 : sit ? 4 : 11, hy = lie ? -7.5 : sit ? -18 : -16;
+  g.fillStyle = coat; circ(g, hx, hy, 4.6 * (p.fluffy ? 1.08 : 1)); g.fill();
   g.beginPath(); g.moveTo(hx - 3.6, hy - 2); g.lineTo(hx - 2.6, hy - 7.5); g.lineTo(hx - 0.4, hy - 3.6); g.closePath(); g.fill();
   g.beginPath(); g.moveTo(hx + 0.6, hy - 3.8); g.lineTo(hx + 2.6, hy - 7.6); g.lineTo(hx + 3.8, hy - 2); g.closePath(); g.fill();
-  g.strokeStyle = st; g.lineWidth = 1; g.beginPath(); g.moveTo(hx - 1, hy - 4.4); g.lineTo(hx - 0.6, hy - 2); g.moveTo(hx + 1, hy - 4.4); g.lineTo(hx + 0.8, hy - 2); g.stroke();
-  g.fillStyle = '#2a2a1a'; circ(g, hx + 2.2, hy - 0.4, 0.8); g.fill();
+  if (dark){ g.fillStyle = dark; ell(g, hx + 1.8, hy + 0.6, 3.2, 3.0); g.fill();
+    g.beginPath(); g.moveTo(hx - 3.6, hy - 2); g.lineTo(hx - 2.6, hy - 7.5); g.lineTo(hx - 0.4, hy - 3.6); g.closePath(); g.fill();
+    g.beginPath(); g.moveTo(hx + 0.6, hy - 3.8); g.lineTo(hx + 2.6, hy - 7.6); g.lineTo(hx + 3.8, hy - 2); g.closePath(); g.fill(); }
+  if (p.headPatch){ g.save(); g.beginPath(); g.arc(hx, hy, 4.6, 0, 7); g.clip(); g.fillStyle = p.headPatch; ell(g, hx - 2.2, hy - 2.2, 3.2, 3.6); g.fill(); g.restore(); }
+  if (p.bib && !dark){ g.fillStyle = p.bib; ell(g, hx + 2.4, hy + 2.2, 2.4, 1.7); g.fill(); }
+  if (st){ g.strokeStyle = st; g.lineWidth = 1; g.beginPath(); g.moveTo(hx - 1, hy - 4.4); g.lineTo(hx - 0.6, hy - 2); g.moveTo(hx + 1, hy - 4.4); g.lineTo(hx + 0.8, hy - 2); g.stroke(); }
+  /* the eye: open (its colour), shut for a nap, or the old tom's scar */
+  if (p.oneEye){ g.strokeStyle = shade(coat, -0.45); g.lineWidth = 0.9; g.beginPath(); g.moveTo(hx + 1.0, hy - 2.2); g.lineTo(hx + 3.4, hy + 1.2); g.moveTo(hx + 1.4, hy - 0.4); g.lineTo(hx + 3.0, hy - 0.4); g.stroke(); }
+  else if (p.nap || lie){ g.strokeStyle = '#2a2a1a'; g.lineWidth = 0.8; g.beginPath(); g.arc(hx + 2.2, hy - 0.8, 0.9, 0.15 * Math.PI, 0.85 * Math.PI); g.stroke(); }
+  else { g.fillStyle = p.eye || '#2a2a1a'; circ(g, hx + 2.2, hy - 0.4, p.eye ? 1 : 0.8); g.fill(); if (p.eye){ g.fillStyle = '#111'; g.fillRect(hx + 2.0, hy - 1.2, 0.45, 1.6); } }
   g.fillStyle = '#e8a0a0'; circ(g, hx + 4.2, hy + 0.8, 0.6); g.fill();
+  if (p.whiskers){ g.strokeStyle = 'rgba(255,255,255,.75)'; g.lineWidth = 0.4; g.beginPath(); g.moveTo(hx + 3.6, hy + 1.4); g.lineTo(hx + 8, hy + 0.6); g.moveTo(hx + 3.6, hy + 1.9); g.lineTo(hx + 8, hy + 2.4); g.stroke(); }
   /* sitting on the pumpkins: one paw up, being washed */
-  if (sit && !RM && Math.sin(t * 1.1) > 0.3){ g.fillStyle = coat; ell(g, hx + 1.5, hy + 3.6, 1.6, 2.4, -0.4); g.fill(); }
+  if (sit && !RM && !p.still && Math.sin(t * 1.1 + (p.phase || 0)) > 0.3){ g.fillStyle = p.bib || coat; ell(g, hx + 1.5, hy + 3.6, 1.6, 2.4, -0.4); g.fill(); }
 }
 
 /* ---------- the stall's work (Lesson 4's cityWater and cityEnts) ---------- */
@@ -47850,6 +48949,208 @@ function d2cBoat(g, x, y, kind, t){
     vzText(g, 'SORZETA', -L * 0.3, W * 0.48 - 7, '700 6px "Titillium Web", sans-serif', '#4a3a2a');
   }
   g.restore();
+}
+
+/* ===== units/venezia/render/gatti.js ===== */
+/* Le maschere e i gatti: the drawing (render phase; the activity: world/gatti.js).
+   - The workshop's walls (VZ_WALLS.gtocra: warm ochre plaster, a stencilled frieze of little masks) and its things (VZ_PROP_ART, render/interiors.js's
+     manner): gtposter (the carnival's poster), gtmask (a mask on its nail with its card: the bauta, the moretta, the plague doctor's beak, the colombina,
+     the gnaga), gtshelf (rows of white masks waiting for their paint), gtbench (the workbench under its lamp: a half-made face, glue, brushes, the gnaga's
+     mould), gtwindow (the shop window: masks on their stands and Arlecchino asleep on a red cushion).
+   - The cats in the city (gtEnts: the depth-sorted pass of San Polo's streets, a lesson hook's cityEnts): each drawn by render/people.js vzPersonDraw →
+     render/l4-rialto.js vzCat with its own coat; a hiding one is two eyes in the dark (Tigre: under the tarp of a moored gondola).
+   - The gnaga on the player's face (gtGnagaFace, asked by render/people.js vzHat while it is worn): a cat's half-mask, its ears over the hair, whiskers. */
+Object.assign(VZ_WALLS, {
+  gtocra(g, R, x0, x1, top, bot){
+    g.fillStyle = '#e2b77a'; g.fillRect(x0, top, x1 - x0, bot - top);
+    const r = rng(1436);
+    g.fillStyle = 'rgba(150,90,40,.10)'; for (let k = 0; k < 90; k++){ ell(g, x0 + r() * (x1 - x0), top + r() * (bot - top), 6 + r() * 14, 3 + r() * 6); g.fill(); }
+    /* the frieze under the ceiling: little masks stencilled in red */
+    const fy = top + vzM(0.28); g.fillStyle = '#9a3a2a'; g.fillRect(x0, fy - vzM(0.16), x1 - x0, 1.4); g.fillRect(x0, fy + vzM(0.16), x1 - x0, 1.4);
+    for (let x = x0 + vzM(0.3); x < x1 - vzM(0.2); x += vzM(0.6)){ g.fillStyle = 'rgba(154,58,42,.75)'; ell(g, x, fy, vzM(0.12), vzM(0.08)); g.fill();
+      g.fillStyle = '#e2b77a'; circ(g, x - vzM(0.05), fy - 0.5, vzM(0.025)); g.fill(); circ(g, x + vzM(0.05), fy - 0.5, vzM(0.025)); g.fill(); }
+    VZ_WALLS.wainscot(g, x0, x1, bot, '#6e3a22', '#8a5233');
+  },
+});
+/* a mask, drawn in a box (cx, cy the middle, w its width): bauta, moretta, medico, colombina, gnaga (the cards' pictures are their own: assets/venezia/pictures/gt-*.svg) */
+function gtMaskDraw(g, kind, cx, cy, w){
+  const h = w * 1.25;
+  g.save(); g.translate(cx, cy);
+  const eyes = (y, ex, rx, ry, col) => { g.fillStyle = col || '#2b1a14'; ell(g, -ex, y, rx, ry); g.fill(); ell(g, ex, y, rx, ry); g.fill(); };
+  if (kind === 'bauta'){
+    g.fillStyle = '#f7f3ea'; g.beginPath(); g.moveTo(0, -h * 0.5); g.quadraticCurveTo(w * 0.5, -h * 0.48, w * 0.46, -h * 0.05); g.lineTo(w * 0.3, h * 0.32); g.lineTo(w * 0.05, h * 0.52); g.lineTo(-w * 0.05, h * 0.52); g.lineTo(-w * 0.3, h * 0.32); g.lineTo(-w * 0.46, -h * 0.05); g.quadraticCurveTo(-w * 0.5, -h * 0.48, 0, -h * 0.5); g.fill();
+    g.strokeStyle = 'rgba(120,100,70,.5)'; g.lineWidth = 0.7; g.stroke();
+    g.fillStyle = '#e8e0cf'; g.beginPath(); g.moveTo(0, -h * 0.12); g.lineTo(w * 0.07, h * 0.14); g.lineTo(-w * 0.07, h * 0.14); g.fill();
+    eyes(-h * 0.13, w * 0.19, w * 0.1, w * 0.06);
+    g.strokeStyle = '#c9a54a'; g.lineWidth = 0.8; g.beginPath(); g.moveTo(-w * 0.4, -h * 0.28); g.quadraticCurveTo(0, -h * 0.4, w * 0.4, -h * 0.28); g.stroke();
+  } else if (kind === 'moretta'){
+    g.fillStyle = '#1b1820'; ell(g, 0, 0, w * 0.4, h * 0.42); g.fill(); g.fillStyle = 'rgba(255,255,255,.12)'; ell(g, -w * 0.14, -h * 0.2, w * 0.12, h * 0.1); g.fill();
+    eyes(-h * 0.06, w * 0.16, w * 0.09, w * 0.065, '#e2b77a');
+  } else if (kind === 'medico'){
+    g.fillStyle = '#f2ede2'; ell(g, -w * 0.08, -h * 0.12, w * 0.36, h * 0.32); g.fill();
+    g.beginPath(); g.moveTo(w * 0.05, -h * 0.02); g.quadraticCurveTo(w * 0.42, h * 0.08, w * 0.56, h * 0.48); g.quadraticCurveTo(w * 0.22, h * 0.28, -w * 0.06, h * 0.16); g.fill();
+    g.strokeStyle = 'rgba(120,100,70,.5)'; g.lineWidth = 0.7; g.stroke();
+    g.fillStyle = '#2b1a14'; circ(g, -w * 0.22, -h * 0.16, w * 0.085); g.fill(); circ(g, w * 0.06, -h * 0.16, w * 0.085); g.fill();
+    g.strokeStyle = '#c9a54a'; g.lineWidth = 0.9; circ(g, -w * 0.22, -h * 0.16, w * 0.1); g.stroke(); circ(g, w * 0.06, -h * 0.16, w * 0.1); g.stroke();
+  } else if (kind === 'colombina'){
+    g.fillStyle = '#d4a52e'; g.beginPath(); g.moveTo(-w * 0.48, -h * 0.05); g.quadraticCurveTo(-w * 0.4, -h * 0.3, -w * 0.12, -h * 0.2); g.quadraticCurveTo(0, -h * 0.14, w * 0.12, -h * 0.2); g.quadraticCurveTo(w * 0.4, -h * 0.3, w * 0.48, -h * 0.05); g.quadraticCurveTo(w * 0.3, h * 0.14, w * 0.06, h * 0.04); g.lineTo(0, h * 0.1); g.lineTo(-w * 0.06, h * 0.04); g.quadraticCurveTo(-w * 0.3, h * 0.14, -w * 0.48, -h * 0.05); g.fill();
+    g.fillStyle = '#f4d06a'; [-0.34, -0.2, 0.2, 0.34].forEach(f => { circ(g, w * f, -h * 0.15, w * 0.03); g.fill(); });
+    eyes(-h * 0.07, w * 0.21, w * 0.09, w * 0.055);
+    g.fillStyle = '#7a3aa0'; [[-0.42, -0.2, -0.5], [-0.35, -0.28, -0.25]].forEach(([fx, fy, a]) => { g.save(); g.translate(w * fx, h * fy); g.rotate(a); ell(g, 0, -h * 0.16, w * 0.05, h * 0.2); g.fill(); g.restore(); });
+    g.strokeStyle = '#2b1a14'; g.lineWidth = 0.8; g.beginPath(); g.moveTo(w * 0.48, -h * 0.04); g.lineTo(w * 0.5, h * 0.5); g.stroke();
+  } else if (kind === 'gnaga'){
+    g.fillStyle = '#d9d4c8'; g.beginPath(); g.moveTo(-w * 0.44, h * 0.06); g.quadraticCurveTo(-w * 0.48, -h * 0.2, -w * 0.36, -h * 0.28); g.lineTo(-w * 0.3, -h * 0.52); g.lineTo(-w * 0.12, -h * 0.3);
+    g.lineTo(w * 0.12, -h * 0.3); g.lineTo(w * 0.3, -h * 0.52); g.lineTo(w * 0.36, -h * 0.28); g.quadraticCurveTo(w * 0.48, -h * 0.2, w * 0.44, h * 0.06); g.quadraticCurveTo(w * 0.2, h * 0.2, 0, h * 0.14); g.quadraticCurveTo(-w * 0.2, h * 0.2, -w * 0.44, h * 0.06); g.fill();
+    g.fillStyle = '#e8a0a0'; g.beginPath(); g.moveTo(-w * 0.29, -h * 0.44); g.lineTo(-w * 0.19, -h * 0.31); g.lineTo(-w * 0.32, -h * 0.3); g.fill(); g.beginPath(); g.moveTo(w * 0.29, -h * 0.44); g.lineTo(w * 0.19, -h * 0.31); g.lineTo(w * 0.32, -h * 0.3); g.fill();
+    g.strokeStyle = '#8e8a80'; g.lineWidth = 0.8; [-0.1, 0, 0.1].forEach(f => { g.beginPath(); g.moveTo(w * f, -h * 0.3); g.lineTo(w * f * 0.7, -h * 0.16); g.stroke(); });
+    eyes(-h * 0.08, w * 0.19, w * 0.1, w * 0.06);
+    g.fillStyle = '#c76a6a'; g.beginPath(); g.moveTo(-w * 0.05, h * 0.03); g.lineTo(w * 0.05, h * 0.03); g.lineTo(0, h * 0.09); g.fill();
+    g.strokeStyle = '#4a4540'; g.lineWidth = 0.6; [[-1, 0.04], [-1, 0.1], [1, 0.04], [1, 0.1]].forEach(([s, y]) => { g.beginPath(); g.moveTo(s * w * 0.12, h * 0.06); g.lineTo(s * w * 0.58, h * y); g.stroke(); });
+  }
+  g.restore();
+}
+Object.assign(VZ_PROP_ART, {
+  /* the carnival's poster: a night of masks in the Piazza, the Campanile, confetti */
+  gtposter:{ bg(g, p, R){
+    const b = vzWallBox(p, R), w = b.x1 - b.x0, h = b.bot - b.top;
+    g.fillStyle = 'rgba(0,0,0,.2)'; g.fillRect(b.x0 + 2, b.top + 2, w, h);
+    g.fillStyle = '#1c2a5a'; g.fillRect(b.x0, b.top, w, h);
+    g.fillStyle = '#2f4a8a'; g.fillRect(b.x0, b.top + h * 0.55, w, h * 0.45);
+    g.fillStyle = '#c9a54a'; g.fillRect(b.x0 + w * 0.7, b.top + h * 0.2, w * 0.12, h * 0.42); g.beginPath(); g.moveTo(b.x0 + w * 0.68, b.top + h * 0.2); g.lineTo(b.x0 + w * 0.76, b.top + h * 0.08); g.lineTo(b.x0 + w * 0.84, b.top + h * 0.2); g.fill();
+    gtMaskDraw(g, 'bauta', b.x0 + w * 0.36, b.top + h * 0.42, w * 0.38);
+    const r = rng(97); ['#f4b928', '#e0405a', '#7fd0a0', '#fffdf8', '#7fb0e8'].forEach(c => { g.fillStyle = c; for (let k = 0; k < 9; k++) g.fillRect(b.x0 + r() * w, b.top + r() * h * 0.8, 1.4, 1.4); });
+    g.fillStyle = '#f4ead2'; g.fillRect(b.x0, b.bot - h * 0.2, w, h * 0.2);
+    vzText(g, 'CARNEVALE', b.x0 + w / 2, b.bot - h * 0.12, `800 ${Math.max(4, w * 0.13)}px "Bodoni Moda", serif`, '#9a2a2a', w - 4);
+    vzText(g, 'DI VENEZIA', b.x0 + w / 2, b.bot - h * 0.045, `700 ${Math.max(3, w * 0.07)}px "Titillium Web", sans-serif`, '#1c2a5a', w - 4);
+    g.strokeStyle = '#c9a54a'; g.lineWidth = 2; g.strokeRect(b.x0, b.top, w, h);
+  } },
+  /* a mask on its nail, its card below */
+  gtmask:{ bg(g, p, R){
+    const b = vzWallBox(p, R), w = b.x1 - b.x0, h = b.bot - b.top, cx = (b.x0 + b.x1) / 2;
+    g.fillStyle = 'rgba(0,0,0,.18)'; ell(g, cx + 2, b.top + h * 0.46, w * 0.42, h * 0.36); g.fill();
+    g.fillStyle = '#3a3030'; circ(g, cx, b.top + 2, 1.2); g.fill(); g.strokeStyle = 'rgba(60,40,30,.6)'; g.lineWidth = 0.6; g.beginPath(); g.moveTo(cx, b.top + 2); g.lineTo(cx - w * 0.2, b.top + h * 0.18); g.moveTo(cx, b.top + 2); g.lineTo(cx + w * 0.2, b.top + h * 0.18); g.stroke();
+    gtMaskDraw(g, p.mask, cx, b.top + h * 0.44, w * 0.82);
+    g.fillStyle = '#fbf6ea'; g.fillRect(cx - w * 0.36, b.bot - h * 0.16, w * 0.72, h * 0.14); g.strokeStyle = 'rgba(120,90,60,.5)'; g.lineWidth = 0.6; g.strokeRect(cx - w * 0.36, b.bot - h * 0.16, w * 0.72, h * 0.14);
+    vzText(g, ({ bauta:'Bauta', moretta:'Moretta', medico:'Medico', colombina:'Colombina', gnaga:'Gnaga' })[p.mask] || '', cx, b.bot - h * 0.085, `700 ${Math.max(3, w * 0.13)}px "Bodoni Moda", serif`, '#5a2a1a', w * 0.7);
+  } },
+  /* the shelf of white masks waiting for their paint */
+  gtshelf:{ draw(g, p){
+    const { x0, x1, y0, y1, hp } = vzFloorBox(p), w = x1 - x0;
+    vzShadow(g, x0, x1, y1);
+    g.fillStyle = '#5a3a22'; g.fillRect(x0, y1 - hp, w, hp); g.fillStyle = '#6e4626'; g.fillRect(x0 + 2, y1 - hp + 2, w - 4, hp - 4);
+    const rows = 4; for (let k = 0; k < rows; k++){ const sy = y1 - hp + 4 + (k + 1) * (hp - 8) / rows; g.fillStyle = '#3e2816'; g.fillRect(x0 + 2, sy, w - 4, 2);
+      for (let q = 0; q < 4; q++){ const mx = x0 + 6 + q * (w - 12) / 3.5, my = sy - vzM(0.22); g.fillStyle = (k + q) % 5 === 3 ? '#d4a52e' : (k + q) % 7 === 2 ? '#1b1820' : '#f5f0e4'; ell(g, mx, my, vzM(0.09), vzM(0.12)); g.fill();
+        g.fillStyle = 'rgba(43,26,20,.75)'; circ(g, mx - vzM(0.035), my - vzM(0.02), 0.9); g.fill(); circ(g, mx + vzM(0.035), my - vzM(0.02), 0.9); g.fill(); } }
+  } },
+  /* the workbench under its lamp */
+  gtbench:{ draw(g, p){
+    const { x0, x1, y0, y1, hp } = vzFloorBox(p), w = x1 - x0, cx = (x0 + x1) / 2;
+    vzShadow(g, x0, x1, y1, 5);
+    g.fillStyle = '#5a3a22'; g.fillRect(x0 + 3, y1 - hp, 4, hp); g.fillRect(x1 - 7, y1 - hp, 4, hp);
+    g.fillStyle = '#7a5032'; g.fillRect(x0, y1 - hp - 2, w, vzM(0.22));
+    g.fillStyle = '#9a6a42'; g.fillRect(x0 - 2, y0 - hp, w + 4, y1 - y0 + 2); g.fillStyle = 'rgba(255,230,190,.18)'; g.fillRect(x0 - 2, y0 - hp, w + 4, 1.4);
+    const top = y0 - hp;
+    /* a half-made face, the gnaga's mould, the glue pot, brushes, scraps of paper */
+    gtMaskDraw(g, 'bauta', x0 + w * 0.22, top + vzM(0.42), vzM(0.42));
+    gtMaskDraw(g, 'gnaga', x0 + w * 0.55, top + vzM(0.42), vzM(0.42));
+    g.fillStyle = '#c9c2b0'; rr(g, x0 + w * 0.78, top + vzM(0.2), vzM(0.2), vzM(0.24), 3); g.fill(); g.fillStyle = '#efe9d8'; ell(g, x0 + w * 0.78 + vzM(0.1), top + vzM(0.22), vzM(0.1), vzM(0.035)); g.fill();
+    g.strokeStyle = '#5a3a22'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(x0 + w * 0.82, top + vzM(0.2)); g.lineTo(x0 + w * 0.86, top - vzM(0.08)); g.stroke();
+    ['#c23b2a', '#1c3d8f', '#f4b928'].forEach((c, k) => { g.fillStyle = c; g.fillRect(x0 + w * (0.88 + k * 0.03), top + vzM(0.36), 1.5, vzM(0.28)); });
+    g.fillStyle = 'rgba(255,253,246,.9)'; [[0.36, 0.62], [0.42, 0.7], [0.7, 0.66]].forEach(([a, c]) => { g.save(); g.translate(x0 + w * a, top + vzM(c)); g.rotate(a * 3); g.fillRect(-3, -2, 6, 4); g.restore(); });
+    /* the lamp over it, hanging from the ceiling, its warm light */
+    const ly = top - vzM(1.35);
+    g.strokeStyle = '#2b2420'; g.lineWidth = 1; g.beginPath(); g.moveTo(cx, ly - vzM(1.1)); g.lineTo(cx, ly); g.stroke();
+    g.fillStyle = '#2e4a3a'; g.beginPath(); g.moveTo(cx - vzM(0.28), ly + vzM(0.18)); g.lineTo(cx - vzM(0.1), ly); g.lineTo(cx + vzM(0.1), ly); g.lineTo(cx + vzM(0.28), ly + vzM(0.18)); g.fill();
+    const gl = g.createRadialGradient(cx, ly + vzM(0.3), 1, cx, ly + vzM(0.6), vzM(1.4)); gl.addColorStop(0, 'rgba(255,220,150,.35)'); gl.addColorStop(1, 'rgba(255,220,150,0)');
+    g.fillStyle = gl; g.fillRect(cx - vzM(1.5), ly, vzM(3), vzM(1.8));
+  } },
+  /* the shop window: the low display, masks on their stands, Arlecchino on his cushion (drawn each frame: he breathes, an ear twitches) */
+  gtwindow:{ draw(g, p, R, t){
+    const { x0, x1, y0, y1, hp } = vzFloorBox(p), w = x1 - x0, top = y0 - hp;
+    vzShadow(g, x0, x1, y1, 4);
+    g.fillStyle = '#4e2e1c'; g.fillRect(x0, y1 - hp, w, hp); g.fillStyle = '#6e4226'; g.fillRect(x0 + 2, y1 - hp + 2, w - 4, hp - 4);
+    g.fillStyle = '#8a1f2e'; g.fillRect(x0 - 1, top, w + 2, y1 - y0 + 1); g.fillStyle = 'rgba(255,255,255,.12)'; g.fillRect(x0 - 1, top, w + 2, 1.2);
+    /* the masks on their stands */
+    [[0.12, 'colombina'], [0.3, 'moretta'], [0.48, 'bauta']].forEach(([f, k]) => { const mx = x0 + w * f; g.fillStyle = '#2b2420'; g.fillRect(mx - 0.8, top - vzM(0.5), 1.6, vzM(0.5)); gtMaskDraw(g, k, mx, top - vzM(0.62), vzM(0.3)); });
+    /* the cushion, and the cat */
+    const a = gtArlAt(), cx = a ? a.x : x0 + w * 0.72, cy = top + (y1 - y0) * 0.55;
+    g.fillStyle = '#b8282e'; ell(g, cx, cy - 2, vzM(0.42), vzM(0.16)); g.fill(); g.fillStyle = '#d84a4a'; ell(g, cx - 2, cy - 4, vzM(0.36), vzM(0.1)); g.fill();
+    g.fillStyle = '#e8c35a'; [[-1, -1], [1, -1]].forEach(([s]) => { circ(g, cx + s * vzM(0.4), cy - 2, 1.4); g.fill(); });
+    const C = GT_CAT.arlecchino, woke = performance.now() - GT_ARL.woke < 1600;
+    g.save(); g.translate(cx, cy - 3); g.scale(VZ_PERSON, VZ_PERSON); g.scale(1, 1 + (RM ? 0 : Math.sin(t * 2.1) * 0.015));
+    vzCat(g, { ...C.look, lie:!woke, sit:woke, nap:!woke }, t, 'R'); g.restore();
+    /* the glass's glint at the front */
+    g.fillStyle = 'rgba(220,235,245,.12)'; g.fillRect(x0, y1 - hp - vzM(0.9), w, vzM(0.9)); g.fillStyle = 'rgba(255,255,255,.35)'; g.fillRect(x0 + w * 0.08, y1 - hp - vzM(0.85), 1.5, vzM(0.8)); g.fillRect(x0 + w * 0.6, y1 - hp - vzM(0.85), 1, vzM(0.6));
+  } },
+});
+
+/* ---------- the cats in San Polo's streets (world/gatti.js GT_RT) ---------- */
+function gtEnts(t){
+  if (!gtOn() || VZD.id !== 'sanpolo' || !VZ_CITY[S.scene]) return [];
+  const out = [], x0 = cam.x - 60, y0 = cam.y - 60, x1 = cam.x + viewW() + 60, y1 = cam.y + viewH() + 90;
+  for (const C of Object.values(GT_RT)){
+    if (C.x < x0 || C.x > x1 || C.y < y0 || C.y > y1) continue;
+    if (C.home.boat) out.push({ y:C.home.y + (C.home.sortDy || 0) - 2, draw:() => gtTarp(ctx, C, t) });
+    if (C.home.sill) out.push({ y:C.home.y - 1, draw:() => gtSill(ctx, C.home) });
+    if (C.mode === 'hidden'){ out.push({ y:C.home.y + (C.home.sortDy || 0), draw:() => gtEyes(ctx, C, t) }); continue; }
+    out.push({ y:C.y + (C.mode === 'sit' || C.mode === 'hidden' ? C.sortDy || 0 : 0), draw:() => { C.phase = C.phase || (C.x % 7); vzPersonDraw(ctx, C, t); } });
+  }
+  return out;
+}
+/* two eyes in the dark (blinking now and then), a dark patch round them */
+function gtEyes(g, C, t){
+  const x = C.home.x, y = C.home.y - (C.home.lift || 0) - 4, k = Math.sin(t * 0.7 + C.x) > 0.93 ? 0.2 : 1;
+  g.fillStyle = 'rgba(10,8,6,.45)'; ell(g, x, y, 7, 4); g.fill();
+  g.fillStyle = C.eye || '#d8e05a'; ell(g, x - 2.2, y, 1.3, 1.1 * k); g.fill(); ell(g, x + 2.2, y, 1.3, 1.1 * k); g.fill();
+  g.fillStyle = 'rgba(255,255,220,.8)'; circ(g, x - 2.5, y - 0.4, 0.35); g.fill(); circ(g, x + 1.9, y - 0.4, 0.35); g.fill();
+}
+/* a little window on a house front, its green shutters open, a stone sill (Nuvola's) */
+function gtSill(g, h){
+  const M = VZ_M, x = h.x, b = h.y - 2, w = 0.82 * M, y0 = b - 2.15 * M, y1 = b - (h.lift || M);
+  g.fillStyle = '#f2ece0'; g.fillRect(x - w / 2 - 2, y0 - 2, w + 4, y1 - y0 + 2);
+  g.fillStyle = '#2a3440'; g.fillRect(x - w / 2 + 1, y0 + 1, w - 2, y1 - y0 - 1);
+  g.fillStyle = 'rgba(160,190,210,.35)'; g.fillRect(x - w / 2 + 2, y0 + 2, w / 2 - 3, y1 - y0 - 3);
+  g.strokeStyle = '#f2ece0'; g.lineWidth = 1; g.beginPath(); g.moveTo(x, y0 + 1); g.lineTo(x, y1); g.moveTo(x - w / 2 + 1, (y0 + y1) / 2); g.lineTo(x + w / 2 - 1, (y0 + y1) / 2); g.stroke();
+  g.fillStyle = '#3f7a4a'; [-1, 1].forEach(s => { const sx = s < 0 ? x - w / 2 - 0.42 * M : x + w / 2 + 0.06 * M; g.fillRect(sx, y0, 0.36 * M, y1 - y0); g.fillStyle = 'rgba(0,0,0,.18)'; for (let k = y0 + 2; k < y1; k += 2.2) g.fillRect(sx, k, 0.36 * M, 0.6); g.fillStyle = '#3f7a4a'; });
+  g.fillStyle = '#e6dfd0'; g.fillRect(x - w / 2 - 4, y1, w + 8, 2.6); g.fillStyle = 'rgba(0,0,0,.16)'; g.fillRect(x - w / 2 - 4, y1 + 2.6, w + 8, 1);
+}
+/* the blue tarp over a moored gondola's middle (Tigre's: he sleeps under it) */
+function gtTarp(g, C, t){
+  const b = C.home.boat; if (!b) return;
+  const x = C.home.x, y = C.home.y - (C.home.lift || 0) + 2, bob = RM ? 0 : Math.sin(t * 1.3 + (b.ph || 0)) * 0.8;
+  g.fillStyle = '#2f5a8a'; rr(g, x - 13, y - 6 + bob, 26, 8, 3); g.fill(); g.fillStyle = 'rgba(255,255,255,.16)'; g.fillRect(x - 12, y - 5.5 + bob, 24, 1.2);
+  g.strokeStyle = '#d8c9a0'; g.lineWidth = 0.6; [-8, 0, 8].forEach(dx => { g.beginPath(); g.moveTo(x + dx, y - 6 + bob); g.lineTo(x + dx, y + 2 + bob); g.stroke(); });
+}
+
+/* ---------- the gnaga on the player's face (render/people.js vzHat asks, while it is worn) ---------- */
+function gtGnagaFace(g, hy, side, back){
+  const base = '#dcd7cb', line = '#7a756c', pink = '#e8a0a0';
+  if (back){   // from behind: the ears over the hair, the ribbon's knot
+    g.fillStyle = base; g.beginPath(); g.moveTo(-6.5, hy - 5); g.lineTo(-5, hy - 12.5); g.lineTo(-1.8, hy - 6.5); g.fill(); g.beginPath(); g.moveTo(6.5, hy - 5); g.lineTo(5, hy - 12.5); g.lineTo(1.8, hy - 6.5); g.fill();
+    g.fillStyle = '#8a1f2e'; g.fillRect(-7.6, hy - 1, 15.2, 1.6); ell(g, 0, hy + 0.4, 1.8, 1.2); g.fill(); g.fillRect(-1.2, hy + 1, 1, 4); g.fillRect(0.4, hy + 1, 1, 3.4); return;
+  }
+  if (side){   // in profile, facing right
+    g.fillStyle = base; g.beginPath(); g.moveTo(-2, hy - 5.6); g.quadraticCurveTo(4, hy - 7.2, 8.4, hy - 2.4); g.lineTo(8.8, hy + 1.6); g.quadraticCurveTo(5, hy + 3.4, 0, hy + 2.6); g.closePath(); g.fill();
+    g.beginPath(); g.moveTo(-1.2, hy - 5.4); g.lineTo(1.4, hy - 13); g.lineTo(4.4, hy - 6.4); g.fill();
+    g.fillStyle = pink; g.beginPath(); g.moveTo(0.6, hy - 6); g.lineTo(1.6, hy - 11); g.lineTo(3.4, hy - 6.4); g.fill();
+    g.fillStyle = '#2b2018'; ell(g, 4.6, hy + 0.1, 1.6, 1.1); g.fill();
+    g.strokeStyle = line; g.lineWidth = 0.5; [[-1, -3], [1, -4], [3, -4.2]].forEach(([x, y]) => { g.beginPath(); g.moveTo(x, hy + y - 1.4); g.lineTo(x + 0.4, hy + y + 0.6); g.stroke(); });
+    g.strokeStyle = '#3a3630'; g.lineWidth = 0.45; g.beginPath(); g.moveTo(7, hy + 1.6); g.lineTo(12, hy + 0.6); g.moveTo(7, hy + 2); g.lineTo(12, hy + 2.6); g.stroke();
+    g.fillStyle = '#c76a6a'; circ(g, 8.6, hy + 1.2, 0.8); g.fill();
+    g.fillStyle = '#8a1f2e'; g.fillRect(-7.5, hy - 0.6, 6, 1.4);
+    return;
+  }
+  /* from the front: the half-mask over the eyes and the nose, the ears up over the hair, the whiskers */
+  g.fillStyle = base;
+  g.beginPath(); g.moveTo(-8.2, hy + 1.4); g.quadraticCurveTo(-8.6, hy - 4.5, -6.2, hy - 5.6); g.lineTo(-5.6, hy - 13); g.lineTo(-2, hy - 6.8); g.lineTo(2, hy - 6.8); g.lineTo(5.6, hy - 13); g.lineTo(6.2, hy - 5.6);
+  g.quadraticCurveTo(8.6, hy - 4.5, 8.2, hy + 1.4); g.quadraticCurveTo(4, hy + 4.2, 0, hy + 3.4); g.quadraticCurveTo(-4, hy + 4.2, -8.2, hy + 1.4); g.fill();
+  g.strokeStyle = 'rgba(80,70,60,.45)'; g.lineWidth = 0.5; g.stroke();
+  g.fillStyle = pink; g.beginPath(); g.moveTo(-5.2, hy - 11); g.lineTo(-3.2, hy - 7); g.lineTo(-5.6, hy - 6.6); g.fill(); g.beginPath(); g.moveTo(5.2, hy - 11); g.lineTo(3.2, hy - 7); g.lineTo(5.6, hy - 6.6); g.fill();
+  g.strokeStyle = line; g.lineWidth = 0.55; [-1.6, 0, 1.6].forEach(x => { g.beginPath(); g.moveTo(x, hy - 6.6); g.lineTo(x * 0.7, hy - 3.6); g.stroke(); });
+  g.fillStyle = '#2b2018'; ell(g, -2.8, hy + 0.3, 1.9, 1.25); g.fill(); ell(g, 2.8, hy + 0.3, 1.9, 1.25); g.fill();
+  g.fillStyle = '#f4f0e6'; circ(g, -2.4, hy - 0.1, 0.4); g.fill(); circ(g, 3.2, hy - 0.1, 0.4); g.fill();
+  g.fillStyle = '#c76a6a'; g.beginPath(); g.moveTo(-1, hy + 1.8); g.lineTo(1, hy + 1.8); g.lineTo(0, hy + 2.9); g.fill();
+  g.strokeStyle = '#3a3630'; g.lineWidth = 0.45; [[-1, 2.4, -11.5, 1.4], [-1, 2.8, -11.5, 3.6], [1, 2.4, 11.5, 1.4], [1, 2.8, 11.5, 3.6]].forEach(([a, b, c, d]) => { g.beginPath(); g.moveTo(a * 3, hy + b); g.lineTo(c, hy + d); g.stroke(); });
 }
 
 /* ===== engine/boot.js ===== */
