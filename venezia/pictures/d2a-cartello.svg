@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+<!-- District 2 · A3b · Bepi e le lire: Gigi's old wooden price sign, the paint faded: CACHI L. 2.000 AL KG, his name in the corner (prices in lire: the 1980s). Made by scripts/d2a-pictures.py. -->
+<rect width="1200" height="800" fill="#3a2e25"/>
+<rect x="140" y="120" width="920" height="520" rx="14" fill="#b98a52" stroke="#6e4626" stroke-width="10"/>
+<line x1="150" y1="170" x2="1050" y2="176" stroke="#a07440" stroke-width="3" opacity="0.6"/>
+<line x1="150" y1="222" x2="1050" y2="228" stroke="#a07440" stroke-width="3" opacity="0.6"/>
+<line x1="150" y1="274" x2="1050" y2="280" stroke="#a07440" stroke-width="3" opacity="0.6"/>
+<line x1="150" y1="326" x2="1050" y2="332" stroke="#a07440" stroke-width="3" opacity="0.6"/>
+<line x1="150" y1="378" x2="1050" y2="384" stroke="#a07440" stroke-width="3" opacity="0.6"/>
+<line x1="150" y1="430" x2="1050" y2="436" stroke="#a07440" stroke-width="3" opacity="0.6"/>
+<line x1="150" y1="482" x2="1050" y2="488" stroke="#a07440" stroke-width="3" opacity="0.6"/>
+<line x1="150" y1="534" x2="1050" y2="540" stroke="#a07440" stroke-width="3" opacity="0.6"/>
+<line x1="150" y1="586" x2="1050" y2="592" stroke="#a07440" stroke-width="3" opacity="0.6"/>
+<line x1="150" y1="638" x2="1050" y2="644" stroke="#a07440" stroke-width="3" opacity="0.6"/>
+<rect x="190" y="170" width="820" height="420" rx="8" fill="#f2e6c4" opacity="0.88"/>
+<text x="600" y="330" text-anchor="middle" font-family="Georgia, serif" font-size="150" font-weight="700" fill="#a0281a" opacity="0.92">CACHI</text>
+<text x="600" y="480" text-anchor="middle" font-family="Georgia, serif" font-size="96" font-weight="700" fill="#2a2a2a" opacity="0.9">L. 2.000 AL KG</text>
+<text x="920" y="566" text-anchor="middle" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="54" fill="#1a3a6a" transform="rotate(-6 920 566)">Gigi</text>
+<circle cx="190" cy="160" r="9" fill="#5a5a5a"/><circle cx="1010" cy="160" r="9" fill="#5a5a5a"/>
+<path d="M190 160 L600 40 L1010 160" stroke="#5a4a3a" stroke-width="4" fill="none"/>
+<ellipse cx="220" cy="190" rx="6" ry="3" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="417" cy="303" rx="9" ry="4" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="614" cy="416" rx="12" ry="5" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="811" cy="529" rx="15" ry="3" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="228" cy="262" rx="18" ry="4" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="425" cy="375" rx="6" ry="5" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="622" cy="488" rx="9" ry="3" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="819" cy="221" rx="12" ry="4" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="236" cy="334" rx="15" ry="5" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="433" cy="447" rx="18" ry="3" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="630" cy="560" rx="6" ry="4" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="827" cy="293" rx="9" ry="5" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="244" cy="406" rx="12" ry="3" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="441" cy="519" rx="15" ry="4" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="638" cy="252" rx="18" ry="5" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="835" cy="365" rx="6" ry="3" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="252" cy="478" rx="9" ry="4" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="449" cy="211" rx="12" ry="5" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="646" cy="324" rx="15" ry="3" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="843" cy="437" rx="18" ry="4" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="260" cy="550" rx="6" ry="5" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="457" cy="283" rx="9" ry="3" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="654" cy="396" rx="12" ry="4" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="851" cy="509" rx="15" ry="5" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="268" cy="242" rx="18" ry="3" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="465" cy="355" rx="6" ry="4" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="662" cy="468" rx="9" ry="5" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="859" cy="201" rx="12" ry="3" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="276" cy="314" rx="15" ry="4" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="473" cy="427" rx="18" ry="5" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="670" cy="540" rx="6" ry="3" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="867" cy="273" rx="9" ry="4" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="284" cy="386" rx="12" ry="5" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="481" cy="499" rx="15" ry="3" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="678" cy="232" rx="18" ry="4" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="875" cy="345" rx="6" ry="5" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="292" cy="458" rx="9" ry="3" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="489" cy="191" rx="12" ry="4" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="686" cy="304" rx="15" ry="5" fill="#b98a52" opacity="0.55"/>
+<ellipse cx="883" cy="417" rx="18" ry="3" fill="#b98a52" opacity="0.55"/>
+</svg>

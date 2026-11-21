@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+<!-- District 2 · A4a · In cucina a Sant'Erasmo: Nives's topa, the Gigia, at the fondamenta at dawn: a flat, wide working boat, an outboard, crates of fruit, her name painted on the side. Made by scripts/d2a-pictures.py. -->
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6c08a"/><stop offset="0.55" stop-color="#f8e2c0"/><stop offset="1" stop-color="#cfe0e4"/></linearGradient>
+<rect width="1200" height="800" fill="url(#sky)"/>
+<circle cx="980" cy="230" r="54" fill="#fff4d6" opacity="0.9"/>
+<path d="M0 330 h1200 v90 h-1200 Z" fill="#c8927a" opacity="0.6"/>
+<rect x="0" y="300" width="70" height="130" fill="#d9a38a" opacity="0.7"/>
+<rect x="92" y="256" width="106" height="174" fill="#c98a6a" opacity="0.7"/>
+<rect x="184" y="272" width="102" height="158" fill="#e2b89a" opacity="0.7"/>
+<rect x="276" y="288" width="98" height="142" fill="#b97a5a" opacity="0.7"/>
+<rect x="368" y="244" width="94" height="186" fill="#d9a38a" opacity="0.7"/>
+<rect x="460" y="260" width="90" height="170" fill="#c98a6a" opacity="0.7"/>
+<rect x="552" y="276" width="86" height="154" fill="#e2b89a" opacity="0.7"/>
+<rect x="644" y="292" width="82" height="138" fill="#b97a5a" opacity="0.7"/>
+<rect x="736" y="248" width="78" height="182" fill="#d9a38a" opacity="0.7"/>
+<rect x="828" y="264" width="74" height="166" fill="#c98a6a" opacity="0.7"/>
+<rect x="920" y="280" width="70" height="150" fill="#e2b89a" opacity="0.7"/>
+<rect x="1012" y="296" width="106" height="134" fill="#b97a5a" opacity="0.7"/>
+<rect x="1104" y="252" width="102" height="178" fill="#d9a38a" opacity="0.7"/>
+<rect x="1196" y="268" width="98" height="162" fill="#c98a6a" opacity="0.7"/>
+<rect x="14" y="330" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="14" y="364" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="36" y="330" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="36" y="364" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="106" y="286" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="106" y="320" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="128" y="286" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="128" y="320" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="198" y="302" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="198" y="336" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="220" y="302" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="220" y="336" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="290" y="318" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="290" y="352" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="312" y="318" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="312" y="352" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="382" y="274" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="382" y="308" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="404" y="274" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="404" y="308" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="474" y="290" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="474" y="324" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="496" y="290" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="496" y="324" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="566" y="306" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="566" y="340" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="588" y="306" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="588" y="340" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="658" y="322" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="658" y="356" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="680" y="322" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="680" y="356" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="750" y="278" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="750" y="312" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="772" y="278" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="772" y="312" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="842" y="294" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="842" y="328" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="864" y="294" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="864" y="328" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="934" y="310" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="934" y="344" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="956" y="310" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="956" y="344" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="1026" y="326" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="1026" y="360" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="1048" y="326" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="1048" y="360" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="1118" y="282" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="1118" y="316" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="1140" y="282" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="1140" y="316" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="1210" y="298" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="1210" y="332" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="1232" y="298" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<rect x="1232" y="332" width="10" height="18" fill="#7a5a4a" opacity="0.55"/>
+<path d="M0 430 h1200 v370 h-1200 Z" fill="#5f8a94"/>
+<path d="M80 560 q30 -6 60 0" stroke="#e8f0f0" stroke-width="3" fill="none" opacity="0.45"/>
+<path d="M300 520 q30 -6 60 0" stroke="#e8f0f0" stroke-width="3" fill="none" opacity="0.45"/>
+<path d="M600 690 q30 -6 60 0" stroke="#e8f0f0" stroke-width="3" fill="none" opacity="0.45"/>
+<path d="M900 600 q30 -6 60 0" stroke="#e8f0f0" stroke-width="3" fill="none" opacity="0.45"/>
+<path d="M1040 720 q30 -6 60 0" stroke="#e8f0f0" stroke-width="3" fill="none" opacity="0.45"/>
+<path d="M200 740 q30 -6 60 0" stroke="#e8f0f0" stroke-width="3" fill="none" opacity="0.45"/>
+<path d="M700 500 q30 -6 60 0" stroke="#e8f0f0" stroke-width="3" fill="none" opacity="0.45"/>
+<path d="M0 410 L260 410 L200 800 L0 800 Z" fill="#cfc6b6"/>
+<path d="M260 410 L200 800" stroke="#a89f8e" stroke-width="6"/>
+<rect x="214" y="380" width="22" height="120" rx="6" fill="#6a4a2c"/>
+<path d="M300 560 Q320 650 470 660 L1040 650 Q1100 640 1120 560 Z" fill="#b98a52" stroke="#6e4626" stroke-width="5"/>
+<path d="M300 560 L1120 560 L1112 590 L306 590 Z" fill="#2e6a4a"/>
+<path d="M296 552 L1124 552" stroke="#e8d9b0" stroke-width="8" stroke-linecap="round"/>
+<text x="760" y="632" text-anchor="middle" font-family="Georgia, serif" font-size="56" font-weight="700" fill="#fffdf8" letter-spacing="6">GIGIA</text>
+<rect x="1110" y="500" width="40" height="70" rx="8" fill="#2b2b2b"/><rect x="1122" y="566" width="14" height="80" fill="#3a3a3a"/><rect x="1116" y="506" width="28" height="10" fill="#c23b2a"/>
+<rect x="360" y="480" width="110" height="72" rx="4" fill="#c9a46a" stroke="#8a6a3a" stroke-width="3"/><circle cx="378" cy="482" r="13" fill="#f0802a"/><circle cx="403" cy="482" r="13" fill="#f0802a"/><circle cx="428" cy="482" r="13" fill="#f0802a"/><circle cx="453" cy="482" r="13" fill="#f0802a"/>
+<rect x="480" y="480" width="110" height="72" rx="4" fill="#c9a46a" stroke="#8a6a3a" stroke-width="3"/><circle cx="498" cy="482" r="13" fill="#d8343f"/><circle cx="523" cy="482" r="13" fill="#d8343f"/><circle cx="548" cy="482" r="13" fill="#d8343f"/><circle cx="573" cy="482" r="13" fill="#d8343f"/>
+<rect x="600" y="480" width="110" height="72" rx="4" fill="#c9a46a" stroke="#8a6a3a" stroke-width="3"/><circle cx="618" cy="482" r="13" fill="#c8d24e"/><circle cx="643" cy="482" r="13" fill="#c8d24e"/><circle cx="668" cy="482" r="13" fill="#c8d24e"/><circle cx="693" cy="482" r="13" fill="#c8d24e"/>
+<path d="M236 420 Q300 470 340 556" stroke="#d8cdb6" stroke-width="4" fill="none"/>
+<text x="600" y="770" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="28" fill="#f6f1e4">Rialto, sabato, le otto</text>
+</svg>

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+<!-- Lesson 5: the high-water siren's code (sources: the Comune's Centro Maree; Wikipedia, "Acqua alta"; invenicetoday.com). Made by scripts/l5-pictures.py. -->
+<rect width="1200" height="800" fill="#f4efe2"/>
+<rect x="30" y="30" width="1140" height="740" rx="18" fill="#fffdf6" stroke="#2f4f6e" stroke-width="4"/>
+<text x="600" y="104" text-anchor="middle" font-family="Georgia, serif" font-size="46" font-weight="700" fill="#2f4f6e">ACQUA ALTA · I SEGNALI ACUSTICI</text>
+<text x="600" y="148" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="26" fill="#6a6a70">a first note, then one rising tone for every 10 cm, from 110 cm</text>
+<text x="96" y="268" font-family="Georgia, serif" font-size="44" font-weight="700" fill="#1f2a3a">110 cm</text>
+<rect x="360" y="262" width="150" height="22" rx="6" fill="#7a8aa0"/>
+<rect x="540" y="248" width="74" height="36" rx="6" fill="#2f6a9a"/>
+<text x="912" y="274" font-family="Georgia, serif" font-style="italic" font-size="24" fill="#4a4a52">a single long tone</text>
+<rect x="60" y="328" width="1080" height="116" rx="14" fill="#fde9b8" stroke="#c9a24a" stroke-width="3"/>
+<text x="1116" y="372" text-anchor="end" font-family="Georgia, serif" font-size="24" font-weight="700" fill="#a0521a">oggi</text>
+<text x="96" y="400" font-family="Georgia, serif" font-size="44" font-weight="700" fill="#1f2a3a">120 cm</text>
+<rect x="360" y="394" width="150" height="22" rx="6" fill="#7a8aa0"/>
+<rect x="540" y="380" width="74" height="36" rx="6" fill="#2f6a9a"/>
+<rect x="628" y="366" width="74" height="50" rx="6" fill="#2f6a9a"/>
+<text x="912" y="406" font-family="Georgia, serif" font-style="italic" font-size="24" fill="#4a4a52">two rising tones</text>
+<text x="96" y="532" font-family="Georgia, serif" font-size="44" font-weight="700" fill="#1f2a3a">130 cm</text>
+<rect x="360" y="526" width="150" height="22" rx="6" fill="#7a8aa0"/>
+<rect x="540" y="512" width="74" height="36" rx="6" fill="#2f6a9a"/>
+<rect x="628" y="498" width="74" height="50" rx="6" fill="#2f6a9a"/>
+<rect x="716" y="484" width="74" height="64" rx="6" fill="#2f6a9a"/>
+<text x="912" y="538" font-family="Georgia, serif" font-style="italic" font-size="24" fill="#4a4a52">three rising tones</text>
+<text x="96" y="664" font-family="Georgia, serif" font-size="44" font-weight="700" fill="#1f2a3a">140 cm +</text>
+<rect x="360" y="658" width="150" height="22" rx="6" fill="#7a8aa0"/>
+<rect x="540" y="644" width="74" height="36" rx="6" fill="#2f6a9a"/>
+<rect x="628" y="630" width="74" height="50" rx="6" fill="#2f6a9a"/>
+<rect x="716" y="616" width="74" height="64" rx="6" fill="#2f6a9a"/>
+<rect x="804" y="602" width="74" height="78" rx="6" fill="#2f6a9a"/>
+<text x="912" y="670" font-family="Georgia, serif" font-style="italic" font-size="24" fill="#4a4a52">four rising tones</text>
+<text x="600" y="744" text-anchor="middle" font-family="Georgia, serif" font-size="22" fill="#6a6a70">The sirens sound about three hours before the tide passes 110 cm, and the signal is repeated.</text>
+</svg>

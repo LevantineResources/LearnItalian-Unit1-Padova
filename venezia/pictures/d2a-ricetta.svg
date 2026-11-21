@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 900" width="1100" height="900">
+<!-- District 2 · A4a: Mattia's handwritten card, La torta de zuca de la nona Bruna (Venetian for la torta di zucca della nonna Bruna), the five steps. Made by scripts/d2a-pictures.py. -->
+<rect width="1100" height="900" fill="#5a3a22"/>
+<rect x="80" y="70" width="940" height="760" rx="8" fill="#fffdf2" stroke="#d8cdb6" stroke-width="4" transform="rotate(-1.5 550 450)"/>
+<line x1="110" y1="250" x2="990" y2="230" stroke="#bcd0e0" stroke-width="2"/>
+<line x1="110" y1="340" x2="990" y2="320" stroke="#bcd0e0" stroke-width="2"/>
+<line x1="110" y1="430" x2="990" y2="410" stroke="#bcd0e0" stroke-width="2"/>
+<line x1="110" y1="520" x2="990" y2="500" stroke="#bcd0e0" stroke-width="2"/>
+<line x1="110" y1="610" x2="990" y2="590" stroke="#bcd0e0" stroke-width="2"/>
+<line x1="110" y1="700" x2="990" y2="680" stroke="#bcd0e0" stroke-width="2"/>
+<line x1="110" y1="790" x2="990" y2="770" stroke="#bcd0e0" stroke-width="2"/>
+<text x="540" y="170" text-anchor="middle" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="50" font-weight="700" fill="#1a3a6a" transform="rotate(-1.5 550 170)">La torta de zuca de la nona Bruna</text>
+<text x="130" y="290" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="34" fill="#1a2a4a" transform="rotate(-1.5 550 290)">1. Prima tagli la zucca con il coltello, a pezzi.</text>
+<text x="130" y="395" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="34" fill="#1a2a4a" transform="rotate(-1.5 550 395)">2. Poi la cucini nel forno, mezz’ora.</text>
+<text x="130" y="500" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="34" fill="#1a2a4a" transform="rotate(-1.5 550 500)">3. Poi aggiungi tre uova, lo zucchero e il latte.</text>
+<text x="130" y="605" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="34" fill="#1a2a4a" transform="rotate(-1.5 550 605)">4. Versi un po’ d’olio nella farina, e mescoli tutto.</text>
+<text x="130" y="710" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="34" fill="#1a2a4a" transform="rotate(-1.5 550 710)">5. Tutto nella teglia, e nel forno: quaranta minuti.</text>
+<text x="900" y="800" text-anchor="end" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="32" fill="#c0281a" transform="rotate(-4 900 800)">senza sale! — Mattia</text>
+</svg>

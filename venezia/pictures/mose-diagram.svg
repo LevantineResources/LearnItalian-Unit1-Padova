@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+  <!-- PLACEHOLDER: replace this file with the schematic of the MOSE gates (landscape, about 1600 × 900 px, PNG, JPG or SVG named
+       mose-diagram.png / .jpg; a real image wins over this .svg; an .svg of your own can simply overwrite this file). See docs/venezia-pictures.md. -->
+  <rect width="1600" height="900" fill="#f3e9d4"/>
+  <rect x="30" y="30" width="1540" height="840" fill="none" stroke="#1c3d8f" stroke-width="6" rx="16"/>
+  <text x="800" y="110" text-anchor="middle" font-family="Bodoni Moda, Didot, Georgia, serif" font-size="56" font-style="italic" font-weight="700" fill="#1c3d8f">Il MOSE</text>
+  <text x="800" y="160" text-anchor="middle" font-family="Titillium Web, Segoe UI, sans-serif" font-size="30" fill="#3a3326">MOSE gates diagram — schematic goes here</text>
+  <g font-family="Titillium Web, Segoe UI, sans-serif" font-size="28" fill="#1c3d8f">
+    <text x="300" y="250" text-anchor="middle">the sea</text><text x="1300" y="250" text-anchor="middle">the lagoon</text>
+  </g>
+  <rect x="80" y="420" width="640" height="300" fill="#7fa3c2"/>
+  <rect x="880" y="520" width="640" height="200" fill="#a9c4d8"/>
+  <rect x="80" y="720" width="1440" height="80" fill="#8a7a5e"/>
+  <g stroke="#c23b2a" stroke-width="16" stroke-linecap="round"><line x1="740" y1="720" x2="860" y2="420"/></g>
+  <circle cx="740" cy="720" r="14" fill="#1c3d8f"/>
+  <path d="M640 380 q80 -60 160 0" fill="none" stroke="#1c3d8f" stroke-width="5" marker-end="url(#a)"/>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1c3d8f"/></marker></defs>
+  <g font-family="Titillium Web, Segoe UI, sans-serif" font-size="26" fill="#3a3326">
+    <text x="900" y="400">a gate rises</text>
+    <text x="400" y="400" text-anchor="middle">the tide comes in</text>
+    <text x="800" y="850" text-anchor="middle" opacity="0.8">placeholder · assets/venezia/pictures/mose-diagram</text>
+  </g>
+</svg>

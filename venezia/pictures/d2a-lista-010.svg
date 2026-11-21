@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1100" width="900" height="1100">
+<!-- District 2 · A3a · La spesa: Nives's list on the back of a paper bag (the shops done: Franca 0, Renzo 1, Dario 0: a changed line crossed out and written again, each line ticked). Made by scripts/d2a-pictures.py. -->
+<rect width="900" height="1100" fill="#d8cdb6"/>
+<path d="M90 70 L810 50 L830 1040 L70 1060 Z" fill="#c9a87a" stroke="#a8875a" stroke-width="4"/>
+<path d="M90 70 L810 50 L812 120 L92 140 Z" fill="#b8956a"/>
+<path d="M120 1000 L800 990" stroke="#a8875a" stroke-width="3" stroke-dasharray="14 10"/>
+<text x="450" y="230" text-anchor="middle" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="52" font-weight="700" fill="#2a2a5a">SABATO · 30 persone</text>
+<path d="M200 252 Q450 268 700 250" stroke="#2a2a5a" stroke-width="3" fill="none"/>
+<text x="150" y="360" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="44" fill="#2a2a5a">pane: <tspan font-weight="700">6 filoni</tspan> <tspan font-size="34" fill="#4a4a7a">(Franca)</tspan></text>
+<text x="150" y="500" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="44" fill="#2a2a5a">latte: <tspan font-weight="700">2 litri</tspan> <tspan font-size="34" fill="#4a4a7a">(per la torta)</tspan></text>
+<text x="150" y="640" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="44" fill="#2a2a5a">bigoli: <tspan font-weight="700">3 kg</tspan> <tspan font-size="34" fill="#4a4a7a">(Renzo)</tspan></text>
+<path d="M314 627 L414 623" stroke="#2a2a5a" stroke-width="5"/>
+<text x="330" y="692" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="40" fill="#1a4a8a">→ 4 kg!</text>
+<path d="M96 618 l18 20 l34 -44" stroke="#1a6a3a" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="150" y="780" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="44" fill="#2a2a5a">vino bianco sfuso: <tspan font-weight="700">10 litri</tspan> <tspan font-size="34" fill="#4a4a7a">(Dario)</tspan></text>
+<text x="450" y="960" text-anchor="middle" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="46" font-weight="700" fill="#a0281a">100 €: NON SPENDA TUTTO!</text>
+<path d="M190 978 Q450 992 712 972" stroke="#a0281a" stroke-width="3" fill="none"/>
+</svg>

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 860" width="1200" height="860">
+<!-- District 2 · A3b, A4b: a page of Gigi's account book: names, years, sums in lire, on credit; Bepi — 1985 — L. 20.000, and in red pencil: pagato. Made by scripts/d2a-pictures.py. -->
+<rect width="1200" height="860" fill="#3a2e25"/>
+<rect x="70" y="40" width="1060" height="780" rx="10" fill="#f2e8cc" stroke="#c9b48a" stroke-width="4"/>
+<line x1="600" y1="40" x2="600" y2="820" stroke="#c9b48a" stroke-width="6"/>
+<line x1="110" y1="170" x2="1090" y2="170" stroke="#9ab7d0" stroke-width="2"/>
+<line x1="110" y1="260" x2="1090" y2="260" stroke="#9ab7d0" stroke-width="2"/>
+<line x1="110" y1="350" x2="1090" y2="350" stroke="#9ab7d0" stroke-width="2"/>
+<line x1="110" y1="440" x2="1090" y2="440" stroke="#9ab7d0" stroke-width="2"/>
+<line x1="110" y1="530" x2="1090" y2="530" stroke="#9ab7d0" stroke-width="2"/>
+<line x1="110" y1="620" x2="1090" y2="620" stroke="#9ab7d0" stroke-width="2"/>
+<line x1="110" y1="710" x2="1090" y2="710" stroke="#9ab7d0" stroke-width="2"/>
+<line x1="170" y1="60" x2="170" y2="800" stroke="#d88a8a" stroke-width="2"/>
+<text x="330" y="120" text-anchor="middle" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="44" fill="#2a2a5a">Conti · Gigi</text>
+<text x="860" y="120" text-anchor="middle" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="36" fill="#2a2a5a">a credito</text>
+<text x="190" y="230" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="40" fill="#2a2a5a">Pierina</text>
+<text x="520" y="230" text-anchor="end" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="38" fill="#2a2a5a">1984</text>
+<text x="830" y="230" text-anchor="end" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="40" fill="#2a2a5a">L. 7.500</text>
+<text x="870" y="230" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="40" font-style="italic" fill="#c0281a" transform="rotate(-4 870 230)">pagato</text>
+<text x="190" y="320" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="40" fill="#2a2a5a">Toni Gardin</text>
+<text x="520" y="320" text-anchor="end" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="38" fill="#2a2a5a">1984</text>
+<text x="830" y="320" text-anchor="end" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="40" fill="#2a2a5a">L. 12.000</text>
+<text x="870" y="320" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="40" font-style="italic" fill="#c0281a" transform="rotate(-4 870 320)">pagato</text>
+<text x="190" y="410" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="40" fill="#2a2a5a">la Rina</text>
+<text x="520" y="410" text-anchor="end" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="38" fill="#2a2a5a">1985</text>
+<text x="830" y="410" text-anchor="end" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="40" fill="#2a2a5a">L. 4.000</text>
+<text x="870" y="410" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="40" font-style="italic" fill="#c0281a" transform="rotate(-4 870 410)">pagato</text>
+<text x="190" y="500" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="40" fill="#2a2a5a">Bepi</text>
+<text x="520" y="500" text-anchor="end" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="38" fill="#2a2a5a">1985</text>
+<text x="830" y="500" text-anchor="end" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="40" fill="#2a2a5a">L. 20.000</text>
+<text x="870" y="500" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="40" font-style="italic" fill="#c0281a" transform="rotate(-4 870 500)">pagato</text>
+<ellipse cx="620" cy="486" rx="470" ry="44" fill="none" stroke="#c0281a" stroke-width="3" opacity="0.35"/>
+<text x="190" y="590" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="40" fill="#2a2a5a">Marisa</text>
+<text x="520" y="590" text-anchor="end" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="38" fill="#2a2a5a">1985</text>
+<text x="830" y="590" text-anchor="end" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="40" fill="#2a2a5a">L. 9.500</text>
+<text x="870" y="590" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="40" font-style="italic" fill="#c0281a" transform="rotate(-4 870 590)">pagato</text>
+<text x="190" y="680" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="40" fill="#2a2a5a">Nane</text>
+<text x="520" y="680" text-anchor="end" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="38" fill="#2a2a5a">1986</text>
+<text x="830" y="680" text-anchor="end" font-family="'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive" font-size="40" fill="#2a2a5a">L. 3.000</text>
+</svg>

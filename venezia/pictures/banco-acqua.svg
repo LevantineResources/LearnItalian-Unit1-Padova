@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900">
+<!-- Lesson 5, Scene 4: Nives's stall under water, drawn flat like Lesson 4's diagram (the photo panel and its board: engine ui/photopanel.js, ui/board.js; the regions in banco-acqua.json). Made by scripts/l5-pictures.py. -->
+<rect width="1200" height="900" fill="#eef0ee"/>
+<rect x="0" y="0" width="1200" height="600" fill="#ece4d2"/>
+<path d="M30 300 v-160 a60 60 0 0 1 120 0 v160" fill="#d8ccb2" stroke="#c4b496" stroke-width="4"/>
+<path d="M200 300 v-160 a60 60 0 0 1 120 0 v160" fill="#d8ccb2" stroke="#c4b496" stroke-width="4"/>
+<path d="M370 300 v-160 a60 60 0 0 1 120 0 v160" fill="#d8ccb2" stroke="#c4b496" stroke-width="4"/>
+<path d="M540 300 v-160 a60 60 0 0 1 120 0 v160" fill="#d8ccb2" stroke="#c4b496" stroke-width="4"/>
+<path d="M710 300 v-160 a60 60 0 0 1 120 0 v160" fill="#d8ccb2" stroke="#c4b496" stroke-width="4"/>
+<path d="M880 300 v-160 a60 60 0 0 1 120 0 v160" fill="#d8ccb2" stroke="#c4b496" stroke-width="4"/>
+<path d="M1050 300 v-160 a60 60 0 0 1 120 0 v160" fill="#d8ccb2" stroke="#c4b496" stroke-width="4"/>
+<rect x="116" y="100" width="14" height="800" fill="#6a6a70"/><rect x="830" y="100" width="14" height="800" fill="#6a6a70"/>
+<path d="M110 40 L850 40 L880 112 L80 112 Z" fill="#f4efe2" stroke="#3f6a3a" stroke-width="4"/>
+<path d="M80 112 q40 40 80 0" fill="#4f7a3d" stroke="#3f6a3a" stroke-width="3"/>
+<path d="M160 112 q40 40 80 0" fill="#f4efe2" stroke="#3f6a3a" stroke-width="3"/>
+<path d="M240 112 q40 40 80 0" fill="#4f7a3d" stroke="#3f6a3a" stroke-width="3"/>
+<path d="M320 112 q40 40 80 0" fill="#f4efe2" stroke="#3f6a3a" stroke-width="3"/>
+<path d="M400 112 q40 40 80 0" fill="#4f7a3d" stroke="#3f6a3a" stroke-width="3"/>
+<path d="M480 112 q40 40 80 0" fill="#f4efe2" stroke="#3f6a3a" stroke-width="3"/>
+<path d="M560 112 q40 40 80 0" fill="#4f7a3d" stroke="#3f6a3a" stroke-width="3"/>
+<path d="M640 112 q40 40 80 0" fill="#f4efe2" stroke="#3f6a3a" stroke-width="3"/>
+<path d="M720 112 q40 40 80 0" fill="#4f7a3d" stroke="#3f6a3a" stroke-width="3"/>
+<path d="M800 112 q40 40 80 0" fill="#f4efe2" stroke="#3f6a3a" stroke-width="3"/>
+<rect x="290" y="54" width="380" height="42" rx="8" fill="#fffdf6" stroke="#3f6a3a" stroke-width="3"/>
+<text x="480" y="83" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="700" letter-spacing="1" fill="#2d4a26">NIVES · FRUTTA E VERDURA</text>
+<rect x="200" y="262" width="560" height="16" fill="#a07a4e"/><path d="M200 278 h560 v20 q-12 14 -25 0 h-510 q-12 14 -25 0Z" fill="#3f8a4a"/>
+<rect x="214" y="298" width="12" height="600" fill="#5a4030"/><rect x="734" y="298" width="12" height="600" fill="#5a4030"/>
+<ellipse cx="260" cy="246" rx="26" ry="20" fill="#e8801f" stroke="#b8601a" stroke-width="3"/>
+<ellipse cx="314" cy="246" rx="26" ry="20" fill="#e8801f" stroke="#b8601a" stroke-width="3"/>
+<ellipse cx="368" cy="246" rx="26" ry="20" fill="#e8801f" stroke="#b8601a" stroke-width="3"/>
+<circle cx="560" cy="248" r="20" fill="#8a1f3a" stroke="#6a1a2a" stroke-width="3"/>
+<circle cx="604" cy="248" r="20" fill="#8a1f3a" stroke="#6a1a2a" stroke-width="3"/>
+<circle cx="648" cy="248" r="20" fill="#8a1f3a" stroke="#6a1a2a" stroke-width="3"/>
+<circle cx="692" cy="248" r="20" fill="#8a1f3a" stroke="#6a1a2a" stroke-width="3"/>
+<rect x="0" y="600" width="1200" height="300" fill="#b4c2bc"/>
+<line x1="80" y1="600" x2="40" y2="900" stroke="#9fb0aa" stroke-width="3"/>
+<line x1="220" y1="600" x2="180" y2="900" stroke="#9fb0aa" stroke-width="3"/>
+<line x1="360" y1="600" x2="320" y2="900" stroke="#9fb0aa" stroke-width="3"/>
+<line x1="500" y1="600" x2="460" y2="900" stroke="#9fb0aa" stroke-width="3"/>
+<line x1="640" y1="600" x2="600" y2="900" stroke="#9fb0aa" stroke-width="3"/>
+<line x1="780" y1="600" x2="740" y2="900" stroke="#9fb0aa" stroke-width="3"/>
+<line x1="920" y1="600" x2="880" y2="900" stroke="#9fb0aa" stroke-width="3"/>
+<line x1="1060" y1="600" x2="1020" y2="900" stroke="#9fb0aa" stroke-width="3"/>
+<line x1="1200" y1="600" x2="1160" y2="900" stroke="#9fb0aa" stroke-width="3"/>
+<rect x="147" y="506" width="140" height="14" rx="3" fill="#b48a58" stroke="#7a5a3a" stroke-width="2"/>
+<path d="M161 520 L143 860 M177 520 L195 860 M257 520 L239 860 M273 520 L291 860" stroke="#8a6440" stroke-width="9" stroke-linecap="round"/>
+<line x1="151" y1="700" x2="283" y2="700" stroke="#8a6440" stroke-width="6"/>
+<rect x="322" y="506" width="140" height="14" rx="3" fill="#b48a58" stroke="#7a5a3a" stroke-width="2"/>
+<path d="M336 520 L318 860 M352 520 L370 860 M432 520 L414 860 M448 520 L466 860" stroke="#8a6440" stroke-width="9" stroke-linecap="round"/>
+<line x1="326" y1="700" x2="458" y2="700" stroke="#8a6440" stroke-width="6"/>
+<rect x="498" y="506" width="140" height="14" rx="3" fill="#b48a58" stroke="#7a5a3a" stroke-width="2"/>
+<path d="M512 520 L494 860 M528 520 L546 860 M608 520 L590 860 M624 520 L642 860" stroke="#8a6440" stroke-width="9" stroke-linecap="round"/>
+<line x1="502" y1="700" x2="634" y2="700" stroke="#8a6440" stroke-width="6"/>
+<rect x="673" y="506" width="140" height="14" rx="3" fill="#b48a58" stroke="#7a5a3a" stroke-width="2"/>
+<path d="M687 520 L669 860 M703 520 L721 860 M783 520 L765 860 M799 520 L817 860" stroke="#8a6440" stroke-width="9" stroke-linecap="round"/>
+<line x1="677" y1="700" x2="809" y2="700" stroke="#8a6440" stroke-width="6"/>
+<rect x="0" y="600" width="1200" height="300" fill="#2f7a92" opacity="0.5"/>
+<rect x="0" y="598" width="1200" height="4" fill="#e8f4f6" opacity="0.6"/>
+<path d="M60 640 q20 -8 40 0 t40 0" stroke="#e8f4f6" stroke-width="3" fill="none" opacity="0.7"/>
+<path d="M300 700 q20 -8 40 0 t40 0" stroke="#e8f4f6" stroke-width="3" fill="none" opacity="0.7"/>
+<path d="M540 660 q20 -8 40 0 t40 0" stroke="#e8f4f6" stroke-width="3" fill="none" opacity="0.7"/>
+<path d="M820 720 q20 -8 40 0 t40 0" stroke="#e8f4f6" stroke-width="3" fill="none" opacity="0.7"/>
+<path d="M980 640 q20 -8 40 0 t40 0" stroke="#e8f4f6" stroke-width="3" fill="none" opacity="0.7"/>
+<path d="M160 800 q20 -8 40 0 t40 0" stroke="#e8f4f6" stroke-width="3" fill="none" opacity="0.7"/>
+<path d="M700 820 q20 -8 40 0 t40 0" stroke="#e8f4f6" stroke-width="3" fill="none" opacity="0.7"/>
+<path d="M1040 820 q20 -8 40 0 t40 0" stroke="#e8f4f6" stroke-width="3" fill="none" opacity="0.7"/>
+<rect x="896" y="842" width="296" height="16" rx="3" fill="#7a6a4e" opacity="0.8"/>
+<text x="1040" y="582" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="26" fill="#6a6a62">per terra</text>
+<rect x="400" y="556" width="160" height="30" rx="8" fill="#fffdf6" opacity="0.85"/>
+<text x="480" y="578" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="24" fill="#5a5a52">sui cavalletti</text>
+<text x="480" y="186" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="24" fill="#5a5a52">il banco: pieno</text>
+<text x="160" y="880" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="24" fill="#5a5a52">nell’acqua</text>
+</svg>

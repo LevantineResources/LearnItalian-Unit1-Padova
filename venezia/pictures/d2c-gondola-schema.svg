@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 800" width="1400" height="800">
+<!-- A gondola from above and from the bow (C3b): about 11 m long, built crooked (the left side wider), the ferro on the bow, the forcola. Made by scripts/d2c-pictures.js; regions (if any) in the .json beside it. -->
+<rect width="1400" height="800" fill="#f2ecdc"/>
+<text x="60" y="70" font-family="Georgia, serif" font-size="40" fill="#3a3030">La gondola</text><text x="60" y="108" font-family="Helvetica, Arial, sans-serif" font-size="22" fill="#6a5a4a">280 pieces · 8 kinds of wood · made by hand</text>
+<g transform="translate(120 330)"><path d="M0 0 Q500 -150 1000 -20 Q1060 -8 1120 -40 Q1060 30 1000 30 Q500 115 0 10 Z" fill="#1b1b1b"/>
+<path d="M60 4 Q500 -110 980 -6" stroke="#5a5a5a" stroke-width="3" fill="none" stroke-dasharray="10 8"/>
+<path d="M1110 -44 L1160 -84 L1170 -70 L1124 -34 Z" fill="#c8c8c0"/><text x="1080" y="-100" font-family="Helvetica, Arial, sans-serif" font-size="24" fill="#3a3030">il ferro</text>
+<path d="M230 -40 l12 -40 l14 0 l-6 22 l10 0 l-4 20 z" fill="#8a5a2a"/><text x="200" y="-110" font-family="Helvetica, Arial, sans-serif" font-size="24" fill="#3a3030">la forcola</text>
+<path d="M0 130 H1120" stroke="#6a5a4a" stroke-width="3"/><path d="M0 120 V140 M1120 120 V140" stroke="#6a5a4a" stroke-width="3"/><text x="560" y="170" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="26" fill="#3a3030">about 11 m</text>
+<text x="520" y="-120" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="24" fill="#c23b2a">left side: wider</text><text x="520" y="98" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="24" fill="#3a6a8a">right side: narrower</text></g>
+<g transform="translate(1040 620)"><path d="M-120 -40 Q0 70 140 -60 L120 -70 Q0 30 -110 -50 Z" fill="#1b1b1b"/><path d="M0 -80 V60" stroke="#c23b2a" stroke-width="3" stroke-dasharray="8 6"/>
+<circle cx="70" cy="-90" r="12" fill="#3a3030"/><path d="M70 -78 V-20" stroke="#3a3030" stroke-width="8"/><text x="-150" y="110" font-family="Helvetica, Arial, sans-serif" font-size="22" fill="#3a3030">from the bow: it lists to the right,</text><text x="-150" y="140" font-family="Helvetica, Arial, sans-serif" font-size="22" fill="#3a3030">against the gondolier’s weight</text></g>
+<text x="60" y="620" font-family="Helvetica, Arial, sans-serif" font-size="24" fill="#3a3030">One oar, on the right:</text><text x="60" y="654" font-family="Helvetica, Arial, sans-serif" font-size="24" fill="#3a3030">the crooked hull keeps it straight.</text>
+</svg>

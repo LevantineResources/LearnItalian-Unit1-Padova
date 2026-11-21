@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900">
+<!-- Lesson 4: Nives's stall, seen from the front, drawn flat like a diagram (the photo panel and its board: engine ui/photopanel.js, ui/board.js; its regions in banco-nives.json). Made by scripts/l4-pictures.py. -->
+<rect width="1200" height="900" fill="#f6f1e4"/>
+<rect x="0" y="760" width="1200" height="140" fill="#d9d2c2"/>
+<line x1="80" y1="760" x2="40" y2="900" stroke="#c4bba8" stroke-width="3"/>
+<line x1="220" y1="760" x2="180" y2="900" stroke="#c4bba8" stroke-width="3"/>
+<line x1="360" y1="760" x2="320" y2="900" stroke="#c4bba8" stroke-width="3"/>
+<line x1="500" y1="760" x2="460" y2="900" stroke="#c4bba8" stroke-width="3"/>
+<line x1="640" y1="760" x2="600" y2="900" stroke="#c4bba8" stroke-width="3"/>
+<line x1="780" y1="760" x2="740" y2="900" stroke="#c4bba8" stroke-width="3"/>
+<line x1="920" y1="760" x2="880" y2="900" stroke="#c4bba8" stroke-width="3"/>
+<line x1="1060" y1="760" x2="1020" y2="900" stroke="#c4bba8" stroke-width="3"/>
+<line x1="1200" y1="760" x2="1160" y2="900" stroke="#c4bba8" stroke-width="3"/>
+<line x1="0" y1="830" x2="1200" y2="830" stroke="#c4bba8" stroke-width="3"/>
+<rect x="880" y="0" width="320" height="760" fill="#efe7d4"/>
+<path d="M880 0 V760" stroke="#d8ccb2" stroke-width="4"/>
+<rect x="896" y="742" width="296" height="16" rx="3" fill="#a07a4e"/><rect x="904" y="758" width="22" height="14" fill="#7a5a3a"/><rect x="1033" y="758" width="22" height="14" fill="#7a5a3a"/><rect x="1162" y="758" width="22" height="14" fill="#7a5a3a"/>
+<text x="1040" y="56" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="26" fill="#8a7a62">dalla barca</text>
+<path d="M960 70 q80 26 160 0" stroke="#b8a888" stroke-width="3" fill="none" stroke-dasharray="8 8"/>
+<rect x="96" y="140" width="14" height="625" fill="#6a6a70"/><rect x="790" y="140" width="14" height="625" fill="#6a6a70"/>
+<path d="M90 60 L810 60 L840 140 L60 140 Z" fill="#f4efe2" stroke="#3f6a3a" stroke-width="4"/>
+<path d="M90 60 L162 60 L138 140 L60 140 Z" fill="#4f7a3d" opacity="0.92"/>
+<path d="M234 60 L306 60 L294 140 L216 140 Z" fill="#4f7a3d" opacity="0.92"/>
+<path d="M378 60 L450 60 L450 140 L372 140 Z" fill="#4f7a3d" opacity="0.92"/>
+<path d="M522 60 L594 60 L606 140 L528 140 Z" fill="#4f7a3d" opacity="0.92"/>
+<path d="M666 60 L738 60 L762 140 L684 140 Z" fill="#4f7a3d" opacity="0.92"/>
+<path d="M60 140 q39 46 78 0" fill="#4f7a3d" stroke="#3f6a3a" stroke-width="3"/>
+<path d="M138 140 q39 46 78 0" fill="#f4efe2" stroke="#3f6a3a" stroke-width="3"/>
+<path d="M216 140 q39 46 78 0" fill="#4f7a3d" stroke="#3f6a3a" stroke-width="3"/>
+<path d="M294 140 q39 46 78 0" fill="#f4efe2" stroke="#3f6a3a" stroke-width="3"/>
+<path d="M372 140 q39 46 78 0" fill="#4f7a3d" stroke="#3f6a3a" stroke-width="3"/>
+<path d="M450 140 q39 46 78 0" fill="#f4efe2" stroke="#3f6a3a" stroke-width="3"/>
+<path d="M528 140 q39 46 78 0" fill="#4f7a3d" stroke="#3f6a3a" stroke-width="3"/>
+<path d="M606 140 q39 46 78 0" fill="#f4efe2" stroke="#3f6a3a" stroke-width="3"/>
+<path d="M684 140 q39 46 78 0" fill="#4f7a3d" stroke="#3f6a3a" stroke-width="3"/>
+<path d="M762 140 q39 46 78 0" fill="#f4efe2" stroke="#3f6a3a" stroke-width="3"/>
+<rect x="255" y="76" width="390" height="44" rx="8" fill="#fffdf6" stroke="#3f6a3a" stroke-width="3"/>
+<text x="450" y="106" text-anchor="middle" font-family="Georgia, serif" font-size="23" font-weight="700" letter-spacing="1" fill="#2d4a26">NIVES · FRUTTA E VERDURA</text>
+<rect x="240" y="292" width="420" height="16" fill="#8a6440"/><rect x="254" y="200" width="10" height="94" fill="#6a4a2c"/><rect x="636" y="200" width="10" height="94" fill="#6a4a2c"/>
+<rect x="200" y="436" width="620" height="18" fill="#a07a4e"/>
+<path d="M200 454 h620 v22 q-12 16 -25 0 q-12 16 -25 0 h-520 q-12 16 -25 0 q-12 16 -25 0 Z" fill="#3f8a4a"/>
+<rect x="200" y="500" width="620" height="70" fill="#356f3d"/><rect x="200" y="570" width="620" height="12" fill="#2a5a32"/>
+<rect x="210" y="582" width="400" height="118" fill="#efe6d2" opacity="0.55"/>
+<rect x="622" y="582" width="188" height="118" fill="#4a3a2e" opacity="0.8"/>
+<rect x="200" y="700" width="620" height="12" fill="#5a4030"/><rect x="200" y="582" width="10" height="130" fill="#5a4030"/><rect x="612" y="582" width="10" height="118" fill="#5a4030"/><rect x="810" y="582" width="10" height="130" fill="#5a4030"/>
+<rect x="40" y="370" width="10" height="395" fill="#6a4a2c"/><rect x="206" y="370" width="10" height="395" fill="#6a4a2c"/>
+<path d="M42 470 L214 456 L214 468 L42 482 Z" fill="#a07a4e"/>
+<path d="M42 590 L214 576 L214 588 L42 602 Z" fill="#a07a4e"/>
+<path d="M42 700 L214 686 L214 698 L42 712 Z" fill="#a07a4e"/>
+<rect x="782" y="384" width="22" height="52" rx="6" fill="#b8402a"/><rect x="780" y="376" width="26" height="10" rx="3" fill="#d8d8d8"/>
+<rect x="214" y="406" width="64" height="30" rx="4" fill="#d8d8d8" stroke="#8a8a90" stroke-width="2"/><circle cx="246" cy="402" r="12" fill="#f4f4f4" stroke="#8a8a90" stroke-width="2"/>
+<g><rect x="372" y="4" width="156" height="44" rx="22" fill="#fffdf6" stroke="#1c3d8f" stroke-width="3" opacity="0.95"/><text x="450" y="37" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-weight="700" font-size="35" fill="#1c3d8f">intorno</text></g>
+<g><rect x="280" y="300" width="340" height="44" rx="22" fill="#fffdf6" stroke="#1c3d8f" stroke-width="3" opacity="0.95"/><text x="450" y="333" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-weight="700" font-size="35" fill="#1c3d8f">in fondo, in alto</text></g>
+<g><rect x="372" y="456" width="156" height="44" rx="22" fill="#fffdf6" stroke="#1c3d8f" stroke-width="3" opacity="0.95"/><text x="450" y="489" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-weight="700" font-size="35" fill="#1c3d8f">davanti</text></g>
+<g><rect x="324" y="698" width="137" height="44" rx="22" fill="#fffdf6" stroke="#1c3d8f" stroke-width="3" opacity="0.95"/><text x="392" y="731" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-weight="700" font-size="35" fill="#1c3d8f">dentro</text></g>
+<g><rect x="564" y="698" width="285" height="44" rx="22" fill="#fffdf6" stroke="#1c3d8f" stroke-width="3" opacity="0.95"/><text x="706" y="731" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-weight="700" font-size="35" fill="#1c3d8f">sotto il banco</text></g>
+<g><rect x="50" y="318" width="156" height="44" rx="22" fill="#fffdf6" stroke="#1c3d8f" stroke-width="3" opacity="0.95"/><text x="128" y="351" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-weight="700" font-size="35" fill="#1c3d8f">di lato</text></g>
+<g><rect x="581" y="852" width="118" height="44" rx="22" fill="#fffdf6" stroke="#1c3d8f" stroke-width="3" opacity="0.95"/><text x="640" y="885" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-weight="700" font-size="35" fill="#1c3d8f">fuori</text></g>
+</svg>
