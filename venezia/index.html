@@ -41339,6 +41339,7 @@ function loop(ts){
 const VZ_PERSON = 1.75 * 24 / 46;
 UNIT.drawPerson = (p, t) => { if (!VZ_SNAP.on) vzPerson(ctx, p, t); return true; };     // (a snapshot of the city: no one: world/sanmarco.js vzSnapshot)
 function vzPerson(g, p, t){
+  if (p.isPlayer && typeof phoneCamOn === 'function' && phoneCamOn()) return;   // (the phone's camera is up: the photographer isn't in the picture, so the cats aren't hidden behind you: engine/ui/camera.js)
   if (p.isPlayer && typeof pozzoWear === 'function' && pozzoWear()) p = pozzoDress(p);      // (the sailor's outfit: world/pozzo.js, render/pozzo.js)
   if (p.isPlayer && typeof gtWear === 'function' && gtWear()) p = { ...p, gnaga:true };      // (the gnaga, the cat mask: world/gatti.js, render/gatti.js)
   if (p.carriedBy) return;                         // (a dog in someone's arms is drawn with them: the high water, world/flood.js)
