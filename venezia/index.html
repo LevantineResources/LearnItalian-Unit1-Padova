@@ -32595,6 +32595,23 @@ const FX_ITEM = (id, label, it, en, color, shape, o) => ({ id, label, it, en, co
    - the Doge's Palace's arcade is the sketch's ':' row 57, one row inside the block: it is moved to the palace's own
      bottom row, where it opens onto the Molo (the palace's front faces south, over the water). */
 const VZ_PLACES = {
+  /* the smoothing (the designer's playtest of 24 Nov: "many parts of San Marco's map get a little smoothed out to avoid these
+     uneven edges"; docs/venezia-san-marco.md, "As built (San Marco smoothed, 24 Nov)"), San Marco only (the other districts'
+     places have neither, so their converter output is as it was):
+     - laneTol: a lane line with a slanting stretch is simplified at 3.5 m, not 1.5 m (world/tiles.js), so the Mercerie's zigzag of
+       short diagonals and short north–south bits is one straight diagonal each between its junctions (Marzaria San Zulian past the
+       bakery, the calli north of it), not four or five slants, each with its own ends and steps;
+     - smooth: the blocks' edges along the walk are cleaned last (world/tiles.js vzSmoothEdges): no tile of building poking into a
+       calle or a campo (a nub), no tile of walk poking into a block (a dent) that leads nowhere, no strip of building one or two
+       tiles thick between two walks (a sliver), no blocks touching only at a corner, no stray step of a tile off a straight front. */
+  laneTol:3.5,
+  straight:0.4,
+  smooth:true,
+  /* (left as they were: what District 1 draws over the houses there, without a footprint of its own: world/d1-c.js) */
+  smoothKeep:[
+    { rect:[8.5, 37.5, 14.25, 39.5], why:"San Vidal's front and the calle beside it: the houses it stands over keep their line" },
+    { rect:[17.5, 23.5, 21, 25.5], why:"Santo Stefano's front, likewise" },
+  ],
   edits:[
     { rect:[68, 46, 76, 48], to:'.', why:"the Basilica's sagrato: its front faces south over it" },
     { rect:[70, 57, 76, 57], to:'#', why:"the Doge's Palace's arcade moves to its bottom row (the palace draws it)" },
@@ -32621,7 +32638,7 @@ const VZ_PLACES = {
     { id:'basilica', poi:'p2', cells:[68, 38, 76, 45], tall:26, name:'Basilica di San Marco' },
     { id:'ducale', poi:'p6', cells:[70, 49, 76, 58], arcade:4, tall:22, name:'Palazzo Ducale' },
     { id:'campanile', poi:'p3', cells:[64, 46, 65, 47], tall:45, name:'Il Campanile' },
-    { id:'orologio', poi:'p4', cells:[63, 38, 65, 39], passage:4, tall:24, name:"Torre dell'Orologio" },
+    { id:'orologio', poi:'p4', cells:[63, 38, 65, 39], passage:4, centre:true, tall:24, name:"Torre dell'Orologio" },     // (centre: its arch in the middle, the smoothing's Mercerie led to it)
     { id:'zaccaria', poi:'p13', cells:[87, 44, 90, 50], tall:22, name:'San Zaccaria' },
   ],
   /* open cells that are campi though no 4 × 4 block of open cells holds them (world/tiles.js would narrow them into a lane):
@@ -33403,6 +33420,13 @@ function* vzConvert(SKETCH, VZ_PLACES){
     const pieces = [];
     chains.forEach(ch => {
       let P = dp(ch.pts, 1.5);
+      /* (San Marco smoothed, VZ_PLACES.laneTol: a line mostly slanting (the Mercerie's zigzags) is simplified more loosely, so it is one
+         straight diagonal or a few, not many short ones; a mostly straight street keeps its line) */
+      if (VZ_PLACES.laneTol){
+        let all = 0, sl = 0;
+        P.forEach((p, k) => { if (!k) return; const dx = Math.abs(p[0] - P[k - 1][0]), dy = Math.abs(p[1] - P[k - 1][1]), L = Math.hypot(dx, dy); all += L; if (dx > 0.25 * dy && dy > 0.25 * dx) sl += L; });
+        if (sl >= 0.5 * all) P = dp(ch.pts, VZ_PLACES.laneTol);
+      }
       const cuts = [0];
       for (let k = 1; k < P.length - 1; k++){ const a1 = Math.atan2(P[k][1] - P[k - 1][1], P[k][0] - P[k - 1][0]), a2 = Math.atan2(P[k + 1][1] - P[k][1], P[k + 1][0] - P[k][0]); let d = Math.abs(a2 - a1); if (d > Math.PI) d = 2 * Math.PI - d; if (d > 50 * Math.PI / 180) cuts.push(k); }
       cuts.push(P.length - 1);
@@ -33455,8 +33479,9 @@ function* vzConvert(SKETCH, VZ_PLACES){
     pieces.forEach(pc => {
       for (let s = 0; s + 1 < pc.pts.length; s++){
         const [a, b] = [pc.pts[s], pc.pts[s + 1]], dx = b[0] - a[0], dy = b[1] - a[1];
-        if (Math.abs(dx) <= Math.max(0.75, Math.abs(dy) * 0.25)){ const x = snapC((a[0] + b[0]) / 2, pc.w); a[0] = x; b[0] = x; }       // (within 14° of straight: straight)
-        else if (Math.abs(dy) <= Math.max(0.75, Math.abs(dx) * 0.25)){ const y = snapC((a[1] + b[1]) / 2, pc.w); a[1] = y; b[1] = y; }
+        const st = VZ_PLACES.straight || 0.25;                   // (San Marco smoothed: within 22°, a slope a sheared front can't follow)
+        if (Math.abs(dx) <= Math.max(0.75, Math.abs(dy) * st)){ const x = snapC((a[0] + b[0]) / 2, pc.w); a[0] = x; b[0] = x; }       // (within 14° of straight: straight)
+        else if (Math.abs(dy) <= Math.max(0.75, Math.abs(dx) * st)){ const y = snapC((a[1] + b[1]) / 2, pc.w); a[1] = y; b[1] = y; }
       }
       pc.diag = pc.pts.some((p, s) => s > 0 && Math.abs(p[0] - pc.pts[s - 1][0]) > 0.01 && Math.abs(p[1] - pc.pts[s - 1][1]) > 0.01);
       if (pc.diag) pc.w = Math.max(pc.w, 3);                 // (a slanting lane is cut in steps of a tile: 3 m keeps a person's way clear)
@@ -33649,7 +33674,21 @@ function* vzConvert(SKETCH, VZ_PLACES){
   /* the landmarks' footprints (solid), their walkable arcades; the clock tower's arch is cut where the lane north of it arrives */
   landmarks.forEach(l => {
     const [x0, y0, x1, y1] = l.cells, tx0 = x0 * N, tx1 = (x1 + 1) * N, ty0 = y0 * N, ty1 = (y1 + 1) * N;
-    if (l.passage){
+    if (l.passage && l.centre){
+      /* (San Marco smoothed: the clock tower's arch in the middle of its front, as it is, whichever way the Mercerie's last stretch
+         comes: the calle is paved straight down to it from the lane above, up to 8 m) */
+      const a = tx0 + Math.floor((tx1 - tx0 - l.passage) / 2), b = a + l.passage - 1;
+      for (let i = tx0; i < tx1; i++){                           // (and in front of the whole tower: no strip of roof left against it)
+        const cut = []; let met = false;
+        for (let j = ty0 - 1; j >= ty0 - 8 && !met; j--){ if (walkT(i, j)) met = true; else if (getT(i, j) === VZT.BLDG) cut.push([i, j]); else break; }
+        if (met) cut.forEach(([i2, j2]) => setT(i2, j2, VZT.PAVE));
+      }
+      for (let j = ty0 - 2; j < ty1; j++) for (const [i1, i2, i3] of [[tx1, tx1 + 1, tx1 + 2], [tx0 - 1, tx0 - 2, tx0 - 3]]){     // (nor a strip a metre or two wide beside it)
+        if (getT(i1, j) === VZT.BLDG && walkT(i2, j)) setT(i1, j, VZT.PAVE);
+        else if (getT(i1, j) === VZT.BLDG && getT(i2, j) === VZT.BLDG && walkT(i3, j)){ setT(i1, j, VZT.PAVE); setT(i2, j, VZT.PAVE); }
+      }
+      l.passage = [a - tx0, b + 1 - tx0];
+    } else if (l.passage){
       /* the lane arriving: the nearest row above (up to 5 m) with walkable tiles over the footprint; the gap to it is paved */
       let a = 1e9, b = -1, jr = ty0 - 1;
       for (; jr >= ty0 - 5 && b < 0; jr--) for (let i = tx0; i < tx1; i++) if (walkT(i, jr)){ a = Math.min(a, i); b = Math.max(b, i); }
@@ -33813,6 +33852,7 @@ function* vzConvert(SKETCH, VZ_PLACES){
       }
     }
     VZ_LANEGEO.nubsFixed = fixed.length;
+    if (VZ_PLACES.smooth){ const t1 = performance.now(); VZ_LANEGEO.smoothed = vzSmoothEdges(); VZ_LANEGEO.smoothMs = Math.round(performance.now() - t1); }
     /* and a pocket of pavement cut off from every walk (a few tiles freed beside a rio that steps diagonally, walled in by the
        houses and the water) becomes building: no one could reach it (San Marco has none) */
     const seen = new Uint8Array(cols * rows); let pockets = 0;
@@ -33823,6 +33863,175 @@ function* vzConvert(SKETCH, VZ_PLACES){
       if (comp.length <= 24 && comp.every(k => t[k] === VZT.PAVE)){ comp.forEach(k => { t[k] = VZT.BLDG; }); pockets++; }
     }
     VZ_LANEGEO.pockets = pockets;
+  }
+  /* San Marco smoothed (VZ_PLACES.smooth: the designer's playtest of 24 Nov, "many parts of San Marco's map get a little smoothed out
+     to avoid these uneven edges"): the blocks' edges along the walk made straight runs or clean steps. Only plain building (BLDG) and
+     plain pavement (PAVE) change, never within a tile of the water, a bridge, a gate, a pontoon or a landmark, nor at a door or a point
+     of interest. First the doorsteps: a door whose cell has no open ground south of it (the bakery's) stands on a slanting calle too
+     steep for a front (a sheared front is drawn up to a slope of 2.6), so a small recess is cut in the block, its north side a flat
+     front 6 m wide for the door, open down to the calle. Then, until nothing changes: a tile of building with walk on three sides
+     (a nub) becomes walk; a tile of walk with building on three sides (a dent, a step to nowhere) becomes building; a strip of
+     building one or two tiles thick between two walks (a sliver) becomes walk; two tiles of building touching only at a corner (a
+     pinch) are joined; the same along the water; then the stray steps (below). Returns what it changed, by kind. */
+  function vzSmoothEdges(){
+    const done = { recess:0, nub:0, dent:0, sliver:0, pinch:0 };
+    const WALKK = k => k === VZT.PAVE || k === VZT.ARCADE || k === VZT.GARDEN || k === VZT.PATH;
+    const isB2 = (i, j) => getT(i, j) === VZT.BLDG, isW = (i, j) => i >= 0 && j >= 0 && i < cols && j < rows && WALKK(t[j * cols + i]);
+    const faceAt = (i, j0) => { let j = j0; while (j < rows - 1 && !(isB2(i, j) && !isB2(i, j + 1))) j++; return j; };
+    /* the doorsteps */
+    doors.filter(d => d.nook).forEach(d => {
+      const tx = d.tx, F = [];
+      for (let i = tx - 2; i <= tx + 2; i++) F.push(faceAt(i, d.cy * N));
+      if (F.every(j => j === F[0])) return;                                   // (a flat front already)
+      /* the recess: 6 m from the door's column east, its front 4 m above the block's foot there, open down to the calle */
+      const jf = faceAt(tx, d.cy * N), top = jf - 4;
+      for (let i = tx; i <= tx + 5; i++){
+        const fj = Math.min(faceAt(i, d.cy * N), jf + 6);
+        for (let j = top + 1; j <= fj; j++){ const [cx, cy] = cellOfT(i, j); if (isB2(i, j) && lmAt(cx, cy) < 0 && cell(cx, cy) !== 'X'){ t[j * cols + i] = VZT.PAVE; done.recess++; } }
+      }
+      d.tx = tx + 4; d.x = d.tx * TS; d.recess = [tx, top + 1, tx + 5, jf];          // (the door 4 m along its front: the shop window west of it)
+    });
+    /* what is left alone */
+    const keep = new Uint8Array(cols * rows), cellOff = new Uint8Array(CW * CH);
+    for (let y = 0; y < CH; y++) for (let x = 0; x < CW; x++) cellOff[y * CW + x] = lmAt(x, y) >= 0 || cell(x, y) === 'X' ? 1 : 0;
+    for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++){
+      const k = t[j * cols + i];
+      if (j < 12 || cellOff[Math.floor(j / N) * CW + Math.floor(i / N)] || (k !== VZT.BLDG && !WALKK(k))){
+        for (let b = -1; b <= 1; b++) for (let a = -1; a <= 1; a++){ const u = i + a, v = j + b; if (u >= 0 && v >= 0 && u < cols && v < rows) keep[v * cols + u] = 1; }
+      }
+    }
+    const keepBox = (x0, y0, x1, y1) => { for (let j = Math.max(0, y0); j <= Math.min(rows - 1, y1); j++) for (let i = Math.max(0, x0); i <= Math.min(cols - 1, x1); i++) keep[j * cols + i] = 1; };
+    doors.forEach(d => { const jf = faceAt(d.tx, d.cy * N); keepBox(d.tx - 3, jf - 1, d.tx + 3, jf + 3); });
+    SKETCH.pois.forEach(p => keepBox(p.x * N + 1, p.y * N + 1, p.x * N + 2, p.y * N + 2));
+    (VZ_PLACES.smoothKeep || []).forEach(({ rect:[x0, y0, x1, y1] }) => keepBox(Math.floor(x0 * N), Math.floor(y0 * N), Math.ceil(x1 * N) - 1, Math.ceil(y1 * N) - 1));
+    const flip = (i, j, k, kind) => { if (keep[j * cols + i]) return false; const was = t[j * cols + i]; if (k === VZT.PAVE ? was !== VZT.BLDG : was !== VZT.PAVE) return false; t[j * cols + i] = k; done[kind]++; return true; };
+    for (let pass = 0; pass < 8; pass++){
+      let n = 0;
+      for (let j = 1; j < rows - 1; j++) for (let i = 1; i < cols - 1; i++){
+        const q = j * cols + i, k0 = t[q];
+        if (keep[q] || (k0 !== VZT.BLDG && k0 !== VZT.PAVE)) continue;
+        if (k0 === VZT.BLDG ? !(WALKK(t[q - 1]) || WALKK(t[q + 1]) || WALKK(t[q - cols]) || WALKK(t[q + cols])) : (t[q - 1] !== VZT.BLDG && t[q + 1] !== VZT.BLDG && t[q - cols] !== VZT.BLDG && t[q + cols] !== VZT.BLDG)) continue;      // (not on an edge)
+        const b = isB2(i, j), Wn = [isW(i, j - 1), isW(i + 1, j), isW(i, j + 1), isW(i - 1, j)], Bn = [isB2(i, j - 1), isB2(i + 1, j), isB2(i, j + 1), isB2(i - 1, j)];
+        if (b){
+          if (Wn.filter(Boolean).length >= 3){ n += flip(i, j, VZT.PAVE, 'nub'); continue; }
+          if ((Wn[0] && Wn[2]) || (Wn[1] && Wn[3])){ n += flip(i, j, VZT.PAVE, 'sliver'); continue; }
+          /* two thick: this tile and the next one way, walk past both */
+          if (Wn[3] && isB2(i + 1, j) && isW(i + 2, j) && !keep[j * cols + i + 1]){ n += flip(i, j, VZT.PAVE, 'sliver') + flip(i + 1, j, VZT.PAVE, 'sliver'); continue; }
+          if (Wn[0] && isB2(i, j + 1) && isW(i, j + 2) && !keep[(j + 1) * cols + i]){ n += flip(i, j, VZT.PAVE, 'sliver') + flip(i, j + 1, VZT.PAVE, 'sliver'); continue; }
+          /* a pinch: building diagonal to building, walk in the other two corners of the square */
+          for (const [a, c] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) if (isB2(i + a, j + c) && isW(i + a, j) && isW(i, j + c)){ n += flip(i + a, j, VZT.BLDG, 'pinch'); break; }
+        } else if (t[j * cols + i] === VZT.PAVE && Bn.filter(Boolean).length >= 3) n += flip(i, j, VZT.BLDG, 'dent');
+      }
+      if (!n) break;
+    }
+    /* the blocks' edges along the water the same way (a tile of building poking into a rio or the canal, a tile of water into a block, a
+       strip of building up to two tiles thick between two waters, or three thick and at most 8 m long: the stub a narrowed rio leaves at
+       its mouth), away from the walk, the bridges, the pontoons and the landmarks */
+    {
+      const keepW = new Uint8Array(cols * rows), isWa = (i, j) => getT(i, j) === VZT.WATER && j < rows - VZ_PAD * N;
+      for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++){
+        const k = t[j * cols + i];
+        if (j < 12 || j >= rows - VZ_PAD * N - 2 || cellOff[Math.floor(j / N) * CW + Math.floor(i / N)] || (k !== VZT.BLDG && k !== VZT.WATER)){
+          for (let b = -2; b <= 2; b++) for (let a = -2; a <= 2; a++){ const u = i + a, v = j + b; if (u >= 0 && v >= 0 && u < cols && v < rows) keepW[v * cols + u] = 1; }
+        }
+      }
+      for (let k = 0; k < keep.length; k++) if (keep[k] && t[k] !== VZT.WATER && t[k] !== VZT.BLDG) keepW[k] = 1;
+      doors.forEach(d => { for (let j = d.cy * N - 6; j <= d.cy * N + 10; j++) for (let i = d.tx - 6; i <= d.tx + 6; i++) if (i >= 0 && j >= 0 && i < cols && j < rows) keepW[j * cols + i] = 1; });
+      const flipW = (i, j, k, kind) => { if (keepW[j * cols + i]) return 0; const was = t[j * cols + i]; if (was !== (k === VZT.WATER ? VZT.BLDG : VZT.WATER)) return 0; t[j * cols + i] = k; done[kind] = (done[kind] || 0) + 1; return 1; };
+      for (let pass = 0; pass < 6; pass++){
+        let n = 0;
+        for (let j = 1; j < rows - 1; j++) for (let i = 1; i < cols - 1; i++){
+          if (keepW[j * cols + i]) continue;
+          const k0 = t[j * cols + i]; if (k0 !== VZT.BLDG && k0 !== VZT.WATER) continue;
+          const Wn = [isWa(i, j - 1), isWa(i + 1, j), isWa(i, j + 1), isWa(i - 1, j)], Bn = [isB2(i, j - 1), isB2(i + 1, j), isB2(i, j + 1), isB2(i - 1, j)];
+          if (k0 === VZT.WATER){ if (Bn.filter(Boolean).length >= 3) n += flipW(i, j, VZT.BLDG, 'wdent'); continue; }
+          if (Wn.filter(Boolean).length >= 3 || (Wn[0] && Wn[2]) || (Wn[1] && Wn[3])){ n += flipW(i, j, VZT.WATER, 'wnub'); continue; }
+          /* two or three thick, this tile the first of them (water before it) */
+          for (const [a, b] of [[0, 1], [1, 0]]){
+            if (!isWa(i - a, j - b)) continue;
+            let th = 0; while (th < 4 && isB2(i + a * th, j + b * th)) th++;
+            if (th > 3 || !isWa(i + a * th, j + b * th)) continue;
+            if (th === 3){
+              /* (three thick: only a short stub, at most 8 m along) */
+              let len = 1; for (const sg of [-1, 1]) for (let q = 1; q < 10; q++){ const u = i + b * q * sg, v = j + a * q * sg; let ok = isWa(u - a, v - b) && isWa(u + a * 3, v + b * 3); for (let r = 0; r < 3 && ok; r++) ok = isB2(u + a * r, v + b * r); if (!ok) break; len++; }
+              if (len > 8) continue;
+            }
+            for (let r = 0; r < th; r++) n += flipW(i + a * r, j + b * r, VZT.WATER, 'wsliver');
+            break;
+          }
+        }
+        if (!n) break;
+      }
+    }
+    /* the stray steps: a front (or a back) one or two tiles long between two steps, away from the slanting lanes (whose edges are
+       steps all along, drawn on their true line: the slants as they are traced now, vzTraceSlants): the tiles under it, or over it, change sides when that leaves fewer faults round
+       it and the walk round it still joined (a step at a junction where two calli are a tile out of line) */
+    let DG = vzTraceSlants().DIAGT;
+    const nearSlant = (i, j) => { for (let b = -1; b <= 0; b++) for (let a = -1; a <= 1; a++){ const u = i + a, v = j + b; if (u >= 0 && v >= 0 && u < cols && v < rows && DG[v * cols + u]) return true; } return false; };
+    const strays = (x0, y0, x1, y1) => {
+      const out = [], B = VZT.BLDG;
+      for (const S2 of [true, false]) for (let j = Math.max(1, y0); j <= Math.min(rows - 1, y1); j++){
+        const up = (j - 1) * cols, dn = j * cols, on = x => S2 ? (t[up + x] === B && WALKK(t[dn + x])) : (WALKK(t[up + x]) && t[dn + x] === B);
+        let i = Math.max(0, x0 - 3); const lim = Math.min(cols - 1, x1 + 3);
+        while (i <= lim){ if (!on(i)){ i++; continue; } let e = i; while (e + 1 < cols && on(e + 1)) e++; if (e - i + 1 <= 2 && e >= x0 && i <= x1 && !keep[dn + i] && !nearSlant(i, j)) out.push({ S:S2, j, i0:i, i1:e }); i = e + 1; }
+      }
+      return out;
+    };
+    const local = (x0, y0, x1, y1) => {
+      let n2 = strays(x0, y0, x1, y1).length;
+      for (let j = Math.max(1, y0); j <= Math.min(rows - 2, y1); j++) for (let i = Math.max(1, x0); i <= Math.min(cols - 2, x1); i++){
+        const Wn = [isW(i, j - 1), isW(i + 1, j), isW(i, j + 1), isW(i - 1, j)], c = Wn.filter(Boolean).length;
+        if (isB2(i, j) && (c >= 3 || (Wn[0] && Wn[2]) || (Wn[1] && Wn[3]))) n2++;
+        else if (t[j * cols + i] === VZT.PAVE && c <= 1 && [isB2(i, j - 1), isB2(i + 1, j), isB2(i, j + 1), isB2(i - 1, j)].filter(Boolean).length >= 3) n2++;
+      }
+      return n2;
+    };
+    const mark = new Uint32Array(cols * rows); let stamp = 0;
+    const joined = (tiles) => {
+      /* the walk next to the tiles, still one piece within 24 tiles of them without them */
+      const sid = ++stamp, set = new Set(tiles.map(([i, j]) => j * cols + i)), nbs = [];
+      tiles.forEach(([i, j]) => [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([a, b]) => { const k = (j + b) * cols + i + a; if (!set.has(k) && isW(i + a, j + b)) nbs.push(k); }));
+      if (nbs.length < 2) return true;
+      const [ci, cj] = tiles[0], q = [nbs[0]]; mark[nbs[0]] = sid; set.forEach(k => { mark[k] = sid; });
+      while (q.length){ const k = q.pop(), i = k % cols, j = (k - i) / cols;
+        if (i > 0 && i - 1 >= ci - 24 && mark[k - 1] !== sid && WALKK(t[k - 1])){ mark[k - 1] = sid; q.push(k - 1); }
+        if (i < cols - 1 && i + 1 <= ci + 24 && mark[k + 1] !== sid && WALKK(t[k + 1])){ mark[k + 1] = sid; q.push(k + 1); }
+        if (j > 0 && j - 1 >= cj - 24 && mark[k - cols] !== sid && WALKK(t[k - cols])){ mark[k - cols] = sid; q.push(k - cols); }
+        if (j < rows - 1 && j + 1 <= cj + 24 && mark[k + cols] !== sid && WALKK(t[k + cols])){ mark[k + cols] = sid; q.push(k + cols); } }
+      return nbs.every(k => mark[k] === sid && !set.has(k));
+    };
+    for (let pass = 0; pass < 4; pass++){
+      let n = 0;
+      for (const st of strays(0, 12, cols - 1, rows - 1)){
+        const x0 = st.i0 - 5, x1 = st.i1 + 5, y0 = st.j - 5, y1 = st.j + 5;
+        /* the walk side of the run, or the building side */
+        const wRow = st.S ? st.j : st.j - 1, bRow = st.S ? st.j - 1 : st.j, best = [];
+        for (const [row, to] of [[wRow, VZT.BLDG], [bRow, VZT.PAVE]]){
+          for (let depth = 1; depth <= 28; depth++){
+            const tiles = []; for (let d2 = 0; d2 < depth; d2++) for (let i = st.i0; i <= st.i1; i++) tiles.push([i, row + (row === wRow ? (st.S ? d2 : -d2) : (st.S ? -d2 : d2))]);
+            if (tiles.some(([i, j]) => keep[j * cols + i] || getT(i, j) !== (to === VZT.BLDG ? VZT.PAVE : VZT.BLDG))) break;
+            /* (only where the strip ends at a change: past it the column, or a column beside it, is something else) */
+            const back = to === VZT.BLDG ? VZT.PAVE : VZT.BLDG, last = tiles[tiles.length - 1][1], dirj = Math.sign(last - row) || ((row === wRow) === st.S ? 1 : -1), nx = last + dirj;
+            let change = false; for (let i = st.i0 - 1; i <= st.i1 + 1 && !change; i++) change = getT(i, nx) !== getT(i, last);
+            if (!change) continue;
+            const win = [x0, y0 - depth, x1, y1 + depth], before2 = local(...win);
+            tiles.forEach(([i, j]) => { t[j * cols + i] = to; });
+            const a2 = local(...win);
+            /* (no calle left narrower than 2 m beside them) */
+            const run = (i, j, a, b) => { let n2 = 0; while (n2 < 3 && isW(i + a * n2, j + b * n2)) n2++; let m = 1; while (m < 3 && isW(i - a * m, j - b * m)) m++; return n2 + m - 1; };
+            const narrow = a2 < before2 && to === VZT.BLDG && tiles.some(([i, j]) => [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([a, b]) => isW(i + a, j + b) && Math.min(run(i + a, j + b, 1, 0), run(i + a, j + b, 0, 1)) < 2));
+            tiles.forEach(([i, j]) => { t[j * cols + i] = back; });
+            if (a2 < before2 && !narrow && (to !== VZT.BLDG || joined(tiles))){ best.push({ tiles, to, after:a2 - before2 }); break; }      // (the shortest that helps, this way)
+          }
+        }
+        if (!best.length) continue;
+        best.sort((a, b) => a.after - b.after || a.tiles.length - b.tiles.length)[0].tiles.forEach(([i, j]) => { t[j * cols + i] = best[0].to; });
+        done.step = (done.step || 0) + 1; n++;
+      }
+      if (!n) break;
+      DG = vzTraceSlants().DIAGT;
+    }
+    return done;
   }
   const solid = new Uint8Array(cols * rows);
   for (let k = 0; k < t.length; k++) solid[k] = VZT_SOLID[t[k]];
@@ -33885,8 +34094,10 @@ function* vzConvert(SKETCH, VZ_PLACES){
      faces (N) traced column by column into chains, simplified (Douglas–Peucker at 0.75 m); a piece at least 3 m long sloping
      between 0.15 and 2.6 is a slant. A south slant gets its own houses, their fronts sheared along the slope (render/city.js);
      a north slant an eave along the true line (VZ.slants). The tiles on a slant get no flat front (DIAGT) */
-  const DIAGT = new Uint8Array(cols * rows), slants = [];
-  {
+  const { DIAGT, slants } = vzTraceSlants();
+  /* (also asked by vzSmoothEdges before the houses, on its tiles as they are then) */
+  function vzTraceSlants(){
+    const DIAGT = new Uint8Array(cols * rows), slants = [], isBT = (i, j) => getT(i, j) === VZT.BLDG;
     const edge = (side, i, j) => { if (!isBT(i, j)) return false; const k = getT(i, j + (side === 'S' ? 1 : -1)); return k !== VZT.BLDG && k !== VZT.LAND && k !== VZT.PARAPET; };
     for (const side of ['S', 'N']){
       let active = []; const chains = [];
@@ -33913,6 +34124,7 @@ function* vzConvert(SKETCH, VZ_PLACES){
         }
       }
     }
+    return { DIAGT, slants };
   }
   for (let j = 0; j < rows; j++){
     let i = 0;
@@ -33934,7 +34146,10 @@ function* vzConvert(SKETCH, VZ_PLACES){
     const A = lookAtT(Math.floor(x0 + (x1 - x0) / 2), Math.floor(yb + shear * (x1 - x0) / 2) - 1), aLook = A ? A.look : 'calli', look = k === 'water' && aLook !== 'stone' ? 'calli' : aLook, L = VZ_LOOKS[look];
     const r = rng(Math.round(7919 * (yb + 1) + 104729 * (x0 + 1)));
     /* the special doors first: a house centred on each */
-    const fixed = doors.filter(d => d.yb === yb && d.tx >= x0 && d.tx < x1).map(d => ({ x0:Math.max(x0, d.tx - 5), x1:Math.min(x1, d.tx + 5), door:d }));
+    /* (a door on a slanting front, its face tile on the slant: the bakery on Marzaria San Zulian, the playtest of 24 Nov: "the bakery
+       in San Marco has no door or front", its door had no house, so nothing was drawn where its prompt was) */
+    const fixed = doors.filter(d => !d.house && d.tx >= x0 && d.tx < x1 && (colBottom ? colBottom(d.tx) !== null && colBottom(d.tx) + 1 === d.yb : d.yb === yb))
+      .map(d => ({ x0:Math.max(x0, d.tx - 5), x1:Math.min(x1, d.tx + 5), door:d }));
     const segs = []; let cur = x0;
     fixed.sort((p, q2) => p.x0 - q2.x0).forEach(f => { if (f.x0 > cur) segs.push([cur, f.x0]); segs.push(f); cur = f.x1; });
     if (cur < x1) segs.push([cur, x1]);
@@ -33983,7 +34198,7 @@ function* vzConvert(SKETCH, VZ_PLACES){
       const spread = shear * w;
       h.box = { x:X0 - 8, y:(h.roofTop + Math.min(0, spread)) * TS - 3 * VZ_M, w:W + 16, h:(ybH - h.roofTop + Math.abs(spread)) * TS + 3 * VZ_M + 30 };
       houses.push(h);
-      if (p.door) p.door.house = h;
+      if (p.door){ p.door.house = h; if (shear) p.door.y = Math.round((ybH + shear * (p.door.x / TS - p.x0)) * TS); }     // (on a sheared front: its foot on the slope)
     }
   }
   /* the roofs: every building tile is roof (render/city.js draws them per tile); bands of RB tiles, split into strips of
@@ -34440,6 +34655,9 @@ function vzFurnish(D){
   const wallFree = (h, x, w, y0, y1, relaxed) => {
     if (x - w / 2 < h.x0 * T + 4 || x + w / 2 > h.x1 * T - 4) return false;
     for (const d of h.doors) if (Math.abs(d.x - x) < d.w / 2 + w / 2 + 6 && y0 < d.h + 6) return false;
+    /* (the hotel's and the bakery's own fronts, render/city.js vzSpecialFront: the window, the awning, the sign up to 4.8 m; the bakery's
+       street name sat on its sign, the playtest of 24 Nov) */
+    if (h.door && (h.door.id === 'forno' || h.door.id === 'hotel') && x + w / 2 > h.door.x - (h.door.id === 'forno' ? 4.2 : 2.2) * M && x - w / 2 < h.door.x + 2.2 * M && y0 < 4.8 * M) return false;
     if (!relaxed && h.shopWin && x + w / 2 > h.shopWin.x0 - 16 && x - w / 2 < h.shopWin.x1 + 16 && y0 < 4.1 * M) return false;
     if (relaxed === 'indica') for (const o of [h, ...(h.nbrs || (h.nbrs = VZ.houses.filter(q => q !== h && q.shopWin && Math.abs(q.yb - h.yb) <= 1 && q.x0 <= h.x1 + 1 && q.x1 >= h.x0 - 1)))]) if (o.shopWin && x + w / 2 > o.shopWin.x0 - 14 && x - w / 2 < o.shopWin.x1 + 14 && y1 > o.shopWin.h - 0.3 * M && y0 < o.shopWin.h + 1.8 * M) return false;   // (a direction sign: never over a shop's name board, its own front's or the next one's: render/city.js vzShopFront; the review of 21 Nov)
     for (const p of h.wallProps) if (Math.abs(p.x - x) < (p.w || 20) / 2 + w / 2 + 6 && p.y0 < y1 && p.y1 > y0) return false;
@@ -35248,6 +35466,9 @@ Object.assign(window.__debug, {
   /* the edges' notches (tests/venezia/edges.js): single bumps and dents along straight runs of lane, campo and bank edges, and
      steps along the slanting lanes */
   notches:() => vzNotches(),
+  /* every door of the district on a drawn front (tests/venezia/sm-doors.js), and the blocks' edges by the smoothing's rules (sm-smooth.js) */
+  doorFronts:() => vzDoorFronts(),
+  smoothFaults:() => vzSmoothFaults(),
   /* the player's height on screen over the view's height (the designer's rule: at least 1/10), at the zoom in use */
   playerRatio:z => vzPlayerRatio(z),
   /* seconds to walk a screen's height at the default zoom; the static layer's cache (tests) */
@@ -35445,6 +35666,108 @@ function vzNotches(){
   return out;
 }
 /* (vzEdgeFaults, the edges' faults along a mask: world/tiles.js, where the converter's last clean-up uses it too) */
+
+/* ---------- every door on a drawn front (the designer's playtest of 24 Nov: "the bakery in San Marco has no door or front": its
+   prompt "Entra · E" stood on a slanting calle with only a roof edge behind it) ----------
+   For each door of the district (VZ.doors: the sketch's, District 1's, the tree's): what it is drawn on (a house of VZ.houses with a
+   doorway at the door, its wall's foot at the door's foot, on a slope too; a landmark's front, the sacristy's in San Zaccaria's; one of
+   Campo Santo Stefano's fronts, San Vidal's), that the tile at its foot is walkable and the one behind it is building, and that nothing is
+   drawn over it (another house's front lower down the screen, covering its doorway). ok: all of them. */
+function vzDoorFronts(){
+  const T = VZ_TILE, M = VZ_M, out = [];
+  const tileK = (x, y) => VZ.getT(Math.floor(x / T), Math.floor(y / T));
+  const solidAt = (x, y) => VZT_SOLID[tileK(x, y)] === 1, walkAt = (x, y) => !VZT_SOLID[tileK(x, y)];
+  const footOf = h => x => (h.yb + (h.k || 0) * (x / T - h.x0)) * T;
+  for (const d of VZ.doors){
+    const r = { id:d.id, x:Math.round(d.x), y:Math.round(d.y), on:null, ok:false, why:[] };
+    const h = VZ.houses.find(q => q.x0 * T <= d.x && q.x1 * T >= d.x && Math.abs(footOf(q)(d.x) - d.y) <= 0.75 * T && (q.doors || []).some(o => Math.abs(o.x - d.x) <= 0.6 * M && o.kind !== 'water'));
+    const lm = VZ.landmarks.find(l => d.x >= l.x && d.x <= l.x + l.w && Math.abs(l.base - d.y) <= T);
+    const fr = (VZ.props || []).find(p => (p.kind === 'sanvidal' || p.kind === 'santostefano') && Math.abs(p.y - d.y) <= T && Math.abs(p.x - d.x) <= 14 * M);
+    if (h){ r.on = 'house'; r.house = { x0:h.x0, x1:h.x1, yb:h.yb, k:h.k || 0, door:(h.doors.find(o => Math.abs(o.x - d.x) <= 0.6 * M) || {}).kind }; }
+    else if (lm) r.on = 'landmark:' + lm.id;
+    else if (fr) r.on = 'front:' + fr.kind;
+    else r.why.push('no front drawn at the door');
+    if (!walkAt(d.x, d.y + 0.5 * T)) r.why.push('its foot is not walkable');
+    if (!solidAt(d.x, d.y - 0.5 * T)) r.why.push('no building behind it');
+    if (h){
+      /* covered: a front lower on the screen (its foot south of this one) whose wall reaches up over this doorway */
+      const cover = VZ.houses.find(q => q !== h && q.x0 * T < d.x && q.x1 * T > d.x && footOf(q)(d.x) > d.y + 0.5 * T && footOf(q)(d.x) - q.wallH * M < d.y - 0.5 * M);
+      if (cover) r.why.push(`covered by the front at ${cover.x0}–${cover.x1}, foot ${Math.round(cover.yb)}`);
+    }
+    r.ok = !r.why.length; out.push(r);
+  }
+  return { ok:out.every(r => r.ok), doors:out };
+}
+/* ---------- the blocks' edges, by the smoothing's rules (world/tiles.js vzSmoothEdges; the playtest of 24 Nov) ----------
+   Along the walk (plain pavement, arcades, gardens, paths) and plain building, away from the water, bridges, gates, pontoons and the
+   landmarks (a tile's margin): nubs (a tile of building with walk on three sides), dents (a tile of walk with building on three sides),
+   slivers (building one or two tiles thick between two walks), pinches (building touching only at a corner), and stray steps (a run of
+   a front one or two tiles long between two steps, off any slant drawn on its true line: VZ.DIAGT). Doors' recesses and the points of
+   interest are left out, as the smoothing leaves them. */
+function vzSmoothFaults(){
+  const { t, cols, rows, N } = VZ, out = [];
+  const g = (i, j) => i < 0 || j < 0 || i >= cols || j >= rows ? -1 : t[j * cols + i];
+  const isW = (i, j) => { const k = g(i, j); return k === VZT.PAVE || k === VZT.ARCADE || k === VZT.GARDEN || k === VZT.PATH; };
+  const isB = (i, j) => g(i, j) === VZT.BLDG;
+  const skip = new Uint8Array(cols * rows);
+  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++){
+    const k = t[j * cols + i], lm = VZ.landmarks.some(l => i * VZ_TILE >= l.x && i * VZ_TILE < l.x + l.w && j * VZ_TILE >= l.y && j * VZ_TILE < l.base);
+    if (j < 12 || lm || (k !== VZT.BLDG && !isW(i, j))) for (let b = -2; b <= 2; b++) for (let a = -2; a <= 2; a++){ const u = i + a, v = j + b; if (u >= 0 && v >= 0 && u < cols && v < rows) skip[v * cols + u] = 1; }
+  }
+  const box = (x0, y0, x1, y1) => { for (let j = Math.max(0, y0); j <= Math.min(rows - 1, y1); j++) for (let i = Math.max(0, x0); i <= Math.min(cols - 1, x1); i++) skip[j * cols + i] = 1; };
+  VZ.doors.forEach(d => { const i = Math.floor(d.x / VZ_TILE), j = Math.floor(d.y / VZ_TILE); box(i - 4, j - 2, i + 4, j + 3); if (d.recess) box(d.recess[0] - 1, d.recess[1] - 1, d.recess[2] + 1, d.recess[3] + 1); });
+  (typeof SKETCH !== 'undefined' && VZD.id === 'sanmarco' ? SKETCH.pois : []).forEach(p => box(p.x * N + 1, p.y * N + 1, p.x * N + 2, p.y * N + 2));
+  /* (what Campo Santo Stefano's two fronts cover: world/d1-c.js draws them over the houses, up to their height) */
+  if (VZD.id === 'sanmarco') [[VZ_STEFANO.sanvidal, 32], [VZ_STEFANO.santostefano, 23]].forEach(([f, rise]) => { if (f.w) box(Math.floor((f.x - f.w / 2) / VZ_TILE) - 1, Math.floor(f.y / VZ_TILE - rise), Math.ceil((f.x + f.w / 2) / VZ_TILE) + 1, Math.ceil(f.y / VZ_TILE)); });
+  const add = (kind, i, j) => out.push({ kind, x:i, y:j, cell:[Math.floor(i / N), Math.floor(j / N)] });
+  for (let j = 1; j < rows - 1; j++) for (let i = 1; i < cols - 1; i++){
+    if (skip[j * cols + i]) continue;
+    const Wn = [isW(i, j - 1), isW(i + 1, j), isW(i, j + 1), isW(i - 1, j)], Bn = [isB(i, j - 1), isB(i + 1, j), isB(i, j + 1), isB(i - 1, j)];
+    if (isB(i, j)){
+      if (Wn.filter(Boolean).length >= 3) add('nub', i, j);
+      else if ((Wn[0] && Wn[2]) || (Wn[1] && Wn[3])) add('sliver', i, j);
+      else if ((Wn[3] && isB(i + 1, j) && isW(i + 2, j)) || (Wn[0] && isB(i, j + 1) && isW(i, j + 2))) add('sliver', i, j);
+      for (const [a, c] of [[1, 1], [1, -1]]) if (isB(i + a, j + c) && isW(i + a, j) && isW(i, j + c)) add('pinch', i, j);
+    } else if (g(i, j) === VZT.PAVE && Bn.filter(Boolean).length >= 3) add('dent', i, j);
+  }
+  /* along the water: nubs, dents and slivers (up to two thick; three thick and at most 8 m long) between building and water, away from
+     the walk, bridges, pontoons, landmarks and the lagoon's rows below the sketch */
+  { const isWa = (i, j) => g(i, j) === VZT.WATER && j < rows - 16, skipW = new Uint8Array(cols * rows);
+    for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++){
+      const k = t[j * cols + i], lm = VZ.landmarks.some(l => i * VZ_TILE >= l.x && i * VZ_TILE < l.x + l.w && j * VZ_TILE >= l.y && j * VZ_TILE < l.base);
+      if (j < 12 || j >= rows - 18 || lm || (k !== VZT.BLDG && k !== VZT.WATER)) for (let b = -2; b <= 2; b++) for (let a = -2; a <= 2; a++){ const u = i + a, v = j + b; if (u >= 0 && v >= 0 && u < cols && v < rows) skipW[v * cols + u] = 1; }
+    }
+    VZ.doors.forEach(d => { const i0 = Math.floor(d.x / VZ_TILE), j0 = Math.floor(d.y / VZ_TILE); for (let j = j0 - 10; j <= j0 + 6; j++) for (let i = i0 - 6; i <= i0 + 6; i++) if (i >= 0 && j >= 0 && i < cols && j < rows) skipW[j * cols + i] = 1; });
+    for (let j = 1; j < rows - 1; j++) for (let i = 1; i < cols - 1; i++){
+      if (skipW[j * cols + i]) continue;
+      const Wn = [isWa(i, j - 1), isWa(i + 1, j), isWa(i, j + 1), isWa(i - 1, j)];
+      if (isWa(i, j)){ if ([isB(i, j - 1), isB(i + 1, j), isB(i, j + 1), isB(i - 1, j)].filter(Boolean).length >= 3) add('water-dent', i, j); continue; }
+      if (!isB(i, j)) continue;
+      if (Wn.filter(Boolean).length >= 3 || (Wn[0] && Wn[2]) || (Wn[1] && Wn[3])){ add('water-nub', i, j); continue; }
+      for (const [a, b] of [[0, 1], [1, 0]]){
+        if (!isWa(i - a, j - b)) continue;
+        let th = 0; while (th < 4 && isB(i + a * th, j + b * th)) th++;
+        if (th > 3 || !isWa(i + a * th, j + b * th)) continue;
+        if (th === 3){ let len = 1; for (const sg of [-1, 1]) for (let q = 1; q < 10; q++){ const u = i + b * q * sg, v = j + a * q * sg; let ok = isWa(u - a, v - b) && isWa(u + a * 3, v + b * 3); for (let r = 0; r < 3 && ok; r++) ok = isB(u + a * r, v + b * r); if (!ok) break; len++; } if (len > 8) continue; }
+        add('water-sliver', i, j); break;
+      }
+    }
+  }
+  /* stray steps: the fronts (south faces) and the backs (north faces), row by row */
+  const slant = (i, j) => { for (let b = -1; b <= 0; b++) for (let a = -1; a <= 1; a++){ const u = i + a, v = j + b; if (u >= 0 && v >= 0 && u < cols && v < rows && VZ.DIAGT[v * cols + u]) return true; } return false; };
+  for (const S of [true, false]) for (let j = 1; j < rows; j++){
+    let i = 0;
+    const on = (x) => S ? (isB(x, j - 1) && isW(x, j)) : (isW(x, j - 1) && isB(x, j));
+    while (i < cols){
+      if (!on(i)){ i++; continue; }
+      let e = i; while (e + 1 < cols && on(e + 1)) e++;
+      if (e - i + 1 <= 2 && !skip[j * cols + i] && !slant(i, j)) add(S ? 'step-front' : 'step-back', i, j);
+      i = e + 1;
+    }
+  }
+  const by = {}; out.forEach(o => { by[o.kind] = (by[o.kind] || 0) + 1; });
+  return { n:out.length, by, faults:out };
+}
 
 /* ===== units/venezia/world/crowd.js ===== */
 /* San Marco's crowds (rework B, docs/venezia-san-marco.md "As built (rework B)"), on the engine's lane crowd
@@ -42296,7 +42619,7 @@ function* vzHouse(g, h){
     else vzDoor(g, d, yb, r);
   });
   for (const cx of h.bays){
-    if (h.doors.some(d => Math.abs(d.x - cx) < d.w / 2 + 0.6 * M) || (h.shopWin && cx > h.shopWin.x0 - 0.6 * M && cx < h.shopWin.x1 + 0.6 * M) || r() < 0.35) continue;
+    if (h.doors.some(d => Math.abs(d.x - cx) < d.w / 2 + 0.6 * M || (d.kind === 'forno' && cx > d.x - d.w / 2 - 3.6 * M && cx < d.x)) || (h.shopWin && cx > h.shopWin.x0 - 0.6 * M && cx < h.shopWin.x1 + 0.6 * M) || r() < 0.35) continue;
     const bw = 0.7 * M, bh = 0.9 * M, by = yb - 2.4 * M;
     up(cx, () => { g.fillStyle = VZC.ist; g.fillRect(cx - bw / 2 - 3, by - 3, bw + 6, bh + 6); g.fillStyle = VZC.glass; g.fillRect(cx - bw / 2, by, bw, bh);
       g.fillStyle = '#2b2b2b'; for (let q = -bw / 2 + 4; q < bw / 2; q += 5) g.fillRect(cx + q, by, 1.2, bh); g.fillRect(cx - bw / 2, by + bh / 2, bw, 1.2); });
