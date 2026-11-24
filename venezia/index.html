@@ -5140,7 +5140,7 @@ D2B_NPCS.forEach(n => { n.home = { x:n.x, y:n.y, face:{ ...(n.baseFace || { x:0,
    place:'…', x:-999, y:-999 (placed by the branch's sceneOf / place hooks: tree/d2-c/branch.js), the look (render/people.js), pron, pitch }.
    The people (docs/lessons/venezia/scripts/d2/00-overview.md, "Who's who"): Ugo (the Accademia's guard) and la dottoressa Ferro (the curator), C2 and the
    ending; Fabio (the pickpocket, the red hat), the gondolier at the traghetto, the lady of the vegetable boat, a boy with a football, a tourist with a selfie
-   stick, il maresciallo Rizzo (carabinieri), C3a; Lucio Dal Mas (the forger), C4a; Bastian (the squerariol) and Leo (his apprentice: tu), C3b and C4b; Davide
+   stick (a man: the designer, 24 Nov), a man robbed of his wallet (il signore), il maresciallo Rizzo (carabinieri), C3a; Lucio Dal Mas (the forger), C4a; Bastian (the squerariol) and Leo (his apprentice: tu), C3b and C4b; Davide
    (the triage nurse) and la dottoressa Nardi, C4b's hospital; Momi (the boatman of the Sorzeta), C4b's end; two guests at the opening (the ending). */
 const D2C_V = o => Object.assign({ formal:true, city:true, district:'sanpolo', baseFace:{ x:0, y:1 }, answerHow:{ it:'Bene, grazie.', en:'Fine, thanks.' }, greet:{ it:'Buongiorno', en:'Good morning' },
   agenda:[], revisitAgenda:[], promptOffset:{ x:0, y:26 }, place:'Dorsoduro', pron:['He', 'his'], x:-999, y:-999, d2c:true,
@@ -5152,7 +5152,8 @@ const D2C_NPCS = [
   D2C_V({ id:'d2c-gondoliere', name:'Il gondoliere', where:'a gondolier at the traghetto', place:"Il traghetto dell'Accademia", body:'#f4f1ea', stripes:'#1b2a5a', legs:'#1a1a22', hair:'#3a2a1a', skin:'#d9a37e', hat:true, pitch:0.95 }),
   D2C_V({ id:'d2c-barca', name:'La signora della barca', where:'the lady of the vegetable boat', place:'La barca della frutta, San Barnaba', pron:['She', 'her'], body:'#7a3a2a', legs:'#3a3036', hair:'#6a4a3a', skin:'#e8b894', apron:'#e8dcc0', scarf:'#3a6a4a', pitch:1.08 }),
   D2C_V({ id:'d2c-bambino', name:'Il bambino', where:'a boy with a football', place:'Calle de la Toleta', formal:false, body:'#2f6ac8', legs:'#2a2a30', hair:'#4a2a18', skin:'#e8bb94', kid:true, pitch:1.4 }),
-  D2C_V({ id:'d2c-turista', name:'Una turista', where:'a tourist with a selfie stick', place:"Il Ponte dell'Accademia", pron:['She', 'her'], body:'#e86a8a', legs:'#3a4a6a', hair:'#e8c87a', skin:'#f0c8a8', sunhat:'#f4e4b4', camera:'#2a2a2a', longHair:true, pitch:1.12 }),
+  D2C_V({ id:'d2c-turista', name:'Un turista', where:'a tourist with a selfie stick', place:"Il Ponte dell'Accademia", body:'#3fa7c9', legs:'#c9b48a', hair:'#c89a5a', skin:'#f0c8a8', sunhat:'#f4e4b4', selfie:true, pitch:1.02 }),
+  D2C_V({ id:'d2c-signore', name:'Un signore', where:'a man patting his pockets, looking all round', place:'Fondamenta Nani', body:'#5a4a3a', legs:'#2a2a30', hair:'#b8b2a8', skin:'#e2b08c', glasses:true, bag:'#6a4a2a', pitch:0.94 }),
   D2C_V({ id:'d2c-rizzo', name:'Il maresciallo Rizzo', where:'il maresciallo Rizzo, of the carabinieri', place:'I carabinieri', body:'#1b2233', legs:'#1b2233', hair:'#3a3a3a', skin:'#d9a37e', flatcap:'#1b2233', pitch:0.88 }),
   D2C_V({ id:'d2c-lucio', name:'Lucio Dal Mas', where:'Lucio Dal Mas, in a velvet jacket', place:'La stanza dei falsi', body:'#6a2a4a', legs:'#2a2a30', hair:'#e8e4dc', skin:'#ecc4a2', scarf:'#e8c35a', pitch:0.95 }),
   D2C_V({ id:'d2c-bastian', name:'Bastian', where:'Bastian, the squerariol, sawdust in his beard', place:'Lo Squero di San Trovaso', body:'#3a5a7a', legs:'#3a3a40', hair:'#9a9288', skin:'#d9a37e', apron:'#7a5a3a', pitch:0.86 }),
@@ -27619,6 +27620,8 @@ const D2C_STORY = {
   cityWater:t => { if (d2cOpenK('c2')) d2cWater(t); },
   fastTravel(){ if (!d2cOpenK('c2')) return undefined; return d2cAsk('fastTravel') || undefined; },
   restore(){ if (d2cPeek()) d2CRec(); D2C.placed = null; return undefined; },
+  /* the "!" over whoever a node needs next (the engine's markers, keyed by the tutorial state: a node has none of its own; d2cReg's goal()) */
+  get markers(){ if (!d2cOpenK('c2') || vzTestDrive()) return undefined; const id = d2cAsk('goal'); return id ? { [S.tut]:id } : undefined; },
 };
 STORY_HOOKS.push(D2C_STORY);
 /* the hooks on d2-c2 (live once Lesson 5 is done: C2 is open, then done): the frame's claims (Lesson 5's story hook steps aside for them) */
@@ -27626,7 +27629,7 @@ const D2C_CLAIMS = n => !!n && (n.id === 'margaret' || n.id === 'biscuit') && !v
 /* (the vegetable boat's and the squerariol's placeholders: the branch's people stand there while it needs them) */
 function d2cPlaceholders(n){
   if (n.id === 'ph-sanpolo-p20' && d2cDoneK('c2')) return 'away';                       // (Bastian works there now: the squero's yard)
-  if (n.id === 'ph-sanpolo-p19' && (d2cLive('c3a') && ['barca', 'bambino', 'porta', 'telefono'].includes(d2cStep('c3a')))) return 'away';
+  if (n.id === 'ph-sanpolo-p19' && (d2cLive('c3a') && ['signore', 'barca', 'verde', 'telefono', 'fermo'].includes(d2cStep('c3a')))) return 'away';      // (the lady of the boat: C3a)
   return undefined;
 }
 d2cReg('base', { sceneOf:n => d2cPlaceholders(n) });
@@ -28118,15 +28121,14 @@ d2Node({ id:'d2-c3a', branch:'c', parent:'d2-c2', depth:3, doc:'c3a-borseggiator
   soon:true });
 
 /* ===== units/venezia/tree/d2-c3a/content.js ===== */
-/* District 2 · C3a · Il borseggiatore (the script: docs/lessons/venezia/scripts/d2/c3a-borseggiatore.md, approved as written): branch C, under C2.
-   Level 3: a smaller bank per beat (each Say it's pieces), typing allowed. The words: moving (a_move.2) and the past of reflexives (si è fermato, si è
-   voltato). Its conversations ('d2c3a'):
-     ponte      Margaret at the foot of the Accademia bridge: the red hat (then the follow, in the world: flow.js);
-     turista    a tourist with a selfie stick stops dead in front of you (Scusi, si può spostare?);
-     gondoliere the gondolier at the traghetto: which way did he go? (told to Margaret; the route map in the photo panel);
-     barca      the lady of the vegetable boat by the Ponte dei Pugni (he took an apple: you pay for it);
-     bambino    a boy with a football down the long calle (tu); then the green door (a short follow);
-     sussurro   Margaret's whisper at the green door: he's turning round!;
+/* District 2 · C3a · Il borseggiatore (the script: docs/lessons/venezia/scripts/d2/c3a-borseggiatore.md; reworked 24 Nov after the designer's playtest:
+   a guided, forced sequence, no free follow that can lose him): branch C, under C2. Level 3: a smaller bank per beat (each Say it's pieces), typing allowed.
+   The words: moving (a_move.2) and the past of reflexives (si è fermato, si è voltato). Its conversations ('d2c3a'):
+     ponte      Margaret at the foot of the Accademia bridge: the red hat (then the cutscene, flow.js: the camera on him, he bolts, knocks the tourist over);
+     turista    the tourist on the paving, his selfie stick flown: where did he go? (told to Margaret; the route map in the photo panel);
+     signore    a man looking all round ("?"): his wallet is gone, the red hat took it (a check; you reassure him); then a glimpse of the red hat ahead;
+     barca      the lady of the vegetable boat by the Ponte dei Pugni ("!": he took an apple; you pay for it; the way to the green door);
+     sussurro   at the green door (a cutscene puts you behind the wellhead): the boy on its step (move over: tu), Margaret's whisper: he's turning round!;
      telefono   the phone: il maresciallo Rizzo, the route told back (the "repeat it" half);
      fermo      the boy heads for the door: stop him (tu).
    The passers-by and the carabiniere use Lei; the boy tu. L'altra pista (C3b or C4b done first: the painting is back): Margaret's and Rizzo's lines. */
@@ -28140,11 +28142,12 @@ const D2C3A_WORDS = [
   { it:'avvicinarsi', en:'to come near, to get close', also:['avvicini', 'avvicinarti', 'avvicinate', 'avvicinare'], note:'Non avvicinarti alla porta! Don’t go near the door! (to a child)' },
   { it:'allontanarsi', en:'to move away, to go off', also:['allontanato', 'allontana'], note:'Si è allontanato verso il rio: he went off towards the canal.' },
   { it:'muoversi', en:'to move (yourself)', also:['muoverti', 'muovete', 'muove', 'muovere'], note:'Non muoverti! Don’t move! (to a friend, a child)' },
-  { it:'spostarsi', en:'to move over, to shift', also:['sposto', 'sposta', 'spostare'], note:'Si può spostare? Could you move over? (Lei)' },
+  { it:'spostarsi', en:'to move over, to shift', also:['sposto', 'sposta', 'sposti', 'spostare'], note:'Scusa, ti puoi spostare? Could you move over? (to a child: tu; to Lei: si può spostare?)' },
   { it:'attraversare', en:'to cross', also:['attraversato', 'attraversa'], note:'Ha attraversato il ponte: he crossed the bridge.' },
 ];
 const D2C3A_EXTRA = [
-  { it:'Scusi · Permesso · si può spostare? · si sposta · muovere · ti puoi…', en:'excuse me (polite) · may I get by · could you move? · you move over · to move · can you… (a friend)' },
+  { it:'Scusi · Scusa · Permesso · si può spostare? · si sposta · ti puoi… · ti sposti', en:'excuse me (polite) · excuse me (a friend) · may I get by · could you move? (polite) · you move over (polite) · can you… (a friend, a child) · you move over (a friend, a child)' },
+  { it:'il portafoglio · non lo trovo · deve averlo preso · Non si preoccupi · Non ti preoccupare · lo · maleducato · il pozzo', en:'the wallet · I can’t find it · he must have taken it · don’t worry (polite) · don’t worry (a friend) · him, it · rude · the wellhead' },
   { it:"da che parte? · dov'è andato? · è andato · andato", en:'which way? · where did he go? · he went · gone' },
   { it:"l'uomo · un uomo · con · il cappello · rosso · la borsa · un pallone", en:'the man · a man · with · the hat · red · the bag · a football' },
   { it:'ha visto? · hai visto? · è passato · di qua', en:'have you seen? (polite) · have you seen? (a child, a friend) · went by · this way' },
@@ -28159,9 +28162,9 @@ const D2C3A_EXTRA = [
   { it:'la barca della frutta · la porta verde · il maresciallo · i carabinieri', en:'the fruit boat · the green door · the marshal (a carabinieri rank) · the carabinieri (the military police)' },
 ];
 const D2C3A_HOWTO = { title:'Il borseggiatore: which way did he go?', html:`
-  <p><b>Asking the way someone went:</b> <i>Da che parte è andato?</i> <i>È passato di qua un uomo con il cappello rosso?</i> (<i>Lei</i>: <i>Ha visto…?</i>; a child: <i>Hai visto…?</i>).</p>
+  <p><b>Asking the way someone went:</b> <i>Scusi, dov’è andato?</i> <i>Da che parte è andato?</i> <i>È passato di qua un uomo con il cappello rosso?</i> (<i>Lei</i>: <i>Ha visto…?</i>; a child: <i>Hai visto…?</i>).</p>
   <p><b>Moving, in the past:</b> most verbs with <i>avere</i>: <b>ha attraversato</b> il ponte, <b>ha girato</b> a destra, <b>ha proseguito</b> dritto. Reflexive verbs with <i>essere</i> (Lesson 5): <b>si è fermato</b>, <b>si è voltato</b>, <b>si è allontanato</b>.</p>
-  <p><b>Don't…! to a child:</b> <i>non</i> + the infinitive, the <i>-ti</i> on the end: <b>Non muoverti! Non avvicinarti alla porta!</b> (or <i>non ti muovere, non ti avvicinare</i>). To <i>Lei</i>: <i>non si avvicini</i>.</p>
+  <p><b>Don't…! to a child:</b> <i>non</i> + the infinitive, the <i>-ti</i> on the end: <b>Non muoverti! Non avvicinarti alla porta!</b> (or <i>non ti muovere, non ti avvicinare</i>). To <i>Lei</i>: <i>non si avvicini</i>, <i>non si preoccupi</i>. <b>Move over</b>: to a child <i>ti puoi spostare?</i>, to <i>Lei</i> <i>si può spostare?</i></p>
   <div class="callout culture hb-boxed"><p><b>The Ponte dei Pugni.</b> For centuries the city's two factions fought on this bridge for its top: four white footprints in the stone mark where they started.</p></div>` };
 
 /* ---------- the conversations ---------- */
@@ -28172,7 +28175,8 @@ const D2C3A_SCRIPT = convoScript({
   tiles:{
     scusi:{ label:'Scusi', en:'excuse me (polite)', cl:true }, scusa:{ label:'Scusa', en:'excuse me (a friend)', cl:true }, permesso:{ label:'Permesso', en:'may I get by?', cl:true, ex:true },
     sipuo:{ label:'si può', en:'could you (polite)…?', q:true }, spostare:{ label:'spostare', en:'move over' }, sisposta:{ label:'si sposta', en:'you move over (polite)', q:true }, muovere:{ label:'muovere', en:'move' },
-    tipuoi:{ label:'ti puoi', en:'can you (a friend)…?', q:true },
+    tipuoi:{ label:'ti puoi', en:'can you (a friend, a child)…?', q:true }, tisposti:{ label:'ti sposti', en:'you move over (a friend, a child)', q:true },
+    nonsipreoccupi:{ label:'Non si preoccupi', en:'don’t worry (polite)', cl:true }, nontipreoccupare:{ label:'Non ti preoccupare', en:'don’t worry (a friend)', cl:true }, lo:{ label:'lo', en:'him' },
     dacheparte:{ label:'da che parte', en:'which way', q:true }, dove:{ label:"dov'è", en:'where (has)', q:true }, eandato:{ label:'è andato', en:'did he go, has he gone' }, andato:{ label:'andato', en:'gone' },
     luomo:{ label:"l'uomo", en:'the man' }, unuomo:{ label:'un uomo', en:'a man' }, con:{ label:'con', en:'with' }, ilcappello:{ label:'il cappello', en:'the hat' }, rosso:{ label:'rosso', en:'red' },
     laborsa:{ label:'la borsa', en:'the bag' }, unpallone:{ label:'un pallone', en:'a football' },
@@ -28196,83 +28200,90 @@ const D2C3A_SCRIPT = convoScript({
     allaporta:{ label:'alla porta', en:'to the door' }, alponte:{ label:'al ponte', en:'to the bridge' }, fermo:{ label:'Fermo', en:'stop! (to one, a boy)', cl:true, ex:true },
   },
   convos:{
-    /* 1 · the bridge: the red hat */
+    /* 1 · the bridge: the red hat (then the cutscene: flow.js d2c3aFuga) */
     ponte:{ npc:'margaret', label:'Il cappello rosso', beats:[
       { wait:true, say:[() => d2cAltra('c3a') ? D2CM('The painting’s back, {Me}, but somebody planned all this. And there’s Ugo’s pickpocket: he’s the link.') : null,
-        D2CM('There! The red hat. {Me}, he’s just been into that man’s bag! Don’t get too close: if he sees us, he’ll run.'), D2CM('We follow him. Quietly.')] },
-      { end:true, then:() => d2c3aFollowStart() } ] },
-    /* 2 · the tourist on the steps */
-    turista:{ npc:'d2c-turista', label:'La turista', beats:[
-      { say:[{ sys:'A tourist with a selfie stick stops dead in front of you, posing.' }, D2CL('turista', 'Un attimo… un sorriso… ecco!', 'Just a moment… a smile… there!', { 'Un attimo':'just a moment' })] },
-      { sayit:{ en:'Excuse me, could you move?', answer:'scusi , sipuo spostare', also:['scusi , sisposta', 'sipuo spostare'], pieces:'scusi permesso sipuo spostare sisposta muovere tipuoi',
-        wrong:[{ has:'permesso', ok:true, echo:D2CL('turista', 'Oh, scusi!', 'Oh, sorry!'), fb:'Right too: <i>Permesso!</i> gets you past.' },
-               { has:'tipuoi', near:true, echo:D2CL('turista', 'Mi sposto, mi sposto!', 'I’m moving, I’m moving!'), fb:'A stranger: <i>Lei</i>, <b>si può spostare?</b> (<i>ti puoi</i> is for a friend).' }],
-        fill:D2CL('turista', 'Oh! Scusi, scusi!', 'Oh! Sorry, sorry!'),
-        reply:[D2CL('turista', 'Oh, scusi! Mi sposto!', 'Oh, sorry! I’ll move!', { 'Mi sposto':'I’ll move over (spostarsi)' })],
-        hint:'Ask her politely to move out of your way (she is a stranger).', strong:'<b>Scusi</b>, + could you + <b>spostare</b>?' } },
-      { end:true, then:() => d2c3aTouristDone() } ] },
-    /* 3 · the gondolier at the traghetto */
-    gondoliere:{ npc:'d2c-gondoliere', label:'Il gondoliere', beats:[
+        D2CM('There! The red hat, on the bridge. {Me}, he’s just been into that man’s bag! Don’t get too close: if he sees us, he’ll run.'), D2CM('We follow him. Quietly.')] },
+      { end:true, then:() => d2c3aFuga() } ] },
+    /* 2 · the tourist he knocked over: where did he go? */
+    turista:{ npc:'d2c-turista', label:'Il turista', beats:[
+      { say:[{ sys:'The tourist is sitting on the paving, rubbing his back. His selfie stick has landed a few metres away.' },
+        D2CL('turista', 'Ahi, ahi… Che maleducato! Non si è neanche fermato!', 'Ow, ow… How rude! He didn’t even stop!', { 'Che maleducato':'how rude', 'neanche':'not even', 'si è fermato':'he stopped (fermarsi)' })] },
+      { sayit:{ en:'Excuse me, where did he go?', answer:'scusi , dove andato', also:['dove andato', 'scusi , dacheparte eandato', 'dacheparte eandato', 'scusi , dove andato luomo con ilcappello rosso'],
+        pieces:'scusi scusa dove andato dacheparte eandato luomo con ilcappello rosso laborsa',
+        wrong:[{ has:'scusa', near:true, echo:D2CL('turista', 'Scusi? Dove è andato? Di là!', 'Excuse me? Where did he go? That way!'), fb:'A stranger: <b>scusi</b> (<i>scusa</i> is for a friend).' },
+               { has:'laborsa', reply:D2CL('turista', 'La borsa? Io non ho una borsa!', 'The bag? I haven’t got a bag!'), fb:'Ask him where the man went.' }],
+        fill:D2CL('turista', 'Dove è andato? Di là!', 'Where did he go? That way!'),
+        reply:[{ sys:'He points along the fondamenta, to the west.' },
+               D2CL('turista', 'Di là! Ha attraversato il campo e ha girato a destra, verso San Barnaba. Di corsa!', 'That way! He crossed the campo and turned right, towards San Barnaba. Running!', { 'Di là':'that way', 'Di corsa':'running' })],
+        hint:'Ask the tourist where the man went (polite: a stranger).', strong:'<b>Scusi</b>, where + <b>è andato</b>?' } },
       { photo:'d2c-mappa-sanbarnaba', title:'Da che parte?', caption:'The way from the Accademia bridge.', highlight:'ponte' },
-      { sayit:{ en:'Excuse me, which way did the man in the red hat go?', answer:'scusi , dacheparte eandato luomo con ilcappello rosso',
-        also:['scusi , dove andato luomo con ilcappello rosso', 'havisto unuomo con ilcappello rosso', 'dacheparte eandato luomo con ilcappello rosso'], pieces:'scusi scusa dacheparte dove eandato andato luomo unuomo con ilcappello rosso laborsa havisto',
-        wrong:[{ has:'scusa', near:true, echo:D2CL('gondoliere', 'Scusi? Sì?', 'Excuse me? Yes?'), fb:'A stranger: <b>scusi</b> (<i>scusa</i> is for a friend).' },
-               { has:'laborsa', reply:D2CL('gondoliere', 'La borsa? Di chi?', 'The bag? Whose?'), fb:'You’re asking about the man in the red hat.' }],
-        fill:D2CL('gondoliere', 'Un uomo con il cappello rosso?', 'A man in a red hat?'),
-        reply:[D2CL('gondoliere', 'Il cappello rosso? Lo conosco: un borseggiatore. Ha girato a destra, verso San Barnaba. Di corsa!', 'The red hat? I know him: a pickpocket. He turned right, towards San Barnaba. Running!', { 'Di corsa':'running', borseggiatore:'pickpocket' }),
-               D2CL('gondoliere', 'È a pochi passi da qui. Lo segua, ma attenzione: si volta sempre.', 'He’s only a few steps from here. Follow him, but careful: he always turns round.', { 'a pochi passi':'a few steps away', 'Lo segua':'follow him (Lei)', 'si volta':'he turns round' })],
-        hint:'Ask the gondolier which way the man in the red hat went (polite: a stranger).', strong:'<b>Scusi</b>, <b>da che parte è andato</b> + the man + with the red hat?' } },
       { say:[D2CM('What did he say?')] },
-      { tell:{ to:'Margaret', prompt:'What did he say?', options:['He turned right towards San Barnaba, running. He always looks back.', 'He took a gondola to San Marco.', 'He went into the Accademia.'], a:0,
-        line:D2CL('gondoliere', 'Ha girato a destra, verso San Barnaba. Di corsa! Lo segua, ma attenzione: si volta sempre.', 'He turned right, towards San Barnaba. Running! Follow him, but careful: he always turns round.'),
-        nudge:'Listen again: <i>a destra, verso San Barnaba</i>… <i>si volta sempre</i>.', reply:[D2CM('San Barnaba. Come on, {Me}: right, and keep your eyes open.')] } },
+      { tell:{ to:'Margaret', prompt:'What did he say?', options:['He crossed the campo and turned right, towards San Barnaba, running.', 'He took a gondola to San Marco.', 'He went into the Accademia.'], a:0,
+        line:D2CL('turista', 'Ha attraversato il campo e ha girato a destra, verso San Barnaba. Di corsa!', 'He crossed the campo and turned right, towards San Barnaba. Running!'),
+        nudge:'Listen again: <i>il campo… a destra, verso San Barnaba</i>.', reply:[D2CM('San Barnaba. Come on, {Me}: that way, and keep your eyes open.')] } },
       { photo:'d2c-mappa-sanbarnaba', highlight:'leg1', hold:true },
-      { end:true, then:() => { d2cSet('c3a', 'barca'); toast('<b>Il borseggiatore</b> · towards <b>San Barnaba</b>: the campo with the fruit boat (its mark is on the map, <kbd>M</kbd>).'); } } ] },
-    /* 4 · the fruit boat at San Barnaba */
+      { say:[{ sys:'He gets up, picks up his selfie stick, and points again: that way.' }, D2CL('turista', 'Grazie! E attenzione: è veloce!', 'Thanks! And careful: he’s fast!', { veloce:'fast' })] },
+      { photo:null },
+      { end:true, then:() => d2c3aOn('signore') } ] },
+    /* 3 · the man who can't find his wallet (the "?") */
+    signore:{ npc:'d2c-signore', label:'Il signore', beats:[
+      { say:[{ sys:'A man is patting his pockets and looking all round, this way and that.' },
+        D2CL('signore', 'Il mio portafoglio… non lo trovo più!', 'My wallet… I can’t find it anywhere!', { 'il portafoglio':'the wallet', 'non lo trovo più':'I can’t find it any more' }),
+        D2CL('signore', 'Quell’uomo con il cappello rosso, che correva: deve averlo preso lui!', 'That man in the red hat, running: he must have taken it!', { correva:'was running', 'deve averlo preso':'he must have taken it' })] },
+      { check:{ prompt:'What has happened to him?', line:D2CL('signore', 'Il mio portafoglio… non lo trovo più! Quell’uomo con il cappello rosso: deve averlo preso lui!', 'My wallet… I can’t find it anywhere! That man in the red hat: he must have taken it!'),
+        options:['He can’t find his wallet: he thinks the man in the red hat took it.', 'He has lost his way to San Barnaba.', 'The man in the red hat gave him his wallet back.'], a:0,
+        why:'<i>il portafoglio… non lo trovo più… deve averlo preso lui</i>.', nudge:'Listen for what he can’t find, and who he thinks took it.' } },
+      { sayit:{ en:'Don’t worry: we’re following him!', answer:'nonsipreoccupi , lo stiamo seguendo', also:['lo stiamo seguendo', 'nonsipreoccupi , lo seguiamo', 'nonsipreoccupi , stiamo seguendo ilborseggiatore'],
+        pieces:'nonsipreoccupi nontipreoccupare lo stiamo seguendo seguiamo raggiungendo ilborseggiatore',
+        wrong:[{ has:'nontipreoccupare', near:true, echo:D2CL('signore', 'Grazie, grazie…', 'Thank you, thank you…'), fb:'A stranger: <i>Lei</i>, <b>non si preoccupi</b> (<i>non ti preoccupare</i> is for a friend).' },
+               { has:'raggiungendo', reply:D2CL('signore', 'Lo raggiungete? È veloce, sa!', 'You’re catching him up? He’s fast, you know!'), fb:'For now you are only following him.' }],
+        fill:D2CL('signore', 'Lo state seguendo? Grazie!', 'You’re following him? Thank you!'),
+        reply:[D2CL('signore', 'Lo state seguendo? Grazie! È andato di là, verso San Barnaba. Chieda alla signora della barca: lei vede tutto!', 'You’re following him? Thank you! He went that way, towards San Barnaba. Ask the lady on the fruit boat: she sees everything!', { 'Chieda':'ask (Lei)', 'vede tutto':'sees everything' })],
+        hint:'Reassure him (a stranger: Lei), and tell him you are following the man.', strong:'<b>Non si preoccupi</b>: him + <b>stiamo seguendo</b>!' } },
+      { end:true, then:() => d2c3aGlimpse() } ] },
+    /* 4 · the fruit boat at San Barnaba (the "!") */
     barca:{ npc:'d2c-barca', label:'La barca della frutta', beats:[
       { say:[D2CL('barca', 'Buongiorno! Pomodori, carciofi, mele?', 'Good morning! Tomatoes, artichokes, apples?', { carciofi:'artichokes' })] },
       { sayit:{ en:'No, thank you. Did a man in a red hat come this way?', answer:'no grazie , epassato diqua unuomo con ilcappello rosso', also:['epassato unuomo con ilcappello rosso', 'havisto unuomo con ilcappello rosso'],
         pieces:'no grazie epassato havisto diqua unuomo con ilcappello rosso laborsa',
         wrong:[{ has:'laborsa', reply:D2CL('barca', 'Una borsa? Ho solo frutta!', 'A bag? I’ve only got fruit!'), fb:'Ask about the man in the red hat.' }],
         fill:D2CL('barca', 'Un cappello rosso? Sì!', 'A red hat? Yes!'),
-        reply:[D2CL('barca', 'Sì! Si è fermato qui, ha preso una mela… e non l’ha pagata! Poi ha attraversato il ponte dei Pugni e ha proseguito dritto.', 'Yes! He stopped here, took an apple… and didn’t pay for it! Then he crossed the Ponte dei Pugni and carried straight on.', { 'Si è fermato':'he stopped (fermarsi)', 'non l’ha pagata':'he didn’t pay for it', 'ha proseguito dritto':'he went straight on' })],
+        reply:[D2CL('barca', 'Sì! Si è fermato qui, ha preso una mela… e non l’ha pagata!', 'Yes! He stopped here, took an apple… and didn’t pay for it!', { 'Si è fermato':'he stopped (fermarsi)', 'non l’ha pagata':'he didn’t pay for it' }),
+               D2CL('barca', 'Poi ha attraversato il ponte dei Pugni e ha proseguito dritto. Si è voltato due volte, e si è allontanato verso la porta verde.', 'Then he crossed the Ponte dei Pugni and carried straight on. He turned round twice, and went off towards the green door.', { 'ha proseguito dritto':'he went straight on', 'Si è voltato':'he turned round (voltarsi)', 'si è allontanato':'he went off (allontanarsi)' })],
         hint:'No to her fruit, politely; then ask if a man in a red hat came this way.', strong:'<b>No, grazie</b>. <b>È passato di qua</b> + a man + with the red hat?' } },
       { photo:'d2c-mappa-sanbarnaba', highlight:['barca', 'pugni'], hold:true },
-      { check:{ prompt:'What did he do at the boat?', line:D2CL('barca', 'Si è fermato qui, ha preso una mela… e non l’ha pagata! Poi ha attraversato il ponte dei Pugni e ha proseguito dritto.', 'He stopped here, took an apple… and didn’t pay for it! Then he crossed the Ponte dei Pugni and carried straight on.'),
+      { check:{ prompt:'What did he do at the boat, and after?', line:D2CL('barca', 'Si è fermato qui, ha preso una mela… e non l’ha pagata! Poi ha attraversato il ponte dei Pugni e ha proseguito dritto.', 'He stopped here, took an apple… and didn’t pay for it! Then he crossed the Ponte dei Pugni and carried straight on.'),
         options:['Stopped, took an apple without paying, crossed the Ponte dei Pugni and went straight on.', 'Bought tomatoes and took a boat.', 'Asked the way to the Rialto.'], a:0,
         why:'<i>si è fermato… ha preso una mela… non l’ha pagata… ha attraversato il ponte dei Pugni… dritto</i>.', nudge:'Listen for what he took, and which bridge.' } },
       { sayit:{ en:'Thank you! I’ll pay for the apple.', answer:'grazie , pago io lamela', also:['pago io lamela'], pieces:'grazie pago paga io lei lamela ilpomodoro',
         wrong:[{ all:'paga lei', reply:D2CL('barca', 'Io? Ma la mela l’ha presa lui!', 'Me? But he took the apple!'), fb:'You are the one paying: <b>pago io</b>.' },
                { has:'ilpomodoro', reply:D2CL('barca', 'Il pomodoro? Ha preso una mela!', 'The tomato? He took an apple!'), fb:'He took an apple.' }],
         fill:D2CL('barca', 'La paga Lei? Che gentile!', 'You’re paying for it? How kind!'),
-        reply:[{ sys:'A coin; she gives you an apple too.' }, D2CL('barca', 'Che gentile! E prenda una mela anche Lei. Il ponte è lì: proseguite dritto!', 'How kind! Have an apple yourself. The bridge is there: carry straight on!', { prenda:'take (Lei)', proseguite:'carry on (to you both)' })],
+        reply:[{ sys:'A coin; she gives you an apple too.' }, D2CL('barca', 'Che gentile! E prenda una mela anche Lei. Il ponte è lì: dritto, poi a sinistra, fino alla calle con la porta verde!', 'How kind! Have an apple yourself. The bridge is there: straight on, then left, as far as the calle with the green door!', { prenda:'take (Lei)', 'fino alla':'as far as the' })],
         hint:'Thank her, and say you will pay for the apple yourself.', strong:'<b>Grazie</b>! <b>Pago io</b> + the apple.' } },
-      { photo:null },
-      { end:true, then:() => { d2cSet('c3a', 'bambino'); toast('<b>Il borseggiatore</b> · over the <b>Ponte dei Pugni</b> and straight on, down the long calle.'); } } ] },
-    /* 5 · the boy with the football */
-    bambino:{ npc:'d2c-bambino', label:'Il bambino', beats:[
-      { say:[D2CM('No sign of him. The boy, {Me}: kids notice everything.')] },
-      { sayit:{ en:'Hi! Have you seen a man with a red hat?', answer:'ciao , haivisto unuomo con ilcappello rosso', also:['haivisto unuomo con ilcappello rosso', 'haivisto ilcappello rosso'], pieces:'ciao haivisto havisto unuomo con ilcappello rosso unpallone',
-        wrong:[{ has:'havisto', near:true, echo:D2CL('bambino', 'Se l’ho visto? Sì!', 'Have I seen him? Yes!'), fb:'A child: <i>tu</i>, <b>hai visto</b> (<i>ha visto</i> is for an adult you don’t know).' },
-               { has:'unpallone', reply:D2CL('bambino', 'Il mio pallone? È qui!', 'My football? It’s here!'), fb:'Ask about the man in the red hat.' }],
-        fill:D2CL('bambino', 'Il cappello rosso? Sì!', 'The red hat? Yes!'),
-        reply:[D2CL('bambino', 'Sì! Si è voltato due volte, così! Poi si è allontanato verso il rio, e ha girato a sinistra, nella calle con la porta verde.', 'Yes! He turned round twice, like this! Then he went off towards the canal and turned left, into the calle with the green door.', { 'Si è voltato':'he turned round (voltarsi)', 'si è allontanato':'he went off (allontanarsi)' }),
-               D2CL('bambino', 'Ma non si avvicini troppo: è cattivo!', 'But don’t get too close: he’s nasty!', { 'non si avvicini':'don’t go near (Lei)', cattivo:'nasty' })],
-        hint:'A boy: greet him as a friend, and ask if he has seen a man with a red hat.', strong:'<b>Ciao</b>! <b>Hai visto</b> + a man + with the red hat?' } },
       { photo:'d2c-mappa-sanbarnaba', highlight:['toleta', 'verde'], hold:true },
-      { check:{ prompt:'Where did he go?', line:D2CL('bambino', 'Si è allontanato verso il rio, e ha girato a sinistra, nella calle con la porta verde.', 'He went off towards the canal and turned left, into the calle with the green door.'),
-        options:['Towards the canal, then left into the calle with the green door.', 'Back to the bridge.', 'Onto a boat.'], a:0, why:'<i>verso il rio… a sinistra… la porta verde</i>.', nudge:'Listen for the direction and the colour of the door.' } },
+      { say:[D2CM('The green door. Over the bridge, {Me}, then left. I’ll be right behind you.')] },
       { photo:null },
-      { end:true, then:() => { d2cSet('c3a', 'verde'); toast('<b>Il borseggiatore</b> · left, into the calle with the <b>green door</b>. Quietly.'); } } ] },
-    /* 6 · at the green door: Margaret's whisper */
+      { end:true, then:() => { d2c3aOn('verde'); toast('<b>Il borseggiatore</b> · over the <b>Ponte dei Pugni</b>, then left: the calle with the <b>green door</b>. Quietly.'); } } ] },
+    /* 5 · at the green door: behind the wellhead, the boy on its step, Margaret's whisper */
     sussurro:{ npc:'margaret', label:'La porta verde', beats:[
-      { say:[{ sys:'The calle. The red hat, at a green door, looking both ways.' }, D2CM('Is he looking our way?')] },
+      { say:[{ sys:'Behind the wellhead. A boy with a football is sitting on its step, right where you need to crouch.' }, D2CL('bambino', 'Ehi! Che cosa fate?', 'Hey! What are you doing?')] },
+      { sayit:{ en:'Sorry, could you move over?', answer:'scusa , tipuoi spostare', also:['scusa , tisposti', 'tipuoi spostare', 'tisposti'], pieces:'scusa scusi permesso tipuoi tisposti sipuo spostare sisposta',
+        wrong:[{ has:'permesso', ok:true, echo:D2CL('bambino', 'Mi sposto, mi sposto!', 'I’m moving, I’m moving!'), fb:'Right too: <i>Permesso!</i> gets you past.' },
+               { has:'sipuo', near:true, echo:D2CL('bambino', 'Mi sposto, mi sposto!', 'I’m moving, I’m moving!'), fb:'A child: <i>tu</i>, <b>ti puoi spostare?</b> (<i>si può spostare</i> is for <i>Lei</i>).' },
+               { has:'sisposta', near:true, echo:D2CL('bambino', 'Mi sposto, mi sposto!', 'I’m moving, I’m moving!'), fb:'A child: <i>tu</i>, <b>ti sposti?</b> (<i>si sposta</i> is for <i>Lei</i>).' },
+               { has:'scusi', near:true, echo:D2CL('bambino', 'Scusa? Va bene…', 'Sorry? All right…'), fb:'A child: <b>scusa</b> (<i>scusi</i> is for <i>Lei</i>).' }],
+        fill:D2CL('bambino', 'Mi sposto, mi sposto!', 'I’m moving, I’m moving!'),
+        reply:[D2CL('bambino', 'Mi sposto, mi sposto… Ma chi è quello?', 'I’m moving, I’m moving… But who’s that?', { 'Mi sposto':'I’m moving over (spostarsi)' })],
+        hint:'A boy: ask him (tu, he is a child) to move over.', strong:'<b>Scusa</b>, can you + <b>spostare</b>?' } },
+      { say:[{ sys:'At the green door, the red hat looks both ways.' }, D2CM('Shh! Is he looking our way?')] },
       { sayit:{ en:'Yes, he’s turning round! Stop!', answer:'sì , sistavoltando , fermi', also:['sivolta , fermi', 'sistavoltando'], pieces:'sì sistavoltando sivolta stavoltando stagirando fermi andiamo',
         wrong:[{ has:'stavoltando', near:true, echo:D2CM('(Margaret freezes.)'), fb:'He turns <i>himself</i> round: <b>si</b> sta voltando (<i>voltarsi</i>).' },
-               { has:'andiamo', reply:D2CM('Go? Now? He’s looking straight at us!'), fb:'He’s turning round: tell Margaret to stop.' }],
-        fill:[{ sys:'Margaret pulls you behind the wellhead.' }],
-        reply:[{ sys:'You stop behind the wellhead. He knocks three times; the door opens; he goes in.' }, D2CM('He knocked three times, {Me}. Someone was waiting. We mustn’t go in alone. Ring the carabinieri: the one at the Accademia, Rizzo.')],
-        hint:'Tell Margaret: yes, he is turning round, so stop! (voltarsi, Lesson 5’s reflexives).', strong:'<b>Sì</b>, <b>si sta voltando</b>! <b>Fermi</b>!' } },
+               { has:'andiamo', reply:D2CM('Go? Now? He’s looking straight at us!'), fb:'He’s turning round: tell Margaret and the boy to stop.' }],
+        fill:[{ sys:'Margaret pulls you both down behind the wellhead.' }],
+        reply:[{ sys:'The three of you keep still behind the wellhead. He knocks three times; the door opens; he goes in.' }, D2CM('He knocked three times, {Me}. Someone was waiting. We mustn’t go in alone. Ring the carabinieri: the one at the Accademia, Rizzo.')],
+        hint:'Tell Margaret and the boy: yes, he is turning round, so stop! (voltarsi, Lesson 5’s reflexives).', strong:'<b>Sì</b>, <b>si sta voltando</b>! <b>Fermi</b>!' } },
       { end:true, then:() => d2c3aKnock() } ] },
     /* 7 · the phone: Rizzo (the "repeat it" half) */
     telefono:{ npc:'d2c-rizzo', label:'☎ Il maresciallo Rizzo', beats:[
@@ -28288,7 +28299,7 @@ const D2C3A_SCRIPT = convoScript({
       { sayit:{ en:'He crossed the campo and turned right, towards San Barnaba.', answer:'haattraversato ilcampo , e? hagirato adestra versosanbarnaba', also:['hagirato adestra versosanbarnaba', 'haattraversato ilcampo e hagirato adestra'],
         pieces:'haattraversato ilcampo ilponte e hagirato egirato adestra asinistra versosanbarnaba',
         wrong:[{ has:'egirato', near:true, echo:D2CL('rizzo', 'Ha girato a destra…', 'He turned right…'), fb:'<i>Girare</i> takes <i>avere</i>: <b>ha girato</b>.' },
-               { has:'asinistra', reply:D2CL('rizzo', 'A sinistra? Ma San Barnaba è a destra, per Lei.', 'Left? But San Barnaba is to your right.'), fb:'The gondolier said: to the right.' }],
+               { has:'asinistra', reply:D2CL('rizzo', 'A sinistra? Ma San Barnaba è a destra, per Lei.', 'Left? But San Barnaba is to your right.'), fb:'The tourist said: to the right.' }],
         more:P => d2cMiss(P, 'hagirato', 'adestra', 'versosanbarnaba') ? D2CL('rizzo', 'Il campo… e poi?', 'The campo… and then?') : D2CL('rizzo', 'Verso San Barnaba… da dove?', 'Towards San Barnaba… from where?'),
         fill:D2CL('rizzo', 'A destra, verso San Barnaba…', 'Right, towards San Barnaba…'),
         reply:[D2CL('rizzo', 'A destra, verso San Barnaba. E poi?', 'Right, towards San Barnaba. And then?')],
@@ -28305,7 +28316,7 @@ const D2C3A_SCRIPT = convoScript({
       { sayit:{ en:'He went on straight, and went into a house with a green door.', answer:'haproseguito dritto , ed eentrato inunacasa conlaporta verde', also:['eentrato inunacasa conlaporta verde', 'haproseguito dritto'],
         pieces:'haproseguito dritto ed eentrato haentrato inunacasa conlaporta verde rossa',
         wrong:[{ has:'haentrato', near:true, echo:D2CL('rizzo', 'È entrato…', 'He went in…'), fb:'<i>Entrare</i> takes <i>essere</i>: <b>è entrato</b>.' },
-               { has:'rossa', reply:D2CL('rizzo', 'Rossa? Il bambino ha detto un altro colore…', 'Red? The boy said another colour…'), fb:'The door’s colour: the boy told you.' }],
+               { has:'rossa', reply:D2CL('rizzo', 'Rossa? La signora della barca ha detto un altro colore…', 'Red? The lady on the boat said another colour…'), fb:'The door’s colour: the lady on the boat told you.' }],
         more:P => d2cMiss(P, 'eentrato', 'inunacasa', 'conlaporta', 'verde') ? D2CL('rizzo', 'Dritto… e poi?', 'Straight on… and then?') : D2CL('rizzo', 'Una porta verde… dopo il ponte?', 'A green door… after the bridge?'),
         fill:D2CL('rizzo', 'Una porta verde, dopo il ponte dei Pugni…', 'A green door, after the Ponte dei Pugni…'),
         reply:[D2CL('rizzo', 'Una porta verde dopo il ponte dei Pugni. La conosco… Vi raggiungo in dieci minuti. Non vi muovete, e non vi avvicinate alla porta!', 'A green door after the Ponte dei Pugni. I know it… I’ll join you in ten minutes. Don’t move, and don’t go near the door!', { 'Vi raggiungo':'I’ll join you', 'Non vi muovete':'don’t move (to you both)', 'non vi avvicinate':'don’t go near (to you both)' }),
@@ -28317,7 +28328,7 @@ const D2C3A_SCRIPT = convoScript({
       { end:true, then:() => d2c3aBoyComes() } ] },
     /* 8 · the boy heads for the green door: stop him */
     fermo:{ npc:'d2c-bambino', label:'Il bambino', beats:[
-      { say:[{ sys:'The boy from the long calle has followed you, his ball under his arm, and heads straight for the green door.' }, D2CM('Oh no. {Me}, stop him!')] },
+      { say:[{ sys:'The boy from the wellhead, his ball under his arm, heads straight for the green door.' }, D2CM('Oh no. {Me}, stop him!')] },
       { sayit:{ en:'Don’t move, and don’t go near the door!', answer:'non muoverti , e? non avvicinarti allaporta', also:['non timuovere , e? non tiavvicinare allaporta', 'non avvicinarti allaporta', 'fermo , non avvicinarti'],
         pieces:'non muoverti timuovere avvicinarti tiavvicinare siavvicini allaporta alponte fermo',
         wrong:[{ has:'siavvicini', near:true, echo:D2CL('bambino', 'Va bene, va bene!', 'All right, all right!'), fb:'A child: <i>tu</i>, <b>non avvicinarti</b> (<i>non si avvicini</i> is for <i>Lei</i>).' },
@@ -28333,18 +28344,18 @@ const D2C3A_SCRIPT = convoScript({
 /* ---------- the study page ---------- */
 const D2C3A_STUDY = {
   title:'Il borseggiatore · studia', sub:'Moving: follow, turn, stop, carry on, cross. And the past of reflexives: si è fermato, si è voltato.',
-  intro:'<b>Il cappello rosso.</b> Ugo’s pickpocket works the Accademia bridge. Follow him without being seen, and ask the passers-by which way he went: the gondolier, the lady of the fruit boat, a boy. Then tell the carabiniere the whole way, on the phone.',
+  intro:'<b>Il cappello rosso.</b> Ugo’s pickpocket works the Accademia bridge. When he runs, ask the people he passed which way he went: the tourist he knocked over, a man he robbed, the lady of the fruit boat. Then tell the carabiniere the whole way, on the phone.',
   sections:[
     { id:'muoversi', title:'1 · Muoversi', html:`<table class="ts-num">${[['seguire', 'to follow'], ['girare', 'to turn'], ['attraversare', 'to cross'], ['proseguire', 'to carry on'], ['raggiungere', 'to catch up with'],
         ['fermarsi', 'to stop'], ['voltarsi', 'to turn round'], ['avvicinarsi', 'to go near'], ['allontanarsi', 'to move away'], ['muoversi', 'to move'], ['spostarsi', 'to move over']].map(([a, b]) => D2C_SAY(a, b)).join('')}</table>` },
     { id:'passato', title:'2 · Da che parte è andato?', html:`<table class="ts-num">${[['Da che parte è andato?', 'Which way did he go?'], ['Ha attraversato il ponte.', 'He crossed the bridge.'], ['Ha girato a destra.', 'He turned right.'],
         ['Ha proseguito dritto.', 'He went straight on.'], ['Si è fermato.', 'He stopped.'], ['Si è voltato.', 'He turned round.'], ['È entrato in una casa.', 'He went into a house.']].map(([a, b]) => D2C_SAY(a, b)).join('')}</table>
       <p>Most verbs with <b>avere</b>; reflexives and <i>andare, entrare, passare</i> with <b>essere</b>.</p>` },
-    { id:'non', title:'3 · Non muoverti!', html:`<table class="ts-num">${[['Non muoverti!', 'Don’t move! (a friend, a child)'], ['Non avvicinarti alla porta!', 'Don’t go near the door!'], ['Scusi, si può spostare?', 'Excuse me, could you move? (Lei)'],
-        ['Hai visto un uomo con il cappello rosso?', 'Have you seen a man in a red hat? (a child)']].map(([a, b]) => D2C_SAY(a, b)).join('')}</table>` },
+    { id:'non', title:'3 · Non muoverti!', html:`<table class="ts-num">${[['Non muoverti!', 'Don’t move! (a friend, a child)'], ['Non avvicinarti alla porta!', 'Don’t go near the door!'], ['Scusa, ti puoi spostare?', 'Sorry, could you move over? (a child: tu)'],
+        ['Non si preoccupi!', 'Don’t worry! (Lei)']].map(([a, b]) => D2C_SAY(a, b)).join('')}</table>` },
   ],
   phrasesTitle:'What you’ll say',
-  phrases:[['Scusi, da che parte è andato l’uomo con il cappello rosso?', 'Excuse me, which way did the man in the red hat go?', 'Polite: a stranger.'],
+  phrases:[['Scusi, dov’è andato?', 'Excuse me, where did he go?', 'Polite: a stranger.'], ['Non si preoccupi: lo stiamo seguendo!', 'Don’t worry: we’re following him!', 'Lei.'],
     ['Si è fermato alla barca della frutta.', 'He stopped at the fruit boat.', 'Reflexive: essere.'], ['Non muoverti e non avvicinarti alla porta!', 'Don’t move, and don’t go near the door!', 'To a child.']],
   vocab:[{ group:'Muoversi', words:D2C3A_WORDS }],
   exercises:[
@@ -28366,191 +28377,302 @@ Object.assign(treeNode('d2-c3a'), { words:D2C3A_WORDS, extra:D2C3A_EXTRA, howto:
   rule3:{ except:['allontanarsi', 'raggiungere'], carried:[['destra'], ['sinistra'], ['fermato'], ['seguendo']] }, soon:false });
 
 /* ===== units/venezia/tree/d2-c3a/flow.js ===== */
-/* District 2 · C3a · Il borseggiatore: the flow (the script: content.js). Steps (S.d2c.c3a.step): start (pending: E at the foot of the Accademia bridge,
-   Dorsoduro side, with Margaret) → ponte (her lines) → segui (the follow: Fabio walks off the bridge, across Campo della Carità and into the calle by San
-   Trovaso; a distance meter, lontano · bene · troppo vicino; too close and he stops and turns: stand still; a second time too close, or moving while he
-   looks, and he's gone; the tourist with the selfie stick on the way) → gondoliere (the traghetto) → barca (the fruit boat, San Barnaba) → bambino (the
-   boy down Calle de la Toleta) → verde (the calle with the green door: Fabio at it; near it, Margaret's whisper) → telefono (he knocks three times and
-   goes in; the phone: Rizzo) → fermo (the boy heads for the door) → fatto. The follow is the branch's own (no engine piece): d2c3aFollowTick, its
-   meter a small panel over the canvas (#d2cMeter). */
+/* District 2 · C3a · Il borseggiatore: the flow (the script: content.js). Reworked 24 Nov (the designer's playtest: "I never saw the man… The interaction
+   needs to be forced… the player is guided"): no free follow that can lose him, a guided sequence. Steps (S.d2c.c3a.step):
+     start     (pending: E at the foot of the Accademia bridge, Dorsoduro side, with Margaret; the red hat already on the bridge, in view)
+     ponte     Margaret's lines (the script 'ponte')
+     fuga      the cutscene (d2c3aFugaPlay): the camera pans to him on the bridge, he sees you and bolts, knocks the tourist with the selfie stick onto
+               his bottom (the fall drawn in render.js: the stick flies), runs off the screen; the camera comes back to you
+     turista   the fallen tourist ("!"): where did he go? (di là, verso San Barnaba)
+     signore   a man looking all round ("?"): his wallet; then a glimpse of the red hat ahead (d2c3aGlimpsePlay: a short run across the view)
+     barca     the lady of the vegetable boat ("!"): the apple, the way to the green door
+     verde     the calle with the green door: on arriving, a cutscene (d2c3aHide) moves you and Margaret behind the wellhead; the boy on its step;
+               Margaret's whisper (the script 'sussurro')
+     telefono  he knocks three times and goes in; the phone: Rizzo
+     fermo     the boy heads for the door
+     fatto
+   Whoever you need next has a "!" (the story hook's markers: d2c3aGoal) or the "?" of the man who was robbed, the map's mark, the guide's line,
+   and an arrow at the edge of the view while they are off it (d2c3aArrow). Old saves (the follow of 20 Nov): segui → turista, gondoliere → signore,
+   bambino → verde. */
 const d2c3aStep = () => d2cStep('c3a');
-const D2C_FOLLOW = { near:4, good:11, turnS:1.3, speed:2.7 };      // (metres; the turn's seconds; Fabio's pace, m/s)
-function d2c3aFollowStart(){
-  d2cSet('c3a', 'segui');
-  const pts = D2C_CELLS.fabioPath.map(c => d2cCell(c, 14));
-  D2C.follow = { on:true, pts, i:1, close:0, turn:0, still:0, lost:false, gone:false, band:'bene', tourist:false, paused:false, said:false, t:0, moved:0 };
-  const F = NPC['d2c-fabio']; if (F){ d2cPut(F, pts[0], { x:0, y:1 }); F.moving = false; }
-  toast('<b>Il borseggiatore</b> · follow the red hat: not too close, not too far. If he turns round, <b>stand still</b>.');
+const D2C3A_OLD = { segui:'turista', gondoliere:'signore', bambino:'verde' };
+const D2C3A = { cut:null, fall:null, gone:false, show:false, hid:false, tries:{}, look:0, log:[] };
+function d2c3aOn(step){ d2cSet('c3a', step); D2C3A.log.push(step); }
+const d2c3aPending = () => d2cOpenK('c3a') && !treeBegun('d2-c3a') && !d2cDoneK('c3a');
+/* the green door (the city prop: d2-c/places.js), the wellhead, where you hide */
+const d2c3aDoor = () => (VZ.d2c && VZ.d2c.verde) ? { x:VZ.d2c.verde.x, y:VZ.d2c.verde.y } : d2cRaw('verde');
+const d2c3aWell = () => (VZ.d2c && VZ.d2c.well) ? { x:VZ.d2c.well.x, y:VZ.d2c.well.y } : d2cCell('well');
+function d2c3aHideSpots(){
+  const W = d2c3aWell(), D = d2c3aDoor(), M = VZ_M, side = D.x > W.x ? -1 : 1;      // (behind it: the side away from the door)
+  return { side, W, D, me:VZ.snap(W.x + side * 2.1 * M, W.y + 0.1 * M, 10), mg:VZ.snap(W.x + side * 2.9 * M, W.y + 0.9 * M, 10),
+    boy:{ x:W.x + side * 1.15 * M, y:W.y + 0.35 * M }, boy2:{ x:W.x + side * 0.1 * M, y:W.y + 1.15 * M }, fabio:VZ.snap(D.x, D.y + 0.9 * M, 8) };
 }
-/* the meter over the canvas */
-function d2cMeter(band){
-  let el = document.getElementById('d2cMeter');
-  if (!band){ if (el && el.style.display !== 'none'){ el.style.display = 'none'; el.hidden = true; } return; }
-  if (!el){ el = document.createElement('div'); el.id = 'd2cMeter'; el.setAttribute('role', 'status');
-    el.style.cssText = 'position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:40;display:flex;gap:4px;padding:6px 8px;border-radius:12px;background:rgba(15,34,96,.88);color:#fff;font:600 13px/1.2 "Titillium Web",sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.3)';
-    el.innerHTML = ['lontano', 'bene', 'troppo vicino'].map(b => `<span data-b="${b}" style="padding:4px 10px;border-radius:8px;opacity:.45">${b}</span>`).join('');
-    document.body.appendChild(el); }
-  el.hidden = false; el.style.display = 'flex';
-  el.querySelectorAll('span').forEach(s => { const on = s.dataset.b === band; s.style.opacity = on ? '1' : '.4'; s.style.background = on ? ({ lontano:'#e8b830', bene:'#3a9a4a', 'troppo vicino':'#c23b2a' })[band] : 'transparent'; s.style.color = on && band === 'lontano' ? '#0f2260' : '#fff'; });
+const d2c3aInView = (n, m = 12) => !!n && n.x > cam.x - m && n.x < cam.x + viewW() + m && n.y > cam.y - m && n.y < cam.y + viewH() + m;
+const d2c3aFree = () => !dialogOpen && !modalOpen && !traveling && !cutsceneOn() && !frozen() && !(typeof cardOpen === 'function' && cardOpen());
+
+/* ---------- 1 · the bridge: he bolts (the cutscene) ---------- */
+function d2c3aFuga(){ d2c3aOn('fuga'); D2C3A.gone = false; d2cAfter(() => d2c3aFugaPlay(), 250); }
+function d2c3aFugaPlay(){
+  if (D2C3A.cut || d2c3aStep() !== 'fuga') return;
+  if (!d2cCity()){ d2c3aFugaDone(); return; }
+  D2C.placed = null; d2cPlace();
+  const F = NPC['d2c-fabio'], T = NPC['d2c-turista'], M = VZ_M;
+  if (!F || !T || !activeNpcs().includes(F)){ d2c3aFugaDone(); return; }
+  D2C3A.cut = 'fuga'; D2C3A.tries.fuga = (D2C3A.tries.fuga || 0) + 1;
+  const P = D2C_CELLS.fugaPath.map(c => d2cCell(c, 12)), hit = { x:T.x + 0.45 * M, y:T.y - 0.55 * M };
+  const on = [{ x:T.x - 1.2 * M, y:T.y + 1.4 * M }, ...P.slice(1)];
+  cutscene([
+    { run:() => vzCamLook({ x:F.x, y:F.y + 1.2 * M, z:1.6, ms:1300 }) },
+    { face:'d2c-fabio', to:'player' },
+    { say:'Eh?!', who:'d2c-fabio', ms:900, auto:true },
+    { run:() => { vzCamLook({ x:hit.x, y:hit.y - 0.5 * M, z:1.6, ms:1100 }); } },
+    { walk:'d2c-fabio', path:[P[0], hit], speed:7.5 * M },
+    { run:() => d2c3aFall() },
+    { walk:'d2c-fabio', path:on, speed:7.5 * M, async:true },
+    { say:'Ahi!', who:'d2c-turista', ms:900, auto:true },
+    { until:() => !F.cutWalk || !d2c3aInView(F, -6) },
+    { run:() => { D2C3A.gone = true; D2C.placed = null; } },
+    { wait:500 },
+    { run:() => vzCamBack(1100) },
+    { say:fill('He’s seen us! … The tourist, {Me}: ask him which way he went.'), who:'margaret' },
+  ], { id:'d2c3a-fuga', guide:'<b>Il borseggiatore</b> · the red hat, on the bridge…' }).then(() => d2c3aFugaDone());
 }
-function d2c3aFollowEnd(how){
-  const F = D2C.follow; if (!F || !F.on) return; F.on = false; F[how] = true; d2cMeter(null);
-  d2c3aFollowCam(false);
-  const n = NPC['d2c-fabio']; if (n) n.moving = false;
-  d2cSet('c3a', 'gondoliere');
-  const line = fill(how === 'lost' ? 'He’s seen us! … And he’s gone. Ask the gondolier, {Me}. He sees everyone.' : 'Lost him. Ask the gondolier, {Me}. He sees everyone.');
-  if (NPC.margaret && activeNpcs().includes(NPC.margaret)) worldSay('margaret', line, { ms:5200 }); toast(`<b>Margaret</b> · “${esc(line)}”`);
-  D2C.log.push('follow:' + how);
+function d2c3aFugaDone(){
+  D2C3A.cut = null; D2C3A.gone = true;
+  if (!D2C3A.fall) d2c3aFall(true);
+  if (VZ_CAM.fx != null || VZ_CAM.z != null) vzCamBack(500);
+  const F = NPC['d2c-fabio']; if (F){ F.cutWalk = false; F.moving = false; }
+  d2cNode('c3a').fell = true; save();
+  if (d2c3aStep() === 'fuga') d2c3aOn('turista');
+  D2C.placed = null; renderHUD();
 }
-/* the camera during the follow: both of you in view (the review of 21 Nov: 6 m behind him, the red hat was off the bottom of the screen). The
-   camera's focus (VZ_CAM.fx / fy: the point kept 60% down the view) is put so that the middle of you two sits at the view's middle; let go
-   when the follow ends */
-function d2c3aFollowCam(on, dt){
-  const n = NPC['d2c-fabio'];
-  if (!on || !n || !VZ_CITY[S.scene] || (VZ_CAM.anim && !D2C.followCam)){
-    if (D2C.followCam){ D2C.followCam = false; D2C.followZ = null; if (Math.abs(camZoom() - ((S && S.vzZoom) || VZ_ZOOM)) > 0.02) vzCamBack(700); else { VZ_CAM.z = null; VZ_CAM.fx = null; VZ_CAM.fy = null; } }
-    return;
-  }
-  if (VZ_CAM.anim){ cancelAnimationFrame(VZ_CAM.anim); VZ_CAM.anim = null; }
-  /* far apart (lontano): the camera draws back a little, so that both still fit (eased) */
-  const M = VZ_M, base = (S && S.vzZoom) || VZ_ZOOM, top = Math.min(player.y, n.y) - 2.1 * M, bot = Math.max(player.y, n.y) + 0.5 * M;     // (from the higher head to the lower feet)
-  const need = Math.min(0.72 * H / (bot - top), 0.85 * W / (Math.abs(player.x - n.x) + 2 * M));      // (the guide's banner covers the view’s top: 0.72 of it, a margin)
-  const zt = Math.round(Math.max(Math.min(1.05, base), Math.min(base, need)) * 20) / 20;      // (in steps of 0.05, reached: the zoom then still)
-  D2C.followZ = D2C.followZ ? D2C.followZ + (zt - D2C.followZ) * (1 - Math.exp(-8 * Math.min(0.1, dt || 0.016))) : camZoom();
-  if (Math.abs(D2C.followZ - zt) < 0.004) D2C.followZ = zt;
-  VZ_CAM.z = D2C.followZ;
-  const vh = H / D2C.followZ, mx = (player.x + n.x) / 2, my = (top + bot) / 2;       // (the pair's middle, 57% down the view: below the guide)
-  VZ_CAM.fx = mx; VZ_CAM.fy = my + (VZ_ANCHOR - 0.57) * vh; D2C.followCam = true;
+/* the fall: the tourist on his bottom, the selfie stick flying (drawn by render.js: d2c3aTouristDraw) */
+function d2c3aFall(done){
+  D2C3A.fall = { t0:done ? performance.now() - 1e4 : performance.now() };
+  d2cNode('c3a').fell = true; save();
 }
-function d2c3aFollowTick(dt){
-  const F = D2C.follow; d2c3aFollowCam(!!(F && F.on && d2c3aStep() === 'segui'), dt);
-  if (!F || !F.on || d2c3aStep() !== 'segui') { if (F && F.on && d2c3aStep() !== 'segui'){ F.on = false; d2cMeter(null); } return; }
-  const n = NPC['d2c-fabio']; if (!n || !d2cCity()) return;
-  if (dialogOpen || modalOpen || frozen() || cutsceneOn()){ n.moving = false; return; }
-  dt = Math.min(0.05, dt || 0.016); F.t += dt;
-  const M = VZ_M, d = Math.hypot(player.x - n.x, player.y - n.y) / M;
-  const band = d < D2C_FOLLOW.near ? 'troppo vicino' : d > D2C_FOLLOW.good ? 'lontano' : 'bene'; F.band = band; F.d = Math.round(d * 10) / 10; d2cMeter(band);
-  /* the tourist: in your way on the steps */
-  const T = NPC['d2c-turista'];
-  if (!F.tourist && T && Math.hypot(player.x - T.x, player.y - T.y) < 1.7 * M){ F.tourist = true; n.moving = false; openConvo(T); return; }
-  /* turned round: stand still */
-  if (F.turn > 0){
-    F.turn -= dt; n.moving = false; const dx = player.x - n.x, dy = player.y - n.y, L = Math.hypot(dx, dy) || 1; n.face = { x:dx / L, y:dy / L };
-    if (player.moving || (F.px !== undefined && Math.hypot(player.x - F.px, player.y - F.py) > 0.25 * M)){ d2c3aFollowEnd('lost'); return; }
-    if (F.turn <= 0){ F.px = undefined; F.t = 0; }
-    return;
-  }
-  if (band === 'troppo vicino' && F.t > 1.2){
-    F.close++;
-    if (F.close >= 2){ d2c3aFollowEnd('lost'); return; }
-    F.turn = D2C_FOLLOW.turnS; F.px = player.x; F.py = player.y; worldSay('d2c-fabio', 'Eh?', { ms:1200 });
-    toast('<b>Troppo vicino!</b> He’s turning round: stand still.'); return;
-  }
-  /* on along his way (a little slower when you are far: he dawdles to look at bags) */
-  let go = D2C_FOLLOW.speed * M * dt * (band === 'lontano' ? 0.7 : 1);
-  while (go > 0 && F.i < F.pts.length){ const q = F.pts[F.i], dx = q.x - n.x, dy = q.y - n.y, L = Math.hypot(dx, dy);
-    if (L <= go){ n.x = q.x; n.y = q.y; go -= L; F.i++; continue; } n.x += dx / L * go; n.y += dy / L * go; n.face = { x:dx / L, y:dy / L }; go = 0; }
-  n.moving = F.i < F.pts.length; n.walk = (n.walk || 0) + dt * 9;
-  if (F.i >= F.pts.length) d2c3aFollowEnd('gone');
+/* the tourist's pose (render.js): standing with his selfie stick, falling (the fall's start: D2C3A.fall.t0), or sitting on the paving */
+function d2c3aTouristPose(){
+  const st = d2c3aStep();
+  if (!d2cLive('c3a') || !['fuga', 'turista'].includes(st)) return 'stand';
+  if (D2C3A.fall) return 'fall';
+  return st === 'turista' && d2cNode('c3a').fell ? 'sit' : 'stand';
 }
-function d2c3aTouristDone(){ const T = NPC['d2c-turista']; if (T){ T.x += 2.2 * VZ_M; T.y += 0.6 * VZ_M; T.home = { x:T.x, y:T.y, face:{ x:-1, y:0 } }; } if (D2C.follow) D2C.follow.t = 0; }
+
+/* ---------- 3 · after the man who was robbed: a glimpse of the red hat ahead ---------- */
+function d2c3aGlimpse(){ d2c3aOn('barca'); d2cAfter(() => d2c3aGlimpsePlay(), 300); }
+function d2c3aGlimpsePlay(){
+  const F = NPC['d2c-fabio'], M = VZ_M;
+  if (D2C3A.cut || !d2cCity() || !F) return;
+  const P = D2C_CELLS.glimpsePath.map(c => d2cCell(c, 12));
+  D2C3A.cut = 'glimpse'; D2C3A.show = true; D2C.placed = null; d2cPlace(); d2cPut(F, P[0], { x:-1, y:0 });
+  cutscene([
+    { run:() => vzCamLook({ x:(P[0].x + P[1].x) / 2, y:(P[0].y + P[1].y) / 2, z:1.5, ms:1000 }) },
+    { say:fill('There! The red hat, {Me}, up ahead!'), who:'margaret', auto:true, ms:1200, silent:false },
+    { walk:'d2c-fabio', path:P.slice(1), speed:6.5 * M, async:true },
+    { until:() => !F.cutWalk || !d2c3aInView(F, -6) },
+    { run:() => { D2C3A.show = false; D2C.placed = null; } },
+    { wait:400 },
+    { run:() => vzCamBack(900) },
+  ], { id:'d2c3a-glimpse', guide:'<b>Il borseggiatore</b> · up ahead: the red hat, towards San Barnaba.' }).then(() => {
+    D2C3A.cut = null; D2C3A.show = false; D2C3A.glimpsed = true; F.cutWalk = false; D2C.placed = null; if (VZ_CAM.fx != null) vzCamBack(500);
+    toast('<b>Il borseggiatore</b> · towards <b>San Barnaba</b>: the lady of the fruit boat (<b>!</b>).');
+  });
+}
+
+/* ---------- 5 · the green door: moved behind the wellhead (the cutscene), then Margaret's whisper ---------- */
+function d2c3aHide(){
+  const H = d2c3aHideSpots(), M = VZ_M, Mg = NPC.margaret;
+  D2C3A.cut = 'hide'; D2C3A.tries.hide = (D2C3A.tries.hide || 0) + 1;
+  if (Mg && d2cMgHere() && Math.hypot(Mg.x - player.x, Mg.y - player.y) > 6 * M){ const q = VZ.snap(player.x - (H.side < 0 ? 1 : -1) * 0.9 * M, player.y + 0.5 * M, 10); Mg.x = q.x; Mg.y = q.y; }      // (left behind: at your shoulder)
+  const face = { x:-H.side, y:0 };
+  const steps = [
+    { run:() => vzCamLook({ x:(player.x + H.D.x) / 2, y:H.D.y + 1.6 * M, z:1.6, ms:1000 }) },
+    { say:fill('There! At the green door. Quick, {Me}: behind the wellhead!'), who:'margaret', auto:true, ms:1500 },
+    { walk:'player', path:[H.me], speed:4.6 * M, face, async:true },
+  ];
+  if (Mg && d2cMgHere()) steps.push({ walk:'margaret', path:[H.mg], speed:4.6 * M, face });
+  steps.push({ wait:300 }, { run:() => vzCamLook({ x:(H.me.x + H.D.x) / 2, y:(H.W.y + H.D.y) / 2 + 0.8 * M, z:1.6, ms:700 }) });
+  cutscene(steps, { id:'d2c3a-hide', guide:'<b>La porta verde</b> · the red hat, at the green door.' }).then(() => {
+    D2C3A.cut = null; D2C3A.hid = true; player.x = H.me.x; player.y = H.me.y; player.face = { ...face };
+    if (Mg && d2cMgHere()){ Mg.x = H.mg.x; Mg.y = H.mg.y; Mg.face = { ...face }; }
+    if (d2c3aStep() === 'verde' && Mg && d2cMgHere()) openConvo(Mg); else if (d2c3aStep() === 'verde') scriptOpen('d2c3a', 'sussurro');
+  });
+}
 /* at the green door: he knocks three times and goes in; then the phone */
 function d2c3aKnock(){
   d2cAfter(() => {
     worldSay('d2c-fabio', 'Toc, toc, toc.', { ms:1800 });
-    setTimeout(() => { d2cNode('c3a').inside = true; save(); D2C.placed = null; d2cSet('c3a', 'telefono'); d2cPhone('d2c-rizzo'); }, 2000);
+    setTimeout(() => { d2cNode('c3a').inside = true; save(); D2C.placed = null; d2cSet('c3a', 'telefono'); if (VZ_CAM.fx != null) vzCamBack(900); d2cPhone('d2c-rizzo'); }, 2000);
   });
 }
 function d2c3aBoyComes(){ d2cSet('c3a', 'fermo'); d2cAfter(() => { D2C.placed = null; d2cPlace(); d2cSoon('d2c-bambino', 300); }); }
+
+/* ---------- who you need next: the "!" (the story hook's markers), the arrow, the map ---------- */
+function d2c3aGoal(){
+  if (!d2cLive('c3a')) return null;
+  return { turista:'d2c-turista', barca:'d2c-barca', fermo:'d2c-bambino' }[d2c3aStep()] || null;
+}
+/* the place the guide points at: a person, or the calle with the green door */
+function d2c3aTarget(){
+  if (!d2cLive('c3a')) return null;
+  const st = d2c3aStep(), n = id => (NPC[id] && activeNpcs().includes(NPC[id])) ? { x:NPC[id].x, y:NPC[id].y, label:NPC[id].name } : null;
+  if (st === 'turista') return n('d2c-turista');
+  if (st === 'signore') return n('d2c-signore');
+  if (st === 'barca') return n('d2c-barca');
+  if (st === 'verde' && !D2C3A.hid){ const W = d2c3aWell(); return { x:W.x, y:W.y, label:'La porta verde' }; }
+  if (st === 'fermo') return n('d2c-bambino');
+  return null;
+}
+const D2C3A_ARROW = { on:false, x:0, y:0, m:0, label:'' };
+function d2c3aArrow(){
+  D2C3A_ARROW.on = false;
+  const T = d2c3aTarget(); if (!T || !d2cCity() || !d2c3aFree() || (typeof phoneCamOn === 'function' && phoneCamOn())) return;
+  const cv = document.getElementById('cv'), up = cv && cv.clientWidth ? Math.max(1, Math.min(2.2, 0.8 * W / cv.clientWidth)) : 1;      // (a phone: the canvas drawn small, the arrow kept readable)
+  const z = camZoom() / up, vw = viewW(), vh = viewH(), mx = 34 / z, top = 84 / z * (up > 1 ? 0.5 : 1), bot = 40 / z;
+  const ty = T.y - 0.9 * VZ_M;      // (a person's middle: in view while most of them shows)
+  if (T.x > cam.x + mx && T.x < cam.x + vw - mx && ty > cam.y + top && ty < cam.y + vh - bot) return;      // (in view: its "!" or "?" is enough)
+  const cx = cam.x + vw / 2, cy = cam.y + vh / 2, dx = T.x - cx, dy = T.y - cy;
+  const kx = dx ? (dx > 0 ? (vw / 2 - mx) / dx : -(vw / 2 - mx) / dx) : Infinity, ky = dy ? (dy > 0 ? (vh / 2 - bot) / dy : -(vh / 2 - top) / dy) : Infinity, k = Math.min(kx, ky);
+  const x = cx + dx * k, y = cy + dy * k, a = Math.atan2(dy, dx), r = 15 / z, pulse = RM ? 0 : Math.sin(performance.now() / 260) * 2 / z;
+  Object.assign(D2C3A_ARROW, { on:true, x:Math.round(x), y:Math.round(y), m:Math.round(Math.hypot(T.x - player.x, T.y - player.y) / VZ_M), label:T.label });
+  const g = ctx; g.save();
+  g.translate(x, y); g.fillStyle = 'rgba(0,0,0,.22)'; circ(g, 1.5 / z, 2 / z, r + pulse); g.fill();
+  g.fillStyle = '#f4b928'; circ(g, 0, 0, r + pulse); g.fill(); g.strokeStyle = '#0f2260'; g.lineWidth = 2.2 / z; g.stroke();
+  g.rotate(a); g.fillStyle = '#0f2260'; g.beginPath(); g.moveTo(9 / z, 0); g.lineTo(-5 / z, -6.5 / z); g.lineTo(-2 / z, 0); g.lineTo(-5 / z, 6.5 / z); g.closePath(); g.fill();
+  g.rotate(-a);
+  g.font = `700 ${12 / z}px "Titillium Web", sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+  const txt = `${T.label} · ${D2C3A_ARROW.m} m`, w = g.measureText(txt).width + 12 / z, ly = (dy < 0 && Math.abs(dy) * kx > Math.abs(dy) * ky) || y < cy ? r + 13 / z : -r - 13 / z;
+  const lx = Math.max(-x + cam.x + w / 2 + 4 / z, Math.min(cam.x + vw - x - w / 2 - 4 / z, 0));
+  g.fillStyle = 'rgba(15,34,96,.9)'; rr(g, lx - w / 2, ly - 9 / z, w, 18 / z, 6 / z); g.fill(); g.fillStyle = '#fff'; g.fillText(txt, lx, ly + 0.5 / z);
+  g.restore();
+}
+
+/* the red hat picked out while you are meant to see him (on the bridge, in the cutscenes, at the green door): a small red chevron over his head */
+function d2c3aHat(){
+  const F = NPC['d2c-fabio']; if (!F || !activeNpcs().includes(F) || !d2cCity() || dialogOpen || (typeof phoneCamOn === 'function' && phoneCamOn())) return;
+  const st = d2c3aStep(); if (!(d2c3aPending() || ['ponte', 'fuga', 'verde'].includes(st) || D2C3A.show)) return;
+  const z = camZoom(), e = vzElev(F.x, F.y), x = F.x, y = F.y - e - 2.35 * VZ_M - (RM ? 0 : Math.abs(Math.sin(performance.now() / 300)) * 3 / z), g = ctx;
+  g.save(); g.fillStyle = '#c8262c'; g.strokeStyle = '#fffdf8'; g.lineWidth = 2 / z;
+  g.beginPath(); g.moveTo(x - 7 / z, y - 8 / z); g.lineTo(x + 7 / z, y - 8 / z); g.lineTo(x, y + 2 / z); g.closePath(); g.fill(); g.stroke(); g.restore();
+}
+
+/* ---------- the conversations ---------- */
 function d2c3aTalk(npc){
   const st = d2c3aStep(), id = npc.id, live = d2cLive('c3a');
   if (id === 'margaret' && d2cOpenK('c3a') && !treeBegun('d2-c3a') && D2C.want === 'c3a'){ D2C.want = null;
-    if (treeStudyNeeded('d2-c3a')) return d2cStudyFirst(npc, 'c3a', D2CM('The red hat… Ugo said he works this bridge. Before we follow him: the study page, {Me}? Which way, turn, stop, cross…'));
+    if (treeStudyNeeded('d2-c3a')) return d2cStudyFirst(npc, 'c3a', D2CM('The red hat… Ugo said he works this bridge. Before we go after him: the study page, {Me}? Which way, turn, stop, cross…'));
     d2Begin('d2-c3a'); d2cSet('c3a', 'ponte'); return scriptOpen('d2c3a', 'ponte'); }
+  if (id === 'd2c-turista' && d2c3aPending()) return d2cCut(npc, D2CL('turista', 'Un attimo… un sorriso… ecco!', 'Just a moment… a smile… there!', { 'Un attimo':'just a moment' }));
   if (!live) return undefined;
   if (id === 'margaret'){
     if (st === 'ponte') return scriptOpen('d2c3a', 'ponte');
-    if (st === 'verde') return scriptOpen('d2c3a', 'sussurro');
+    if (st === 'verde' && D2C3A.hid) return scriptOpen('d2c3a', 'sussurro');
+    if (st === 'verde') return d2cCut(npc, D2CM('The calle with the green door, {Me}. Quietly: he mustn’t see us.'));
     return undefined;
   }
-  if (id === 'd2c-turista' && st === 'segui') return scriptOpen('d2c3a', 'turista');
-  if (id === 'd2c-gondoliere') return st === 'gondoliere' ? scriptOpen('d2c3a', 'gondoliere') : d2cCut(npc, D2CL('gondoliere', 'Il cappello rosso? A destra, verso San Barnaba!', 'The red hat? Right, towards San Barnaba!'));
-  if (id === 'd2c-barca') return st === 'barca' ? scriptOpen('d2c3a', 'barca') : d2cCut(npc, D2CL('barca', 'Il ponte dei Pugni è lì: dritto!', 'The Ponte dei Pugni is there: straight on!'));
-  if (id === 'd2c-bambino'){ if (st === 'bambino') return scriptOpen('d2c3a', 'bambino'); if (st === 'fermo') return scriptOpen('d2c3a', 'fermo'); return d2cCut(npc, D2CL('bambino', 'La porta verde! È lì, a sinistra!', 'The green door! It’s there, on the left!')); }
+  if (id === 'd2c-turista'){ if (st === 'turista') return scriptOpen('d2c3a', 'turista');
+    return d2cCut(npc, ['ponte', 'fuga'].includes(st) ? D2CL('turista', 'Un attimo… un sorriso… ecco!', 'Just a moment… a smile… there!') : D2CL('turista', 'Di là, verso San Barnaba! Era veloce!', 'That way, towards San Barnaba! He was fast!')); }
+  if (id === 'd2c-signore'){ if (st === 'signore') return scriptOpen('d2c3a', 'signore');
+    return d2cCut(npc, D2CL('signore', 'La signora della barca, a San Barnaba: lei vede tutto!', 'The lady on the fruit boat, at San Barnaba: she sees everything!')); }
+  if (id === 'd2c-barca'){ if (st === 'barca') return scriptOpen('d2c3a', 'barca');
+    return d2cCut(npc, st === 'signore' ? D2CL('barca', 'Buongiorno! Pomodori, carciofi, mele?', 'Good morning! Tomatoes, artichokes, apples?') : D2CL('barca', 'Il ponte è lì: dritto, poi a sinistra!', 'The bridge is there: straight on, then left!')); }
+  if (id === 'd2c-bambino'){ if (st === 'fermo') return scriptOpen('d2c3a', 'fermo');
+    if (st === 'verde' && D2C3A.hid) return scriptOpen('d2c3a', 'sussurro');
+    return d2cCut(npc, D2CL('bambino', 'Ciao! Giochi a pallone con me?', 'Hi! Will you play football with me?', { 'Giochi a pallone':'will you play football' })); }
   if (id === 'd2c-rizzo' && st === 'telefono') return scriptOpen('d2c3a', 'telefono');
   if (id === 'd2c-fabio') return d2cCut(npc, D2CM('Not him, {Me}! Keep your distance.'));
   return undefined;
 }
+
+/* the red hat, the tourist and the boy carry no mark of their own while C3a runs (the engine's "?" over someone not yet known: the designer's "?" is the
+   man who was robbed, and the "!" is whoever you need next); they still talk (the story hook's visitorTalk) */
+const D2C3A_QUIET = ['d2c-fabio', 'd2c-turista', 'd2c-bambino'];
+const d2c3aQuiet = n => !!n && D2C3A_QUIET.includes(n.id) && (d2cLive('c3a') || d2c3aPending());
+D2C3A_QUIET.forEach(id => { const n = NPC[id]; if (n) Object.defineProperty(n, 'ambient', { get(){ return d2c3aQuiet(this); }, configurable:true }); });
 d2cReg('c3a', {
   talk:npc => d2c3aTalk(npc),
-  spots:() => [{ id:'c3a-start', title:'Il borseggiatore', label:'Il cappello rosso', when:() => d2cOpenK('c3a') && !treeBegun('d2-c3a') && !d2cDoneK('c3a'), at:() => d2cCell('bridge'),
+  visitor:n => d2c3aQuiet(n) || undefined,
+  goal:() => d2c3aGoal(),
+  spots:() => [{ id:'c3a-start', title:'Il borseggiatore', label:'Il cappello rosso', when:() => d2c3aPending(), at:() => d2cCell('bridge'),
     go:() => { const M = NPC.margaret; if (M && activeNpcs().includes(M)){ D2C.want = 'c3a'; openConvo(M); } else toast('<b>Il borseggiatore</b> · Margaret is waiting at Nives’s stall (the Erberia): fetch her first.'); } }],
   sceneOf(n){
-    const st = d2c3aStep(), live = d2cLive('c3a'), sp = d2cSP() ? 'vz-sp-accademia' : 'away', city = d2cSP() && VZ_CITY[S.scene] ? S.scene : 'away';
-    if (n.id === 'd2c-fabio'){ if (live && st === 'segui' && D2C.follow && D2C.follow.on) return city; if (live && st === 'verde' && !d2cNode('c3a').inside) return city; return undefined; }
-    if (n.id === 'd2c-turista') return live && ['segui', 'gondoliere'].includes(st) ? city : undefined;
-    if (n.id === 'd2c-gondoliere') return live && ['segui', 'gondoliere', 'barca'].includes(st) ? city : undefined;
-    if (n.id === 'd2c-barca') return live && ['barca', 'bambino', 'verde', 'telefono', 'fermo'].includes(st) ? city : undefined;
-    if (n.id === 'd2c-bambino') return live && ['barca', 'bambino', 'verde', 'telefono', 'fermo'].includes(st) ? city : undefined;
-    void sp; return undefined;
+    const st = d2c3aStep(), live = d2cLive('c3a'), city = d2cSP() && VZ_CITY[S.scene] ? S.scene : 'away', pend = d2c3aPending();
+    if (n.id === 'd2c-fabio'){
+      if (pend || (live && st === 'ponte') || (live && st === 'fuga' && !D2C3A.gone)) return city;
+      if (live && D2C3A.show) return city;
+      if (live && st === 'verde' && !d2cNode('c3a').inside) return city;
+      return undefined; }
+    if (n.id === 'd2c-turista') return pend || (live && ['ponte', 'fuga', 'turista', 'signore'].includes(st)) ? city : undefined;
+    if (n.id === 'd2c-signore') return live && ['signore', 'barca'].includes(st) ? city : undefined;
+    if (n.id === 'd2c-barca') return live && ['signore', 'barca', 'verde', 'telefono', 'fermo'].includes(st) ? city : undefined;
+    if (n.id === 'd2c-bambino') return live && ['verde', 'telefono', 'fermo'].includes(st) ? city : undefined;
+    return undefined;
   },
   place(){
-    if (!d2cLive('c3a') || !d2cCity()) return;
-    const st = d2c3aStep(), F = NPC['d2c-fabio'], T = NPC['d2c-turista'];
-    if (T && st === 'segui' && !(D2C.follow && D2C.follow.tourist)) d2cPut(T, d2cCell('turista'), { x:1, y:0 });
-    d2cPut(NPC['d2c-gondoliere'], d2cCell('traghetto'), { x:0, y:1 });
+    if (!(d2cLive('c3a') || d2c3aPending()) || !d2cCity()) return;
+    const st = d2c3aStep(), F = NPC['d2c-fabio'], T = NPC['d2c-turista'], B = NPC['d2c-bambino'];
+    if (T) d2cPut(T, d2cCell('turista'), { x:0, y:1 });
+    if (F && (d2c3aPending() || st === 'ponte' || (st === 'fuga' && !D2C3A.cut))) d2cPut(F, d2cCell('fabioFrom', 12), { x:0, y:1 });
+    d2cPut(NPC['d2c-signore'], d2cCell('signore', 12), { x:1, y:0 });
     d2cPut(NPC['d2c-barca'], d2cCell('barca'), { x:0, y:1 });
-    if (st === 'fermo'){ const q = d2cCell('verdeStand'); d2cPut(NPC['d2c-bambino'], VZ.snap(q.x - 1.6 * VZ_M, q.y + 0.4 * VZ_M, 14), { x:1, y:0 }); }
-    else d2cPut(NPC['d2c-bambino'], d2cCell('toleta'), { x:0, y:1 });
-    if (st === 'verde' && F && !d2cNode('c3a').inside) d2cPut(F, d2cCell('fabioVerde'), { x:0, y:-1 });
-    if (st === 'segui' && F && D2C.follow && D2C.follow.on && D2C.follow.i <= 1 && F.x < 0) d2cPut(F, D2C.follow.pts[0], { x:0, y:1 });
+    const H = d2c3aHideSpots();
+    if (B){ if (st === 'fermo'){ const q = d2cCell('verdeStand'); d2cPut(B, VZ.snap(q.x - 1.6 * VZ_M, q.y + 0.4 * VZ_M, 14), { x:1, y:0 }); B.seated = false; }
+      else { const moved = !!(((d2cNode('c3a').sc || {}).at || {}).sussurro) || st === 'telefono'; d2cPut(B, moved ? H.boy2 : H.boy, { x:0, y:1 }); B.seated = !moved; } }
+    if (st === 'verde' && F && !d2cNode('c3a').inside) d2cPut(F, H.fabio, { x:0, y:-1 });
   },
   tick(dt){
-    d2c3aFollowTick(dt);
-    /* the green door: near it, Margaret's whisper */
-    if (d2cLive('c3a') && d2c3aStep() === 'verde' && d2cCity() && !dialogOpen && !modalOpen && !traveling && !d2cNode('c3a').inside && d2cMgHere()){
-      const F = NPC['d2c-fabio']; if (F && F.x > 0){ const d = Math.hypot(player.x - F.x, player.y - F.y) / VZ_M;
-        if (d < 9 && !D2C.c3aWhisper){ D2C.c3aWhisper = true; openConvo(NPC.margaret); }
-        if (d > 14) D2C.c3aWhisper = false;
-        /* he looks both ways */
-        F.face = Math.sin(performance.now() / 700) > 0 ? { x:1, y:0 } : { x:-1, y:0 }; } }
-    if (d2c3aStep() !== 'segui') d2cMeter(null);
+    const st = d2c3aStep();
+    if (D2C3A_OLD[st] && d2cLive('c3a')){ if (st === 'segui') d2cNode('c3a').fell = true; d2c3aOn(D2C3A_OLD[st]); return; }
+    if (!d2cLive('c3a') && !d2c3aPending()) return;
+    const city = d2cCity(), now = performance.now();
+    /* a reloaded save in the middle of the run: play it again (once), else on to the tourist */
+    if (st === 'fuga' && !D2C3A.cut && city && d2c3aFree() && !D2C.after){ if ((D2C3A.tries.fuga || 0) < 2) d2c3aFugaPlay(); else d2c3aFugaDone(); }
+    /* the red hat on the bridge, looking at the bags; the man who was robbed, looking all round */
+    const F = NPC['d2c-fabio'];
+    if (F && !F.cutWalk && (d2c3aPending() || st === 'ponte')) F.face = Math.sin(now / 900) > 0.3 ? { x:1, y:0 } : Math.sin(now / 900) < -0.3 ? { x:-1, y:0 } : { x:0, y:1 };
+    if (F && !F.cutWalk && st === 'verde' && !d2cNode('c3a').inside) F.face = D2C3A.hid ? (Math.sin(now / 700) > 0 ? { x:1, y:0 } : { x:-1, y:0 }) : { x:0, y:-1 };
+    const G = NPC['d2c-signore'];
+    if (G && st === 'signore' && !dialogOpen){ const k = Math.floor(now / 850) % 4; G.face = [{ x:1, y:0 }, { x:0, y:1 }, { x:-1, y:0 }, { x:0, y:-1 }][k]; }
+    /* the calle with the green door: on arriving, behind the wellhead */
+    if (st === 'verde' && city && !D2C3A.hid && !D2C3A.cut && d2c3aFree() && !d2cNode('c3a').inside){
+      const D = d2c3aDoor(), W = d2c3aWell(), d = Math.hypot(player.x - D.x, player.y - D.y) / VZ_M;
+      if (d < 18 && Math.abs(player.y - W.y) < 3.2 * VZ_M) d2c3aHide(); }
   },
-  fastTravel:() => d2cLive('c3a') && d2c3aStep() === 'segui' ? 'Follow the red hat on foot!' : undefined,
-  noFollow:() => false,
+  ents:() => [{ y:1e9, draw:() => { d2c3aHat(); d2c3aArrow(); } }],
   objective(){
-    if (!d2cLive('c3a')){ if (d2cOpenK('c3a') && !treeBegun('d2-c3a') && !d2cDoneK('c3a') && (d2CRec().lead === 'd2-c3a' || d2cDoneK('c3b'))) return 'Il borseggiatore: the foot of the Accademia bridge, with Margaret'; return undefined; }
-    return { ponte:'Il borseggiatore: the red hat, on the bridge', segui:'Il borseggiatore: follow him, quietly', gondoliere:'Il borseggiatore: ask the gondolier at the traghetto', barca:'Il borseggiatore: the fruit boat, Campo San Barnaba',
-      bambino:'Il borseggiatore: the boy down the long calle (Calle de la Toleta)', verde:'Il borseggiatore: the calle with the green door', telefono:'Il borseggiatore: the phone, Rizzo', fermo:'Il borseggiatore: the boy!' }[d2c3aStep()];
+    if (!d2cLive('c3a')){ if (d2c3aPending() && (d2CRec().lead === 'd2-c3a' || d2cDoneK('c3b'))) return 'Il borseggiatore: the foot of the Accademia bridge, with Margaret'; return undefined; }
+    return { ponte:'Il borseggiatore: the red hat, on the bridge', fuga:'Il borseggiatore: the red hat runs!', turista:'Il borseggiatore: the tourist he knocked over (!)', signore:'Il borseggiatore: the man looking all round (?)',
+      barca:'Il borseggiatore: the fruit boat, Campo San Barnaba (!)', verde:'Il borseggiatore: the calle with the green door', telefono:'Il borseggiatore: the phone, Rizzo', fermo:'Il borseggiatore: the boy! (!)' }[d2c3aStep()];
   },
   guide(near){
     if (!d2cLive('c3a')) return undefined;
     const st = d2c3aStep();
-    if (st === 'segui') return '<b>Il borseggiatore</b> · follow the red hat: keep <b>bene</b> on the meter. Too close and he turns: <b>stand still</b>.';
-    if (st === 'gondoliere') return near && near.id === 'd2c-gondoliere' ? '<b>Il borseggiatore</b> · the gondolier at the traghetto (<kbd>E</kbd>): which way did he go?' : '<b>Il borseggiatore</b> · lost him. The gondolier at the traghetto, by the bridge’s foot on the Grand Canal.';
-    if (st === 'barca') return '<b>Il borseggiatore</b> · towards <b>San Barnaba</b> (west): the lady of the fruit boat by the Ponte dei Pugni (<kbd>M</kbd>: the map).';
-    if (st === 'bambino') return '<b>Il borseggiatore</b> · over the Ponte dei Pugni and straight on down the long calle: the boy with the football.';
-    if (st === 'verde') return '<b>Il borseggiatore</b> · left into the calle with the <b>green door</b>. Quietly, with Margaret.';
+    if (st === 'turista') return near && near.id === 'd2c-turista' ? '<b>Il borseggiatore</b> · the tourist (<kbd>E</kbd>): ask him where the red hat went.' : '<b>Il borseggiatore</b> · the tourist he knocked over, at the bridge’s foot (the <b>!</b>): ask him where he went.';
+    if (st === 'signore') return near && near.id === 'd2c-signore' ? '<b>Il borseggiatore</b> · the man looking all round (<kbd>E</kbd>).' : '<b>Il borseggiatore</b> · that way, towards San Barnaba: a man is looking all round (the <b>?</b>).';
+    if (st === 'barca') return near && near.id === 'd2c-barca' ? '<b>Il borseggiatore</b> · the lady of the fruit boat (<kbd>E</kbd>): has he come this way?' : '<b>Il borseggiatore</b> · towards <b>San Barnaba</b>: the lady of the fruit boat by the Ponte dei Pugni (the <b>!</b>).';
+    if (st === 'verde') return '<b>Il borseggiatore</b> · over the Ponte dei Pugni, then left: the calle with the <b>green door</b>. Quietly, with Margaret.';
     if (st === 'fermo') return '<b>Il borseggiatore</b> · the boy, at the green door: stop him (<kbd>E</kbd>).';
     return undefined;
   },
   marks(){
     if (!d2cLive('c3a')) return null;
     const st = d2c3aStep(), P = vzPoints(), m = (id, label, k) => P[k] ? { id, label, x:P[k].x, y:P[k].y } : null;
-    if (st === 'gondoliere') return m('d2c-traghetto', 'Il traghetto', 'd2c-traghetto');
+    if (st === 'turista') return m('d2c-turista', 'Il turista', 'd2c-bridge');
+    if (st === 'signore') return m('d2c-signore', 'Il signore', 'd2c-signore');
     if (st === 'barca') return m('d2c-barca', 'La barca della frutta', 'd2c-barca');
-    if (st === 'bambino') return m('d2c-toleta', 'Il bambino', 'd2c-toleta');
     if (st === 'verde' || st === 'fermo') return m('d2c-verde', 'La porta verde', 'd2c-verde');
     return null;
   },
-  mgLine:() => d2cLive('c3a') ? 'The red hat, {Me}. Quietly.' : d2cOpenK('c3a') && !d2cDoneK('c3a') && !treeBegun('d2-c3a') ? 'The pickpocket works the Accademia bridge, {Me}: we start at its foot.' : undefined,
+  mgLine:() => d2cLive('c3a') ? 'The red hat, {Me}. Quietly.' : d2c3aPending() ? 'The pickpocket works the Accademia bridge, {Me}: we start at its foot.' : undefined,
   complete(){
-    treeComplete('d2-c3a', { story:`You followed Ugo's pickpocket, the red hat, from the Accademia bridge, and asked your way after him: the gondolier (<b>Ha girato a destra, verso San Barnaba</b>), the lady
-      of the fruit boat (<b>Si è fermato qui</b>… and didn't pay for the apple: you did), a boy with a football (<b>Si è voltato due volte</b>). At a green door he knocked three times and went in.
+    treeComplete('d2-c3a', { story:`On the Accademia bridge Ugo's pickpocket, the red hat, saw you and ran, and knocked a tourist flat on the way. You asked after him: the tourist (<b>Dov'è andato?</b> … <b>Ha girato a destra, verso San Barnaba</b>),
+      a man whose wallet he'd taken (<b>Non si preoccupi: lo stiamo seguendo!</b>), the lady of the fruit boat (<b>Si è fermato qui</b>… and didn't pay for the apple: you did). At a green door, hidden behind the wellhead, you saw him knock three times and go in.
       On the phone you told the maresciallo the whole way: <b>ha attraversato, ha girato, si è fermato, ha proseguito dritto, è entrato</b>. Rizzo is on his way: ten minutes, then the green door.`,
-      stats:[[treeWords(treeNode('d2-c3a')).length, 'words'], ['4', 'people asked the way']] });
+      stats:[[treeWords(treeNode('d2-c3a')).length, 'words'], ['3', 'people asked the way']] });
   },
-  at(step){ if (step === 'segui') d2c3aFollowStart(); },
+  at(step){ D2C3A.cut = null; D2C3A.hid = false; D2C3A.show = false; D2C3A.gone = !['start', 'ponte', 'fuga'].includes(step); D2C3A.tries = {};
+    D2C3A.fall = null; if (['turista'].includes(step)){ d2cNode('c3a').fell = true; d2c3aFall(true); } },
 });
 
 /* ===== units/venezia/tree/d2-c3a/designer.js ===== */
@@ -28558,15 +28680,16 @@ d2cReg('c3a', {
 d2cDesignerHooks('c3a');
 
 /* ===== units/venezia/tree/d2-c3a/debug.js ===== */
-/* District 2 · C3a: its conversations in order (the jumps: __debug.d2cAt('c3a', step)), __debug.d2c3aAt(step), __dbg().d2c3a (the follow). */
-{ const C = ['ponte', 'turista', 'gondoliere', 'barca', 'bambino', 'sussurro', 'telefono', 'fermo'], upTo = n => C.slice(0, C.indexOf(n));
-  Object.assign(D2C_CONVOS, { c3a:C, 'c3a:segui':['ponte'], 'c3a:gondoliere':['ponte', 'turista'], 'c3a:barca':upTo('barca'), 'c3a:bambino':upTo('bambino'), 'c3a:verde':upTo('sussurro'), 'c3a:telefono':upTo('telefono'), 'c3a:fermo':upTo('fermo') }); }
-dbgField('d2c3a', () => ({ step:d2cStep('c3a'), state:d2cState('c3a'), follow:D2C.follow ? { on:D2C.follow.on, band:D2C.follow.band, d:D2C.follow.d, close:D2C.follow.close, turn:Math.max(0, Math.round((D2C.follow.turn || 0) * 10) / 10), i:D2C.follow.i, n:D2C.follow.pts.length, lost:!!D2C.follow.lost, gone:!!D2C.follow.gone, tourist:D2C.follow.tourist } : null,
-  meter:(el => el && el.style.display !== 'none' ? el.textContent : null)(document.getElementById('d2cMeter')), inside:!!((d2cPeek() || {}).c3a || {}).inside, fabio:NPC['d2c-fabio'] ? { x:Math.round(NPC['d2c-fabio'].x), y:Math.round(NPC['d2c-fabio'].y), scene:sceneOf(NPC['d2c-fabio']) } : null }));
-Object.assign(window.__debug, { d2c3aAt:(step, o) => __debug.d2cAt('c3a', step, o),
-  /* the follow: Fabio put at the end of his way (gone), or the player put a distance (m) behind him */
-  d2c3aGone(){ const F = D2C.follow; if (!F) return false; const n = NPC['d2c-fabio']; F.i = F.pts.length - 1; n.x = F.pts[F.i].x - 2; n.y = F.pts[F.i].y; return true; },
-  d2c3aBehind(m = 7){ const n = NPC['d2c-fabio'], F = D2C.follow; if (!n || !F) return false; const q = F.pts[Math.max(0, F.i - 1)], dx = q.x - n.x, dy = q.y - n.y, L = Math.hypot(dx, dy) || 1; const p = VZ.snap(n.x + dx / L * m * VZ_M, n.y + dy / L * m * VZ_M, 14); __debug.place(p.x, p.y); return p; } });
+/* District 2 · C3a: its conversations in order (the jumps: __debug.d2cAt('c3a', step)), __debug.d2c3aAt(step), __dbg().d2c3a (the guided run: the
+   cutscenes, the fall, who the guide points at, the arrow). */
+{ const C = ['ponte', 'turista', 'signore', 'barca', 'sussurro', 'telefono', 'fermo'], upTo = n => C.slice(0, C.indexOf(n));
+  Object.assign(D2C_CONVOS, { c3a:C, 'c3a:fuga':['ponte'], 'c3a:turista':['ponte'], 'c3a:signore':upTo('signore'), 'c3a:barca':upTo('barca'), 'c3a:verde':upTo('sussurro'), 'c3a:telefono':upTo('telefono'), 'c3a:fermo':upTo('fermo') }); }
+dbgField('d2c3a', () => { const P = id => { const n = NPC[id]; return n ? { x:Math.round(n.x), y:Math.round(n.y), scene:sceneOf(n), face:n.face ? { ...n.face } : null, seated:!!n.seated, known:!!S.known[id] } : null; };
+  return { step:d2cStep('c3a'), state:d2cState('c3a'), cut:D2C3A.cut, fell:!!((d2cPeek() || {}).c3a || {}).fell, pose:d2c3aTouristPose(), gone:D2C3A.gone, show:D2C3A.show, hid:D2C3A.hid, glimpsed:!!D2C3A.glimpsed,
+    inside:!!((d2cPeek() || {}).c3a || {}).inside, goal:d2c3aGoal(), target:(q => q ? { x:Math.round(q.x), y:Math.round(q.y), label:q.label } : null)(d2c3aTarget()), arrow:{ ...D2C3A_ARROW }, log:D2C3A.log.slice(-10),
+    fabio:P('d2c-fabio'), turista:P('d2c-turista'), signore:P('d2c-signore'), barca:P('d2c-barca'), bambino:P('d2c-bambino'), hide:(H => ({ me:{ x:Math.round(H.me.x), y:Math.round(H.me.y) }, well:{ x:Math.round(H.W.x), y:Math.round(H.W.y) }, door:{ x:Math.round(H.D.x), y:Math.round(H.D.y) } }))(d2c3aHideSpots()),
+    inView:{ fabio:d2c3aInView(NPC['d2c-fabio']), turista:d2c3aInView(NPC['d2c-turista']) } }; });
+Object.assign(window.__debug, { d2c3aAt:(step, o) => __debug.d2cAt('c3a', step, o) });
 
 /* ===== units/venezia/tree/d2-c4a/node.js ===== */
 /* District 2 · C4A · La stanza dei falsi (the script: docs/lessons/venezia/scripts/d2/c4a-stanza-dei-falsi.md; README.md here: what to build). Registered with the frame's d2Node()
@@ -39801,11 +39924,13 @@ function d2bFrameTick(dt){
      the squero's gate and sign on the fondamenta by p33 (C3b, C4b); the rope across the Accademia's door (C2, until the curator lets you in); the boats
      on the water (render.js cityWater: the carabinieri's by Campo della Carità, the Sorzeta on the Zattere).
    - The named points (vzPoints: tests, the branch's marks): d2c-door (the Accademia's door), d2c-bridge (the Accademia bridge's foot), d2c-traghetto,
-     d2c-barca (the vegetable boat), d2c-toleta (the boy), d2c-verde (the green door), d2c-squero, d2c-zattere. */
+     d2c-barca (the vegetable boat), d2c-toleta, d2c-signore (C3a: the man who was robbed), d2c-verde (the green door), d2c-squero, d2c-zattere. */
 const D2C_CELLS = {
   door:[44.5, 52.35], ugo:[44.15, 52.55], mg:[45.6, 52.95], dog:[46.1, 53.15], ferro:[43.7, 52.6],
-  bridge:[49.6, 49.7], fabioFrom:[49.6, 46.6], turista:[48.3, 51.2],
-  fabioPath:[[49.6, 46.6], [49.6, 49.4], [49.2, 51.6], [47.6, 52.6], [42.0, 52.7], [38.0, 52.7], [37.4, 51.0], [34.0, 50.6], [31.5, 50.6]],
+  bridge:[49.6, 49.7], fabioFrom:[50.4, 49.1], turista:[48.3, 51.2],
+  /* C3a (24 Nov: the guided run): his dash off the bridge past the tourist (fugaPath: the bridge's foot, then out of view to the west), the man who
+     was robbed (signore), the glimpse of him ahead, round the corner by San Trovaso (glimpsePath) */
+  fugaPath:[[48.9, 49.35], [47.6, 52.6], [42.0, 52.7], [37.0, 52.7]], signore:[40.9, 52.65], glimpsePath:[[37.4, 51.0], [34.0, 50.6], [33.3, 51.3], [29.5, 51.3]],
   traghetto:[51.9, 49.35], barca:[26.2, 45.45], toleta:[20.6, 48.9], verde:[27.6, 50.0], verdeStand:[26.3, 51.35], well:[24.0, 51.35], fabioVerde:[27.6, 50.25],
   rizzoVerde:[26.6, 51.45], squero:[33.5, 55.6], squero9:[33.5, 57.3], zattere:[49.9, 61.3], zFerro:[51.0, 61.45], zRizzo:[52.4, 61.55], zMomi:[51.7, 61.6],
   boatCarabinieri:[50.6, 47.9], boatSorzeta:[51.1, 62.3], boatCarabZ:[53.7, 62.35],
@@ -39931,7 +40056,7 @@ function d2cCityPlace(id){
     const q = { kind:'d2cverde', x, y, r:0, w:1.5 * M }; VZ.props.push(q); VZ.d2c.verde = q;
     if (h){ h.wallProps = (h.wallProps || []).filter(w => Math.abs(w.x - x) > 1.6 * M); } }
   /* the wellhead in that calle (Margaret pulls you behind it) */
-  { const cands = [[24.0, 51.4], [25.0, 51.45], [23.2, 51.45], [25.8, 51.5], [24.5, 51.6], [22.6, 51.5]];
+  { const cands = [[24.0, 50.9], [24.0, 51.0], [25.0, 50.9], [23.2, 50.9], [24.0, 51.4], [25.0, 51.45], [23.2, 51.45], [25.8, 51.5], [24.5, 51.6], [22.6, 51.5]];      // (the calle's middle, 50.9: the review of 24 Nov found none placed at 51.4, too near its south side)
     for (const c of cands){ const p = d2cCell(c, 26); if (!VZ.clear(p.x, p.y, 34) || VZ.props.some(q => Math.abs(q.x - p.x) < 64 && Math.abs(q.y - p.y) < 50)) continue;
       const q = { kind:'well', x:p.x, y:p.y, r:22 }; VZ.props.push(q); VZ.d2c.well = q; break; } }
   /* the squero's gate on the fondamenta, its sign, a stack of planks */
@@ -39945,7 +40070,7 @@ if (VZD.id === 'sanpolo') d2cCityPlace('sanpolo');
 /* the named points */
 { const prev = vzDistrictPoints; vzDistrictPoints = () => { const P = prev(); if (VZD.id !== 'sanpolo') return P;
     const near = (x, y) => VZ.snap(x, y, 16);
-    ['door', 'bridge', 'traghetto', 'barca', 'toleta', 'verdeStand', 'squero', 'squero9', 'zattere'].forEach(k => { const q = d2cCell(k); P['d2c-' + k] = near(q.x, q.y); });
+    ['door', 'bridge', 'traghetto', 'barca', 'toleta', 'verdeStand', 'signore', 'squero', 'squero9', 'zattere'].forEach(k => { const q = d2cCell(k); P['d2c-' + k] = near(q.x, q.y); });
     P['d2c-verde'] = P['d2c-verdeStand']; return P; }; }
 
 /* ---------- the history cards (≤ 3 sentences; the facts checked: the scripts' As built) ---------- */
@@ -48950,6 +49075,77 @@ function d2cBoat(g, x, y, kind, t){
     vzText(g, 'SORZETA', -L * 0.3, W * 0.48 - 7, '700 6px "Titillium Web", sans-serif', '#4a3a2a');
   }
   g.restore();
+}
+
+/* ===== units/venezia/tree/d2-c3a/render.js ===== */
+/* District 2 · C3a: the tourist with the selfie stick (render phase, after render/people.js: UNIT.drawPerson wrapped once at load). Standing he holds
+   his stick up (the phone at its end); knocked over by the red hat (flow.js d2c3aFall) he tips back and lands on his bottom with a bounce, the stick
+   spinning off in an arc to the paving, three little stars round his head; then he sits there, legs out, until you have asked him. */
+UNIT.drawPerson = (prev => (p, t) => (p && p.id === 'd2c-turista' && VZ_CITY[S.scene] && !VZ_SNAP.on && d2c3aTouristDraw(p, t)) || prev(p, t))(UNIT.drawPerson);
+const D2C3A_FALL = { tip:420, land:700, stick:950, stars:2800 };      // (ms after the knock)
+function d2c3aTouristDraw(p, t){
+  const pose = d2c3aTouristPose(), g = ctx, s = VZ_PERSON, M = VZ_M, e = vzElev(p.x, p.y);
+  const ms = pose === 'fall' ? performance.now() - D2C3A.fall.t0 : pose === 'sit' ? 1e5 : 0;
+  if (pose === 'stand' || ms < D2C3A_FALL.tip){
+    if (pose === 'fall'){ const k = ms / D2C3A_FALL.tip; g.save(); g.translate(p.x, p.y - e); g.rotate(-0.55 * k); g.translate(-p.x, -(p.y - e)); vzPersonDraw(g, { ...p, moving:false, face:{ x:0, y:1 } }, t); g.restore(); }
+    else { vzPersonDraw(g, p, t); d2c3aStick(g, p.x + 8 * s, p.y - e - 22 * s, p.x + 15 * s, p.y - e - 66 * s); }
+  } else {
+    const q = Math.min(1, (ms - D2C3A_FALL.tip) / (D2C3A_FALL.land - D2C3A_FALL.tip + 500)), bounce = RM ? 0 : Math.abs(Math.sin(q * Math.PI * 2)) * (1 - q) * 7;
+    g.save(); g.translate(Math.round(p.x), Math.round(p.y - e)); g.scale(s, s);
+    d2c3aSitting(g, p, bounce, ms);
+    g.restore();
+  }
+  /* the stick: flying off, then on the paving */
+  if (pose !== 'stand'){
+    const f = Math.min(1, ms / D2C3A_FALL.stick), hx = p.x + 8 * s, hy = p.y - e - 50 * s, lx = p.x + 2.1 * M, ly = p.y + 0.7 * M;
+    const x = hx + (lx - hx) * f, y = hy + (ly - hy) * f - Math.sin(f * Math.PI) * 1.3 * M, a = f < 1 ? -1.2 + f * 5.2 * Math.PI : 0.22, L = 0.95 * M;
+    if (f >= 1){ g.fillStyle = 'rgba(30,20,10,.2)'; ell(g, x, y + 1, L / 2 + 2, 2.4); g.fill(); }
+    d2c3aStick(g, x - Math.cos(a) * L / 2, y - Math.sin(a) * L / 2, x + Math.cos(a) * L / 2, y + Math.sin(a) * L / 2);
+  }
+  return true;
+}
+/* on his bottom on the paving, facing you: legs out in a V with the soles up, hands down behind him, the hat knocked off beside him, dazed (feet at
+   (0, 0), the figure's units; bounce: up off the ground after the landing) */
+function d2c3aSitting(g, p, bounce, ms){
+  const L = vzLegs(p), sk = p.skin, y0 = -bounce;
+  g.fillStyle = 'rgba(30,20,10,.24)'; ell(g, 0, 2, 17, 5); g.fill();
+  /* the hat on the paving beside him */
+  if (p.sunhat){ g.fillStyle = p.sunhat; ell(g, -16, 1, 10, 3); g.fill(); g.beginPath(); g.ellipse(-16, 0, 6, 4.2, 0, Math.PI, 0); g.fill(); g.fillStyle = 'rgba(0,0,0,.18)'; g.fillRect(-21.6, -1.4, 11.2, 1.4); }
+  /* the legs, splayed towards you, the soles up */
+  g.fillStyle = L;
+  for (const k of [-1, 1]){ g.save(); g.translate(k * 3.2, -6 + y0); g.rotate(k * -0.75); rr(g, -2.6, 0, 5.2, 13, 2); g.fill(); g.fillStyle = '#2b2420'; rr(g, -3.2, 11, 6.4, 4.4, 1.6); g.fill(); g.fillStyle = '#6a5a50'; rr(g, -2.4, 13.4, 4.8, 1.6, 0.8); g.fill(); g.restore(); g.fillStyle = L; }
+  /* the arms, hands down on the paving behind him */
+  g.strokeStyle = shade(p.body, -0.12); g.lineWidth = 3.4; g.lineCap = 'round';
+  for (const k of [-1, 1]){ g.beginPath(); g.moveTo(k * 6.5, -22 + y0); g.lineTo(k * 11.5, -10 + y0); g.stroke(); g.fillStyle = sk; circ(g, k * 11.8, -9.2 + y0, 2.2); g.fill(); }
+  g.lineCap = 'butt';
+  /* the body, leaning back a little; the head */
+  g.save(); g.translate(0, -8 + y0); g.rotate(RM ? 0 : Math.sin(ms / 300) * 0.04);
+  g.fillStyle = p.body; rr(g, -7.5, -17, 15, 17, 4); g.fill();
+  if (p.stripes){ g.fillStyle = p.stripes; for (let k = -14; k < -2; k += 4) g.fillRect(-7.5, k, 15, 1.6); }
+  const hy = -24; g.fillStyle = sk; circ(g, 0, hy, 7.5); g.fill();
+  g.fillStyle = p.hair; g.beginPath(); g.arc(0, hy - 0.5, 7.9, Math.PI * 1.02, Math.PI * 1.98); g.closePath(); g.fill();
+  /* dazed: eyes as little crosses for a moment, then blinking; an "o" of a mouth */
+  g.strokeStyle = '#2b2018'; g.lineWidth = 0.9;
+  if (ms < D2C3A_FALL.stars){ for (const k of [-1, 1]){ const x = k * 2.7, y = hy + 0.6; g.beginPath(); g.moveTo(x - 1.2, y - 1.2); g.lineTo(x + 1.2, y + 1.2); g.moveTo(x + 1.2, y - 1.2); g.lineTo(x - 1.2, y + 1.2); g.stroke(); } }
+  else { g.fillStyle = '#2b2018'; circ(g, -2.7, hy + 0.5, 1.05); g.fill(); circ(g, 2.7, hy + 0.5, 1.05); g.fill(); }
+  g.fillStyle = '#7a3a2a'; ell(g, 0, hy + 4.2, 1.3, 1.1); g.fill();
+  /* the stars round his head */
+  if (ms < D2C3A_FALL.stars && !RM){ const a0 = ms / 260; for (let i = 0; i < 3; i++){ const a = a0 + i * 2.09; d2c3aStar(g, Math.cos(a) * 11, hy - 10 + Math.sin(a) * 3.5, 3.2); } }
+  g.restore();
+}
+/* a selfie stick from its grip (x0, y0) to the phone at its end (x1, y1), world px */
+function d2c3aStick(g, x0, y0, x1, y1){
+  g.save(); g.lineCap = 'round';
+  g.strokeStyle = '#2a2a2e'; g.lineWidth = 2.2; g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke();
+  g.strokeStyle = '#8a8a92'; g.lineWidth = 1; g.beginPath(); g.moveTo(x0 + (x1 - x0) * 0.45, y0 + (y1 - y0) * 0.45); g.lineTo(x1, y1); g.stroke();
+  const a = Math.atan2(y1 - y0, x1 - x0); g.translate(x1, y1); g.rotate(a + Math.PI / 2);
+  g.fillStyle = '#1a1a20'; rr(g, -3.4, -5.6, 6.8, 7.4, 1.4); g.fill(); g.fillStyle = '#7fb0d8'; rr(g, -2.4, -4.6, 4.8, 5.2, 0.8); g.fill();
+  g.restore();
+}
+function d2c3aStar(g, x, y, r){
+  g.fillStyle = '#f4d23a'; g.strokeStyle = '#b8860b'; g.lineWidth = 0.6; g.beginPath();
+  for (let i = 0; i < 10; i++){ const a = -Math.PI / 2 + i * Math.PI / 5, q = i % 2 ? r * 0.45 : r; g.lineTo(x + Math.cos(a) * q, y + Math.sin(a) * q); }
+  g.closePath(); g.fill(); g.stroke();
 }
 
 /* ===== units/venezia/render/gatti.js ===== */
