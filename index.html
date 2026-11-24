@@ -8242,6 +8242,8 @@ $('#btnTypeDict').onclick = () => { openDict(); setTimeout(() => $('#dictSearch'
                  tell a companion in English what someone said (the player translates for them): an English choice (one option, or two or three
                  with one right: shuffled once; a wrong pick replays the line slowly and asks again, the third is answered); or a choice (no a)
      { do(C) }   a step of the unit's (it may change the world; the conversation goes on)
+     { await(C) → promise }   a step of the unit's that takes time (a wheel spinning, a door opening): run once the lines before it are shown,
+                 the conversation goes on when its promise settles (a value or nothing: at once)
      { picture:id, title?, kicker?, caption?, alt? }   a picture card over the conversation (ui/cards.js openPictureCard: PICTURES[id], the
                  unit's image): click, Space or Enter goes on
      { photo:id | null, title?, caption?, highlight? (a region name or [names]), hold? }   the photo panel (ui/photopanel.js): a photo kept open
@@ -8416,6 +8418,8 @@ function csRun(){
     return;
   }
   if (b.do){ try { b.do(C); } catch(e){ console.error(e); } csAdvance(); return; }
+  if (b.await){ C.waiting = b; enqueue(() => { if (!convo || convo.sc !== C) return; let p = null; try { p = b.await(C); } catch(e){ console.error(e); }
+      Promise.resolve(p).catch(e => console.error(e)).then(() => { if (convo && convo.sc === C && C.waiting === b){ C.waiting = null; csAdvance(); } }); }); return; }
   if (b.end){ const R = csRec(C.spec); R.at[C.name] = 'done'; save(); if (b.then) try { b.then(); } catch(e){ console.error(e); } if (C.cv.done) try { C.cv.done(); } catch(e){ console.error(e); }
     if (b.goto && C.spec.convos[b.goto]){ enqueue(() => { if (convo && convo.sc === C) scriptOpen(C.spec.id, b.goto); }); return; }      // (goto: the next conversation goes on in the same dialog)
     csEnded(); return; }
@@ -9202,7 +9206,7 @@ CS_HOOK = {
   hint:n => csHintFor(n),
 };
 dbgField('script', () => { const C = convo && convo.sc; return C ? { id:C.spec.id, convo:C.name, i:C.i, beat:C.beat ? (C.opt ? C.opt.id : C.cv.beats[C.i] && C.cv.beats[C.i].id) : null,
-  kind:C.ask ? 'ask' : C.check ? 'check' : C.tell ? 'tell' : C.picture ? 'picture' : C.board ? (C.board.move ? 'move' : C.board.pickup ? 'pickup' : 'fill') : C.press ? 'press' : C.beat ? 'sayit' : C.cv.beats[C.i] ? Object.keys(C.cv.beats[C.i]).find(k => ['say', 'next', 'ask', 'end', 'do'].includes(k)) || null : 'done', option:C.opt ? C.opt.id : null,
+  kind:C.ask ? 'ask' : C.check ? 'check' : C.tell ? 'tell' : C.picture ? 'picture' : C.board ? (C.board.move ? 'move' : C.board.pickup ? 'pickup' : 'fill') : C.press ? 'press' : C.beat ? 'sayit' : C.cv.beats[C.i] ? Object.keys(C.cv.beats[C.i]).find(k => ['say', 'next', 'ask', 'end', 'do', 'await'].includes(k)) || null : 'done', option:C.opt ? C.opt.id : null,
   busy:displayBusy() || !!convoBusy,
   checkRight:C.check ? fill(C.check.check.options[C.check.check.a]) : null, checks:C.checks ? { ...C.checks } : {},
   tellRight:C.tell && C.tell.tell.a !== undefined ? fill(csTellLabel(C.tell.tell.options[C.tell.tell.a])) : null, tellOptions:C.tell ? C.tell.tell.options.map(o => fill(csTellLabel(o))) : null, tells:C.tells ? { ...C.tells } : {},

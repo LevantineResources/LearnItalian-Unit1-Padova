@@ -2768,10 +2768,10 @@ const VZ_SKETCHES = {
       "BBBBBBBBBB~~~~~###################BBBBBBBBBBBB.B#####.#........####.#~###..##BBB",
       "BBBBBBBBBB~~~~~###################BBBBBBBBBBBB.B#####.#........####.#~###..##BBB",
       "BBBBBBBBBB~~~~~###################BBBBBBBBBBB~=~~~~~~=~..............=.....##BBB",
-      "BBBBBBBBBB~~~~~###################BBBBBBBBBBB~.................###.##~###..##BBB",
-      "BBBBBBBBBB~~~~~BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB~.................###.##~###..##BBB",
-      "BBBBBBBBBB~~~~~BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB~B.#######.......####.##~###..##BBB",
-      "BBBBBBBBBB~~~~~BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB~B...............####.##~###..##BBB",
+      "BBBBBBBBBB~~~~~###################BB#########~.................###.##~###..##BBB",
+      "BBBBBBBBBB~~~~~BBBBBBBBBBBBBBBBBBBBB#######..=.................###.##~###..##BBB",
+      "BBBBBBBBBB~~~~~BBBBBBBBBBBBBBBBBBBBB#######..~B.#######.......####.##~###..##BBB",
+      "BBBBBBBBBB~~~~~BBBBBBBBBBBBBBBBBBBBB#######..~B...............####.##~###..##BBB",
       "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~X~~~####.##~###..##BBB",
       "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##.##~###..##BBB",
       "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#...=.....##BBB",
@@ -2805,6 +2805,9 @@ const VZ_SKETCHES = {
       {"id":"p3","name":"To the Rialto (San Marco)","notes":"South along the Salizada San Zuane Grisostomo to Campo San Bartolomeo: back to district 1 (the Rialto's San Marco foot).","type":"gate","x":73,"y":57},
       {"id":"p17","lm":[{"cells":[58,18,75,19],"front":"N","id":"nove","note":"the long quay on the lagoon (its stop at 70,18): San Michele across the water"}],"name":"Fondamente Nove","notes":"The long fondamenta on the northern lagoon: the view of San Michele, the cemetery island, across the water; Murano, the Dolomites on a clear day.","type":"landmark","x":66,"y":19},
       {"id":"p19","name":"Vaporetto: Fondamente Nove","notes":"Boats to San Michele, Murano, Burano.","type":"vaporetto","x":70,"y":18},
+      {"id":"p30","lm":[{"cells":[27,26,30,26],"front":"S","id":"teatro","note":"the Teatro Italia (1916): its neo-Gothic front on the Rio Terà San Leonardo, east of the Ghetto (in reality on Campiello de l'Anconeta, just off it); a supermarket inside (added 24 Nov)"}],"name":"Il Teatro Italia","notes":"The old theatre and cinema, now a supermarket: its painted hall kept.","type":"landmark","x":29,"y":27},
+      {"id":"p31","lm":[{"cells":[36,40,42,43],"front":"S","id":"casino","note":"Ca' Vendramin Calergi, the Casinò di Venezia: its white front and water entrance on the Grand Canal, west of the Ca' d'Oro (in reality by San Marcuola), seen from the campiello beside it (added 24 Nov)"},{"cells":[43,40,44,40],"front":"S","id":"casino-porta","note":"the casino's land entrance: the gate in the courtyard wall on the campiello (added 24 Nov)"}],"name":"Il Casinò di Venezia","notes":"Ca' Vendramin Calergi on the Grand Canal: the casino, with its roulette.","type":"landmark","x":44,"y":42},
+      {"id":"p32","lm":[{"cells":[53,8,55,12],"front":"S","id":"libreria","note":"the Libreria Acqua Alta on the Fondamenta de la Misericordia by the bacaro, the Rio de la Madonna dell'Orto behind it (moved on purpose: in reality it is in Castello; added 24 Nov)"}],"name":"La Libreria Acqua Alta","notes":"The bookshop where the books are kept in boats and bathtubs, safe from the high water.","type":"landmark","x":54,"y":13},
     ],
     zones:[
       {"h":25,"id":"z1","name":"Il Ghetto & le Guglie","w":34,"x":0,"y":16},
@@ -7269,6 +7272,8 @@ $('#btnTypeDict').onclick = () => { openDict(); setTimeout(() => $('#dictSearch'
                  tell a companion in English what someone said (the player translates for them): an English choice (one option, or two or three
                  with one right: shuffled once; a wrong pick replays the line slowly and asks again, the third is answered); or a choice (no a)
      { do(C) }   a step of the unit's (it may change the world; the conversation goes on)
+     { await(C) → promise }   a step of the unit's that takes time (a wheel spinning, a door opening): run once the lines before it are shown,
+                 the conversation goes on when its promise settles (a value or nothing: at once)
      { picture:id, title?, kicker?, caption?, alt? }   a picture card over the conversation (ui/cards.js openPictureCard: PICTURES[id], the
                  unit's image): click, Space or Enter goes on
      { photo:id | null, title?, caption?, highlight? (a region name or [names]), hold? }   the photo panel (ui/photopanel.js): a photo kept open
@@ -7443,6 +7448,8 @@ function csRun(){
     return;
   }
   if (b.do){ try { b.do(C); } catch(e){ console.error(e); } csAdvance(); return; }
+  if (b.await){ C.waiting = b; enqueue(() => { if (!convo || convo.sc !== C) return; let p = null; try { p = b.await(C); } catch(e){ console.error(e); }
+      Promise.resolve(p).catch(e => console.error(e)).then(() => { if (convo && convo.sc === C && C.waiting === b){ C.waiting = null; csAdvance(); } }); }); return; }
   if (b.end){ const R = csRec(C.spec); R.at[C.name] = 'done'; save(); if (b.then) try { b.then(); } catch(e){ console.error(e); } if (C.cv.done) try { C.cv.done(); } catch(e){ console.error(e); }
     if (b.goto && C.spec.convos[b.goto]){ enqueue(() => { if (convo && convo.sc === C) scriptOpen(C.spec.id, b.goto); }); return; }      // (goto: the next conversation goes on in the same dialog)
     csEnded(); return; }
@@ -8229,7 +8236,7 @@ CS_HOOK = {
   hint:n => csHintFor(n),
 };
 dbgField('script', () => { const C = convo && convo.sc; return C ? { id:C.spec.id, convo:C.name, i:C.i, beat:C.beat ? (C.opt ? C.opt.id : C.cv.beats[C.i] && C.cv.beats[C.i].id) : null,
-  kind:C.ask ? 'ask' : C.check ? 'check' : C.tell ? 'tell' : C.picture ? 'picture' : C.board ? (C.board.move ? 'move' : C.board.pickup ? 'pickup' : 'fill') : C.press ? 'press' : C.beat ? 'sayit' : C.cv.beats[C.i] ? Object.keys(C.cv.beats[C.i]).find(k => ['say', 'next', 'ask', 'end', 'do'].includes(k)) || null : 'done', option:C.opt ? C.opt.id : null,
+  kind:C.ask ? 'ask' : C.check ? 'check' : C.tell ? 'tell' : C.picture ? 'picture' : C.board ? (C.board.move ? 'move' : C.board.pickup ? 'pickup' : 'fill') : C.press ? 'press' : C.beat ? 'sayit' : C.cv.beats[C.i] ? Object.keys(C.cv.beats[C.i]).find(k => ['say', 'next', 'ask', 'end', 'do', 'await'].includes(k)) || null : 'done', option:C.opt ? C.opt.id : null,
   busy:displayBusy() || !!convoBusy,
   checkRight:C.check ? fill(C.check.check.options[C.check.check.a]) : null, checks:C.checks ? { ...C.checks } : {},
   tellRight:C.tell && C.tell.tell.a !== undefined ? fill(csTellLabel(C.tell.tell.options[C.tell.tell.a])) : null, tellOptions:C.tell ? C.tell.tell.options.map(o => fill(csTellLabel(o))) : null, tells:C.tells ? { ...C.tells } : {},
@@ -32749,7 +32756,7 @@ const VZ_DPLACES = {
   cannaregio:{
     wideBanks:true,             // (a landing on a bank 3 m wide or more where there is one: world/tiles.js)
     mouths:false,               // (no calle opens into the backdrop: the clusters)
-    campi:[[35, 5, 42, 6], [39, 12, 49, 14], [50, 13, 56, 14]],     // (the Madonna dell'Orto's campo, two rows deep in front of the church; the Scuola Vecchia's campo by the rio and the fondamenta before the bacaro: campi, not lanes)
+    campi:[[35, 5, 42, 6], [39, 12, 49, 14], [50, 13, 56, 14], [43, 41, 44, 43]],     // (the Madonna dell'Orto's campo, two rows deep in front of the church; the Scuola Vecchia's campo by the rio and the fondamenta before the bacaro: campi, not lanes; the casino's campiello by the Grand Canal, 24 Nov)
     clusters:[{ id:'ghetto', name:'Il Ghetto & le Guglie', at:[22, 20] }, { id:'misericordia', name:"La Misericordia, la Madonna dell'Orto & i Mori", at:[46, 12] }, { id:'apostoli', name:"I Santi Apostoli & la Ca' d'Oro", at:[64, 33] }],
     areas:{
       'Il Ghetto & le Guglie':{ key:'vz-cn-ghetto', title:'Il Ghetto · le Guglie', look:'housing', prio:2, crowd:'quiet' },
@@ -32787,6 +32794,10 @@ const VZ_DPLACES = {
       mori:{ name:"L'osteria all'Orto dei Mori", rise:12, fade:0.35 }, bacaro:{ name:'Il bacaro (Vino Vero)', rise:14, fade:0.35 },
       apostoli:{ name:'La chiesa dei Santi Apostoli', rise:19, fade:0.3 }, 'apostoli-campanile':{ name:'Il campanile dei Santi Apostoli', rise:42, wide:0.8, fade:0.2 },
       cadoro:{ name:"La Ca' d'Oro", rise:19, fade:0.3 }, nove:{ name:'Le Fondamente Nove', over:'quay' },
+      /* Cannaregio's places (24 Nov, world/cplaces.js; docs/venezia-world.md "Cannaregio's places"): the Teatro Italia on the Rio Terà San Leonardo, the
+         casino's white palace on the Grand Canal (its water entrance below its foot: below) and its gate on the campiello, the bookshop on the Misericordia */
+      teatro:{ name:'Il Teatro Italia', rise:17.5, wide:0.6, fade:0.3 }, casino:{ name:"Ca' Vendramin Calergi · il Casinò", rise:24, wide:0.8, below:6, fade:0.3 },
+      'casino-porta':{ name:"L'ingresso del Casinò", rise:7.5, fade:0.4 }, libreria:{ name:'La Libreria Acqua Alta', rise:12.5, fade:0.35 },
     },
   },
   giudecca:{
@@ -35832,7 +35843,16 @@ const VZ_PEOPLE = [
   { kind:'gondoliere', n:3, weight:0, stripes:'#1c3d8f', body:'#fffdf8', legs:'#1b1b1b', hat:1 },
   { kind:'cameriere', n:2, weight:0, body:'#fffdf8', legs:'#1b1b1b', scarf:'#1b1b1b' },
   { kind:'venditore', n:2, weight:0, cap:0.6, bag:0.3 },
+  /* (24 Nov) locals for a district's own mix (VZ_DISTRICT[id].crowdMix: Cannaregio's): older people, slow, a walking stick or a shopping trolley;
+     students with their backpacks and books. Weight 0 elsewhere (and last in the list: the others' seeded colourings are unchanged) */
+  { kind:'anziano', n:4, weight:0, hair:'#d8d8d8', flatcap:0.4, scarf:0.4, shopping:0.5, stick:0.5, trolley:0.3, longHair:0.35, speed:0.8, browse:0.2 },
+  { kind:'studente', n:4, weight:0, rucksack:1, bag:0.3, longHair:0.5, cap:0.2, speed:1.8, browse:0.1 },
 ];
+/* a district's own mix of walkers (VZ_DISTRICT[id].crowdMix = { kind:weight }): a kind's weight there, in place of VZ_PEOPLE's; kinds not named keep
+   theirs. Cannaregio (24 Nov, the designer): no guides and no tour groups, very few tourists, mostly locals (shoppers, dogs, children, older people,
+   students). The other districts have none: unchanged */
+function vzCrowdMix(id){ const D = typeof VZ_DISTRICT !== 'undefined' && VZ_DISTRICT[id]; return (D && D.crowdMix) || null; }
+function vzLookWeight(l, mix){ if (!mix || mix[l.kind] === undefined) return l.weight; const K = VZ_PEOPLE.find(q => q.kind === l.kind); return mix[l.kind] / (K ? K.n : 1); }
 /* the looks, coloured: VZ_LOOKS_P[key] (made once, seeded) */
 const VZ_LOOKS_P = (() => {
   const r = rng(90210), pick = a => a[Math.floor(r() * a.length)], out = [];
@@ -35840,6 +35860,7 @@ const VZ_LOOKS_P = (() => {
     const L = { key:K.kind + k, kind:K.kind, weight:K.weight / K.n, speed:K.speed || 1, browse:K.browse || 0, skin:pick(VZ_SKINS), hair:pick(VZ_HAIRS), body:K.body || pick(VZ_CLOTHES), legs:K.legs || pick(['#2e3a4a', '#3a3a3a', '#5a4a3a', '#c9b48a', '#1c3d8f', '#e9e1cf', '#2b2b2b', '#6a8a9a']) };
     for (const f of ['backpack', 'camera', 'sunhat', 'cap', 'bag', 'shopping', 'flatcap', 'scarf', 'suitcase', 'brim']) if (typeof K[f] === 'number' && r() < K[f]) L[f] = pick(VZ_CLOTHES);
     for (const f of ['longHair', 'kid', 'seated', 'apron', 'hat']) if (typeof K[f] === 'number' && r() < K[f]) L[f] = f === 'apron' ? pick(['#fffdf8', '#e9e1cf', '#2b2b2b', '#8a2a2a']) : f === 'hat' ? pick(['#c23b2a', '#1c3d8f', '#1b1b1b']) : true;
+    if (K.kind === 'anziano' || K.kind === 'studente'){ if (K.hair) L.hair = r() < 0.75 ? K.hair : pick(['#b9b2a8', '#e8e4dc']); for (const f of ['stick', 'trolley', 'rucksack']) if (typeof K[f] === 'number' && r() < K[f]) L[f] = f === 'trolley' ? pick(['#3a4a6a', '#7a2a2a', '#2e5a3a']) : f === 'rucksack' ? pick(['#2e6a8e', '#c23b2a', '#3a4a5a', '#5a8a3a', '#2b2b2b']) : true; if (L.trolley) delete L.shopping; }
     if (K.phone && r() < K.phone) L.phone = K.phoneUp && r() < K.phoneUp / K.phone ? 'up' : true;
     if (K.umbrella){ L.umbrella = k % 3 === 2 ? 'flag' : true; L.umbrellaCol = ['#c23b2a', '#f4b928', '#2e8b57'][k % 3]; }
     if (K.stripes) L.stripes = K.stripes; if (K.scarf && typeof K.scarf === 'string') L.scarf = K.scarf;
@@ -35954,7 +35975,8 @@ function* vzCrowdBuild(){
   const vz = VZ, t0 = performance.now(), G = yield* vzLaneGraph();
   if (VZ !== vz) return;                           // (the city changed while it was being made: world/districts.js makes the next one's)
   /* what the engine needs of a look: its key, how often, its pace, who walks with them (kid: the child's look) */
-  const looks = Object.values(VZ_LOOKS_P).map(l => ({ key:l.key, weight:l.weight, speed:l.speed, browse:l.browse, group:l.group, pet:l.pet, kid:l.kidLook, seated:l.seated }));
+  const mix = vzCrowdMix(VZD.id);
+  const looks = Object.values(VZ_LOOKS_P).map(l => ({ key:l.key, weight:vzLookWeight(l, mix), speed:l.speed, browse:l.browse, group:l.group, pet:l.pet, kid:l.kidLook, seated:l.seated }));
   const byKey = Object.fromEntries(looks.map(l => [l.key, l]));
   VZ_CROWDS.A = VZ_CROWDS.A || spriteAtlas((g, look, f, k) => vzAtlasFrame(g, VZ_LOOKS_P[look.key], f, k), { w:40, h:80, ox:20, oy:74, facings:4, frames:5, res:vzRes });   // (one atlas for every district)
   yield;
@@ -36757,7 +36779,7 @@ function vzDrawMap(c){
   if (!smMap) VZ_SKETCHES[VZD.id].pois.forEach(p => {
     if (p.type === 'gate' || p.type === 'vaporetto') return;
     const x = (p.x + 0.5) * k, y = (p.y + 0.5) * k; VZM.pois.push(p.id);
-    if (p.type === 'landmark'){ const bx = badge(x, y, '#7a4a6a', '◆', '#fffdf8', 'poi:' + p.id); lab(p.name.replace(/ \(.*\)$/, ''), bx, y, { font:F(600, 10.5), size:10.5, col:'#5a3a22', prio:30, r:7.5, own:'poi:' + p.id }); }
+    if (p.type === 'landmark'){ const bx = badge(x, y, '#7a4a6a', '◆', '#fffdf8', 'poi:' + p.id); if (!VZM.marks.some(m => m.poi === p.id)) lab(p.name.replace(/ \(.*\)$/, ''), bx, y, { font:F(600, 10.5), size:10.5, col:'#5a3a22', prio:30, r:7.5, own:'poi:' + p.id }); }      // (a mark of its own with its name: one label)
     else if (p.type === 'interior') badge(x, y, '#b5763a', 'D');
     else if (p.type === 'npc'){ g.fillStyle = 'rgba(122,74,106,.7)'; circ(g, x, y, 2.6); g.fill(); }
   });
@@ -36848,6 +36870,8 @@ const VZ_DISTRICT = {
   /* (not in the story yet: the designer, 19 Nov, "Cannaregio should not be open, those bridges should be closed". open: the district's
      open condition (none: open); shut: the line at a way into it while it is closed (a gate's own shut.it before it), and the toast's) */
   cannaregio:{ id:'cannaregio', n:3, name:'Cannaregio', long:'Cannaregio', crowd:230, open:() => vzDistrictFlag('cannaregio'),
+    /* its crowd (24 Nov, the designer): the neighbourhood's own people, no guides or tour groups, a very few tourists (world/crowd.js vzCrowdMix) */
+    crowdMix:{ turista:0.35, guida:0, veneziano:5, 'col-cane':2.2, genitore:2.2, anziano:2.6, studente:1.8 },
     shut:{ it:'Cannaregio: non ancora.', en:'Cannaregio comes later in the story' } },
   giudecca:{ id:'giudecca', n:4, name:'La Giudecca', long:'La Giudecca', crowd:120 },
   /* District 1's east end (14 Nov): the Riva to the Arsenale, built from its own small sketch (San Marco's is unchanged) and walked into
@@ -39542,7 +39566,7 @@ const POZZO_SCRIPT = convoScript({
       { say:[PZL('Buongiorno! Benvenuto al museo. Mi dica.', 'Good morning! Welcome to the museum. How can I help?')] },
       { sayit:{ task:'Greet him (he is at work: politely) and give him the map you have put together.', pieces:'ecco mappa pozzo',                     // (Buongiorno and Ciao: the Frasi fatte, in every bank)
         answer:['buongiorno ecco mappa', 'ecco mappa', 'buongiorno , ecco mappa'],
-        wrong:[{ has:'ciao', near:true, reply:PZL('Ciao?… Buongiorno a Lei!', 'Hi?… Good morning to you!'), fb:'He doesn\'t know you, and he is at work: the polite greeting.' },
+        wrong:[{ has:'ciao', near:true, echo:PZL('Ciao?… Buongiorno a Lei!', 'Hi?… Good morning to you!'), fb:'He doesn\'t know you, and he is at work: the polite greeting.' },
                { has:'pozzo', reply:PZL('Il pozzo? Quale pozzo?', 'The well? Which well?'), fb:'Not the well: show him what you found in it.' }],
         partial:PZL('Sì? Mi dica…', 'Yes? Go on…'),
         reply:[PZL('Ma… una mappa antica di Venezia! È bellissima! Dove l\'ha trovata?', 'But… an old map of Venice! It\'s beautiful! Where did you find it?', { "Dove l'ha trovata":'where did you find it? (polite)' })],
@@ -41195,6 +41219,660 @@ const GT_SCRIPT = convoScript({
   },
 });
 
+/* ===== units/venezia/world/cplaces.js ===== */
+/* Cannaregio's places (the designer's brief of 24 Nov: docs/lessons/venezia/scripts/d3/x-cannaregio-places-brief.md; as built: docs/venezia-world.md
+   "Cannaregio's places"). Three places to fill District 3, built before its lessons (Cannaregio stays closed in the normal game: vzDistrictOpen;
+   they are reached in the test drive, or once a lesson opens the district):
+   - Il Teatro Italia, the 1916 theatre that is a supermarket now: its neo-Gothic front on the Rio Terà San Leonardo just east of the Ghetto (the sketch's
+     lm 'teatro', poi p30: in reality it is on Campiello de l'Anconeta, a step off it), the room vz-cp-teatro (20 × 10 m: the painted hall, the twin iron
+     staircases to the gallery under the coffered ceiling, the aisles, the chiller cabinets, the deli counter, fruit and flowers at the door, the red
+     OFFERTA cards; the cashier, Lei; shoppers, the neighbourhood's).
+   - Il Casinò di Venezia at Ca' Vendramin Calergi: its white front on the Grand Canal west of the Ca' d'Oro (lm 'casino', poi p31), its water entrance
+     below it (the red canopied landing stage, the striped poles: render/cplaces.js), seen from the new campiello beside it; its land entrance in the
+     courtyard wall on the campiello (lm 'casino-porta'); the room vz-cp-casino (16 × 9 m: the green damask salon, the white curtains, the Murano
+     chandeliers, the beamed ceiling, the terrazzo, the roulette under its dome, the card tables, the red velvet chairs; the doorman and the croupier,
+     Lei; players). The roulette: world/cplaces-casino.js (the prize: il tricorno, worn like the sailor's outfit and the gnaga).
+   - La Libreria Acqua Alta on the Fondamenta de la Misericordia by the bacaro (lm 'libreria', poi p32; moved on purpose: in reality it is in Castello),
+     the Rio de la Madonna dell'Orto behind it; the room vz-cp-libreria (17 × 8 m: the shop, books in a gondola, canoes, a bathtub, barrels, shelves to
+     the ceiling, a chandelier, the green door, the FIRE EXIT onto the canal with its gondola; the open courtyard with the staircase of books you climb
+     for a view over the rio, the blue canoe over it, the posters; the fat ginger-and-white cat asleep on the books; the bookseller, Lei).
+   The sketch changed for the casino only (docs/data/venezia-cannaregio-map.json: the palace's cells, the campiello, its bridge over the rio; the three
+   footprints as pois' lm): Cannaregio's converter output changed, San Marco's did not (its fingerprint). The doors are put at the landmarks' feet once
+   Cannaregio is built (vzUse). Their looks open each place's history card (≤ 3 sentences, checked on the web: CP_CARDS, sources in the as-built).
+   The crowd: Cannaregio's own mix (world/districts.js VZ_DISTRICT.cannaregio.crowdMix; world/crowd.js).
+   Saved: S.cplaces (lazy, not in FRESH()): { seen:{ place:time }, casino:{…}: world/cplaces-casino.js, climbed, cat, exit }.
+   Tests: tests/venezia/cplaces.js, cplaces-roulette.js; __dbg().cplaces, __debug.cpGo(where, { inside }), cpCard(id), cpPlaces(). */
+
+const CP_ROOMS = { teatro:'vz-cp-teatro', casino:'vz-cp-casino', libreria:'vz-cp-libreria' };
+const CP_DOORS = { teatro:'cp-teatro', casino:'cp-casino', libreria:'cp-libreria' };
+function cpRec(){
+  if (!S.cplaces || typeof S.cplaces !== 'object') S.cplaces = { seen:{}, casino:null, climbed:0, cat:0, exit:0 };
+  const R = S.cplaces; R.seen = R.seen || {}; return R;
+}
+const cpPeek = () => S.cplaces && typeof S.cplaces === 'object' ? S.cplaces : null;
+
+/* ---------- the people (Lei: everyone who works there; the shoppers, the players and the cat ambient, a line each) ---------- */
+const cpNpc = o => Object.assign({ formal:true, district:'cannaregio', baseFace:{ x:0, y:1 }, answerHow:{ it:'Bene, grazie.', en:'Fine, thanks.' }, greet:{ it:'Buongiorno', en:'Good morning' },
+  agenda:[], revisitAgenda:[], promptOffset:{ x:0, y:26 }, x:-999, y:-999, cp:true }, o);
+const CP_NPCS = [
+  /* the Teatro Italia */
+  cpNpc({ id:'cp-cassiera', name:'La cassiera', where:'the cashier at the Teatro Italia’s till', scene:CP_ROOMS.teatro, place:'Il Teatro Italia · la cassa', body:'#c23b2a', legs:'#2b2a33', hair:'#3a2318', longHair:true, skin:'#e8bb94', apron:'#c23b2a', pron:['She', 'her'], pitch:1.06 }),
+  cpNpc({ id:'cp-salumiere', name:'Il salumiere', where:'the deli counter', scene:CP_ROOMS.teatro, place:'Il Teatro Italia', ambient:true, body:'#fffdf8', legs:'#2b2a33', hair:'#1e1a17', skin:'#d9a37e', apron:'#fffdf8', toque:true, pron:['He', 'his'], pitch:0.92,
+    says:{ it:'Desidera? Prosciutto, formaggio… tutto fresco!', en:'What would you like? Ham, cheese… all fresh!' } }),
+  cpNpc({ id:'cp-cliente1', name:'Una signora', where:'a shopper with her trolley', scene:CP_ROOMS.teatro, place:'Il Teatro Italia', ambient:true, body:'#7a4a6a', legs:'#3a3036', hair:'#e8e4dc', skin:'#ecc4a2', glasses:true, trolley:'#3a4a6a', pron:['She', 'her'], pitch:1.1,
+    says:{ it:'Il latte è in offerta oggi!', en:'The milk is on offer today!' } }),
+  cpNpc({ id:'cp-cliente2', name:'Un signore', where:'a shopper by the chiller cabinets', scene:CP_ROOMS.teatro, place:'Il Teatro Italia', ambient:true, body:'#4a5a6a', legs:'#2a2a30', hair:'#d8d8d8', skin:'#d9a37e', flatcap:'#3a3a3a', shopping:'#c9b48a', pron:['He', 'his'], pitch:0.88,
+    says:{ it:'Faccio la spesa qui da quarant’anni: prima era un cinema!', en:'I’ve done my shopping here for forty years: before, it was a cinema!' } }),
+  cpNpc({ id:'cp-cliente3', name:'Una ragazza', where:'a student with a basket', scene:CP_ROOMS.teatro, place:'Il Teatro Italia', ambient:true, body:'#5a8a3a', legs:'#2e3a4a', hair:'#8a5a33', longHair:true, skin:'#efc6a4', rucksack:'#c23b2a', pron:['She', 'her'], pitch:1.14,
+    says:{ it:'Pasta, pomodori… e un caffè!', en:'Pasta, tomatoes… and a coffee!' } }),
+  /* the casino */
+  cpNpc({ id:'cp-portiere', name:'Il portiere', where:'the casino’s doorman', scene:CP_ROOMS.casino, place:'Il Casinò di Venezia · l’ingresso', body:'#1b1b22', legs:'#1b1b22', hair:'#2a1a12', skin:'#e2b48e', scarf:'#8a1a24', pron:['He', 'his'], pitch:0.9,
+    greet:{ it:'Buonasera', en:'Good evening' } }),
+  cpNpc({ id:'cp-croupier', name:'Il croupier', where:'the croupier at the roulette table', scene:CP_ROOMS.casino, place:'Il Casinò di Venezia · la roulette', body:'#1b1b22', legs:'#1b1b22', hair:'#6b3a1f', skin:'#efc6a4', scarf:'#fffdf8', collar:true, pron:['He', 'his'], pitch:0.98,
+    greet:{ it:'Buonasera', en:'Good evening' } }),
+  cpNpc({ id:'cp-giocatrice', name:'Una signora', where:'a player at the roulette', scene:CP_ROOMS.casino, place:'Il Casinò di Venezia', ambient:true, body:'#7a1f2e', legs:'#2b1a22', hair:'#c9a46a', longHair:true, skin:'#f0c9a8', scarf:'#e8c35a', pron:['She', 'her'], pitch:1.05,
+    says:{ it:'Sempre sul rosso. Sempre!', en:'Always on red. Always!' } }),
+  cpNpc({ id:'cp-giocatore', name:'Un signore', where:'a player at the card table', scene:CP_ROOMS.casino, place:'Il Casinò di Venezia', ambient:true, seated:true, body:'#2e3a4a', legs:'#1b1b22', hair:'#d8d8d8', skin:'#d9a37e', glasses:true, pron:['He', 'his'], pitch:0.86,
+    says:{ it:'Stasera la fortuna è con me.', en:'Tonight luck is on my side.' } }),
+  /* the bookshop */
+  cpNpc({ id:'cp-libraio', name:'Il libraio', where:'the bookseller of the Libreria Acqua Alta', scene:CP_ROOMS.libreria, place:'La Libreria Acqua Alta', body:'#5a6a4a', legs:'#3a3a3a', hair:'#b9b2a8', skin:'#e2b48e', glasses:true, scarf:'#8a5a33', pron:['He', 'his'], pitch:0.9 }),
+  cpNpc({ id:'cp-lettrice', name:'Una ragazza', where:'a reader among the shelves', scene:CP_ROOMS.libreria, place:'La Libreria Acqua Alta', ambient:true, body:'#2e6a8e', legs:'#2b2b2b', hair:'#1e1a17', longHair:true, skin:'#c98d62', rucksack:'#5a8a3a', pron:['She', 'her'], pitch:1.12,
+    says:{ it:'Questo libro costa due euro! Che bello.', en:'This book costs two euros! How lovely.' } }),
+];
+CP_NPCS.forEach(n => { n.home = { x:0, y:0, face:{ ...n.baseFace } }; n.face = { ...n.baseFace }; NPCS.push(n); NPC[n.id] = n; });
+
+/* ---------- the rooms ---------- */
+const CP_OMIT_SHOP = ['insegna', 'scaffale', 'specchio', 'banco', 'sedia'];
+Object.assign(VZ_ROOMS, {
+  /* il Teatro Italia: the hall (20 × 10 m, the back wall 7.2 m: the painted walls, the arched windows, the frieze, the ceiling's edge with its
+     medallion); the entrance's gallery and twin staircases on the left, under the coffered ceiling */
+  [CP_ROOMS.teatro]:vzRoomKind('shop', { title:'Il Teatro Italia', sub:'Il supermercato nel vecchio teatro · Cannaregio', door:CP_DOORS.teatro, seed:1916, district:'cannaregio', omit:CP_OMIT_SHOP,
+    props:[
+      { id:'scale', kind:'cpstairs', wall:true, x:0.2, w:6.4, z:0, h:6.4, it:'le scale', en:'the twin iron staircases, their lacework railings, up to the gallery' },
+      { id:'affresco', kind:'none', wall:true, x:11.6, w:1.6, z:3.2, h:3.0, it:'gli affreschi', en:'the painted walls and ceiling', label:'Guarda' },
+      { id:'finestra', kind:'none', wall:true, x:7.4, w:1.6, z:3.4, h:2.8, it:'la finestra', en:'a tall arched window', look:false },
+      { id:'frigo', kind:'cpfridge', x:13.4, y:0, w:6.4, d:0.8, h:2.1, it:'i frigoriferi', en:'the chiller cabinets: milk, cheese, yoghurt' },
+      { id:'gastronomia', kind:'cpdeli', x:7.0, y:0.6, w:4.4, d:0.9, h:1.15, it:'il banco', en:'the deli counter: ham, cheese, olives' },
+      { id:'scaffale1', word:'scaffale', kind:'cpshelf', goods:'pasta', x:7.0, y:3.4, w:5.6, d:0.9, h:1.7, it:'lo scaffale', en:'the shelves: pasta, rice, flour' },
+      { id:'scaffale2', word:'scaffale', kind:'cpshelf', goods:'biscotti', x:13.8, y:3.4, w:5.4, d:0.9, h:1.7, it:'lo scaffale', en:'the shelves: biscuits, coffee, jam' },
+      { id:'scaffale3', word:'scaffale', kind:'cpshelf', goods:'bibite', x:7.0, y:5.9, w:5.6, d:0.9, h:1.7, it:'lo scaffale', en:'the shelves: water, wine, drinks' },
+      { id:'scaffale4', word:'scaffale', kind:'cpshelf', goods:'casa', x:13.8, y:5.9, w:5.4, d:0.9, h:1.7, it:'lo scaffale', en:'the shelves: soap, paper, the things for the house' },
+      { id:'frutta', kind:'cpfruit', x:3.2, y:5.4, w:2.8, d:1.1, h:0.95, it:'la frutta', en:'the fruit and vegetables, at the door; a red card: OFFERTA' },
+      { id:'fiori', kind:'cpflowers', x:0.4, y:5.2, w:2.0, d:1.0, h:0.9, it:'i fiori', en:'the flowers by the door' },
+      { id:'cassa', kind:'cptill', x:4.6, y:8.1, w:2.4, d:0.8, h:0.95, it:'la cassa', en:'the till' },
+      { id:'cestini', kind:'cpbaskets', x:0.5, y:8.4, w:0.9, d:0.6, h:0.8, it:'i cestini', en:'the shopping baskets' },
+    ],
+    people:{ 'cp-cassiera':{ x:5.9, y:7.85, approach:{ x:5.9, y:9.35 }, talk:{ x:4.6, y:8.7, w:2.6, d:1.0 }, post:true },
+      'cp-salumiere':{ x:9.2, y:0.45 }, 'cp-cliente1':{ x:12.8, y:5.1 }, 'cp-cliente2':{ x:16.2, y:1.6 }, 'cp-cliente3':{ x:10.4, y:7.6 } } }),
+  /* the casino's salon (16 × 9 m, 5.6 m high): the roulette in the middle, a card table either side */
+  [CP_ROOMS.casino]:vzRoomKind('shop', { title:'Il Casinò di Venezia', sub:"Ca' Vendramin Calergi · la sala della roulette", door:CP_DOORS.casino, seed:1638, district:'cannaregio', omit:CP_OMIT_SHOP,
+    props:[
+      { id:'tenda', kind:'cpcurtain', wall:true, x:1.0, w:1.9, z:0.5, h:4.1, it:'la finestra', en:'a tall window, its white curtains' },
+      { id:'tenda2', word:'tenda', kind:'cpcurtain', wall:true, x:7.05, w:1.9, z:0.5, h:4.1, look:false },
+      { id:'tenda3', word:'tenda', kind:'cpcurtain', wall:true, x:13.1, w:1.9, z:0.5, h:4.1, look:false },
+      { id:'lampadario', kind:'cpchandelier', wall:true, x:3.7, w:2.0, z:3.4, h:1.9, it:'il lampadario', en:'the chandelier: Murano glass' },
+      { id:'lampadario2', word:'lampadario', kind:'cpchandelier', wall:true, x:10.3, w:2.0, z:3.4, h:1.9, look:false },
+      { id:'targa', kind:'cpplaque', wall:true, x:5.95, w:0.85, z:1.4, h:0.6, it:'la targa', en:'a plaque: Richard Wagner died in this palace', label:'Leggi' },
+      { id:'roulette', kind:'cproulette', x:5.0, y:3.2, w:6.0, d:1.9, h:0.85, it:'la roulette', en:'the roulette table: the wheel under its dome' },
+      { id:'tavolo', kind:'cpcardtable', x:0.7, y:1.6, w:2.8, d:1.3, h:0.8, it:'il tavolo verde', en:'a card table' },
+      { id:'tavolo2', word:'tavolo', kind:'cpcardtable', x:12.5, y:1.6, w:2.8, d:1.3, h:0.8, look:false },
+      { id:'sedia1', word:'sedia', kind:'cpvelvet', x:5.6, y:5.45, w:0.6, d:0.5, h:1.0, solid:false, look:false },
+      { id:'sedia2', kind:'cpvelvet', x:9.8, y:5.45, w:0.6, d:0.5, h:1.0, solid:false, look:false },
+      { id:'sedia3', kind:'cpvelvet', x:1.2, y:3.25, w:0.6, d:0.5, h:1.0, solid:false, look:false },
+      { id:'sedia4', kind:'cpvelvet', x:13.6, y:3.25, w:0.6, d:0.5, h:1.0, solid:false, look:false },
+    ],
+    people:{ 'cp-croupier':{ x:9.6, y:3.0, approach:{ x:8.6, y:5.95 }, talk:{ x:5.0, y:5.1, w:6.0, d:1.6 }, post:true }, 'cp-portiere':{ x:9.6, y:7.6, approach:{ x:8.0, y:7.9 }, post:true },
+      'cp-giocatrice':{ x:4.6, y:4.4 }, 'cp-giocatore':{ x:2.1, y:1.45 } } }),
+  /* the bookshop (17 × 8 m): the shop (0–11 m), the courtyard open to the sky (11.4–17 m) with its staircase of books */
+  [CP_ROOMS.libreria]:vzRoomKind('shop', { title:'La Libreria Acqua Alta', sub:'Libri, gatti e acqua alta · la Misericordia', door:CP_DOORS.libreria, seed:2004, district:'cannaregio', omit:CP_OMIT_SHOP,
+    props:[
+      { id:'scaffali', kind:'cpbookwall', wall:true, x:0, w:7.9, z:0, h:3.6, look:false },
+      { id:'canoa', kind:'cpcanoe', wall:true, x:0.5, w:5.2, z:2.6, h:0.9, it:'la canoa', en:'a canoe on the wall: full of books' },
+      { id:'lampadario', kind:'cpchandelier', small:true, wall:true, x:3.8, w:1.3, z:2.6, h:1.1, it:'il lampadario', en:'an old chandelier, hung over the books' },
+      { id:'uscita', kind:'cpfireexit', wall:true, x:8.1, w:2.2, z:0, h:2.5, it:'l’uscita di sicurezza', en:'the fire exit', label:'Guarda' },
+      { id:'porta', kind:'cpgreendoor', wall:true, x:10.4, w:0.9, z:0, h:2.2, it:'la porta verde', en:'the old green door: ACQUA ALTA Bookshop', label:'Leggi' },
+      { id:'gondola', kind:'cpbookgondola', x:0.6, y:0.9, w:6.0, d:1.3, h:0.9, it:'la gondola', en:'a gondola full of books' },
+      { id:'vasca', kind:'cpbathtub', x:7.6, y:3.0, w:1.7, d:0.85, h:0.75, it:'la vasca da bagno', en:'a bathtub full of books' },
+      { id:'botte', kind:'cpbarrel', x:0.6, y:4.4, w:0.9, d:0.9, h:0.9, round:true, it:'la botte', en:'a barrel of old postcards' },
+      { id:'botte2', word:'botte', kind:'cpbarrel', x:1.7, y:4.6, w:0.9, d:0.9, h:0.9, round:true, look:false },
+      { id:'tavolo', kind:'cpbooktable', x:2.9, y:3.0, w:2.2, d:1.0, h:0.8, it:'il tavolo dei libri', en:'a table of books about Venice' },
+      { id:'gatto', kind:'cpcat', on:'tavolo', x:3.2, y:3.05, w:1.4, d:0.7, h:0.95, solid:false, it:'il gatto', en:'a fat ginger-and-white cat, asleep on the books', label:'Il gatto' },
+      { id:'scala', kind:'cpbookstairs', x:12.0, y:0, w:3.6, d:2.8, h:0, floor:true, solid:false, it:'la scala di libri', en:'the staircase of old books', label:'Sali' },
+      { id:'canoa2', word:'canoa', kind:'cpcanoe', blue:true, wall:true, x:11.6, w:4.6, z:2.9, h:0.85, it:'la canoa', en:'the blue canoe hung over the books' },
+      { id:'manifesti', kind:'cpposters', x:15.2, y:4.4, w:1.5, d:1.0, h:0.85, it:'i manifesti', en:'old posters of Venice: the Lido, the lion' },
+      { id:'pianta', kind:'cpplant', x:11.5, y:3.2, w:0.9, d:0.9, h:1.3, round:true, it:'la pianta', en:'a big green plant' },
+      { id:'cassa', kind:'cpdesk', x:6.3, y:6.5, w:1.8, d:0.7, h:0.75, it:'la cassa', en:'the till: a little desk' },
+    ],
+    people:{ 'cp-libraio':{ x:7.2, y:6.0, approach:{ x:7.2, y:7.55 }, talk:{ x:6.1, y:7.1, w:2.4, d:0.8 }, post:true }, 'cp-lettrice':{ x:9.6, y:5.2 } } }),
+});
+/* the rooms' sizes, walls, floors, ways out (a kind's own size is its default) */
+Object.entries({ [CP_ROOMS.teatro]:[20, 10, 7.2], [CP_ROOMS.casino]:[16, 9, 5.6], [CP_ROOMS.libreria]:[17, 8, 4.4] }).forEach(([k, [w, d, wall]]) => { Object.assign(VZ_ROOMS[k], { w, d, wall }); VZ_SCENE_D[k] = 'cannaregio'; });
+VZ_ROOMS[CP_ROOMS.teatro].zones = [{ x0:0, x1:6.6, floor:'terrazzo', wall:'cpgallery' }, { x0:6.6, x1:20, floor:'terrazzo', wall:'cpfresco' }];
+VZ_ROOMS[CP_ROOMS.casino].zones = [{ x0:0, x1:16, floor:'terrazzo', wall:'cpdamask' }];
+VZ_ROOMS[CP_ROOMS.libreria].zones = [{ x0:0, x1:11.4, floor:'cpstone', wall:'cpshop' }, { x0:11.4, x1:17, floor:'cpyard', wall:'cpyardwall' }];
+Object.assign(VZ_ROOMS[CP_ROOMS.teatro].exit, { x:1.8, w:1.9 }); VZ_ROOMS[CP_ROOMS.teatro].spawn = { x:2.75, y:9.0 };
+Object.assign(VZ_ROOMS[CP_ROOMS.casino].exit, { x:7.1, w:1.8 }); VZ_ROOMS[CP_ROOMS.casino].spawn = { x:8.0, y:8.1 };
+Object.assign(VZ_ROOMS[CP_ROOMS.libreria].exit, { x:3.0, w:1.4 }); VZ_ROOMS[CP_ROOMS.libreria].spawn = { x:3.7, y:7.1 };
+Object.values(CP_ROOMS).forEach(vzRoomScene);
+
+/* ---------- the city: the doors at the landmarks' feet, once Cannaregio is built ---------- */
+const CP_PLACE = {
+  teatro:{ lm:'teatro', poi:'p30', name:'Il Teatro Italia', label:'Entra', at:0.375 },
+  casino:{ lm:'casino-porta', poi:'p31', name:'Il Casinò di Venezia', label:'Entra', at:0.5 },
+  libreria:{ lm:'libreria', poi:'p32', name:'La Libreria Acqua Alta', label:'Entra', at:0.3 },
+};
+function cpPlace(id){
+  if (id !== 'cannaregio' || !VZ || VZ.cp) return;
+  VZ.cp = {};
+  const M = VZ_M;
+  Object.entries(CP_PLACE).forEach(([k, P]) => {
+    const l = VZ.landmarks.find(q => q.id === P.lm); if (!l) return;
+    const x = Math.round(l.x + l.w * P.at), y = l.base;
+    VZ.doors.push({ id:CP_DOORS[k], to:CP_ROOMS[k], name:P.name, label:P.label, x, y, poi:null, cp:k });
+    VZ.cp[k] = { x, y, lm:l.id };
+  });
+  /* the casino's front, at the district's west edge of its area: the area's camera reaches over it (to 2 m past its west end) */
+  { const c = VZ.landmarks.find(q => q.id === 'casino'), k = c ? VZ.areaAtCell(c.cells[2] + 1, c.cells[3]) : -1, a = k >= 0 ? VZ.areas[k] : null;
+    if (c && a && a.camBox.x > c.x - 2 * M){ const x = Math.max(0, c.x - 2 * M); a.camBox.w += a.camBox.x - x; a.camBox.x = x; } }
+  VZ.dlm = null; VZ_NAV.grid = null; vzPoints.memo = null; if (typeof vzPropHash === 'function') vzPropHash.m = null;
+  Object.values(VZ_CITY).forEach(sc => { if (sc.made && sc.camBox) sc.doors = vzDoorsIn(sc.camBox); });
+}
+{ const prev = vzUse; vzUse = (id, already) => { const r = prev(id, already); try { cpPlace(id); } catch (e){ console.error(e); } return r; }; }
+if (VZD.id === 'cannaregio') cpPlace('cannaregio');
+/* the casino's front is seen from the campiello beside it (vzDLandmarks would stand you across the Grand Canal: its wet rows) */
+{ const prev = vzDLandmarks; vzDLandmarks = () => { const fresh = !VZ.dlm, L = prev(); if (fresh && VZD.id === 'cannaregio'){ const c = L.find(l => l.id === 'casino'); if (c) c.stand = VZ.snap(c.x + c.w + 1.5 * VZ_M, c.base - 0.6 * VZ_M, 16);
+    /* (the looks of the fronts with a door of ours: stood at a step from the door, so E there is the look, not the way in) */
+    for (const [id, f] of [['teatro', 0.78], ['libreria', 0.8]]){ const l = L.find(q => q.id === id); if (l) l.stand = VZ.snap(l.x + l.w * f, l.base + 0.9 * VZ_M, 16); }
+    const pg = L.find(q => q.id === 'casino-porta'); if (pg && c) pg.stand = c.stand; } return L; }; }
+/* the named points: before each door; the casino's look from its campiello */
+{ const prev = vzDistrictPoints; vzDistrictPoints = () => { const P = prev(); if (VZD.id !== 'cannaregio' || !VZ.cp) return P;
+    Object.entries(VZ.cp).forEach(([k, q]) => { P['cp-' + k] = VZ.snap(q.x, q.y + 1.2 * VZ_M, 14); });
+    const c = VZ.landmarks.find(l => l.id === 'casino'); if (c) P['cp-casino-front'] = VZ.snap(c.x + c.w + 1.5 * VZ_M, c.base - 0.8 * VZ_M, 14);
+    return P; }; }
+
+/* ---------- the history cards (≤ 3 sentences; every fact checked on the web, 24 Nov: the sources in docs/venezia-world.md "Cannaregio's places") ---------- */
+const CP_CARDS = {
+  teatro:{ title:'Il Teatro Italia', sub:'Cannaregio · a theatre, a cinema, a supermarket',
+    text:'Built by the architect Giovanni Sardi in a neo-Gothic style, the Teatro Italia opened in 1916 as a theatre, and later became a cinema. After years closed and a spell as a hall of Ca’ Foscari University, it reopened as a supermarket in December 2016, after a long restoration. The shopping is done under its painted walls and Alessandro Pomi’s ceiling, an allegory called The Glory of Italy.' },
+  casino:{ title:'Il Casinò di Venezia', sub:"Ca' Vendramin Calergi, on the Grand Canal",
+    text:'Venice’s casino calls itself the oldest in the world: in 1638 the Republic opened the Ridotto, a state gaming house near San Moisè, where the only rule at the door was to wear a mask. Since 1959 its winter home has been Ca’ Vendramin Calergi, the palace on the Grand Canal designed by Mauro Codussi and begun in 1481. Richard Wagner died in this palace on 13 February 1883.' },
+  libreria:{ title:'La Libreria Acqua Alta', sub:'The high-water bookshop',
+    text:'In the real city this bookshop is in Castello, on the Calle Longa Santa Maria Formosa: the game has moved it here, by the Misericordia. When the high water seeps in, the books stay dry, kept in bathtubs, in canoes and in a gondola, and at the back a staircase made of books gives a view of the canal. Its famous fire exit opens straight onto the water, and cats have made the shop their home.' },
+};
+CP_CARDS['casino-porta'] = CP_CARDS.casino;
+const CP_CARD = { last:null, n:0 };
+function cpCard(id, o = {}){
+  const c = CP_CARDS[id]; if (!c) return false;
+  CP_CARD.last = id; CP_CARD.n++; VZ_POICARD.last = 'card:' + id; VZ_POICARD.lm = id; VZ_POICARD.n++; VZ_POICARD.history = id;
+  const lid = id === 'casino-porta' ? 'casino' : id;
+  /* the picture: the place's front drawn by the game (the casino's from over the canal: its front and its landing, not the far bank) */
+  let img = '';
+  try { const l = VZD.id === 'cannaregio' && vzDLandmarks().find(k => k.id === lid);
+    if (l){ const f = vzLmFrame({ ...l, wet:lid === 'casino' ? 1.6 : 0 }, { key:'cannaregio:cpcard:' + lid, fill:lid === 'casino' ? 0.92 : 1 }); img = vzSnapshot(f); } } catch (e){ img = ''; }
+  VZ_POICARD.img = !!img;
+  openInfoCard({ kicker:'Venezia · la storia', title:c.title, sub:c.sub, img, alt:c.title, html:`<p>${esc(c.text)}</p>`, cls:'v1-card cp-card', onClose:o.onClose });
+  return true;
+}
+/* the looks of the three fronts open their cards (world/districts.js: the placeholder's, for the others) */
+{ const prev = UNIT.enterDoor; UNIT.enterDoor = d => { if (d && d.poiCard && CP_CARDS[d.lmCard]){ const r = cpCard(d.lmCard); VZ_POICARD.last = d.poiCard; return r; } return prev(d); }; }
+
+/* ---------- the rooms' looks, the cat, the fire exit, the staircase of books ---------- */
+const CP_LINES = {
+  gatto:{ it:'Per favore, non tocchi il gatto: dorme.', en:'Please don’t touch the cat: he’s asleep.', gloss:{ 'non tocchi':'don’t touch (polite)', dorme:'is asleep' } },
+  uscita:{ it:'L’uscita di sicurezza? È l’acqua! Se c’è un incendio… si prende la gondola.', en:'The fire exit? It’s the water! If there’s a fire… you take the gondola.', gloss:{ 'uscita di sicurezza':'fire exit', incendio:'a fire', 'si prende':'you take' } },
+  scala:{ it:'Salga, salga! Dall’alto si vede il rio.', en:'Go up, go up! From the top you can see the canal.', gloss:{ 'Salga':'go up (polite)', 'dall’alto':'from the top', rio:'canal' } },
+};
+const CP_STAIRS = { top:0, lift:0, at:0 };
+function cpDoor(d){
+  if (!d || !CP_ROOM_OF[S.scene]) return undefined;
+  const m = /^pr:(.+)$/.exec(d.id || ''), id = m && m[1]; if (!id) return undefined;
+  const R = cpRec(), room = CP_ROOM_OF[S.scene];
+  if (room === 'teatro' && id === 'affresco') return cpCard('teatro');
+  if (room === 'casino' && id === 'targa') return cpCard('casino');
+  if (room === 'libreria'){
+    const lib = NPC['cp-libraio'];
+    if (id === 'porta') return cpCard('libreria');
+    if (id === 'gatto'){ R.cat = (R.cat || 0) + 1; save(); cpCatWake.t = performance.now(); worldSay(lib, CP_LINES.gatto.it, { ms:2600 }); worldSay(cpCatBody(), 'Zzz…', { ms:1800, silent:true });
+      toast(`<b>Il gatto</b> · ${esc(CP_LINES.gatto.en)} <span class="note">(the card: PLEASE DON’T TOUCH THE CAT. He doesn’t wake.)</span>`); return true; }
+    if (id === 'uscita'){ R.exit = (R.exit || 0) + 1; save(); worldSay(lib, CP_LINES.uscita.it, { ms:3600 }); toast(`<b>FIRE EXIT</b> · ${esc(CP_LINES.uscita.en)}`); return true; }
+    if (id === 'scala'){ if (CP_STAIRS.lift > 0.5 * VZ_M) return true; worldSay(lib, CP_LINES.scala.it, { ms:2400 }); toast(`<b>La scala di libri</b> · ${esc(CP_LINES.scala.en)} <span class="note">(walk up it)</span>`); return true; }
+  }
+  return undefined;
+}
+const CP_ROOM_OF = Object.fromEntries(Object.entries(CP_ROOMS).map(([k, v]) => [v, k]));
+/* the cat (drawn on the book table by render/cplaces.js): the point his bubble is over */
+function cpCatBody(){ const R = VZ_ROOMS[CP_ROOMS.libreria], p = R.byId.gatto; return { x:p.box.x + p.box.w / 2, y:p.box.y + 2, isCat:true, personLift:20 }; }
+const cpCatWake = { t:0 };
+/* the staircase of books (the courtyard): walking up it, the player is drawn higher, step by step (the back step 1.8 m up: over the wall, the rio
+   behind); at the top, once a visit, the view. Its footprint is walkable (not solid); the steps rise towards the wall */
+const CP_STEP_H = [0.3, 0.6, 0.9, 1.2, 1.5, 1.8];
+function cpStairsTick(){
+  if (S.scene !== CP_ROOMS.libreria){ if (player.lift && CP_STAIRS.lift){ player.lift = 0; CP_STAIRS.lift = 0; } return; }
+  const R = VZ_ROOMS[CP_ROOMS.libreria], b = R.byId.scala.box, M = VZ_M;
+  let want = 0;
+  if (player.x > b.x + 4 && player.x < b.x + b.w - 4 && player.y < b.y + b.h && player.y > b.y){
+    const depth = b.y + b.h - (R.minY + 6), k = Math.max(0, Math.min(CP_STEP_H.length - 1, Math.floor((b.y + b.h - player.y) / (depth / CP_STEP_H.length))));
+    want = CP_STEP_H[k] * M;
+  }
+  CP_STAIRS.lift += (want - CP_STAIRS.lift) * 0.35; if (Math.abs(want - CP_STAIRS.lift) < 0.5) CP_STAIRS.lift = want;
+  player.lift = CP_STAIRS.lift;
+  const top = want >= CP_STEP_H[CP_STEP_H.length - 1] * M - 1;
+  if (top && !CP_STAIRS.top){ CP_STAIRS.top = 1; const Rr = cpRec(); Rr.climbed = (Rr.climbed || 0) + 1; save();
+    worldSay('player', 'Che vista!', { ms:1800 }); toast('<b>Che vista!</b> · What a view! Over the wall, the rio behind the bookshop, a boat going by.'); }
+  if (!top && want < 0.6 * M) CP_STAIRS.top = 0;
+}
+
+/* ---------- the cashier at the Teatro Italia, the bookseller: short conversations in Lei (the roulette's: world/cplaces-casino.js) ---------- */
+const CPL = (who, it, en, gloss) => ({ who, it, en, gloss });
+const CP_SCRIPT = convoScript({
+  id:'cpl', label:'Le parole',
+  rec:() => { const R = cpRec(); R.sc = R.sc || {}; return R.sc; },
+  huh:CPL('cp-cassiera', 'Come, scusi?', 'Sorry, what?'),
+  tiles:{
+    buongiorno:{ label:'Buongiorno', en:'good morning' }, ciao:{ label:'Ciao', en:'hi (to a friend)' }, si:{ label:'Sì', en:'yes' }, no:{ label:'No', en:'no' }, grazie:{ label:'grazie', en:'thank you' },
+    perfavore:{ label:'per favore', en:'please' }, unlibro:{ label:'un libro', en:'a book' }, ilgatto:{ label:'il gatto', en:'the cat' }, su:{ label:'su', en:'about, on' }, venezia:{ label:'Venezia', en:'Venice', keep:true },
+    cerco:{ label:'Cerco', en:'I’m looking for', cl:true },
+  },
+  convos:{
+    /* the till: a bag? */
+    cassa:{ npc:'cp-cassiera', label:'Alla cassa', beats:[
+      { say:[{ sys:'The till by the door. Behind it, the painted hall goes up and up.' }, CPL('cp-cassiera', 'Buongiorno! Vuole un sacchetto?', 'Good morning! Would you like a bag?', { 'Vuole':'would you like (polite)', sacchetto:'a bag (a carrier bag)' })] },
+      { sayit:{ en:'No, thank you.', answer:['no , grazie'], also:['no grazie', 'no'], pieces:'buongiorno si no grazie perfavore',
+        wrong:[{ has:'si', reply:CPL('cp-cassiera', 'Sì? Ecco il sacchetto: dieci centesimi.', 'Yes? Here’s the bag: ten cents.', { centesimi:'cents' }), fb:'You have your own bag: say no, politely.' }],
+        reply:[CPL('cp-cassiera', 'Va bene. Buona giornata!', 'All right. Have a good day!', { 'Buona giornata':'have a good day' })],
+        hint:'You have your own bag: turn it down, politely.', strong:'No + thank you.' } },
+      { end:true } ] },
+    /* the bookseller: a book about Venice? */
+    libri:{ npc:'cp-libraio', label:'In libreria', beats:[
+      { say:[{ sys:'Books everywhere: in a gondola, in a bathtub, up to the ceiling. The bookseller looks up over his glasses.' },
+        CPL('cp-libraio', 'Buongiorno! Benvenuto. Cerca qualcosa?', 'Good morning! Welcome. Are you looking for something?', { 'Cerca':'are you looking for (polite)', qualcosa:'something' })] },
+      { sayit:{ en:'Yes, a book about Venice, please.', answer:['si , unlibro su venezia , perfavore'], also:['unlibro su venezia , perfavore', 'unlibro su venezia', 'cerco unlibro su venezia , perfavore', 'cerco unlibro su venezia'],
+        pieces:'buongiorno si no cerco unlibro ilgatto su venezia perfavore',
+        wrong:[{ has:'ilgatto', reply:CPL('cp-libraio', 'Il gatto? Il gatto non si vende! Dorme sui libri.', 'The cat? The cat isn’t for sale! He sleeps on the books.', { 'non si vende':'isn’t for sale', dorme:'sleeps' }), fb:'Not the cat: you want a book about the city.' }],
+        more:CPL('cp-libraio', 'Un libro? Su che cosa?', 'A book? About what?', { 'Su che cosa':'about what' }),
+        reply:K => [CPL('cp-libraio', 'Su Venezia? Ne ho mille! Sono nella gondola, là: lì non li prende l’acqua alta.', 'About Venice? I have a thousand! They’re in the gondola, there: the high water can’t get them there.', { 'Ne ho mille':'I have a thousand (of them)', 'non li prende':'can’t get them', 'acqua alta':'the high water' }),
+          CPL('cp-libraio', 'E se c’è un incendio, c’è l’uscita di sicurezza… sul canale!', 'And if there’s a fire, there’s the fire exit… onto the canal!', { incendio:'a fire', 'uscita di sicurezza':'fire exit', canale:'canal' })],
+        hint:'Say yes, and what you are looking for: a book about the city, and be polite.', strong:'Yes + a book + about + the city’s name + please.' } },
+      { end:true } ] },
+  },
+});
+function cpTalk(npc){
+  if (!npc || !npc.cp || npc.ambient) return undefined;
+  if (npc.id === 'cp-cassiera'){ const R = CP_SCRIPT.rec(); R.at = R.at || {}; if (R.at.cassa === 'done') R.at.cassa = 0; return scriptOpen('cpl', 'cassa'); }
+  if (npc.id === 'cp-libraio'){ const R = CP_SCRIPT.rec(); R.at = R.at || {}; if (R.at.libri === 'done'){ convo.mode = 'cutscene'; convo.known = true;
+      npcLine('Libri, gatti e acqua alta: guardi pure!', 'Books, cats and high water: do have a look!', { gloss:{ 'guardi pure':'do have a look (polite)' } }); showChoices([{ label:'Leave', primary:true, fn:closeDialog }]); return true; }
+    return scriptOpen('cpl', 'libri'); }
+  return typeof cpCasinoTalk === 'function' ? cpCasinoTalk(npc) : undefined;
+}
+
+/* ---------- the hooks: a story hook (each guarded: the rooms, the cp people) ---------- */
+const CP_HOOKS = { story:'cplaces',
+  door(d){ const r = cpDoor(d); if (r !== undefined) return r; return typeof cpCasinoDoor === 'function' ? cpCasinoDoor(d) : undefined; },
+  talk(npc){ return cpTalk(npc); },
+  tick(dt){ cpStairsTick(); if (typeof cpCasinoTick === 'function') cpCasinoTick(dt); },
+  /* the map (M): a pin at each of the three doors, in Cannaregio */
+  sideMarks(){ if (VZD.id !== 'cannaregio' || !VZ.cp) return null;
+    return Object.entries(VZ.cp).map(([k, q]) => ({ id:'cp-' + k, label:CP_PLACE[k].name, poi:CP_PLACE[k].poi, x:q.x, y:q.y + 0.8 * VZ_M, seen:!!(cpPeek() || {}).seen && !!cpPeek().seen[k] })); },
+  guide(){ const k = CP_ROOM_OF[S.scene]; if (!k) return undefined;
+    if (k === 'teatro') return 'The <b>Teatro Italia</b>: a supermarket in an old theatre. Look round (<kbd>E</kbd>): the painted walls, the iron staircases; the cashier is at the till by the door.';
+    if (k === 'libreria') return 'The <b>Libreria Acqua Alta</b>: books in a gondola, a bathtub, canoes. The fire exit, the cat, the staircase of books in the courtyard (walk up it); the bookseller is at the till.';
+    return typeof cpCasinoGuide === 'function' ? cpCasinoGuide() : undefined; },
+  notes:() => [],
+};
+STORY_HOOKS.unshift(CP_HOOKS);
+/* a visit: remembered (the map's pins turn "seen"); the people back at their places */
+{ const prev = UNIT.arrive; UNIT.arrive = sc => { const r = prev ? prev(sc) : undefined; const k = CP_ROOM_OF[sc];
+    if (k){ const R = cpRec(); if (!R.seen[k]){ R.seen[k] = Date.now(); save(); } vzRoomSeat(sc); CP_STAIRS.lift = 0; CP_STAIRS.top = 0; }
+    return r; }; }
+
+/* ---------- tests ---------- */
+dbgField('cplaces', () => { const R = cpPeek(), M = VZ_M;
+  return { district:VZD.id, doors:VZD.id === 'cannaregio' && VZ.cp ? Object.fromEntries(Object.entries(VZ.cp).map(([k, q]) => [k, { x:q.x, y:q.y, door:!!VZ.doors.find(d => d.id === CP_DOORS[k]) }])) : null,
+    room:CP_ROOM_OF[S.scene] || null, seen:R ? Object.keys(R.seen) : [], card:CP_CARD.last, cards:CP_CARD.n, lift:Math.round((player.lift || 0) / M * 100) / 100, top:!!CP_STAIRS.top,
+    climbed:R ? R.climbed || 0 : 0, cat:R ? R.cat || 0 : 0, exit:R ? R.exit || 0 : 0,
+    casino:typeof cpCasinoDbg === 'function' ? cpCasinoDbg() : null }; });
+Object.assign(window.__debug, {
+  /* where: 'teatro' | 'casino' | 'libreria' (before its door; o.inside: in the room, at its spawn), 'casino-front' (the campiello, the palace's front in view),
+     or a room's prop id with o.inside (where to stand in front of it); Cannaregio loaded first if need be (a promise) */
+  async cpGo(where, o = {}){
+    const k = where === 'casino-front' ? 'casino' : where;
+    if (VZD.id !== 'cannaregio'){ await vzGoDistrict('cannaregio', {}); }
+    if (o.inside || o.prop){ const key = CP_ROOMS[k]; const R = VZ_ROOMS[key], q = o.prop ? R.spots[o.prop] : R.spots.spawn; if (!q) return false;
+      travelTo(key, { x:q.x, y:q.y }, R.title, R.sub, { face:{ x:0, y:-1 } }); return true; }
+    const P = vzPoints(), q = P[where === 'casino-front' ? 'cp-casino-front' : 'cp-' + k]; if (!q) return false;
+    const a = vzAreaAt(q.x, q.y), ar = a >= 0 ? VZ.areas[a] : VZ.areas[0];
+    __debug.go(ar.key, q.x / VZ_TILE - 0.5, q.y / VZ_TILE - 0.5); return true;
+  },
+  cpCard:id => cpCard(id),
+  cpPlaces:() => ({ rooms:{ ...CP_ROOMS }, doors:VZD.id === 'cannaregio' ? VZ.doors.filter(d => d.cp).map(d => ({ id:d.id, to:d.to, x:d.x, y:d.y })) : [], cards:Object.fromEntries(Object.entries(CP_CARDS).map(([k, c]) => [k, { title:c.title, n:(c.text.match(/[^.!?]+[.!?]+/g) || []).length }])),
+    people:CP_NPCS.map(n => ({ id:n.id, scene:n.scene, x:Math.round(n.x), y:Math.round(n.y), ambient:!!n.ambient, formal:!!n.formal })) }),
+  cpStairs:() => { const R = VZ_ROOMS[CP_ROOMS.libreria], b = R.byId.scala.box; return { x:b.x, y:b.y, w:b.w, h:b.h, top:{ x:b.x + b.w / 2, y:b.y + 6 }, foot:{ x:b.x + b.w / 2, y:b.y + b.h + 20 } }; },
+});
+
+/* ===== units/venezia/world/cplaces-casino.js ===== */
+/* La roulette at the Casinò di Venezia (the designer's brief, 24 Nov: docs/lessons/venezia/scripts/d3/x-cannaregio-places-brief.md; the place:
+   world/cplaces.js; the wheel and the hat drawn by render/cplaces.js). An easy game for play chips (no money):
+   - the doorman (il portiere, Lei) at the door: Buonasera! Vorrei giocare. → five fiches (more whenever you run out);
+   - the croupier (Lei) at the table: how it is played (a check), then a game of three spins. Each spin: Fate il vostro gioco! (glossed) → where you
+     put your chip (What next?: on red, black, even, odd, or on seventeen) → you say the bet in Italian (Punto sul rosso…: tiles on the first spin,
+     typed on the next two, the tiles offered after two misses; any bet said is taken, and the croupier answers what you said) → Rien ne va plus!
+     (the French croupiers say: glossed) → the wheel spins in the panel beside the conversation, the ball lands → the croupier calls the number, a
+     listening line (Diciassette, nero, dispari!) → what did he call? (a check: the number, the colour, odd or even) → the marker on the layout,
+     your chips pushed to you or taken;
+   - always winnable: while the prize is not given, the third spin of a game with no win yet is steered to your bet (never zero);
+   - the prize, once (after the first game): il tricorno, the three-cornered hat of the Ridotto's masked gamblers (a check, then Grazie mille! È
+     bellissimo!), worn at once; on or off from the handbook's ✎ Le tue cose (with the sailor's outfit it takes the cap's place; with the gnaga both
+     show); render/people.js vzPlayerDress layers it (Object.create, never a copy).
+   Saved in S.cplaces.casino: { step:'' | 'fiches' | 'gioco', fiches, games, game:{ spin, wins, losses } | null, log:[{ bet, n, win }], given, wear, sc }.
+   Every word the player needs is a tile and in the dictionary (Il Casinò, once you have played); hints never give the Italian.
+   Tests: tests/venezia/cplaces-roulette.js; __dbg().cplaces.casino, __debug.cpRig(n), cpCasinoAt(step), cpWear(on). */
+
+const CPC = { SPINS:3, CHIPS:5, PAY:{ even:2, num:36 } };
+const CP_RED = new Set([1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]);
+const CP_BETS = {
+  rosso:{ key:'rosso', label:'On red', en:'I bet on red.', win:n => CP_RED.has(n), kind:'even', it:'Sul rosso' },
+  nero:{ key:'nero', label:'On black', en:'I bet on black.', win:n => n > 0 && !CP_RED.has(n), kind:'even', it:'Sul nero' },
+  pari:{ key:'pari', label:'On even', en:'I bet on even.', win:n => n > 0 && n % 2 === 0, kind:'even', it:'Sul pari' },
+  dispari:{ key:'dispari', label:'On odd', en:'I bet on odd.', win:n => n % 2 === 1, kind:'even', it:'Sul dispari' },
+  diciassette:{ key:'diciassette', label:'On seventeen', en:'I bet on seventeen.', win:n => n === 17, kind:'num', it:'Sul diciassette' },
+};
+function cpCas(){
+  const R = cpRec(); if (!R.casino || typeof R.casino !== 'object') R.casino = { step:'', fiches:0, games:0, game:null, log:[], given:false, wear:false, sc:{} };
+  const C = R.casino; C.log = C.log || []; C.sc = C.sc || {}; return C;
+}
+const cpCasPeek = () => { const R = cpPeek(); return R && R.casino && typeof R.casino === 'object' ? R.casino : null; };
+/* the player wears the tricorn (render/people.js vzPlayerDress) */
+function cpTricornWear(){ const C = cpCasPeek(); return !!(C && C.given && C.wear); }
+function cpWearSet(on){ const C = cpCas(); if (!C.given) return false; C.wear = !!on; save(); return C.wear; }
+const cpColour = n => n === 0 ? 'verde' : CP_RED.has(n) ? 'rosso' : 'nero';
+const cpCap = s => s.charAt(0).toUpperCase() + s.slice(1);
+/* the croupier's call: Diciassette, nero, dispari! (zero: Zero!) */
+const cpCall = n => n === 0 ? 'Zero!' : `${cpCap(numIt(n))}, ${cpColour(n)}, ${n % 2 ? 'dispari' : 'pari'}!`;
+const cpCallEn = n => n === 0 ? 'Zero!' : `${n}, ${CP_RED.has(n) ? 'red' : 'black'}, ${n % 2 ? 'odd' : 'even'}!`;
+const cpOpt = n => n === 0 ? 'Zero (the green one)' : `${n} · ${CP_RED.has(n) ? 'red' : 'black'} · ${n % 2 ? 'odd' : 'even'}`;
+
+/* ---------- the spin ---------- */
+const CPG = { bet:null, n:null, opts:[], a:0, next:null, spinning:false, t0:0, dur:0, landed:false, dolly:false, chips:null, rig:null, spins:0, last:null, panel:null };
+/* the number: the rigged one (tests), else steered (the prize not given, the game's last spin, no win yet: a number the bet wins on, not zero), else at random */
+function cpDraw(bet){
+  const C = cpCas(), G = C.game || { spin:1, wins:0 }, B = CP_BETS[bet];
+  if (CPG.rig !== null){ const n = CPG.rig; CPG.rig = null; return n; }
+  const steer = !C.given && G.spin >= CPC.SPINS && !G.wins;
+  if (steer){ const ok = []; for (let n = 1; n <= 36; n++) if (B.win(n)) ok.push(n); return ok[Math.floor(Math.random() * ok.length)]; }
+  return Math.floor(Math.random() * 37);
+}
+/* the bet, from what was said (the keys): a chip on it */
+function cpBet(K, fallback){
+  const k = (K || []).find(x => CP_BETS[x]) || fallback || 'rosso', C = cpCas();
+  CPG.bet = k; CPG.n = null; CPG.landed = false; CPG.dolly = false; CPG.chips = null; C.fiches = Math.max(0, (C.fiches || 0) - 1);
+  C.game = C.game || { spin:0, wins:0, losses:0 }; C.game.spin++;
+  save(); cpPanelDraw();
+  return k;
+}
+/* the check's options: the number called and two that sound like it (17: 7, 27), each with its own colour and parity, shuffled once by the script */
+function cpOptions(n){
+  const near = [n % 10, n % 10 + 10, n % 10 + 20, n % 10 + 30, n + 1, n - 1, n + 10, n - 10].filter(x => x >= 0 && x <= 36 && x !== n);
+  const two = [...new Set(near)].slice(0, 2);
+  return [cpOpt(n), ...two.map(cpOpt)];
+}
+/* spin: the wheel turns, the ball runs round and drops into its pocket (≈ 4 s; quicker with reduced motion); resolves when it has landed */
+function cpSpin(){
+  const n = cpDraw(CPG.bet);
+  CPG.n = n; CPG.opts = cpOptions(n); CPG.a = 0; CPG.landed = false; CPG.dolly = false; CPG.spinning = true; CPG.t0 = performance.now(); CPG.dur = RM ? 600 : 4200; CPG.spins++;
+  cpPanelMount();
+  return new Promise(res => setTimeout(() => { CPG.spinning = false; CPG.landed = true; res(n); }, CPG.dur + 150));
+}
+/* the result: the marker (the dolly) on the number, the chips pushed to you or taken; the log */
+function cpSettle(){
+  const C = cpCas(), B = CP_BETS[CPG.bet], n = CPG.n, win = B.win(n), G = C.game;
+  if (win){ C.fiches += CPC.PAY[B.kind]; G.wins++; } else G.losses++;
+  C.log.push({ bet:CPG.bet, n, win, t:Date.now() }); if (C.log.length > 30) C.log.shift();
+  CPG.dolly = true; CPG.chips = { win, t0:performance.now(), n:win ? CPC.PAY[B.kind] : 1 }; CPG.last = { n, bet:CPG.bet, win };
+  save(); cpPanelDraw();
+  return win;
+}
+function cpOutcome(){
+  const B = CP_BETS[CPG.bet], n = CPG.n, L = CPG.last || {}, C = cpCas(), last = C.game && C.game.spin >= CPC.SPINS;
+  const out = [];
+  if (L.win && B.kind === 'num') out.push(CPLc(`${cpCap(numIt(n))}! Ha vinto trentasei fiches!`, `${cpCap(String(n))}! You’ve won thirty-six chips!`, { 'Ha vinto':'you have won (polite)', fiches:'chips' }));
+  else if (L.win) out.push(CPLc('Ha vinto! Due fiches per Lei.', 'You’ve won! Two chips for you.', { 'Ha vinto':'you have won (polite)', 'per Lei':'for you (polite)' }));
+  else if (n === 0) out.push(CPLc('Zero: vince il banco. Mi dispiace!', 'Zero: the house wins. I’m sorry!', { 'vince il banco':'the house (the bank) wins', 'Mi dispiace':'I’m sorry' }));
+  else out.push(CPLc('Mi dispiace, ha perso.', 'I’m sorry, you’ve lost.', { 'Mi dispiace':'I’m sorry', 'ha perso':'you have lost (polite)' }));
+  if (last) out.push(CPLc('Tre giri: il gioco è finito.', 'Three spins: the game is over.', { giri:'spins', 'il gioco è finito':'the game is over' }));
+  return out;
+}
+
+/* ---------- the panel: the wheel and the layout, beside the conversation (the photo panel's frame, a live canvas over its picture) ---------- */
+const CP_PANEL = { w:560, h:360 };
+function cpPanelMount(){
+  if (!dialogOpen) return null;
+  if (!CP_PANEL.blank){ const c = document.createElement('canvas'); c.width = CP_PANEL.w; c.height = CP_PANEL.h; const g = c.getContext('2d'); g.fillStyle = '#1f5a3a'; g.fillRect(0, 0, c.width, c.height); CP_PANEL.blank = c.toDataURL('image/png'); }
+  if (!PHOTO || PHOTO.src !== CP_PANEL.blank) mountPhotoPanel({ src:CP_PANEL.blank, title:'La roulette', caption:'Il tavolo verde: la ruota, i numeri, le Sue fiches.' });
+  const wrap = document.querySelector('#dlgPhoto .ph-wrap'); if (!wrap) return null;
+  let cv = wrap.querySelector('canvas.cp-wheel');
+  if (!cv){ cv = document.createElement('canvas'); cv.className = 'cp-wheel'; cv.width = CP_PANEL.w * 2; cv.height = CP_PANEL.h * 2; cv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border-radius:3px'; wrap.appendChild(cv); }
+  CPG.panel = cv;
+  if (!CPG.raf){ const loop = () => { CPG.raf = 0; if (!CPG.panel || !CPG.panel.isConnected){ CPG.panel = null; return; } cpPanelDraw(); CPG.raf = requestAnimationFrame(loop); }; CPG.raf = requestAnimationFrame(loop); }
+  return cv;
+}
+function cpPanelDraw(){
+  const cv = CPG.panel; if (!cv || !cv.isConnected || typeof cpWheelPaint !== 'function') return;
+  const g = cv.getContext('2d'); g.setTransform(2, 0, 0, 2, 0, 0);
+  cpWheelPaint(g, CP_PANEL.w, CP_PANEL.h, { bet:CPG.bet, n:CPG.n, spinning:CPG.spinning, k:CPG.spinning ? Math.min(1, (performance.now() - CPG.t0) / CPG.dur) : CPG.landed ? 1 : 0, landed:CPG.landed, dolly:CPG.dolly,
+    chips:CPG.chips, fiches:(cpCasPeek() || {}).fiches || 0, t:performance.now() / 1000, staked:!!CPG.bet && !CPG.dolly });
+}
+
+/* ---------- the conversations ---------- */
+const CPLc = (it, en, gloss) => ({ who:'cp-croupier', it, en, gloss });
+const CPLp = (it, en, gloss) => ({ who:'cp-portiere', it, en, gloss });
+const cpBetOption = id => { const B = CP_BETS[id];
+  return { id, label:B.label, en:B.en, answer:`punto sul ${id}`, also:Object.keys(CP_BETS).filter(k => k !== id).map(k => `punto sul ${k}`).concat(Object.keys(CP_BETS).flatMap(k => [`sul ${k}`, k])),
+    pieces:'punto sul sulla rosso nero pari dispari diciassette', get typed(){ const C = cpCasPeek(); return !!(C && C.game && C.game.spin >= 1); },
+    wrong:[{ has:'sulla', near:true, echo:K => { const k = K.find(x => CP_BETS[x]) || id; return CPLc(`${CP_BETS[k].it}, sì!`, `On ${CP_BETS[k].label.slice(3)}, yes!`); }, fb:'These words are masculine: the little word for “on the” is the masculine one.' }],
+    reply:K => { const k = K.find(x => CP_BETS[x]) || id; return [CPLc(`${CP_BETS[k].it}. Rien ne va plus!`, `${CP_BETS[k].label}. No more bets!`, { 'Rien ne va plus':'no more bets (French: what croupiers call)' })]; },
+    more:CPLc('Sì? Dove punta?', 'Yes? Where are you betting?', { 'Dove punta':'where are you betting (polite)' }),
+    hint:'Say that you bet, and on what: the little word for “on the”, then the bet.', strong:'I bet + on the + the bet you picked.',
+    then(x){ if (Array.isArray(x)) cpBet(x, id); } }; };
+const CP_CASINO = convoScript({
+  id:'cpcasino', label:'Al Casinò',
+  rec:() => cpCas().sc,
+  huh:CPLc('Come, scusi?', 'Sorry, what?'),
+  tiles:{
+    buonasera:{ label:'Buonasera', en:'good evening' }, ciao:{ label:'Ciao', en:'hi (to a friend)' }, vorrei:{ label:'Vorrei', en:'I would like', cl:true }, giocare:{ label:'giocare', en:'to play' },
+    mangiare:{ label:'mangiare', en:'to eat' }, punto:{ label:'Punto', en:'I bet (puntare)', cl:true }, sul:{ label:'sul', en:'on the (a masculine word)' }, sulla:{ label:'sulla', en:'on the (a feminine word)' },
+    rosso:{ label:'rosso', en:'red' }, nero:{ label:'nero', en:'black' }, pari:{ label:'pari', en:'even' }, dispari:{ label:'dispari', en:'odd' }, diciassette:{ label:'diciassette', en:'seventeen' },
+    si:{ label:'Sì', en:'yes' }, no:{ label:'No', en:'no' }, grazie:{ label:'grazie', en:'thank you' }, graziemille:{ label:'Grazie mille', en:'thank you very much' },
+    ee:{ label:'È', en:'it is', cl:true, words:'è' }, bellissimo:{ label:'bellissimo', en:'so beautiful (a masculine thing)' }, bellissima:{ label:'bellissima', en:'so beautiful (a feminine thing)' },
+  },
+  convos:{
+    /* the door: the doorman, the chips */
+    porta:{ npc:'cp-portiere', label:'All’ingresso', beats:[
+      { say:[{ sys:'Inside the gate, a hall of marble and mirrors. The doorman, in a dark suit, bows a little.' },
+        CPLp('Buonasera e benvenuto al Casinò di Venezia!', 'Good evening and welcome to the Casinò di Venezia!', { benvenuto:'welcome' })] },
+      { sayit:{ en:'Good evening! I would like to play.', answer:['buonasera , vorrei giocare'], also:['vorrei giocare'], pieces:'buonasera ciao vorrei giocare mangiare',
+        wrong:[{ has:'ciao', near:true, echo:CPLp('Buonasera a Lei!', 'Good evening to you!'), fb:'He is at work and you don’t know him: the polite greeting for the evening.' },
+               { has:'mangiare', reply:CPLp('Mangiare? Il ristorante è di sopra. Qui si gioca!', 'Eat? The restaurant is upstairs. Here, people play!', { 'di sopra':'upstairs', 'si gioca':'people play' }), fb:'You came to play, not to eat.' }],
+        more:CPLp('Buonasera! Desidera?', 'Good evening! What would you like?', { Desidera:'what would you like? (polite)' }),
+        reply:[CPLp('Benissimo! Ecco le Sue fiches: cinque fiches per giocare. Non sono soldi veri!', 'Very good! Here are your chips: five chips to play with. They aren’t real money!', { 'le Sue fiches':'your chips (polite)', 'soldi veri':'real money' }),
+               CPLp('La roulette è là, al tavolo verde. Buona fortuna!', 'The roulette is over there, at the green table. Good luck!', { 'tavolo verde':'green table', 'Buona fortuna':'good luck' })],
+        hint:'Greet him for the evening, then say what you would like to do.', strong:'Good evening + I would like + to play.' } },
+      { end:true, then:() => { const C = cpCas(); C.fiches = Math.max(C.fiches || 0, CPC.CHIPS); if (!C.step) C.step = 'fiches'; save(); renderHUD(); toast('<b>Cinque fiches</b> · five play chips. The roulette is at the green table.'); } } ] },
+    /* the table: how it is played */
+    tavolo:{ npc:'cp-croupier', label:'Al tavolo', beats:[
+      { say:[{ sys:'The green baize, the wheel under its glass dome, a rake of polished wood. The croupier looks up.' },
+        CPLc('Buonasera. Si accomodi! Si gioca così: Lei punta una fiche sul rosso o sul nero, sul pari o sul dispari, o su un numero, da zero a trentasei.', 'Good evening. Have a seat! This is how it’s played: you bet a chip on red or on black, on even or on odd, or on a number, from zero to thirty-six.',
+          { 'Si accomodi':'have a seat (polite)', 'Si gioca così':'this is how it’s played', punta:'bet (puntare)', pari:'even', dispari:'odd', 'da zero a trentasei':'from 0 to 36' }),
+        CPLc('Tre giri. Sul colore, se vince, riceve due fiches. Su un numero… trentasei!', 'Three spins. On a colour, if you win, you get two chips. On a number… thirty-six!', { giri:'spins', colore:'colour', 'se vince':'if you win', riceve:'you get' })] },
+      { check:{ prompt:'How many spins is a game, and what does a number pay?', line:CPLc('Tre giri. Sul colore, se vince, riceve due fiches. Su un numero… trentasei!', 'Three spins. On a colour, if you win, you get two chips. On a number… thirty-six!'),
+        options:['Three spins; a number pays thirty-six chips.', 'Three spins; a number pays two chips.', 'Six spins; a colour pays thirty-six chips.'], a:0,
+        why:'<i>Tre giri… Su un numero… trentasei!</i>', nudge:'Listen for how many spins, then what a number pays.' } },
+      { end:true, goto:'giro', then:() => { const C = cpCas(); C.step = 'gioco'; C.game = { spin:0, wins:0, losses:0 }; cpGiroReset(); save(); } } ] },
+    /* a spin */
+    giro:{ npc:'cp-croupier', label:'La roulette', beats:[
+      { do:() => { cpPanelMount(); } },      // (the last spin's marker and chips stay on the layout until the next bet, as at a real table)
+      { say:[CPLc('Fate il vostro gioco!', 'Place your bets!', { 'Fate il vostro gioco':'place your bets (to everyone at the table)' })] },
+      { next:{ prompt:'Where do you put your chip?', pick:'one', options:Object.keys(CP_BETS).map(cpBetOption) } },
+      { await:() => cpSpin() },
+      { say:[() => ({ who:'cp-croupier', it:cpCall(CPG.n), en:cpCallEn(CPG.n), listen:true })] },
+      { check:{ prompt:'What did the croupier call?', listen:true, get line(){ return { who:'cp-croupier', it:cpCall(CPG.n), en:cpCallEn(CPG.n), listen:true }; }, get options(){ return CPG.opts; }, get a(){ return CPG.a; },
+        why:'The number, the colour, odd or even.', nudge:'Listen again: the number first, then the colour, then odd or even.' } },
+      { do:() => { revealListen({ all:true }); cpSettle(); } },
+      { say:[() => cpOutcome()[0], () => cpOutcome()[1] || null] },
+      { end:true, get goto(){ return CPG.next; }, then:() => cpGiroEnd() } ] },
+    /* the prize (once) */
+    premio:{ npc:'cp-croupier', label:'Il premio', beats:[
+      { say:[CPLc('Complimenti! Ha vinto, e il Casinò Le fa un regalo.', 'Congratulations! You’ve won, and the Casino is giving you a present.', { Complimenti:'congratulations', 'Ha vinto':'you have won (polite)', 'Le fa un regalo':'is giving you a present (polite)' }),
+        { sys:'From under the table he takes a black hat with three corners, its edge trimmed in gold.' },
+        CPLc('Un tricorno: il cappello del Ridotto. Nel Settecento i giocatori venivano qui in maschera e tricorno!', 'A tricorn: the hat of the Ridotto. In the 1700s the players came here in a mask and a tricorn!', { tricorno:'three-cornered hat', Settecento:'the 1700s', 'venivano':'used to come', 'in maschera':'masked' })] },
+      { check:{ prompt:'What is the present?', line:CPLc('Un tricorno: il cappello del Ridotto. Nel Settecento i giocatori venivano qui in maschera e tricorno!', 'A tricorn: the hat of the Ridotto. In the 1700s the players came here in a mask and a tricorn!'),
+        options:['A three-cornered hat, like the ones the gamblers wore in the 1700s.', 'A carnival mask.', 'Five more chips.'], a:0, why:'<i>Un tricorno: il cappello del Ridotto.</i>', nudge:'What did he take out from under the table?' } },
+      { sayit:{ en:'Thank you very much! It’s beautiful.', answer:['graziemille , ee bellissimo'], also:['graziemille , bellissimo', 'ee bellissimo', 'graziemille'], pieces:'grazie graziemille ee bellissimo bellissima',
+        wrong:[{ has:'bellissima', near:true, echo:CPLc('Bellissimo, sì: il tricorno è bellissimo!', 'Beautiful, yes: the tricorn is beautiful!'), fb:'Tricorno is a masculine word: the -o ending.' }],
+        reply:[CPLc('Prego! Lo metta: Le sta benissimo.', 'You’re welcome! Put it on: it suits you very well.', { 'Lo metta':'put it on (polite)', 'Le sta benissimo':'it suits you very well (polite)' })],
+        hint:'Thank him warmly, and say the hat is beautiful (the hat is a masculine word).', strong:'Thank you very much + it is + beautiful.' } },
+      { end:true, goto:'fine', then:() => cpGive() } ] },
+    /* goodbye after a game */
+    fine:{ npc:'cp-croupier', label:'La roulette', beats:[
+      { say:[CPLc('Grazie e buona serata! Torni quando vuole.', 'Thank you, and have a good evening! Come back whenever you like.', { 'buona serata':'have a good evening', 'Torni quando vuole':'come back whenever you like (polite)' })] },
+      { end:true, then:() => { const R = cpCas().sc; R.at = R.at || {}; R.at.fine = 0; save(); } } ] },
+    /* another game */
+    ancora:{ npc:'cp-croupier', label:'La roulette', beats:[
+      { say:[CPLc('Buonasera! Un altro gioco? Tre giri.', 'Good evening! Another game? Three spins.', { 'Un altro gioco':'another game' })] },
+      { next:{ prompt:'Another game?', pick:'one', options:[
+        { id:'si', label:'Yes, play again', en:'Yes, I would like to play.', answer:'si , vorrei giocare', also:['vorrei giocare', 'si'], pieces:'si no grazie vorrei giocare mangiare',
+          reply:[CPLc('Benissimo. Si accomodi!', 'Very good. Have a seat!', { 'Si accomodi':'have a seat (polite)' })], hint:'Say yes, and that you would like to play.', strong:'Yes + I would like + to play.',
+          then:() => { CPG.next = 'giro'; } },
+        { id:'no', label:'Not now', en:'No, thank you.', answer:'no , grazie', also:['no grazie', 'no'], pieces:'si no grazie vorrei giocare mangiare',
+          reply:[CPLc('Come vuole. Buona serata!', 'As you like. Have a good evening!', { 'Come vuole':'as you like (polite)', 'Buona serata':'have a good evening' })], hint:'Turn him down, politely.', strong:'No + thank you.',
+          then:() => { CPG.next = null; } } ] } },
+      { end:true, get goto(){ return CPG.next; }, then:() => { const C = cpCas(), R = C.sc; R.at = R.at || {}; R.at.ancora = 0; R.picked = R.picked || {}; delete R.picked['ancora.1'];
+          if (CPG.next === 'giro'){ C.game = { spin:0, wins:0, losses:0 }; cpGiroReset(); } save(); } } ] },
+  },
+});
+/* the spin's conversation again from its start (its bet picked afresh) */
+function cpGiroReset(){ const R = cpCas().sc; R.at = R.at || {}; R.at.giro = 0; R.picked = R.picked || {}; Object.keys(R.picked).forEach(k => { if (/^giro\./.test(k)) delete R.picked[k]; }); }
+/* the end of a spin: the next spin, or the game over (the prize the first time; else goodbye) */
+function cpGiroEnd(){
+  const C = cpCas(), G = C.game || { spin:CPC.SPINS, wins:0 };
+  if (G.spin < CPC.SPINS && C.fiches > 0){ cpGiroReset(); CPG.next = 'giro'; save(); return; }
+  C.games = (C.games || 0) + 1; C.game = null; cpGiroReset();
+  CPG.next = !C.given && C.log.some(l => l.win) ? 'premio' : 'fine';
+  if (CPG.next === 'premio'){ const R = C.sc; R.at = R.at || {}; R.at.premio = 0; }
+  { const R = C.sc; R.at = R.at || {}; R.at.fine = 0; }
+  save();
+}
+/* the prize: given, worn at once (a small toast) */
+function cpGive(){
+  const C = cpCas(); if (C.given) return;
+  C.given = Date.now(); C.wear = true; save(); renderHUD();
+  setTimeout(() => toast('<b>Il tricorno</b> · the three-cornered hat of the Ridotto. <span style="opacity:.75">(Handbook, ✎ Le tue cose: on or off.)</span>'), 900);
+}
+/* talking to the doorman, the croupier */
+function cpCasinoTalk(npc){
+  if (!npc || (npc.id !== 'cp-portiere' && npc.id !== 'cp-croupier')) return undefined;
+  const C = cpCas(), R = C.sc; R.at = R.at || {};
+  const say = (it, en, gloss) => { convo.mode = 'cutscene'; convo.known = true; npcLine(it, en, { gloss }); showChoices([{ label:'Leave', primary:true, fn:closeDialog }]); return true; };
+  if (npc.id === 'cp-portiere'){
+    if (!C.step){ R.at.porta = 0; return scriptOpen('cpcasino', 'porta'); }
+    if ((C.fiches || 0) < 1 && !C.game){ C.fiches = CPC.CHIPS; save(); return say('Altre fiches? Ecco, cinque. Buona fortuna!', 'More chips? Here you are, five. Good luck!', { 'Altre fiches':'more chips' }); }
+    return say('Buona fortuna al tavolo!', 'Good luck at the table!', { 'Buona fortuna':'good luck' });
+  }
+  if (!C.step) return say('Buonasera. Prima le fiches: le dà il portiere, alla porta.', 'Good evening. First the chips: the doorman gives them out, at the door.', { 'le fiches':'the chips', 'le dà':'gives them out' });
+  if (C.step === 'fiches') return scriptOpen('cpcasino', 'tavolo');
+  if (C.game && C.game.spin < CPC.SPINS && C.fiches > 0){ if (R.at.giro === 'done') cpGiroReset(); cpPanelMount(); return scriptOpen('cpcasino', 'giro'); }
+  if (C.game){ C.game = null; save(); }
+  if (!C.given && C.log.some(l => l.win)){ R.at.premio = 0; return scriptOpen('cpcasino', 'premio'); }
+  if ((C.fiches || 0) < 1) return say('Non ha più fiches! Il portiere gliene dà altre.', 'You have no chips left! The doorman will give you more.', { 'Non ha più fiches':'you have no more chips', 'gliene dà altre':'will give you more' });
+  R.at.ancora = 0; R.picked = R.picked || {}; delete R.picked['ancora.1']; CPG.next = null;
+  return scriptOpen('cpcasino', 'ancora');
+}
+function cpCasinoDoor(d){ return undefined; }
+function cpCasinoTick(){}
+function cpCasinoGuide(){
+  if (S.scene !== CP_ROOMS.casino) return undefined;
+  const C = cpCasPeek();
+  if (!C || !C.step) return 'The <b>Casinò di Venezia</b>. The doorman by the door gives out the play chips: talk to him (<kbd>E</kbd>).';
+  if (C.step === 'fiches') return `You have <b>${C.fiches} fiches</b>. The roulette is at the green table: talk to the croupier (<kbd>E</kbd>).`;
+  return `<b>La roulette.</b> ${C.fiches} fiches. ${C.given ? 'The tricorn is yours: on or off in the handbook, ✎ Le tue cose.' : 'Talk to the croupier to play.'}`;
+}
+
+/* ---------- the handbook: ✎ Le tue cose (with the sailor's outfit when you have it: one section) ---------- */
+const CP_HAT = {};
+function cpHatURL(){
+  if (CP_HAT.url) return CP_HAT.url;
+  const c = document.createElement('canvas'); c.width = 320; c.height = 300; const g = c.getContext('2d');
+  g.fillStyle = '#1e5a3c'; g.fillRect(0, 0, 320, 300); g.fillStyle = 'rgba(255,255,255,.05)'; for (let k = 0; k < 18; k++) g.fillRect(0, k * 17, 320, 1);
+  g.save(); g.translate(160, 222); g.scale(4.1, 4.1); try { vzFigure(g, Object.assign(Object.create(player), { tricorno:true, moving:false, walk:0 }), 'D', 0, 0); } catch (e){} g.restore();
+  return CP_HAT.url = c.toDataURL('image/png');
+}
+function cpNotesCard(){
+  const C = cpCasPeek(); if (!C || !C.given) return null;
+  return { id:'cp-tricorno', title:'Il tricorno', sub:'A present from the Casinò di Venezia', img:() => cpHatURL(), alt:'The player in the tricorn',
+    html:`<p>A black felt hat with three corners, its edge trimmed in gold: the hat of the Ridotto, where the gamblers of the 1700s came masked.</p>
+      <p><button class="btn ${C.wear ? '' : 'primary'}" data-cp-wear="${C.wear ? 0 : 1}">${C.wear ? 'Take it off' : 'Wear it'}</button> <span class="note">${C.wear ? 'You are wearing it.' : 'In your bag.'}</span></p>` };
+}
+{ const prev = UNIT.handbookNotes; UNIT.handbookNotes = () => { const out = [...(prev() || [])], card = cpNotesCard(); if (!card) return out;
+    const cose = out.find(s => s.id === 'cose'); if (cose){ cose.cards = [...(cose.cards || []), card]; return out; }
+    return [...out, { id:'cose', title:'Le tue cose', sub:'Your things', intro:'What you have found, and what you have been given.', cards:[card] }]; }; }
+document.addEventListener('click', e => {
+  const b = e.target.closest && e.target.closest('[data-cp-wear]'); if (!b) return;
+  cpWearSet(b.dataset.cpWear === '1');
+  if (typeof renderHandbook === 'function' && modalOpen) renderHandbook();
+});
+/* the dictionary: the casino's words, once you have played (after the lessons, before Unit 1's): every tile's word, the croupier's calls */
+const CP_DICT = [
+  { it:'Buonasera', en:'good evening' }, { it:'Vorrei', en:'I would like' }, { it:'giocare', en:'to play' }, { it:'mangiare', en:'to eat' },
+  { it:'Punto sul…', en:'I bet on the… (puntare: to bet)' }, { it:'sul / sulla', en:'on the (masculine / feminine)' }, { it:'il rosso / il nero', en:'red / black' }, { it:'pari / dispari', en:'even / odd' },
+  { it:'diciassette', en:'seventeen' }, { it:'la fiche / le fiches', en:'the chip / the chips (play money)' }, { it:'il giro', en:'a spin (of the wheel)' }, { it:'Fate il vostro gioco!', en:'place your bets! (to everyone)' },
+  { it:'Rien ne va plus!', en:'no more bets! (French: the croupier’s call)' }, { it:'Ha vinto! / Ha perso.', en:'you have won! / you have lost. (polite)' }, { it:'vince il banco', en:'the house wins' },
+  { it:'Grazie mille', en:'thank you very much' }, { it:'È bellissimo / bellissima', en:'it is so beautiful (masculine / feminine)' }, { it:'il tricorno', en:'the three-cornered hat' },
+  { it:'Sì / No / grazie', en:'yes / no / thank you' }, { it:'Ciao', en:'hi (to a friend)' },
+];
+const CP_DICT2 = [
+  { it:'Vuole un sacchetto?', en:'would you like a bag? (polite)' }, { it:'Cerco…', en:'I’m looking for…' }, { it:'un libro su Venezia', en:'a book about Venice' }, { it:'per favore', en:'please' },
+  { it:'il gatto', en:'the cat' }, { it:'l’uscita di sicurezza', en:'the fire exit' }, { it:'l’acqua alta', en:'the high water' }, { it:'Buongiorno', en:'good morning' },
+];
+function cpDictSection(){
+  const R = cpPeek(), C = cpCasPeek(); if (!R || (!(C && C.step) && !Object.keys(R.seen || {}).length)) return null;
+  const blocks = [];
+  if (C && C.step) blocks.push({ note:'The casino: the doorman’s and the croupier’s words, and how you bet.', entries:CP_DICT.map(w => ({ w:w.it, en:w.en, key:w.it, say:w.it.split(' / ')[0].replace(/…$/, '') })) });
+  blocks.push({ note:'The supermarket and the bookshop.', entries:CP_DICT2.map(w => ({ w:w.it, en:w.en, key:w.it, say:w.it.replace(/…$/, '') })) });
+  return blocks.length ? { title:'Cannaregio · i posti', blocks } : null;
+}
+{ const prev = UNIT.dictSections; UNIT.dictSections = P => { const out = prev(P), s = cpDictSection(); if (!s) return out; const i = out.findIndex(x => /^Unità 1/.test(x.title || '')); out.splice(i < 0 ? out.length : i, 0, s); return out; }; }
+
+/* ---------- tests ---------- */
+function cpCasinoDbg(){
+  const C = cpCasPeek();
+  return { step:C ? C.step : null, fiches:C ? C.fiches : 0, games:C ? C.games || 0 : 0, game:C && C.game ? { ...C.game } : null, log:C ? C.log.map(l => ({ ...l })) : [], given:!!(C && C.given), wear:cpTricornWear(),
+    bet:CPG.bet, n:CPG.n, call:CPG.n !== null ? cpCall(CPG.n) : null, opts:CPG.opts.slice(), spinning:CPG.spinning, landed:CPG.landed, dolly:CPG.dolly, spins:CPG.spins, next:CPG.next, rig:CPG.rig, panel:!!(CPG.panel && CPG.panel.isConnected) };
+}
+Object.assign(window.__debug, {
+  /* the next spin's number (0–36) */
+  cpRig(n){ CPG.rig = n === null || n === undefined ? null : Math.max(0, Math.min(36, n | 0)); return CPG.rig; },
+  /* the casino at a step: 'start' (nothing), 'fiches' (the doorman's done), 'gioco' (the rules heard: the next talk is a spin), 'won' (a game played and
+     won, the prize not given), 'done' (the prize given and worn) */
+  cpCasinoAt(step){
+    const R = cpRec(); R.casino = null; const C = cpCas(); CPG.bet = null; CPG.n = null; CPG.next = null;
+    if (step === 'start'){ save(); return C.step; }
+    C.step = 'fiches'; C.fiches = CPC.CHIPS; C.sc = { at:{ porta:'done' } };
+    if (step === 'fiches'){ save(); return C.step; }
+    C.step = 'gioco'; C.sc.at.tavolo = 'done'; C.game = { spin:0, wins:0, losses:0 };
+    if (step === 'gioco'){ save(); return C.step; }
+    C.game = null; C.games = 1; C.log = [{ bet:'rosso', n:3, win:true, t:Date.now() }];
+    if (step === 'done'){ C.given = Date.now(); C.wear = true; }
+    save(); renderHUD(); return C.step;
+  },
+  cpWear(on = true){ return cpWearSet(on); },
+  cpTalk(id){ if (dialogOpen) closeDialog(); const n = NPC[id]; if (!n) return false; openConvo(n); return true; },
+  cpHatArt(){ CP_HAT.url = null; return cpHatURL(); },
+  /* the scripts' tiles (their words, the dictionary must have them) and every English prompt, hint and option (none may hold the Italian) */
+  cpTiles(){ const of = id => Object.values(CONVO_SCRIPTS[id].tiles).map(t => t.label);
+    const en = []; ['cpcasino', 'cpl'].forEach(id => Object.values(CONVO_SCRIPTS[id].convos).forEach(c => c.beats.forEach(b => { const ss = [b.sayit, ...((b.next && b.next.options) || [])].filter(Boolean);
+      ss.forEach(s => en.push({ en:s.en, hint:s.hint, strong:s.strong, label:s.label })); if (b.check) en.push({ en:b.check.prompt, opts:(Array.isArray(b.check.options) ? b.check.options : []).join(' | ') }); if (b.next) en.push({ en:b.next.prompt }); })));
+    return { casino:of('cpcasino'), cpl:of('cpl'), en }; },
+});
+
 /* ===== engine/render/helpers.js ===== */
 /* Canvas drawing helpers. */
 
@@ -41935,11 +42613,19 @@ const VZ_PERSON = 1.75 * 24 / 46;
 UNIT.drawPerson = (p, t) => { if (!VZ_SNAP.on) vzPerson(ctx, p, t); return true; };     // (a snapshot of the city: no one: world/sanmarco.js vzSnapshot)
 function vzPerson(g, p, t){
   if (p.isPlayer && typeof phoneCamOn === 'function' && phoneCamOn()) return;   // (the phone's camera is up: the photographer isn't in the picture, so the cats aren't hidden behind you: engine/ui/camera.js)
-  if (p.isPlayer && typeof pozzoWear === 'function' && pozzoWear()) p = pozzoDress(p);      // (the sailor's outfit: world/pozzo.js, render/pozzo.js)
-  if (p.isPlayer && typeof gtWear === 'function' && gtWear()) p = Object.assign(Object.create(p), { gnaga:true });   /* (layered, not copied: the sailor's outfit is a layer too, and a copy lost its position) */      // (the gnaga, the cat mask: world/gatti.js, render/gatti.js)
+  if (p.isPlayer) p = vzPlayerDress(p);
   if (p.carriedBy) return;                         // (a dog in someone's arms is drawn with them: the high water, world/flood.js)
   if (VZ_CITY[S.scene] && vzFloodOn()){ const q = p; if (vzFloodWade(g, p.x, p.y, () => vzPersonDraw(g, q, t), t)) return; return; }      // (wading: render/flood.js)
   vzPersonDraw(g, p, t);
+}
+/* what the player wears, each a layer over the figure (Object.create: never a copy, {...p}, which loses its place: 24 Nov, the player went invisible):
+   the sailor's outfit (world/pozzo.js, render/pozzo.js), the gnaga, the cat mask (world/gatti.js, render/gatti.js), the tricorn from the casino
+   (world/cplaces.js: with the sailor's outfit it takes the cap's place, vzHat; with the gnaga both show, the mask under the hat) */
+function vzPlayerDress(p){
+  if (typeof pozzoWear === 'function' && pozzoWear()) p = pozzoDress(p);
+  if (typeof gtWear === 'function' && gtWear()) p = Object.assign(Object.create(p), { gnaga:true });
+  if (typeof cpTricornWear === 'function' && cpTricornWear()) p = Object.assign(Object.create(p), { tricorno:true });
+  return p;
 }
 function vzPersonDraw(g, p, t){
   const e = VZ_CITY[S.scene] ? vzElev(p.x, p.y) : 0;
@@ -42015,6 +42701,7 @@ function vzFront(g, p, ph, bob, back){
   vzExtras(g, p, y0, back, false);
   if (p.bag){ g.fillStyle = p.bag; rr(g, back ? -13 : 9, -20 + y0, 6, 8, 2); g.fill(); }
   if (p.shopping){ g.fillStyle = p.shopping; rr(g, 8, -17 + y0 - ph * 1.5, 7, 9, 1.5); g.fill(); g.fillStyle = '#5f8a3a'; g.fillRect(9, -18 + y0, 3, 3); }
+  if (p.rucksack || p.stick || p.trolley) vzLocalKit(g, p, y0, back, false, ph);
   if (p.isPlayer){
     g.fillStyle = '#f4b928';
     if (back){ rr(g, -7, -30 + y0, 14, 15, 3); g.fill(); g.strokeStyle = '#0f2260'; g.lineWidth = 1.2; g.stroke(); g.fillStyle = '#e0a418'; g.fillRect(-5, -22 + y0, 10, 2); }
@@ -42047,6 +42734,7 @@ function vzSide(g, p, ph, bob){
   if (p.longHair){ g.fillStyle = p.hair; rr(g, -8, -43 + y0, 9, 18, 4); g.fill(); }
   g.save(); g.translate(0, -29 + y0); g.rotate(-ph * 0.35); g.fillStyle = shade(p.body, -0.25); rr(g, -2, 0, 4, 13, 2); g.fill(); g.restore();
   if (p.isPlayer){ g.fillStyle = '#f4b928'; rr(g, -11, -31 + y0, 6, 14, 2.5); g.fill(); g.strokeStyle = '#0f2260'; g.lineWidth = 1; g.stroke(); }
+  if (p.rucksack || p.stick || p.trolley) vzLocalKit(g, p, y0, false, true, ph);
   g.fillStyle = p.body; rr(g, -6, -31 + y0, 12, 18, 4); g.fill();
   g.fillStyle = 'rgba(0,0,0,.1)'; g.fillRect(-6, -30 + y0, 3, 16);
   if (p.stripes){ g.fillStyle = p.stripes; for (let k = -29; k < -14; k += 4) g.fillRect(-6, k + y0, 12, 2); }
@@ -42099,6 +42787,18 @@ function vzExtras(g, p, y0, back, side){
     else { g.beginPath(); g.moveTo(-7, -31 + y0); g.lineTo(7, -31 + y0); g.lineTo(0, -23 + y0); g.closePath(); g.fill(); g.fillStyle = '#f6f4ee'; g.beginPath(); g.moveTo(-3.6, -31 + y0); g.lineTo(3.6, -31 + y0); g.lineTo(0, -26.5 + y0); g.closePath(); g.fill(); g.fillStyle = '#c23b2a'; g.fillRect(-1.4, -25.5 + y0, 2.8, 2.6); } }
   if (p.tablet && !back){ g.fillStyle = '#2b2b2b'; rr(g, side ? 4 : -5, -24 + y0, side ? 3 : 10, 7, 1.2); g.fill(); if (!side){ g.fillStyle = '#7fc0e0'; g.fillRect(-4, -23 + y0, 8, 5); } }
 }
+/* Cannaregio's locals (24 Nov, world/crowd.js 'anziano', 'studente'): a student's rucksack, an older person's walking stick and shopping trolley
+   (the tartan bag on two wheels, pulled behind); drawn before the arms and head (y0: the bob; back: seen from behind; side: in profile, facing right) */
+function vzLocalKit(g, p, y0, back, side, ph){
+  if (p.rucksack){ g.fillStyle = p.rucksack;
+    if (side){ rr(g, -11, -31 + y0, 6, 13, 2.5); g.fill(); g.fillStyle = 'rgba(0,0,0,.18)'; g.fillRect(-11, -24 + y0, 6, 1.4); }
+    else if (back){ rr(g, -7, -31 + y0, 14, 14, 3); g.fill(); g.fillStyle = 'rgba(0,0,0,.2)'; g.fillRect(-5, -23 + y0, 10, 2); }
+    else { g.fillRect(-6, -31 + y0, 2.4, 10); g.fillRect(3.6, -31 + y0, 2.4, 10); } }
+  if (p.stick && !back){ g.strokeStyle = '#5a3a22'; g.lineWidth = 1.6; const x = side ? 6 : 10; g.beginPath(); g.moveTo(x, -16 + y0); g.lineTo(x + (side ? 3 + ph : 1), 0); g.stroke(); g.beginPath(); g.moveTo(x - 2, -16 + y0); g.lineTo(x + 1, -16 + y0); g.stroke(); }
+  if (p.trolley){ const tx = side ? -15 : -15; g.strokeStyle = '#3a3a3a'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(tx + 3, -24 + y0); g.lineTo(side ? -7 : -10, -18 + y0); g.stroke();
+    g.fillStyle = p.trolley; rr(g, tx - 4, -20, 8, 15, 2); g.fill(); g.strokeStyle = 'rgba(255,255,255,.28)'; g.lineWidth = 0.8; for (const k of [-16, -12, -8]){ g.beginPath(); g.moveTo(tx - 4, k); g.lineTo(tx + 4, k); g.stroke(); } g.beginPath(); g.moveTo(tx, -20); g.lineTo(tx, -5); g.stroke();
+    g.fillStyle = '#1e1e1e'; circ(g, tx - 2, -1.8, 1.9); g.fill(); circ(g, tx + 2.5, -1.8, 1.9); g.fill(); }
+}
 /* hats, seen from the front or the side */
 function vzHat(g, p, hy, side, back){
   if (p.glasses && !back){ g.strokeStyle = '#2b2b2b'; g.lineWidth = 0.8; if (side){ circ(g, 4.6, hy + 0.3, 1.8); g.stroke(); } else { circ(g, -2.7, hy + 0.5, 1.9); g.stroke(); circ(g, 2.7, hy + 0.5, 1.9); g.stroke(); g.beginPath(); g.moveTo(-0.8, hy + 0.5); g.lineTo(0.8, hy + 0.5); g.stroke(); } }
@@ -42112,13 +42812,39 @@ function vzHat(g, p, hy, side, back){
   if (p.flatcap){ g.fillStyle = p.flatcap; g.beginPath(); g.ellipse(0, hy - 5, 8.6, 5.4, 0, Math.PI, 0); g.fill(); ell(g, side ? 6 : 0, hy - 4.4, side ? 5 : 8.8, 2.2); g.fill(); }
   if (p.cap){ g.fillStyle = p.cap; g.beginPath(); g.ellipse(0, hy - 4, 8.2, 6, 0, Math.PI, 0); g.fill(); ell(g, side ? 7 : 0, hy - 3.6, side ? 5 : 6, 1.8); g.fill(); }
   if (p.sunhat){ g.fillStyle = p.sunhat; ell(g, 0, hy - 5.5, 13, 3.4); g.fill(); g.beginPath(); g.ellipse(0, hy - 6.5, 7.6, 6.2, 0, Math.PI, 0); g.fill(); g.fillStyle = 'rgba(0,0,0,.18)'; g.fillRect(-7.4, hy - 8, 14.8, 1.8); }
-  if (p.sailor){   // a sailor's white cap: the flat round top, the navy band, its two ribbons behind
+  if (p.sailor && !p.tricorno){   // a sailor's white cap: the flat round top, the navy band, its two ribbons behind (the tricorn takes its place)
     g.fillStyle = '#22386e'; rr(g, -7.6, hy - 9.2, 15.2, 3.4, 1.2); g.fill();
     g.fillStyle = '#fbfaf6'; ell(g, 0, hy - 10, 9.6, 3.4); g.fill(); g.strokeStyle = 'rgba(0,0,0,.18)'; g.lineWidth = 0.7; ell(g, 0, hy - 10, 9.6, 3.4); g.stroke();
     if (side || back){ g.fillStyle = '#22386e'; g.fillRect(side ? -8.5 : -2.5, hy - 7, 1.8, 6.5); g.fillRect(side ? -6.6 : 0.8, hy - 7, 1.8, 5.5); }
   }
   if (p.toque){ g.fillStyle = '#fffdf8'; rr(g, -6.5, hy - 17, 13, 12, 4); g.fill(); g.strokeStyle = '#d8d2c4'; g.lineWidth = 1; g.stroke(); g.fillStyle = '#efe9db'; g.fillRect(-7, hy - 7, 14, 3); }
   if (p.gnaga && typeof gtGnagaFace === 'function') gtGnagaFace(g, hy, side, back);      // (the cat mask: render/gatti.js)
+  if (p.tricorno) vzTricorn(g, hy, side, back);                                          // (the casino's prize: over the mask)
+}
+/* the tricorn (il tricorno, the casino's prize: world/cplaces.js): black felt, its brim turned up into three corners, a gold braid along the edge,
+   a small black cockade; from the front a corner points at you, from the side one forward and one back, from behind the back corner */
+function vzTricorn(g, hy, side, back){
+  const felt = '#1d1b20', hi = '#34313a', gold = '#d4a83a';
+  if (side){
+    g.fillStyle = felt; g.beginPath(); g.ellipse(0, hy - 8.4, 6.6, 5.2, 0, Math.PI, 0); g.fill();                       // (the crown)
+    g.beginPath(); g.moveTo(-11.5, hy - 12.8); g.quadraticCurveTo(-4, hy - 6.6, 11.6, hy - 6.2); g.lineTo(9.6, hy - 11.4); g.quadraticCurveTo(1, hy - 15.6, -11.5, hy - 12.8); g.closePath(); g.fill();
+    g.fillStyle = hi; g.beginPath(); g.moveTo(-9, hy - 12.6); g.quadraticCurveTo(0, hy - 14.6, 8.4, hy - 11.2); g.lineTo(8.8, hy - 10.2); g.quadraticCurveTo(0, hy - 13.2, -9, hy - 11.6); g.closePath(); g.fill();
+    g.strokeStyle = gold; g.lineWidth = 0.9; g.beginPath(); g.moveTo(-11.5, hy - 12.8); g.quadraticCurveTo(-4, hy - 6.6, 11.6, hy - 6.2); g.stroke();
+    g.fillStyle = '#0e0d10'; circ(g, 6.4, hy - 9.4, 1.7); g.fill(); g.fillStyle = gold; circ(g, 6.4, hy - 9.4, 0.6); g.fill();
+    return;
+  }
+  g.fillStyle = felt; g.beginPath(); g.ellipse(0, hy - 8.6, 6.8, 5.4, 0, Math.PI, 0); g.fill();
+  if (back){
+    g.beginPath(); g.moveTo(-12.8, hy - 11.8); g.quadraticCurveTo(-6, hy - 6.4, 0, hy - 5.6); g.quadraticCurveTo(6, hy - 6.4, 12.8, hy - 11.8); g.lineTo(9.4, hy - 14.6); g.quadraticCurveTo(0, hy - 11.2, -9.4, hy - 14.6); g.closePath(); g.fill();
+    g.strokeStyle = gold; g.lineWidth = 0.9; g.beginPath(); g.moveTo(-12.8, hy - 11.8); g.quadraticCurveTo(-6, hy - 6.4, 0, hy - 5.6); g.quadraticCurveTo(6, hy - 6.4, 12.8, hy - 11.8); g.stroke();
+    return;
+  }
+  /* from the front: the two side corners turned up, the front corner pointing down at you between the eyebrows' line and the crown */
+  g.beginPath(); g.moveTo(-13.2, hy - 12.4); g.quadraticCurveTo(-7, hy - 9.2, 0, hy - 4.4); g.quadraticCurveTo(7, hy - 9.2, 13.2, hy - 12.4);
+  g.quadraticCurveTo(7.6, hy - 16.6, 0, hy - 12.6); g.quadraticCurveTo(-7.6, hy - 16.6, -13.2, hy - 12.4); g.closePath(); g.fill();
+  g.fillStyle = hi; g.beginPath(); g.moveTo(-10.6, hy - 13.6); g.quadraticCurveTo(-6, hy - 15.4, -0.6, hy - 12.4); g.lineTo(-0.6, hy - 11.2); g.quadraticCurveTo(-6, hy - 13.8, -10.6, hy - 12.6); g.closePath(); g.fill();
+  g.strokeStyle = gold; g.lineWidth = 0.9; g.beginPath(); g.moveTo(-13.2, hy - 12.4); g.quadraticCurveTo(-7, hy - 9.2, 0, hy - 4.4); g.quadraticCurveTo(7, hy - 9.2, 13.2, hy - 12.4); g.stroke();
+  g.fillStyle = '#0e0d10'; circ(g, -6.4, hy - 10.2, 1.8); g.fill(); g.fillStyle = gold; circ(g, -6.4, hy - 10.2, 0.65); g.fill();
 }
 function vzSuitcase(g, p){
   const sx = (p.suitcaseSide || 1) * 15;
@@ -46370,7 +47096,7 @@ function vzVapDeck(b){
   return { face:{ x:-lean, y:0 }, hand:at(-lean * 22, U.open2 - 0.5), spots:[[-lean * 14, U.gate + 0.5], [lean * 12, U.gate - 0.2], [-lean * 2, U.gate + 1.6], [lean * 18, U.open1 + 0.7]].map(([x, u]) => at(x, u)) };
 }
 function vzVapPerson(g, p, x, y, face){
-  if (p.isPlayer && typeof pozzoWear === 'function' && pozzoWear()) p = pozzoDress(p);
+  if (p.isPlayer) p = vzPlayerDress(p);      // (what the player wears: render/people.js)
   const side = Math.abs(face.x) > Math.abs(face.y), dir = side ? (face.x > 0 ? 'R' : 'L') : face.y < 0 ? 'U' : 'D';
   g.save(); g.translate(Math.round(x), Math.round(y)); g.scale(VZ_PERSON, VZ_PERSON);
   if (p.animal){ if (p.animal === 'cat') vzCat(g, p, 0, dir); else vzDog(g, p, 0, dir); } else vzFigure(g, p, dir, 0, 0);
@@ -49923,6 +50649,617 @@ function gtGnagaFace(g, hy, side, back){
   g.fillStyle = '#f4f0e6'; circ(g, -2.4, hy - 0.1, 0.4); g.fill(); circ(g, 3.2, hy - 0.1, 0.4); g.fill();
   g.fillStyle = '#c76a6a'; g.beginPath(); g.moveTo(-1, hy + 1.8); g.lineTo(1, hy + 1.8); g.lineTo(0, hy + 2.9); g.fill();
   g.strokeStyle = '#3a3630'; g.lineWidth = 0.45; [[-1, 2.4, -11.5, 1.4], [-1, 2.8, -11.5, 3.6], [1, 2.4, 11.5, 1.4], [1, 2.8, 11.5, 3.6]].forEach(([a, b, c, d]) => { g.beginPath(); g.moveTo(a * 3, hy + b); g.lineTo(c, hy + d); g.stroke(); });
+}
+
+/* ===== units/venezia/render/cplaces.js ===== */
+/* Cannaregio's places, drawn (world/cplaces.js, world/cplaces-casino.js; the designer's photos: docs/refs/venezia/cannaregio-places/ 01–11). In the
+   city's manner (render/dlandmarks.js): flat colours, crisp lines, lit from the west, in metres (VZ_M px a metre; `at(m)`: m above the front's foot).
+   - The fronts (VZ_DLM): the Teatro Italia (photo 07: the white stone ground floor of four arches with their iron grilles, TEATRO ITALIA carved over
+     them, the red brick upper storey with its white tracery windows and balconies, the lanterns, the balustrade with St Mark's lion on top); Ca'
+     Vendramin Calergi (photo 02: Codussi's white front, its arched windows paired under round arches between columns, the balconies, the red CASINÒ
+     DI VENEZIA banner, the warm lights; below its foot, on the canal, the red canopied landing stage and the striped poles); the casino's gate on
+     the campiello; the Libreria Acqua Alta (photo 08: the worn house, the green painted sign, the courtyard's books and the blue canoe seen through
+     its gate, a plant, the table of posters).
+   - The rooms (VZ_WALLS, VZ_FLOORS, VZ_PROP_ART): the Teatro Italia's hall (photos 03–06), the casino's salon (photo 01), the bookshop (photos 08–11).
+   - The roulette's panel (cpWheelPaint): the wheel and the ball, the layout, the chips. */
+
+/* ---------- the fronts ---------- */
+const CP_ST = '#f3eee4', CP_STD = '#ddd4c2';
+/* a Gothic window of white stone: an ogee-pointed head, its iron grille or glass, a balcony (o.balcony), a tracery trefoil (o.tre) */
+function cpGothicWin(g, cx, yTop, w, h, o = {}){
+  const x = cx - w / 2;
+  g.fillStyle = o.frame || CP_ST; vzArchPath(g, x - 4, yTop - 4, w + 8, h + 6, 'gothic'); g.fill();
+  g.fillStyle = o.glass || '#3a4450'; vzArchPath(g, x, yTop, w, h, 'gothic'); g.fill();
+  if (o.lit){ g.fillStyle = 'rgba(255,214,140,.55)'; vzArchPath(g, x + 2, yTop + h * 0.25, w * 0.4, h * 0.7, 'rect'); g.fill(); }
+  g.strokeStyle = 'rgba(240,236,226,.75)'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(cx, yTop + w * 0.3); g.lineTo(cx, yTop + h); g.moveTo(x, yTop + h * 0.55); g.lineTo(x + w, yTop + h * 0.55); g.stroke();
+  if (o.tre){ g.fillStyle = o.frame || CP_ST; for (const [dx, dy] of [[0, -0.16], [-0.14, 0.06], [0.14, 0.06]]){ circ(g, cx + dx * w * 1.6, yTop + w * 0.42 + dy * w * 1.6, w * 0.13); g.fill(); } }
+  if (o.balcony){ const by = yTop + h; g.fillStyle = CP_STD; g.fillRect(x - w * 0.3, by, w * 1.6, 3.5); g.fillStyle = CP_ST; g.fillRect(x - w * 0.3, by - 0.55 * VZ_M, w * 1.6, 2.4);
+    for (let xx = x - w * 0.26; xx < x + w * 1.28; xx += 4.2) g.fillRect(xx, by - 0.55 * VZ_M, 1.8, 0.55 * VZ_M); g.fillStyle = 'rgba(0,0,0,.18)'; g.fillRect(x - w * 0.3, by + 3.5, w * 1.6, 2); }
+}
+/* an iron grille of scrolls in an arch's head (the Teatro Italia's doors) */
+function cpGrille(g, x, y, w, h){
+  g.save(); vzArchPath(g, x, y, w, h, 'gothic'); g.clip();
+  g.fillStyle = '#2a2622'; g.fillRect(x, y, w, h);
+  g.strokeStyle = '#5d554c'; g.lineWidth = 1;
+  for (let yy = y + 4; yy < y + h; yy += 7) for (let xx = x + 3; xx < x + w; xx += 7){ g.beginPath(); g.arc(xx, yy, 2.6, 0, Math.PI * 1.6); g.stroke(); }
+  g.restore();
+}
+/* ---------- il Teatro Italia (the sketch's lm 'teatro'): 16 m, 17.5 m to the lion's head ---------- */
+VZ_DLM.teatro = { draw(g, l){
+  const M = VZ_M, at = vzAtOf(l), x0 = l.x, w = l.w, x1 = x0 + w, cx = x0 + w / 2, r = rng(1916);
+  /* the roof behind (the hall's long roof, back over the block) */
+  if (at(15.6) > l.y) vzRoof(g, x0 + 0.4 * M, l.y, w - 0.8 * M, at(15.6) - l.y, '#a8553a', 1916);
+  /* the upper storey: red brick between white stone strips and corners */
+  vzBrickFill(g, x0, at(15.2), w, 7.6 * M, '#b4553e', 1917);
+  g.fillStyle = CP_ST; g.fillRect(x0, at(15.2), 0.7 * M, 7.6 * M); g.fillRect(x1 - 0.7 * M, at(15.2), 0.7 * M, 7.6 * M);
+  for (const fx of [0.31, 0.69]) g.fillRect(x0 + w * fx - 0.18 * M, at(15.2), 0.36 * M, 7.6 * M);
+  /* little white roundels and squares in the brick (the coats of arms' places) */
+  for (const fx of [0.1, 0.9]){ g.fillStyle = CP_ST; g.fillRect(x0 + w * fx - 0.55 * M, at(14.3), 1.1 * M, 1.1 * M); g.fillStyle = '#c9bfa8'; circ(g, x0 + w * fx, at(13.75), 0.38 * M); g.fill(); }
+  /* the middle: three lights under one pointed head, the tracery of quatrefoils over them (the white stone panel) */
+  g.fillStyle = CP_ST; g.fillRect(cx - 2.9 * M, at(14.6), 5.8 * M, 6.6 * M);
+  g.fillStyle = '#e6dfd0'; g.beginPath(); g.moveTo(cx - 2.9 * M, at(11.2)); g.quadraticCurveTo(cx - 2.9 * M, at(14.2), cx, at(14.6)); g.quadraticCurveTo(cx + 2.9 * M, at(14.2), cx + 2.9 * M, at(11.2)); g.closePath(); g.fill();
+  for (const dx of [-1.6, 0, 1.6]){ cpGothicWin(g, cx + dx * M, at(11.4), 1.15 * M, 3.0 * M, { frame:CP_ST, glass:'#2f3a46' }); }
+  g.fillStyle = '#9a8f7c'; for (const [dx, dy] of [[-1.2, 12.6], [0, 13.3], [1.2, 12.6], [-0.6, 11.9], [0.6, 11.9]]){ circ(g, cx + dx * M, at(dy), 0.3 * M); g.fill(); g.fillStyle = '#2f3a46'; circ(g, cx + dx * M, at(dy), 0.2 * M); g.fill(); g.fillStyle = '#9a8f7c'; }
+  /* the side windows with their balconies */
+  for (const fx of [0.16, 0.84]) cpGothicWin(g, x0 + w * fx, at(12.2), 1.3 * M, 3.4 * M, { tre:true, balcony:true });
+  /* the lanterns on their iron brackets */
+  for (const fx of [0.3, 0.7]){ const lx = x0 + w * fx, ly = at(9.6); g.strokeStyle = '#2a2622'; g.lineWidth = 1.6; g.beginPath(); g.moveTo(lx, ly); g.quadraticCurveTo(lx + 0.5 * M, ly - 0.6 * M, lx + 0.7 * M, ly + 0.1 * M); g.stroke();
+    g.fillStyle = '#2a2622'; g.fillRect(lx + 0.45 * M, ly + 0.1 * M, 0.5 * M, 0.75 * M); g.fillStyle = '#f2d58a'; g.fillRect(lx + 0.52 * M, ly + 0.18 * M, 0.36 * M, 0.5 * M); }
+  /* the cornice, the balustrade, the lion of St Mark over the middle, the little pinnacles */
+  vzCornice(g, x0, at(15.6), w, 0.45 * M, CP_ST);
+  vzBalust(g, x0 + 0.2 * M, at(16.7), w - 0.4 * M, 1.1 * M, CP_ST);
+  for (const fx of [0.02, 0.31, 0.69, 0.98]){ g.fillStyle = CP_ST; g.fillRect(x0 + w * fx - 0.3 * M, at(17.0), 0.6 * M, 1.4 * M); g.beginPath(); g.moveTo(x0 + w * fx - 0.3 * M, at(17.0)); g.lineTo(x0 + w * fx, at(17.7)); g.lineTo(x0 + w * fx + 0.3 * M, at(17.0)); g.fill(); }
+  { const ly = at(16.9); g.fillStyle = '#e8e1d2'; g.fillRect(cx - 1.4 * M, ly, 2.8 * M, 0.5 * M);       // (the lion: a winged lion lying, his book)
+    g.fillStyle = '#efe8da'; ell(g, cx, ly - 0.35 * M, 1.2 * M, 0.42 * M); g.fill(); circ(g, cx + 1.0 * M, ly - 0.75 * M, 0.42 * M); g.fill();
+    g.beginPath(); g.moveTo(cx - 0.6 * M, ly - 0.6 * M); g.quadraticCurveTo(cx - 0.2 * M, ly - 1.7 * M, cx + 0.5 * M, ly - 0.7 * M); g.closePath(); g.fill();
+    g.fillStyle = 'rgba(80,60,40,.35)'; g.fillRect(cx - 0.3 * M, ly - 0.55 * M, 0.5 * M, 0.35 * M); g.fillRect(cx + 0.85 * M, ly - 0.85 * M, 0.12 * M, 0.12 * M); }
+  /* the ground floor: white stone, four tall pointed arches (the doors in the middle two, the shop windows in the side ones), the grilles */
+  g.fillStyle = CP_ST; g.fillRect(x0, at(7.6), w, 7.6 * M);
+  g.fillStyle = 'rgba(60,40,20,.06)'; for (let y = at(7.6) + 0.6 * M; y < l.base; y += 0.6 * M) g.fillRect(x0, y, w, 1);
+  vzCornice(g, x0, at(7.8), w, 0.35 * M, CP_ST);
+  /* the name, carved in the band over the arches */
+  g.fillStyle = '#e9e2d4'; g.fillRect(cx - 4.4 * M, at(7.3), 8.8 * M, 0.85 * M); g.strokeStyle = 'rgba(80,60,40,.25)'; g.lineWidth = 1; g.strokeRect(cx - 4.4 * M, at(7.3), 8.8 * M, 0.85 * M);
+  vzText(g, 'TEATRO ITALIA', cx, at(6.87), '700 15px "Bodoni Moda", Georgia, serif', '#5a4a3a', 8.4 * M);
+  const bay = w / 4, aw = bay - 1.1 * M, ah = 5.6 * M, ay = l.base - ah;
+  for (let k = 0; k < 4; k++){
+    const ax = x0 + k * bay + (bay - aw) / 2, door = k === 1 || k === 2;
+    g.fillStyle = CP_STD; vzArchPath(g, ax - 5, ay - 6, aw + 10, ah + 6, 'gothic'); g.fill();
+    g.fillStyle = 'rgba(255,255,255,.4)'; vzArchPath(g, ax - 3, ay - 4, aw + 6, ah + 4, 'gothic'); g.lineWidth = 1.2; g.strokeStyle = 'rgba(160,140,110,.6)'; g.stroke();
+    cpGrille(g, ax, ay, aw, aw * 0.9);
+    if (door){ g.fillStyle = '#3a2416'; g.fillRect(ax, ay + aw * 0.9, aw, ah - aw * 0.9); g.fillStyle = '#7a4a26'; g.fillRect(ax + 2, ay + aw * 0.9 + 2, aw / 2 - 3, ah - aw * 0.9 - 2); g.fillRect(ax + aw / 2 + 1, ay + aw * 0.9 + 2, aw / 2 - 3, ah - aw * 0.9 - 2);
+      g.fillStyle = 'rgba(255,230,180,.45)'; g.fillRect(ax + 4, ay + aw * 0.9 + 6, aw / 2 - 7, (ah - aw * 0.9) * 0.55); g.fillRect(ax + aw / 2 + 3, ay + aw * 0.9 + 6, aw / 2 - 7, (ah - aw * 0.9) * 0.55); }
+    else { g.fillStyle = '#eef0ec'; g.fillRect(ax, ay + aw * 0.9, aw, ah - aw * 0.9 - 0.9 * M); g.fillStyle = '#d8dcd8'; g.fillRect(ax, l.base - 0.9 * M, aw, 0.9 * M);
+      g.fillStyle = '#6a4a2a'; g.fillRect(ax, l.base - 1.0 * M, aw, 0.12 * M);
+      g.fillStyle = '#1f6a3a'; g.fillRect(ax + aw * 0.1, ay + aw * 0.9 + 0.5 * M, aw * 0.8, 0.55 * M); vzText(g, 'Supermercato', ax + aw / 2, ay + aw * 0.9 + 0.78 * M, '700 6.5px "Titillium Web", sans-serif', '#fffdf6', aw * 0.76);
+      g.fillStyle = 'rgba(120,150,160,.25)'; g.fillRect(ax + 3, ay + aw * 0.9 + 1.3 * M, aw * 0.3, 1.2 * M); }
+    /* the thin columns between the arches */
+    if (k) vzCol(g, x0 + k * bay, l.base, at(6.0), 0.4 * M, CP_ST, 'cor');
+  }
+  g.fillStyle = 'rgba(30,20,10,.22)'; g.fillRect(x0, l.base - 4, w, 4);
+} };
+/* ---------- Ca' Vendramin Calergi, the casino (lm 'casino', 28 m on the Grand Canal; below its foot, the landing stage on the water) ---------- */
+function cpBifora(g, cx, yb, w, h, lit){
+  /* a pair of round-headed lights under one round arch with an oculus between their heads (Codussi's window) */
+  const M = VZ_M, x = cx - w / 2, lw = w * 0.38;
+  g.fillStyle = CP_ST; vzArchPath(g, x - 4, yb - h - 4, w + 8, h + 4, 'arch'); g.fill();
+  g.fillStyle = '#e4ddcf'; vzArchPath(g, x, yb - h, w, h, 'arch'); g.fill();
+  for (const dx of [-0.26, 0.26]){ const lx = cx + dx * w - lw / 2; g.fillStyle = lit ? '#e9b857' : '#36414c'; vzArchPath(g, lx, yb - h * 0.62, lw, h * 0.62, 'arch'); g.fill();
+    if (lit){ g.fillStyle = 'rgba(255,246,210,.55)'; g.fillRect(lx + 2, yb - h * 0.4, lw * 0.4, h * 0.32); }
+    g.fillStyle = 'rgba(245,240,230,.8)'; g.fillRect(lx + lw / 2 - 0.6, yb - h * 0.62 + lw / 2, 1.2, h * 0.62 - lw / 2); g.fillRect(lx, yb - h * 0.3, lw, 1.2); }
+  g.fillStyle = CP_ST; g.fillRect(cx - 1.5, yb - h * 0.62, 3, h * 0.62);
+  g.fillStyle = '#c9bfa8'; circ(g, cx, yb - h * 0.8, w * 0.1); g.fill(); g.fillStyle = lit ? '#d9a447' : '#36414c'; circ(g, cx, yb - h * 0.8, w * 0.065); g.fill();
+}
+VZ_DLM.casino = { draw(g, l){
+  const M = VZ_M, at = vzAtOf(l), x0 = l.x, w = l.w, x1 = x0 + w, cx = x0 + w / 2;
+  if (at(23.6) > l.y) vzRoof(g, x0 + 0.6 * M, l.y, w - 1.2 * M, at(23.6) - l.y, '#9a4d36', 1481);
+  g.fillStyle = CP_ST; g.fillRect(x0, at(23.2), w, 23.2 * M);
+  g.fillStyle = 'rgba(60,40,20,.06)'; g.fillRect(x0 + w * 0.9, at(23.2), w * 0.1, 23.2 * M);
+  /* the bays: five across, the columns between them (paired at the ends) */
+  const bays = [0.1, 0.3, 0.5, 0.7, 0.9], bw = w * 0.2;
+  const floor = (yb, yt, lit, col) => {
+    vzBalust(g, x0 + 0.3 * M, yb - 1.0 * M, w - 0.6 * M, 1.0 * M, '#f6f2ea');
+    bays.forEach((f, k) => cpBifora(g, x0 + w * f, yb - 1.2 * M, bw * 0.72, (yt - yb + 0) * -1 - 2.2 * M, lit && k !== 2 ? true : lit));
+    [0, 0.2, 0.4, 0.6, 0.8, 1].forEach((f, k) => { const px = x0 + w * f + (k === 0 ? 0.55 * M : k === 5 ? -0.55 * M : 0); vzCol(g, px, yb - 0.1 * M, yt + 0.4 * M, 0.55 * M, '#f6f2ea', col); if (k === 0 || k === 5) vzCol(g, px + (k ? -0.75 : 0.75) * M, yb - 0.1 * M, yt + 0.4 * M, 0.5 * M, '#f6f2ea', col); });
+    vzCornice(g, x0 - 0.2 * M, yt, w + 0.4 * M, 0.5 * M, '#f6f2ea');
+  };
+  floor(at(6.4), at(14.4), true, 'cor');
+  floor(at(14.8), at(22.6), true, 'cor');
+  /* the cornice, the attic's little windows */
+  vzCornice(g, x0 - 0.5 * M, at(23.4), w + M, 0.7 * M, '#f6f2ea');
+  for (let k = 0; k < 9; k++){ g.fillStyle = '#c9bfa8'; g.fillRect(x0 + (k + 0.5) * w / 9 - 0.4 * M, at(22.2), 0.8 * M, 0.45 * M); }
+  /* the water storey: the portal in the middle, a bifora either side, the plain windows at the ends */
+  g.fillStyle = '#ebe4d6'; g.fillRect(x0, at(6.2), w, 6.2 * M);
+  g.fillStyle = 'rgba(80,60,40,.10)'; for (let y = at(6.2) + 0.55 * M; y < l.base; y += 0.55 * M) g.fillRect(x0, y, w, 1);
+  [0.1, 0.9].forEach(f => { vzWin(g, x0 + w * f, at(4.6), 1.1 * M, 2.4 * M, { lit:true, frame:CP_ST }); });
+  [0.3, 0.7].forEach(f => cpBifora(g, x0 + w * f, at(0.9), bw * 0.72, 4.4 * M, true));
+  { const pw = 3.2 * M, ph = 5.0 * M; g.fillStyle = CP_ST; vzArchPath(g, cx - pw / 2 - 6, l.base - ph - 6, pw + 12, ph + 6, 'arch'); g.fill();
+    g.fillStyle = '#5a1f1a'; vzArchPath(g, cx - pw / 2, l.base - ph, pw, ph, 'arch'); g.fill();
+    const gl = g.createRadialGradient(cx, l.base - ph * 0.45, 4, cx, l.base - ph * 0.45, pw); gl.addColorStop(0, 'rgba(255,226,150,.85)'); gl.addColorStop(1, 'rgba(255,190,90,.1)'); g.fillStyle = gl; vzArchPath(g, cx - pw / 2 + 3, l.base - ph + 3, pw - 6, ph - 3, 'arch'); g.fill();
+    g.strokeStyle = 'rgba(70,40,20,.6)'; g.lineWidth = 1; for (let k = 1; k < 6; k++){ const yy = l.base - ph + k * ph / 6; g.beginPath(); g.moveTo(cx - pw / 2 + 2, yy); g.lineTo(cx + pw / 2 - 2, yy); g.stroke(); }
+    /* the red carpet down the steps */
+    g.fillStyle = '#9a1f2a'; g.fillRect(cx - 0.7 * M, l.base - 0.6 * M, 1.4 * M, 0.6 * M + 4); }
+  /* the red banner from the first floor's balustrade, over the portal */
+  { const bw2 = 3.2 * M, by = at(7.4), bh = 3.0 * M; g.fillStyle = 'rgba(0,0,0,.2)'; g.fillRect(cx - bw2 / 2 + 3, by + 3, bw2, bh);
+    g.fillStyle = '#a3192a'; g.fillRect(cx - bw2 / 2, by, bw2, bh); g.fillStyle = '#c42a38'; g.fillRect(cx - bw2 / 2, by, bw2 * 0.16, bh);
+    g.fillStyle = '#e8c35a'; g.fillRect(cx - bw2 / 2, by + bh - 3, bw2, 2); g.fillRect(cx - bw2 / 2, by + 1, bw2, 1.5);
+    vzText(g, 'CASINÒ', cx, by + bh * 0.34, '700 13px "Bodoni Moda", Georgia, serif', '#f6e6b4', bw2 - 6); vzText(g, 'DI VENEZIA', cx, by + bh * 0.62, '700 10px "Bodoni Moda", Georgia, serif', '#f6e6b4', bw2 - 6);
+    g.fillStyle = '#e8c35a'; ell(g, cx, by + bh * 0.84, 0.5 * M, 0.16 * M); g.fill(); }
+  /* the warm glow of the lights along the floors */
+  g.fillStyle = 'rgba(255,214,140,.10)'; g.fillRect(x0, at(14.4), w, 8 * M);
+  vzWaterFoot(g, x0, w, l.base);
+  /* the landing stage on the water, before the portal: the pontoon, its red canopy on posts, the steps; the striped poles either side */
+  const py = l.base + 0.2 * M, pd = 3.6 * M, pw = 9.6 * M, px = cx - pw / 2;
+  g.fillStyle = 'rgba(10,30,30,.35)'; g.fillRect(px + 4, py + pd, pw, 6);
+  g.fillStyle = '#4e3a2a'; g.fillRect(px, py, pw, pd); g.fillStyle = '#6b5038'; for (let x = px; x < px + pw; x += 0.5 * M) g.fillRect(x, py, 0.45 * M, pd);
+  g.fillStyle = '#9a1f2a'; g.fillRect(cx - 0.7 * M, py, 1.4 * M, pd);                       // (the carpet)
+  g.fillStyle = '#c9c2b4'; g.fillRect(px, py + pd - 3, pw, 3);
+  for (const fx of [0.02, 0.98]){ g.fillStyle = '#c9a54a'; g.fillRect(px + pw * fx - 1.5, py - 2.6 * M + pd, 3, 2.6 * M); }
+  const cy = py + pd - 2.7 * M;
+  for (const [a, b] of [[0, 0.48], [0.52, 1]]){ const ax = px + pw * a, bx = px + pw * b;
+    g.fillStyle = '#8a1622'; g.beginPath(); g.moveTo(ax, cy + 0.9 * M); g.quadraticCurveTo((ax + bx) / 2, cy - 1.0 * M, bx, cy + 0.9 * M); g.lineTo(bx, cy + 1.25 * M); g.lineTo(ax, cy + 1.25 * M); g.closePath(); g.fill();
+    g.fillStyle = '#b02a36'; g.beginPath(); g.moveTo(ax + 0.3 * M, cy + 0.85 * M); g.quadraticCurveTo((ax + bx) / 2, cy - 0.7 * M, bx - 0.3 * M, cy + 0.85 * M); g.closePath(); g.fill();
+    g.fillStyle = '#e8c35a'; for (let x = ax + 2; x < bx - 2; x += 4) g.fillRect(x, cy + 1.25 * M, 1.6, 3); }
+  for (const fx of [0.1, 0.25, 0.75, 0.9]) vzPali(g, [px + pw * (fx < 0.5 ? fx - 0.28 : fx + 0.28)], py + pd + 0.4 * M, fx < 0.5 ? '#c23b2a' : '#e8b830');
+} };
+/* the casino's land entrance on the campiello (lm 'casino-porta', 8 m): the courtyard wall, the stone portal with its red canopy, the garden's trees over it */
+VZ_DLM['casino-porta'] = { draw(g, l){
+  const M = VZ_M, at = vzAtOf(l), x0 = l.x, w = l.w, cx = x0 + w / 2;
+  /* the garden's trees over the wall */
+  for (const [fx, r] of [[0.18, 1.9], [0.5, 2.3], [0.84, 1.8]]){ g.fillStyle = '#3f6a3a'; circ(g, x0 + w * fx, at(5.6), r * M); g.fill(); g.fillStyle = '#5a8a4a'; circ(g, x0 + w * fx - 0.4 * M, at(6.0), r * 0.6 * M); g.fill(); }
+  g.fillStyle = '#e9e1d2'; g.fillRect(x0, at(4.6), w, 4.6 * M); g.fillStyle = 'rgba(60,40,20,.08)'; g.fillRect(x0 + w * 0.85, at(4.6), w * 0.15, 4.6 * M);
+  vzCornice(g, x0, at(4.8), w, 0.3 * M, CP_ST);
+  /* the portal: its stone frame, the iron gate folded open, the light inside, the steps */
+  const pw = 2.2 * M, ph = 3.4 * M;
+  g.fillStyle = CP_ST; vzArchPath(g, cx - pw / 2 - 0.35 * M, l.base - ph - 0.35 * M, pw + 0.7 * M, ph + 0.35 * M, 'arch'); g.fill();
+  g.fillStyle = '#3a2a22'; vzArchPath(g, cx - pw / 2, l.base - ph, pw, ph, 'arch'); g.fill();
+  const gl = g.createRadialGradient(cx, l.base - ph * 0.4, 3, cx, l.base - ph * 0.4, pw); gl.addColorStop(0, 'rgba(255,224,150,.9)'); gl.addColorStop(1, 'rgba(255,190,90,.15)'); g.fillStyle = gl; vzArchPath(g, cx - pw / 2 + 3, l.base - ph + 3, pw - 6, ph - 3, 'arch'); g.fill();
+  g.strokeStyle = '#1e1e1e'; g.lineWidth = 1.2; for (const sx of [-1, 1]){ const gx = cx + sx * (pw / 2 - 2); for (let k = 0; k < 5; k++){ g.beginPath(); g.moveTo(gx, l.base - k * 0.6 * M - 4); g.lineTo(gx - sx * 0.3 * M, l.base - k * 0.6 * M - 4); g.stroke(); } g.fillStyle = '#1e1e1e'; g.fillRect(gx - 1, l.base - ph * 0.85, 2, ph * 0.85); }
+  g.fillStyle = '#9a1f2a'; g.fillRect(cx - 0.5 * M, l.base - 0.35 * M, M, 0.35 * M + 3);
+  /* the red canopy over it */
+  g.fillStyle = '#8a1622'; g.beginPath(); g.moveTo(cx - 1.6 * M, at(3.6)); g.lineTo(cx + 1.6 * M, at(3.6)); g.lineTo(cx + 1.9 * M, at(3.0)); g.lineTo(cx - 1.9 * M, at(3.0)); g.closePath(); g.fill();
+  g.fillStyle = '#b02a36'; g.fillRect(cx - 1.9 * M, at(3.0), 3.8 * M, 0.35 * M); vzText(g, 'CASINÒ DI VENEZIA', cx, at(2.83), '700 6.5px "Bodoni Moda", Georgia, serif', '#f6e6b4', 3.6 * M);
+  /* the brass plaque, the two lanterns */
+  g.fillStyle = '#c9a54a'; g.fillRect(x0 + w * 0.78, at(2.4), 0.9 * M, 0.6 * M); g.fillStyle = '#8a6a2a'; g.fillRect(x0 + w * 0.78 + 3, at(2.4) + 3, 0.9 * M - 6, 1.5); g.fillRect(x0 + w * 0.78 + 3, at(2.4) + 7, 0.9 * M - 6, 1.5);
+  for (const sx of [-1, 1]){ const lx = cx + sx * 2.3 * M, ly = at(3.4); g.fillStyle = '#2a2622'; g.fillRect(lx - 0.22 * M, ly, 0.44 * M, 0.7 * M); g.fillStyle = '#ffe2a0'; g.fillRect(lx - 0.15 * M, ly + 0.08 * M, 0.3 * M, 0.5 * M); }
+  g.fillStyle = 'rgba(30,20,10,.22)'; g.fillRect(x0, l.base - 4, w, 4);
+} };
+/* ---------- la Libreria Acqua Alta (lm 'libreria', 12 m on the Fondamenta de la Misericordia) ---------- */
+VZ_DLM.libreria = { draw(g, l){
+  const M = VZ_M, at = vzAtOf(l), x0 = l.x, w = l.w, x1 = x0 + w, r = rng(2004);
+  if (at(11.6) > l.y) vzRoof(g, x0 + 0.2 * M, l.y, w - 0.4 * M, at(11.6) - l.y, '#a8553a', 2004);
+  vzWallFill(g, x0, at(11.4), w, 11.4 * M, '#d8c4a4');
+  for (let k = 0; k < 9; k++){ const bx = x0 + r() * (w - 2.5 * M), by = at(11) + r() * 8 * M; vzBrickFill(g, bx, by, 1.2 * M + r() * 1.6 * M, 0.6 * M + r() * M, '#b06a4a', 2010 + k); }
+  vzCornice(g, x0, at(11.4), w, 0.35 * M, '#e8dcc4');
+  for (let f = 0; f < 2; f++) for (let q = 0; q < 4; q++) vzWin(g, x0 + (q + 0.5) * w / 4, at(f ? 10.4 : 7.4), 0.85 * M, 1.9 * M, { shut:(f + q) % 3 ? 'open' : 'closed', sc:'#3f6a4a' });
+  /* the ground floor: the shop's door (dark, books stacked inside), the green painted sign beside it */
+  g.fillStyle = '#e2d4ba'; g.fillRect(x0, at(4.4), w, 4.4 * M); g.fillStyle = 'rgba(120,90,60,.18)'; g.fillRect(x0, l.base - 0.7 * M, w, 0.7 * M);          // (the tide mark)
+  const dx = x0 + w * 0.3, dw = 1.5 * M, dh = 2.6 * M;
+  g.fillStyle = CP_STD; g.fillRect(dx - dw / 2 - 4, l.base - dh - 4, dw + 8, dh + 4);
+  g.fillStyle = '#2a2018'; g.fillRect(dx - dw / 2, l.base - dh, dw, dh);
+  for (let k = 0; k < 7; k++){ const yy = l.base - 0.25 * M - k * 0.32 * M; for (let xx = dx - dw / 2 + 2; xx < dx + dw / 2 - 3; xx += 3.2 + r() * 2){ g.fillStyle = ['#c23b2a', '#e8c35a', '#2e6a8e', '#f2ead8', '#5a8a3a', '#7a4a6a'][Math.floor(r() * 6)]; g.fillRect(xx, yy - 6, 2.6, 6); } }
+  /* the sign: the old green door with its yellow letters, leaning by the doorway */
+  { const sx = x0 + w * 0.1, sw = 1.3 * M, sh = 2.4 * M; g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(sx + 3, l.base - sh + 3, sw, sh - 3);
+    g.fillStyle = '#2f5a3e'; g.fillRect(sx, l.base - sh, sw, sh); g.strokeStyle = '#1e3e2a'; g.lineWidth = 1.2; g.strokeRect(sx + 3, l.base - sh + 3, sw - 6, sh - 6);
+    vzText(g, 'Libreria', sx + sw / 2, l.base - sh * 0.78, 'italic 700 7px "Bodoni Moda", Georgia, serif', '#f0d54a', sw - 4);
+    vzText(g, 'ACQUA', sx + sw / 2, l.base - sh * 0.58, '800 9px "Titillium Web", sans-serif', '#f0d54a', sw - 4); vzText(g, 'ALTA', sx + sw / 2, l.base - sh * 0.43, '800 9px "Titillium Web", sans-serif', '#f0d54a', sw - 4); }
+  /* the gate to the courtyard: through it, the wall of books and the blue canoe */
+  { const gx = x0 + w * 0.68, gw = 2.6 * M, gh = 3.2 * M; g.fillStyle = CP_ST; vzArchPath(g, gx - gw / 2 - 4, l.base - gh - 4, gw + 8, gh + 4, 'arch'); g.fill();
+    g.save(); vzArchPath(g, gx - gw / 2, l.base - gh, gw, gh, 'arch'); g.clip();
+    vzBrickFill(g, gx - gw / 2, l.base - gh, gw, gh, '#9a5a3e', 2020);
+    for (let k = 0; k < 8; k++){ const yy = l.base - k * 0.28 * M; for (let xx = gx - gw / 2 + 2; xx < gx + gw / 2 - 2; xx += 2.2 + r() * 1.6){ g.fillStyle = ['#e9e1cf', '#c9b48a', '#c23b2a', '#2e6a8e', '#f2ead8', '#8a6a4a'][Math.floor(r() * 6)]; g.fillRect(xx, yy - 6.2, 2, 6); } }
+    g.fillStyle = '#3a7ab8'; g.beginPath(); g.ellipse(gx, l.base - gh * 0.75, gw * 0.62, 0.32 * M, -0.12, 0, Math.PI * 2); g.fill(); g.fillStyle = '#2a2018'; g.beginPath(); g.ellipse(gx + 0.2 * M, l.base - gh * 0.76, gw * 0.24, 0.14 * M, -0.12, 0, Math.PI * 2); g.fill();
+    g.restore();
+    g.strokeStyle = '#1e1e1e'; g.lineWidth = 1; for (let xx = gx - gw / 2 + 4; xx < gx + gw / 2; xx += 6){ g.beginPath(); g.moveTo(xx, l.base - gh * 0.62); g.lineTo(xx, l.base); g.stroke(); } }
+  /* a big green plant in its pot, the table of old posters (VENEZIA LIDO) */
+  { const px = x0 + w * 0.47, py = l.base - 2; g.fillStyle = '#7a5a3a'; g.fillRect(px - 0.35 * M, py - 0.6 * M, 0.7 * M, 0.6 * M);
+    g.strokeStyle = '#2f6a2a'; g.lineWidth = 3; for (let k = -4; k <= 4; k++){ g.beginPath(); g.moveTo(px, py - 0.55 * M); g.quadraticCurveTo(px + k * 0.12 * M, py - 1.4 * M, px + k * 0.28 * M, py - (1.6 - Math.abs(k) * 0.12) * M); g.stroke(); } }
+  { const tx = x0 + w * 0.86, tw = 1.5 * M, ty = l.base - 0.85 * M; g.fillStyle = '#8a6a48'; g.fillRect(tx - tw / 2, ty, tw, 0.12 * M); g.fillRect(tx - tw / 2 + 2, ty, 3, 0.85 * M); g.fillRect(tx + tw / 2 - 5, ty, 3, 0.85 * M);
+    g.fillStyle = '#f2ead8'; g.fillRect(tx - tw / 2 + 2, ty - 0.55 * M, tw * 0.52, 0.55 * M); g.fillStyle = '#5a8ab8'; g.fillRect(tx - tw / 2 + 4, ty - 0.5 * M, tw * 0.46, 0.22 * M); g.fillStyle = '#c23b2a'; g.fillRect(tx - tw / 2 + 4, ty - 0.24 * M, tw * 0.46, 0.08 * M);
+    g.fillStyle = '#e8c35a'; g.fillRect(tx + 2, ty - 0.5 * M, tw * 0.42, 0.5 * M); g.fillStyle = '#2e4a8a'; g.fillRect(tx + 4, ty - 0.45 * M, tw * 0.38, 0.4 * M); }
+  g.fillStyle = 'rgba(30,20,10,.22)'; g.fillRect(x0, l.base - 4, w, 4);
+} };
+
+/* ---------- the rooms: walls and floors ---------- */
+Object.assign(VZ_FLOORS, {
+  cpstone(g, R, x0, x1, y0, y1, r){ g.fillStyle = '#a49a8a'; g.fillRect(x0, y0, x1 - x0, y1 - y0);
+    g.fillStyle = 'rgba(70,60,50,.18)'; for (let y = y0; y < y1; y += vzM(0.7)) g.fillRect(x0, y, x1 - x0, 1);
+    for (let k = 0; k < 14; k++){ g.fillStyle = 'rgba(60,80,90,.12)'; ell(g, x0 + r() * (x1 - x0), y0 + r() * (y1 - y0), vzM(0.5 + r()), vzM(0.25 + r() * 0.3)); g.fill(); } },      // (damp patches: the high water comes in)
+  cpyard(g, R, x0, x1, y0, y1, r){ g.fillStyle = '#9a8e7a'; g.fillRect(x0, y0, x1 - x0, y1 - y0);
+    const s = vzM(0.5); for (let y = y0, k = 0; y < y1; y += s * 0.5, k++) for (let x = x0 + (k % 2) * s / 2; x < x1; x += s){ g.fillStyle = `hsl(28, ${12 + r() * 8}%, ${46 + r() * 8}%)`; g.fillRect(x + 1, y + 1, s - 2, s * 0.5 - 2); }
+    g.fillStyle = 'rgba(80,110,60,.18)'; for (let k = 0; k < 30; k++) g.fillRect(x0 + r() * (x1 - x0), y0 + r() * (y1 - y0), 3, 1); },
+});
+Object.assign(VZ_WALLS, {
+  /* the Teatro Italia's entrance: the coffered wooden ceiling, the stucco frieze of cherubs, the gallery's front with its iron lace, the hall beyond */
+  cpgallery(g, R, x0, x1, top, bot, r){
+    g.fillStyle = '#d9c7a2'; g.fillRect(x0, top, x1 - x0, bot - top);
+    const cf = top + vzM(1.5);
+    g.fillStyle = '#6b4526'; g.fillRect(x0, top, x1 - x0, cf - top);
+    for (let x = x0 + vzM(0.1), k = 0; x < x1; x += vzM(1.1), k++) for (const [y, h] of [[top + vzM(0.1), vzM(0.6)], [top + vzM(0.8), vzM(0.6)]]){ g.fillStyle = '#e8e1d0'; g.fillRect(x + 3, y + 2, vzM(0.95) - 6, h - 4); g.fillStyle = 'rgba(0,0,0,.12)'; g.fillRect(x + 3, y + h - 4, vzM(0.95) - 6, 2); }
+    g.fillStyle = '#8a6038'; g.fillRect(x0, cf - 4, x1 - x0, 4);
+    for (let x = x0 + vzM(0.8); x < x1; x += vzM(2.2)){ g.fillStyle = '#1e1e1e'; g.fillRect(x, cf + 2, 4, 6); g.fillStyle = '#ffe9b0'; circ(g, x + 2, cf + 10, 2); g.fill(); }      // (the spotlights)
+    /* the frieze of cherubs in white stucco */
+    const fy = cf + vzM(0.3); g.fillStyle = '#ece6da'; g.fillRect(x0, fy, x1 - x0, vzM(0.6));
+    for (let x = x0 + vzM(0.4); x < x1 - vzM(0.2); x += vzM(0.7)){ g.fillStyle = '#d8cfbe'; circ(g, x, fy + vzM(0.22), vzM(0.12)); g.fill(); ell(g, x, fy + vzM(0.42), vzM(0.12), vzM(0.13)); g.fill(); g.fillStyle = '#c9bfa8'; ell(g, x - vzM(0.17), fy + vzM(0.3), vzM(0.08), vzM(0.05)); g.fill(); ell(g, x + vzM(0.17), fy + vzM(0.3), vzM(0.08), vzM(0.05)); g.fill(); }
+    /* the gallery: its floor's edge, the iron lacework railing */
+    const gy = R.Y(0) - vzM(3.4);
+    g.fillStyle = '#5a3a22'; g.fillRect(x0, gy, x1 - x0, vzM(0.3)); g.fillStyle = '#3a2416'; g.fillRect(x0, gy + vzM(0.3), x1 - x0, 3);
+    cpLace(g, x0 + vzM(0.1), gy - vzM(1.0), x1 - x0 - vzM(0.2), vzM(1.0));
+    /* under the gallery: the hall goes on, its shelves lit */
+    g.fillStyle = '#c4b08a'; g.fillRect(x0, gy + vzM(0.3), x1 - x0, R.Y(0) - gy - vzM(0.3));
+    for (let k = 0; k < 4; k++){ const yy = R.Y(0) - vzM(0.4 + k * 0.6); for (let x = x0 + vzM(1.8); x < x1 - vzM(1.8); x += 4 + r() * 3){ g.fillStyle = ['#c23b2a', '#e8c35a', '#2e6a8e', '#5a8a3a', '#f2ead8', '#d9822b'][Math.floor(r() * 6)]; g.fillRect(x, yy - 5, 3, 5); } g.fillStyle = '#7a6a58'; g.fillRect(x0 + vzM(1.8), yy, x1 - x0 - vzM(3.6), 2); }
+    g.fillStyle = 'rgba(60,40,20,.12)'; g.fillRect(x0, gy + vzM(0.3), x1 - x0, vzM(0.5));
+  },
+  /* the painted hall: ochre plaster painted like old stone, the pilasters of red marble, the tall arched windows, the painted panels under them with
+     their round medallions, the frieze of painted figures under the ceiling, the ceiling's edge with its great medallion */
+  cpfresco(g, R, x0, x1, top, bot, r){
+    g.fillStyle = '#e2c98f'; g.fillRect(x0, top, x1 - x0, bot - top);
+    for (let k = 0; k < 60; k++){ g.fillStyle = r() < 0.5 ? 'rgba(170,140,90,.10)' : 'rgba(255,240,200,.10)'; ell(g, x0 + r() * (x1 - x0), top + r() * (bot - top), vzM(0.4 + r() * 0.8), vzM(0.2 + r() * 0.5)); g.fill(); }
+    /* the ceiling's edge: the pale painted sky, the rosettes' border, part of the great medallion (the Glory of Italy) */
+    const ce = top + vzM(0.9);
+    g.fillStyle = '#e9dcc0'; g.fillRect(x0, top, x1 - x0, ce - top);
+    for (let k = 0; k < 20; k++){ g.fillStyle = 'rgba(150,175,200,.22)'; ell(g, x0 + r() * (x1 - x0), top + r() * vzM(0.8), vzM(0.5), vzM(0.12)); g.fill(); }
+    { const mx = (x0 + x1) / 2, my = top + vzM(0.1), mr = vzM(2.6);
+      g.save(); g.beginPath(); g.rect(x0, top, x1 - x0, ce - top); g.clip();
+      g.fillStyle = '#6a6a66'; g.beginPath(); g.ellipse(mx, my, mr + vzM(0.3), vzM(0.85), 0, 0, Math.PI); g.fill();
+      g.fillStyle = '#d8d2c4'; for (let a = 0.08; a < Math.PI; a += 0.16){ circ(g, mx + Math.cos(a) * (mr + vzM(0.15)), my + Math.sin(a) * vzM(0.72), 1.8); g.fill(); }
+      const sky = g.createLinearGradient(0, my, 0, my + vzM(0.7)); sky.addColorStop(0, '#9ab0c8'); sky.addColorStop(1, '#d8c8a8'); g.fillStyle = sky; g.beginPath(); g.ellipse(mx, my, mr, vzM(0.62), 0, 0, Math.PI); g.fill();
+      g.fillStyle = 'rgba(120,80,60,.6)'; ell(g, mx - vzM(0.8), my + vzM(0.3), vzM(0.5), vzM(0.16)); g.fill(); g.fillStyle = 'rgba(230,210,180,.8)'; ell(g, mx + vzM(0.4), my + vzM(0.26), vzM(0.7), vzM(0.12)); g.fill();
+      g.fillStyle = 'rgba(60,40,30,.55)'; g.beginPath(); g.moveTo(mx + vzM(0.9), my + vzM(0.18)); g.lineTo(mx + vzM(1.6), my + vzM(0.05)); g.lineTo(mx + vzM(1.2), my + vzM(0.3)); g.fill();      // (an eagle's wing)
+      g.restore(); }
+    g.fillStyle = '#8c8270'; g.fillRect(x0, ce, x1 - x0, 3); g.fillStyle = '#f2ead8'; g.fillRect(x0, ce + 3, x1 - x0, 3);
+    /* the frieze: dark painted panels with figures between the bays */
+    const fy = ce + vzM(0.15), fh = vzM(0.55), bay = vzM(4.4), b0 = R.X(6.6);
+    for (let x = b0 + vzM(0.3); x < x1 - vzM(0.4); x += vzM(1.45)){ g.fillStyle = '#4a4a40'; g.fillRect(x, fy, vzM(1.25), fh); for (let k = 0; k < 4; k++){ g.fillStyle = ['#a89a7a', '#8a7a62', '#c9b48a', '#7a8a8a'][k]; ell(g, x + vzM(0.18 + k * 0.28), fy + fh * 0.5, vzM(0.09), fh * 0.36); g.fill(); } g.strokeStyle = '#c9b48a'; g.lineWidth = 1; g.strokeRect(x, fy, vzM(1.25), fh); }
+    /* the bays: pilasters, the arched window, the painted panel with its medallion under it */
+    for (let bx = b0, k = 0; bx < x1 - vzM(0.5); bx += bay, k++){
+      g.fillStyle = '#b48a6a'; g.fillRect(bx - vzM(0.25), fy + fh + 4, vzM(0.5), bot - fy - fh - 4); g.fillStyle = 'rgba(120,70,50,.35)'; for (let y = fy + fh + 10; y < bot; y += 9) g.fillRect(bx - vzM(0.2), y, vzM(0.4), 1);
+      g.fillStyle = '#d8cdb6'; g.fillRect(bx - vzM(0.32), fy + fh + 4, vzM(0.64), vzM(0.25));
+      const cx = bx + bay / 2; if (cx > x1 - vzM(1)) break;
+      /* the window: pointed, its iron mullions, a brick-red surround */
+      const wy = R.Y(0) - vzM(6.1), ww = vzM(1.5), wh = vzM(2.6);
+      g.fillStyle = '#a8603e'; vzArchPath(g, cx - ww / 2 - 4, wy - 4, ww + 8, wh + 4, 'gothic'); g.fill();
+      const sk = g.createLinearGradient(0, wy, 0, wy + wh); sk.addColorStop(0, '#dcecf4'); sk.addColorStop(1, '#a8c8dc'); g.fillStyle = sk; vzArchPath(g, cx - ww / 2, wy, ww, wh, 'gothic'); g.fill();
+      g.strokeStyle = '#1e1e1e'; g.lineWidth = 1.2; g.save(); vzArchPath(g, cx - ww / 2, wy, ww, wh, 'gothic'); g.clip(); for (let x = cx - ww / 2; x < cx + ww / 2; x += ww / 4){ g.beginPath(); g.moveTo(x, wy); g.lineTo(x, wy + wh); g.stroke(); } for (let y = wy + wh * 0.2; y < wy + wh; y += wh / 6){ g.beginPath(); g.moveTo(cx - ww / 2, y); g.lineTo(cx + ww / 2, y); g.stroke(); } g.restore();
+      g.fillStyle = '#efe6d2'; g.fillRect(cx - ww / 2 - 6, wy + wh, ww + 12, 4);
+      /* the painted panel and its medallion (photo 06) */
+      const py = wy + wh + vzM(0.3), ph = vzM(2.0), pw = vzM(2.2);
+      g.fillStyle = '#c9a878'; g.fillRect(cx - pw / 2, py, pw, ph); g.strokeStyle = '#8a5a3a'; g.lineWidth = 1.6; g.strokeRect(cx - pw / 2 + 3, py + 3, pw - 6, ph - 6);
+      g.strokeStyle = 'rgba(140,70,60,.45)'; g.lineWidth = 1; for (let a = 0; a < 12; a++){ const ang = a * Math.PI / 6; g.beginPath(); g.arc(cx + Math.cos(ang) * vzM(0.85), py + ph / 2 + Math.sin(ang) * vzM(0.8), vzM(0.12), 0, Math.PI * 2); g.stroke(); }
+      g.fillStyle = '#6a8ab0'; circ(g, cx, py + ph / 2, vzM(0.62)); g.fill(); g.strokeStyle = '#c9a54a'; g.lineWidth = 2; circ(g, cx, py + ph / 2, vzM(0.64)); g.stroke();
+      g.fillStyle = 'rgba(240,220,190,.9)'; ell(g, cx - vzM(0.1), py + ph / 2 - vzM(0.15), vzM(0.16), vzM(0.2)); g.fill(); g.fillStyle = 'rgba(200,120,90,.8)'; ell(g, cx, py + ph / 2 + vzM(0.22), vzM(0.32), vzM(0.24)); g.fill();
+      /* the round oculus between the bays, higher up */
+      if (k){ g.fillStyle = '#efe6d2'; circ(g, bx, wy + vzM(0.6), vzM(0.32)); g.fill(); g.fillStyle = '#c9b48a'; circ(g, bx, wy + vzM(0.6), vzM(0.24)); g.fill(); }
+    }
+    g.fillStyle = '#7a5a3a'; g.fillRect(x0, bot - vzM(0.15), x1 - x0, vzM(0.15));
+  },
+  /* the casino's salon: the green damask, the cornice, the beamed ceiling (photo 01), the crystal sconces between the windows */
+  cpdamask(g, R, x0, x1, top, bot, r){
+    g.fillStyle = '#9aa88a'; g.fillRect(x0, top, x1 - x0, bot - top);
+    const s = vzM(0.46); g.fillStyle = 'rgba(70,90,60,.22)';
+    for (let y = top + vzM(1.2), k = 0; y < bot - vzM(0.8); y += s, k++) for (let x = x0 + (k % 2) * s / 2; x < x1; x += s){ g.beginPath(); g.moveTo(x, y - s * 0.28); g.quadraticCurveTo(x + s * 0.2, y, x, y + s * 0.28); g.quadraticCurveTo(x - s * 0.2, y, x, y - s * 0.28); g.fill(); }
+    /* the beamed ceiling: light and dark planks, the gilt cornice */
+    const ce = top + vzM(0.85);
+    for (let x = x0, k = 0; x < x1; x += vzM(0.32), k++){ g.fillStyle = k % 2 ? '#d8c49a' : '#a8875a'; g.beginPath(); g.moveTo(x, top); g.lineTo(x + vzM(0.32), top); g.lineTo(x + vzM(0.32) + (x - (x0 + x1) / 2) * 0.05, ce); g.lineTo(x + (x - (x0 + x1) / 2) * 0.05, ce); g.closePath(); g.fill(); }
+    g.fillStyle = '#e8d8a8'; g.fillRect(x0, ce, x1 - x0, vzM(0.22)); g.fillStyle = '#c9a54a'; g.fillRect(x0, ce + vzM(0.22), x1 - x0, 2); g.fillStyle = 'rgba(0,0,0,.15)'; g.fillRect(x0, ce + vzM(0.22) + 2, x1 - x0, 3);
+    /* the sconces */
+    for (const fx of [4.0, 6.2, 9.8, 12.0]){ const x = R.X(fx), y = R.Y(0) - vzM(2.4); g.fillStyle = '#e8eef2'; for (const dx of [-5, 0, 5]){ g.fillRect(x + dx - 1, y - 6, 2, 6); g.fillStyle = '#fff6d8'; circ(g, x + dx, y - 7, 1.8); g.fill(); g.fillStyle = '#e8eef2'; } g.strokeStyle = 'rgba(220,230,236,.8)'; g.lineWidth = 1; g.beginPath(); g.moveTo(x - 6, y); g.quadraticCurveTo(x, y + 5, x + 6, y); g.stroke(); }
+    VZ_WALLS.wainscot(g, x0, x1, bot, '#5a6a4a', '#7a8a62');
+  },
+  /* the bookshop: rough plaster gone to brick, a low ceiling with its beam, damp at the foot */
+  cpshop(g, R, x0, x1, top, bot, r){
+    g.fillStyle = '#c9b89a'; g.fillRect(x0, top, x1 - x0, bot - top);
+    for (let k = 0; k < 7; k++) vzBrickFill(g, x0 + r() * (x1 - x0 - vzM(1.5)), top + vzM(0.8) + r() * (bot - top - vzM(2)), vzM(0.8 + r()), vzM(0.4 + r() * 0.6), '#a8644a', 2030 + k);
+    g.fillStyle = '#8a8478'; g.fillRect(x0, top, x1 - x0, vzM(0.5)); g.fillStyle = '#6a5a4a'; g.fillRect(x0, top + vzM(0.5), x1 - x0, vzM(0.25));
+    g.fillStyle = 'rgba(60,80,70,.22)'; g.fillRect(x0, bot - vzM(0.6), x1 - x0, vzM(0.6));
+    /* the pier where the shop gives onto the courtyard */
+    g.fillStyle = '#b8a888'; g.fillRect(x1 - vzM(0.35), top, vzM(0.35), bot - top); g.fillStyle = 'rgba(0,0,0,.18)'; g.fillRect(x1 - 2, top, 2, bot - top);
+  },
+  /* the courtyard: the sky, the houses across the rio and its water, the courtyard's low brick wall (the staircase of books goes up to its top) */
+  cpyardwall(g, R, x0, x1, top, bot, r){
+    const sky = g.createLinearGradient(0, top, 0, bot); sky.addColorStop(0, '#8fc0dc'); sky.addColorStop(1, '#d6e8f0'); g.fillStyle = sky; g.fillRect(x0, top, x1 - x0, bot - top);
+    const wt = R.Y(0) - vzM(2.0), wy = wt - vzM(0.5);
+    /* across the rio: a brick house, its windows, an arched water door */
+    vzBrickFill(g, x0, top + vzM(0.5), x1 - x0, wy - top - vzM(0.5), '#b4644a', 2040);
+    for (let x = x0 + vzM(0.8); x < x1 - vzM(0.6); x += vzM(1.6)){ g.fillStyle = '#efe6d2'; g.fillRect(x - 2, top + vzM(0.9) - 2, vzM(0.7) + 4, vzM(0.9) + 4); g.fillStyle = '#3a4450'; g.fillRect(x, top + vzM(0.9), vzM(0.7), vzM(0.9)); g.strokeStyle = '#1e1e1e'; g.lineWidth = 0.8; g.strokeRect(x + 2, top + vzM(0.9) + 2, vzM(0.7) - 4, vzM(0.9) - 4); }
+    g.fillStyle = '#efe6d2'; vzArchPath(g, x0 + vzM(3.0) - 3, wy - vzM(1.4) - 3, vzM(1.3) + 6, vzM(1.4) + 3, 'arch'); g.fill(); g.fillStyle = '#6a5a48'; vzArchPath(g, x0 + vzM(3.0), wy - vzM(1.4), vzM(1.3), vzM(1.4), 'arch'); g.fill();
+    /* the rio */
+    g.fillStyle = '#4f9a98'; g.fillRect(x0, wy, x1 - x0, vzM(0.5)); g.fillStyle = 'rgba(255,255,255,.35)'; for (let x = x0 + 6; x < x1; x += 14) g.fillRect(x, wy + vzM(0.2), 6, 1);
+    /* the courtyard's wall */
+    vzBrickFill(g, x0, wt, x1 - x0, bot - wt, '#9a5a3e', 2041);
+    g.fillStyle = '#e9e1d2'; g.fillRect(x0, wt - 3, x1 - x0, 4);
+    g.fillStyle = 'rgba(60,80,70,.2)'; g.fillRect(x0, bot - vzM(0.4), x1 - x0, vzM(0.4));
+  },
+});
+
+/* ---------- the rooms' things ---------- */
+/* iron lacework: a rail, scrolls, a lower rail */
+function cpLace(g, x, y, w, h){
+  g.strokeStyle = '#1e1c1a'; g.lineWidth = 1.6; g.beginPath(); g.moveTo(x, y); g.lineTo(x + w, y); g.moveTo(x, y + h); g.lineTo(x + w, y + h); g.stroke();
+  g.lineWidth = 0.9; for (let xx = x + 4; xx < x + w - 3; xx += 9){ g.beginPath(); g.arc(xx, y + h * 0.35, h * 0.2, Math.PI * 0.2, Math.PI * 1.8); g.stroke(); g.beginPath(); g.arc(xx + 4.5, y + h * 0.7, h * 0.18, Math.PI * 1.2, Math.PI * 2.8); g.stroke(); }
+}
+const CP_GOODS = { pasta:['#e8c35a', '#2e6a8e', '#e9e1cf', '#c23b2a'], biscotti:['#d9822b', '#7a4a2a', '#e8c35a', '#2e4a8a'], bibite:['#c23b2a', '#2e8a5a', '#f4b928', '#7fa8c9', '#3a2a1a'], casa:['#7fa8c9', '#fffdf8', '#9a5ad0', '#5fbf6a'] };
+/* an OFFERTA card: red, white letters, a price */
+function cpOfferta(g, x, y, w = 18, h = 11){ g.fillStyle = '#c8202e'; g.fillRect(x, y, w, h); g.fillStyle = '#fffdf6'; g.fillRect(x + 1.5, y + h * 0.55, w - 3, h * 0.38);
+  vzText(g, 'OFFERTA', x + w / 2, y + h * 0.3, '800 3.6px "Titillium Web", sans-serif', '#fffdf6', w - 2); vzText(g, '1,99', x + w / 2, y + h * 0.75, '800 4px "Titillium Web", sans-serif', '#c8202e', w - 2); }
+Object.assign(VZ_PROP_ART, {
+  /* the twin iron staircases (photo 05): up from the floor either side to the gallery, their lacework railings */
+  cpstairs:{ bg(g, p, R){
+    const b = vzWallBox(p, R), M = VZ_M, gy = R.Y(0) - vzM(3.4), foot = R.Y(0);
+    for (const side of [0, 1]){
+      const xa = side ? b.x1 - vzM(0.2) : b.x0 + vzM(0.2), xb = side ? b.x1 - vzM(2.7) : b.x0 + vzM(2.7), N = 14;
+      for (let k = 0; k < N; k++){ const t = k / N, x = xa + (xb - xa) * t, y = foot - (foot - gy) * t, sw = (xb - xa) / N;
+        g.fillStyle = '#a88a62'; g.fillRect(Math.min(x, x + sw), y - (foot - gy) / N, Math.abs(sw) + 1, (foot - gy) / N); g.fillStyle = '#c9a878'; g.fillRect(Math.min(x, x + sw), y - (foot - gy) / N, Math.abs(sw) + 1, 2); }
+      g.fillStyle = '#7a5a3a'; g.beginPath(); g.moveTo(xa, foot); g.lineTo(xb, gy); g.lineTo(xb, gy + vzM(0.35)); g.lineTo(xa, foot + 0.1); g.closePath(); g.fill();
+      /* the railing: a slanting band of lace over the steps */
+      g.save(); g.beginPath(); g.moveTo(xa, foot - vzM(0.15)); g.lineTo(xb, gy - vzM(0.15)); g.lineTo(xb, gy - vzM(1.15)); g.lineTo(xa, foot - vzM(1.15)); g.closePath(); g.clip();
+      cpLace(g, Math.min(xa, xb), gy - vzM(1.2), Math.abs(xb - xa), foot - gy + vzM(1.1)); g.restore();
+      g.strokeStyle = '#1e1c1a'; g.lineWidth = 2; g.beginPath(); g.moveTo(xa, foot - vzM(1.1)); g.lineTo(xb, gy - vzM(1.1)); g.stroke();
+      g.fillStyle = '#1e1c1a'; g.fillRect(xa - 2, foot - vzM(1.25), 4, vzM(1.25)); circ(g, xa, foot - vzM(1.3), 3); g.fill();
+    }
+  } },
+  /* the chiller cabinets (photo 04): tall, lit, glass doors, the products */
+  cpfridge:{ draw(g, p){ const { x0, x1, y0, y1, hp } = vzFloorBox(p), r = rng(77); vzShadow(g, x0, x1, y1, 4);
+    g.fillStyle = '#2a2e34'; g.fillRect(x0, y0 - hp, x1 - x0, y1 - y0); g.fillStyle = '#3a3e44'; g.fillRect(x0, y1 - hp, x1 - x0, hp);
+    const dw = vzM(0.8); for (let x = x0 + 2; x < x1 - 4; x += dw){ const w = Math.min(dw - 3, x1 - 2 - x); g.fillStyle = '#e8f2f6'; g.fillRect(x, y1 - hp + vzM(0.25), w, hp - vzM(0.45));
+      for (let k = 0; k < 5; k++){ const yy = y1 - hp + vzM(0.35 + k * 0.33); for (let xx = x + 2; xx < x + w - 3; xx += 3.5){ g.fillStyle = ['#fffdf8', '#7fa8c9', '#e8c35a', '#c23b2a', '#5fbf6a', '#2e4a8a'][Math.floor(r() * 6)]; g.fillRect(xx, yy, 2.6, vzM(0.22)); } g.fillStyle = '#9aa4aa'; g.fillRect(x, yy + vzM(0.24), w, 1); }
+      g.fillStyle = 'rgba(255,255,255,.35)'; g.fillRect(x + 2, y1 - hp + vzM(0.3), 2, hp - vzM(0.6)); g.fillStyle = '#5a6068'; g.fillRect(x + w - 3, y1 - hp + vzM(0.9), 1.6, vzM(0.5)); }
+    g.fillStyle = '#c8202e'; g.fillRect(x0, y1 - hp, x1 - x0, vzM(0.18)); cpOfferta(g, x0 + vzM(1.4), y1 - hp + vzM(1.0)); cpOfferta(g, x0 + vzM(4.0), y1 - hp + vzM(1.3)); } },
+  /* the deli counter: glass over the ham, the cheese, the olives; the scale */
+  cpdeli:{ draw(g, p){ const { x0, x1, y0, y1, hp } = vzFloorBox(p), w = x1 - x0; vzShadow(g, x0, x1, y1, 4);
+    g.fillStyle = '#e8e1d2'; g.fillRect(x0, y0 - hp, w, y1 - y0); g.fillStyle = '#7a2a2a'; g.fillRect(x0, y1 - hp + vzM(0.5), w, hp - vzM(0.5));
+    g.fillStyle = 'rgba(210,232,240,.65)'; g.fillRect(x0 + 3, y1 - hp, w - 6, vzM(0.5));
+    const items = [['#d98c8c', 0.08], ['#e8c35a', 0.25], ['#c9a46a', 0.42], ['#5a7a3a', 0.6], ['#e08a6a', 0.76]]; items.forEach(([c, f]) => { g.fillStyle = c; ell(g, x0 + w * f + 8, y1 - hp + vzM(0.3), 7, 4); g.fill(); });
+    g.fillStyle = '#fffdf8'; g.fillRect(x1 - 14, y0 - hp - 8, 10, 8); g.fillStyle = '#2b2b2b'; g.fillRect(x1 - 12, y0 - hp - 6, 6, 3);
+    vzText(g, 'GASTRONOMIA', x0 + w / 2, y1 - hp + vzM(0.78), '700 6px "Titillium Web", sans-serif', '#f6e6b4', w - 8); } },
+  /* a gondola shelf: the products in rows, an OFFERTA card */
+  cpshelf:{ draw(g, p){ const { x0, x1, y0, y1, hp } = vzFloorBox(p), r = rng(p.x * 31 + p.y * 7), cols = CP_GOODS[p.goods] || CP_GOODS.pasta; vzShadow(g, x0, x1, y1, 4);
+    g.fillStyle = '#6a5a4a'; g.fillRect(x0, y0 - hp, x1 - x0, y1 - y0);
+    for (let x = x0 + 3; x < x1 - 3; x += 4 + r() * 2){ g.fillStyle = cols[Math.floor(r() * cols.length)]; g.fillRect(x, y0 - hp + 2, 3, y1 - y0 - 4); }
+    g.fillStyle = '#3a3a3a'; g.fillRect(x0, y1 - hp, x1 - x0, hp);
+    for (let k = 0; k < 4; k++){ const yy = y1 - hp + 3 + k * (hp - 6) / 4; for (let x = x0 + 2; x < x1 - 3; x += 3.6 + r() * 2.4){ g.fillStyle = cols[Math.floor(r() * cols.length)]; g.fillRect(x, yy, 3, (hp - 6) / 4 - 2); } g.fillStyle = '#d8d2c4'; g.fillRect(x0, yy + (hp - 6) / 4 - 2, x1 - x0, 1.6); }
+    cpOfferta(g, x0 + (x1 - x0) * (0.2 + r() * 0.5), y1 - hp * 0.55, 16, 10); } },
+  cpfruit:{ draw(g, p){ const { x0, x1, y0, y1, hp } = vzFloorBox(p), w = x1 - x0, r = rng(55); vzShadow(g, x0, x1, y1, 4);
+    g.fillStyle = '#3a2e24'; g.fillRect(x0, y1 - hp, w, hp);
+    const crates = [['#d9822b', 0], ['#c23b2a', 1], ['#e8c35a', 2], ['#5fbf6a', 3], ['#7a4a6a', 4]];
+    crates.forEach(([c, k]) => { const cx0 = x0 + k * w / 5 + 1, cw = w / 5 - 2; g.fillStyle = '#b08a5a'; g.fillRect(cx0, y0 - hp, cw, y1 - y0); for (let n = 0; n < 9; n++){ g.fillStyle = shade(c, (r() - 0.5) * 0.2); circ(g, cx0 + 3 + r() * (cw - 6), y0 - hp + 3 + r() * (y1 - y0 - 6), 2.6); g.fill(); } });
+    g.strokeStyle = '#3a3a3a'; g.lineWidth = 1; g.beginPath(); g.moveTo(x0 + w * 0.5, y0 - hp); g.lineTo(x0 + w * 0.5, y0 - hp - 14); g.stroke(); cpOfferta(g, x0 + w * 0.5 - 11, y0 - hp - 26, 22, 13); } },
+  cpflowers:{ draw(g, p){ const { x0, x1, y0, y1, hp } = vzFloorBox(p), w = x1 - x0, r = rng(56); vzShadow(g, x0, x1, y1, 3);
+    for (let k = 0; k < 4; k++){ const bx = x0 + k * w / 4 + w / 8, by = y1 - 2; g.fillStyle = '#3a4a5a'; g.fillRect(bx - 7, by - 12, 14, 12); for (let n = 0; n < 9; n++){ g.fillStyle = '#3a7a3a'; g.fillRect(bx - 6 + r() * 12, by - 20 - r() * 8, 1.4, 9); g.fillStyle = ['#e0405a', '#f7c6d0', '#9a3ac0', '#e8c35a', '#fffdf8'][Math.floor(r() * 5)]; circ(g, bx - 6 + r() * 12, by - 22 - r() * 9, 2.6); g.fill(); } }
+    cpOfferta(g, x0 + w * 0.6, y0 - hp - 4, 18, 11); } },
+  cptill:{ draw(g, p){ const { x0, x1, y0, y1, hp } = vzFloorBox(p), w = x1 - x0; vzShadow(g, x0, x1, y1, 4);
+    vzBox(g, x0, x1, y0, y1, hp, '#3a3e44', '#2a2e34'); g.fillStyle = '#1e2024'; g.fillRect(x0 + 4, y0 - hp + 3, w * 0.55, y1 - y0 - 6);                  // (the belt)
+    g.fillStyle = '#d8dcd8'; g.fillRect(x1 - w * 0.3, y0 - hp - 10, w * 0.22, 10); g.fillStyle = '#2b6aa8'; g.fillRect(x1 - w * 0.28, y0 - hp - 8, w * 0.18, 5);
+    g.fillStyle = '#c8202e'; g.fillRect(x0, y1 - hp, w, 3); vzText(g, 'CASSA', x0 + w * 0.3, y1 - hp * 0.5, '700 6px "Titillium Web", sans-serif', '#e9e1cf'); } },
+  cpbaskets:{ draw(g, p){ const { x0, x1, y1, hp } = vzFloorBox(p); vzShadow(g, x0, x1, y1, 3); for (let k = 0; k < 5; k++){ g.fillStyle = k % 2 ? '#c8202e' : '#b01a28'; g.fillRect(x0 + 2, y1 - 6 - k * 5, x1 - x0 - 4, 6); } g.strokeStyle = '#3a3a3a'; g.lineWidth = 1; g.strokeRect(x0 + 4, y1 - hp, x1 - x0 - 8, 6); } },
+  /* the casino: a tall window, its white curtains caught back, the sage pelmet (photo 01) */
+  cpcurtain:{ bg(g, p, R){ const b = vzWallBox(p, R), w = b.x1 - b.x0, h = b.bot - b.top;
+    g.fillStyle = '#2a3036'; g.fillRect(b.x0 + w * 0.18, b.top + h * 0.1, w * 0.64, h * 0.9); g.fillStyle = 'rgba(70,90,120,.5)'; g.fillRect(b.x0 + w * 0.24, b.top + h * 0.2, w * 0.2, h * 0.7);
+    for (const side of [0, 1]){ g.fillStyle = '#f6f4ee'; g.beginPath(); const xa = side ? b.x1 : b.x0, xm = b.x0 + w * (side ? 0.55 : 0.45); g.moveTo(xa, b.top + h * 0.1); g.lineTo(xm, b.top + h * 0.1); g.quadraticCurveTo(xa + (side ? -w * 0.32 : w * 0.32), b.top + h * 0.5, xa + (side ? -w * 0.12 : w * 0.12), b.bot); g.lineTo(xa, b.bot); g.closePath(); g.fill();
+      g.strokeStyle = 'rgba(180,180,170,.6)'; g.lineWidth = 0.8; for (let k = 1; k < 4; k++){ g.beginPath(); g.moveTo(xa + (side ? -1 : 1) * k * w * 0.06, b.top + h * 0.12); g.quadraticCurveTo(xa + (side ? -1 : 1) * (w * 0.1 + k * 3), b.top + h * 0.6, xa + (side ? -1 : 1) * k * w * 0.03, b.bot); g.stroke(); } }
+    g.fillStyle = '#8a9a7a'; g.beginPath(); g.moveTo(b.x0 - 4, b.top); g.lineTo(b.x1 + 4, b.top); g.lineTo(b.x1 + 4, b.top + h * 0.12); for (let x = b.x1; x > b.x0; x -= w / 5) g.quadraticCurveTo(x - w / 10, b.top + h * 0.17, x - w / 5, b.top + h * 0.12); g.closePath(); g.fill();
+    g.fillStyle = '#c9a54a'; g.fillRect(b.x0 - 4, b.top, w + 8, 2); } },
+  /* a Murano chandelier hanging from the ceiling (small: the bookshop's old brass one with its candles) */
+  cpchandelier:{ bg(g, p, R){ const b = vzWallBox(p, R), cx = (b.x0 + b.x1) / 2, w = b.x1 - b.x0, top = R.Y(0) - vzM(R.wall), cy = b.top + (b.bot - b.top) * 0.5;
+    g.strokeStyle = p.small ? '#8a6a2a' : '#d8e0e4'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(cx, top); g.lineTo(cx, b.top + 2); g.stroke();
+    const glass = p.small ? '#c9a54a' : '#eef4f6', lit = '#fff6d8';
+    g.fillStyle = glass; ell(g, cx, cy, w * 0.1, (b.bot - b.top) * 0.18); g.fill();
+    for (let k = -3; k <= 3; k++){ const ax = cx + k * w * 0.14, ay = cy + Math.abs(k) * 1.5; g.strokeStyle = glass; g.lineWidth = 1.6; g.beginPath(); g.moveTo(cx, cy + 3); g.quadraticCurveTo((cx + ax) / 2, cy + 10, ax, ay); g.stroke();
+      g.fillStyle = glass; g.fillRect(ax - 1.4, ay - 7, 2.8, 7); g.fillStyle = lit; circ(g, ax, ay - 9, 2.6); g.fill(); g.fillStyle = 'rgba(255,246,216,.25)'; circ(g, ax, ay - 9, 6); g.fill(); }
+    if (!p.small){ g.fillStyle = 'rgba(238,244,246,.85)'; for (let k = 0; k < 7; k++){ ell(g, cx - w * 0.3 + k * w * 0.1, cy + 12 + (k % 2) * 3, 1.4, 3); g.fill(); } g.fillStyle = glass; for (let k = -2; k <= 2; k++){ g.fillRect(cx + k * w * 0.08 - 1, cy - (b.bot - b.top) * 0.35, 2, 8); } } } },
+  cpplaque:{ bg(g, p, R){ const b = vzWallBox(p, R), w = b.x1 - b.x0, h = b.bot - b.top; g.fillStyle = 'rgba(0,0,0,.2)'; g.fillRect(b.x0 + 2, b.top + 2, w, h); g.fillStyle = '#f2eee4'; g.fillRect(b.x0, b.top, w, h); g.strokeStyle = '#a89a7a'; g.lineWidth = 1; g.strokeRect(b.x0 + 2, b.top + 2, w - 4, h - 4);
+    vzText(g, 'RICHARD WAGNER', b.x0 + w / 2, b.top + h * 0.38, '700 4.4px "Bodoni Moda", Georgia, serif', '#4a3a2a', w - 6); vzText(g, '1813 · 1883', b.x0 + w / 2, b.top + h * 0.66, '700 4.2px "Bodoni Moda", Georgia, serif', '#4a3a2a', w - 6); } },
+  /* the roulette table (photo 01): green baize, the layout's lines, the wooden rim, the wheel under its glass dome at the east end, the chips */
+  cproulette:{ draw(g, p, R, t){ const { x0, x1, y0, y1, hp } = vzFloorBox(p), w = x1 - x0, d = y1 - y0; vzShadow(g, x0, x1, y1, 5);
+    g.fillStyle = '#3a2416'; g.fillRect(x0 + 6, y1 - hp, 5, hp); g.fillRect(x1 - 11, y1 - hp, 5, hp); g.fillRect(x0 + w * 0.5, y1 - hp, 5, hp);
+    g.fillStyle = '#6b4526'; rr(g, x0, y0 - hp, w, d, d * 0.45); g.fill(); g.fillStyle = '#7a5230'; g.fillRect(x0 + 4, y1 - hp - 3, w - 8, 6);
+    g.fillStyle = '#1f6a42'; rr(g, x0 + 5, y0 - hp + 4, w - 10, d - 8, d * 0.4); g.fill();
+    /* the layout: the numbers' grid and the outside bets */
+    const lx0 = x0 + w * 0.08, lx1 = x0 + w * 0.66, ly0 = y0 - hp + 8, ly1 = y1 - hp - 8;
+    g.strokeStyle = 'rgba(255,255,255,.7)'; g.lineWidth = 0.8; g.strokeRect(lx0, ly0, lx1 - lx0, ly1 - ly0);
+    for (let k = 1; k < 12; k++){ g.beginPath(); g.moveTo(lx0 + k * (lx1 - lx0) / 12, ly0); g.lineTo(lx0 + k * (lx1 - lx0) / 12, ly1); g.stroke(); }
+    for (let k = 1; k < 3; k++){ g.beginPath(); g.moveTo(lx0, ly0 + k * (ly1 - ly0) / 3); g.lineTo(lx1, ly0 + k * (ly1 - ly0) / 3); g.stroke(); }
+    for (let c = 0; c < 12; c++) for (let rr2 = 0; rr2 < 3; rr2++){ const n = c * 3 + 3 - rr2; g.fillStyle = CP_RED.has(n) ? 'rgba(200,40,50,.8)' : 'rgba(20,20,20,.75)'; ell(g, lx0 + (c + 0.5) * (lx1 - lx0) / 12, ly0 + (rr2 + 0.5) * (ly1 - ly0) / 3, 1.6, 1.2); g.fill(); }
+    /* chips on the baize */
+    [[0.2, 0.3, '#c23b2a'], [0.36, 0.7, '#1c3d8f'], [0.52, 0.4, '#e8c35a']].forEach(([fx, fy, c]) => { for (let k = 0; k < 3; k++){ g.fillStyle = c; ell(g, lx0 + (lx1 - lx0) * fx, ly0 + (ly1 - ly0) * fy - k * 1.6, 3.2, 1.6); g.fill(); g.strokeStyle = '#fffdf8'; g.lineWidth = 0.5; ell(g, lx0 + (lx1 - lx0) * fx, ly0 + (ly1 - ly0) * fy - k * 1.6, 3.2, 1.6); g.stroke(); } });
+    /* the wheel and its dome */
+    const wx = x0 + w * 0.82, wy = (y0 + y1) / 2 - hp, wr = d * 0.36, a = (t || 0) * 0.6;
+    g.fillStyle = '#4e321c'; ell(g, wx, wy, wr + 4, (wr + 4) * 0.62); g.fill();
+    for (let k = 0; k < 18; k++){ g.fillStyle = k % 2 ? '#c8202e' : '#1a1a1a'; g.beginPath(); g.moveTo(wx, wy); g.ellipse(wx, wy, wr, wr * 0.6, 0, a + k * Math.PI / 9, a + (k + 1) * Math.PI / 9); g.closePath(); g.fill(); }
+    g.fillStyle = '#c9a54a'; ell(g, wx, wy, wr * 0.45, wr * 0.28); g.fill(); g.fillStyle = '#8a6a2a'; g.fillRect(wx - 1, wy - wr * 0.42, 2, wr * 0.3);
+    g.fillStyle = 'rgba(220,235,240,.28)'; g.beginPath(); g.ellipse(wx, wy - 2, wr + 6, wr * 0.95, 0, Math.PI, 0); g.fill(); g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = 1; g.beginPath(); g.ellipse(wx, wy - 2, wr + 6, wr * 0.95, 0, Math.PI * 1.1, Math.PI * 1.5); g.stroke();
+    g.fillStyle = '#8a6a48'; g.fillRect(lx0 + 2, ly1 - 4, (lx1 - lx0) * 0.3, 2.2); } },        // (the rake)
+  cpcardtable:{ draw(g, p){ const { x0, x1, y0, y1, hp } = vzFloorBox(p), w = x1 - x0, d = y1 - y0; vzShadow(g, x0, x1, y1, 4);
+    for (const fx of [0.15, 0.5, 0.85]){ g.fillStyle = '#8a1a24'; rr(g, x0 + w * fx - 7, y0 - hp - 12, 14, 14, 3); g.fill(); }         // (the chairs behind)
+    g.fillStyle = '#3a2416'; g.fillRect(x0 + w * 0.48, y1 - hp, 5, hp);
+    g.fillStyle = '#6b4526'; ell(g, x0 + w / 2, (y0 + y1) / 2 - hp, w / 2, d / 2); g.fill(); g.fillStyle = '#1f6a42'; ell(g, x0 + w / 2, (y0 + y1) / 2 - hp, w / 2 - 4, d / 2 - 4); g.fill();
+    g.fillStyle = '#fffdf8'; for (let k = 0; k < 4; k++){ g.save(); g.translate(x0 + w * (0.3 + k * 0.13), (y0 + y1) / 2 - hp); g.rotate(-0.3 + k * 0.2); g.fillRect(-3, -4, 6, 8); g.restore(); } } },
+  cpvelvet:{ draw(g, p){ const { x0, x1, y0, y1, hp } = vzFloorBox(p), w = x1 - x0; vzShadow(g, x0, x1, y1, 3);
+    g.fillStyle = '#4e321c'; g.fillRect(x0 + 2, y1 - hp * 0.45, 2, hp * 0.45); g.fillRect(x1 - 4, y1 - hp * 0.45, 2, hp * 0.45);
+    g.fillStyle = '#8a1a24'; rr(g, x0, y1 - hp * 0.55, w, hp * 0.16, 2); g.fill(); g.fillStyle = '#a3222e'; rr(g, x0 + 2, y0 - hp, w - 4, hp * 0.5, 4); g.fill(); g.strokeStyle = '#5a3a22'; g.lineWidth = 1; rr(g, x0 + 2, y0 - hp, w - 4, hp * 0.5, 4); g.stroke(); } },
+  /* the bookshop: shelves to the ceiling, stuffed with books (photo 10) */
+  cpbookwall:{ bg(g, p, R, r){ const b = vzWallBox(p, R), w = b.x1 - b.x0;
+    g.fillStyle = '#6b5038'; g.fillRect(b.x0, b.top, w, b.bot - b.top);
+    for (let y = b.bot - vzM(0.05); y > b.top + vzM(0.3); y -= vzM(0.42)){ g.fillStyle = '#8a6a48'; g.fillRect(b.x0, y - 2, w, 3);
+      for (let x = b.x0 + 2; x < b.x1 - 3;){ const bw = 2.2 + r() * 2.8, bh = vzM(0.28 + r() * 0.1); g.fillStyle = ['#c23b2a', '#e8c35a', '#2e6a8e', '#f2ead8', '#5a8a3a', '#7a4a6a', '#d9822b', '#e9e1cf', '#3a4a5a'][Math.floor(r() * 9)]; g.fillRect(x, y - 2 - bh, bw, bh); x += bw + 0.4; if (r() < 0.06) x += 6; } }
+    for (let x = b.x0; x <= b.x1; x += vzM(1.3)){ g.fillStyle = '#5a4030'; g.fillRect(x, b.top, 3, b.bot - b.top); } } },
+  /* a canoe on the wall, cut open, books lying in it (the courtyard's: blue, photo 08) */
+  cpcanoe:{ bg(g, p, R){ const b = vzWallBox(p, R), cx = (b.x0 + b.x1) / 2, cy = (b.top + b.bot) / 2, w = b.x1 - b.x0, h = b.bot - b.top, col = p.blue ? '#4a8ac8' : '#b5683a';
+    g.strokeStyle = '#2a2622'; g.lineWidth = 1.4; for (const fx of [0.25, 0.75]){ g.beginPath(); g.moveTo(b.x0 + w * fx, cy); g.lineTo(b.x0 + w * fx, cy - h * 0.8); g.stroke(); }
+    g.fillStyle = 'rgba(0,0,0,.2)'; ell(g, cx + 3, cy + 3, w / 2, h * 0.42); g.fill();
+    g.fillStyle = col; g.beginPath(); g.moveTo(b.x0, cy - h * 0.15); g.quadraticCurveTo(cx, cy - h * 0.62, b.x1, cy - h * 0.15); g.quadraticCurveTo(cx, cy + h * 0.62, b.x0, cy - h * 0.15); g.fill();
+    g.fillStyle = shade(col, -0.35); ell(g, cx, cy - h * 0.12, w * 0.24, h * 0.22); g.fill();
+    for (let k = 0; k < 7; k++){ g.fillStyle = ['#e8c35a', '#c23b2a', '#f2ead8', '#2e6a8e', '#5a8a3a'][k % 5]; g.fillRect(cx - w * 0.18 + k * w * 0.05, cy - h * 0.2, w * 0.04, h * 0.12); }
+    if (p.blue){ g.fillStyle = '#f2f2ee'; for (const [fx, fy] of [[0.15, -0.1], [0.4, 0.15], [0.7, -0.05], [0.88, 0.0]]){ ell(g, b.x0 + w * fx, cy + h * fy, 2.6, 1.8); g.fill(); } } } },
+  /* the FIRE EXIT (photo 09): the opening onto the canal, a gondola moored in it, the house across the water */
+  cpfireexit:{ bg(g, p, R){ const b = vzWallBox(p, R), w = b.x1 - b.x0, h = b.bot - b.top;
+    g.save(); vzArchPath(g, b.x0, b.top, w, h, 'arch'); g.clip();
+    vzBrickFill(g, b.x0, b.top, w, h * 0.7, '#b4644a', 2050);
+    g.fillStyle = '#efe6d2'; vzArchPath(g, b.x0 + w * 0.5, b.top + h * 0.15, w * 0.4, h * 0.5, 'arch'); g.fill(); g.fillStyle = '#7a6a50'; vzArchPath(g, b.x0 + w * 0.54, b.top + h * 0.2, w * 0.32, h * 0.45, 'arch'); g.fill();
+    g.fillStyle = '#3a4450'; g.fillRect(b.x0 + w * 0.12, b.top + h * 0.25, w * 0.18, h * 0.16);
+    g.fillStyle = '#5aa8a0'; g.fillRect(b.x0, b.top + h * 0.62, w, h * 0.38); g.fillStyle = 'rgba(255,255,255,.3)'; for (let k = 0; k < 6; k++) g.fillRect(b.x0 + k * w / 6 + 3, b.top + h * (0.7 + (k % 2) * 0.12), 6, 1);
+    /* the gondola: black, its red seat, the little brass seahorse */
+    const gy = b.top + h * 0.78; g.fillStyle = '#121214'; g.beginPath(); g.moveTo(b.x0 - 4, gy - 3); g.quadraticCurveTo(b.x0 + w * 0.5, gy + h * 0.1, b.x1 + 4, gy - 6); g.lineTo(b.x1 + 4, gy + 4); g.quadraticCurveTo(b.x0 + w * 0.5, gy + h * 0.16, b.x0 - 4, gy + 6); g.closePath(); g.fill();
+    g.fillStyle = '#c8202e'; g.fillRect(b.x0 + w * 0.35, gy - 2, w * 0.3, 5); g.fillStyle = '#8a3a2a'; g.fillRect(b.x0 + w * 0.4, gy - 9, w * 0.18, 8); g.fillStyle = '#c9a54a'; circ(g, b.x0 + w * 0.66, gy - 6, 1.8); g.fill();
+    g.restore();
+    g.strokeStyle = '#d8d0c0'; g.lineWidth = 4; vzArchPath(g, b.x0, b.top, w, h, 'arch'); g.stroke();
+    /* the painted words on the jamb, the arrow */
+    g.fillStyle = '#e8e1d2'; g.fillRect(b.x0 - vzM(0.45), b.top + h * 0.3, vzM(0.4), h * 0.5);
+    vzText(g, 'FIRE', b.x0 - vzM(0.25), b.top + h * 0.42, '700 5px "Titillium Web", sans-serif', '#3a3a3a'); vzText(g, 'EXIT', b.x0 - vzM(0.25), b.top + h * 0.5, '700 5px "Titillium Web", sans-serif', '#3a3a3a');
+    g.strokeStyle = '#3a3a3a'; g.lineWidth = 1; g.beginPath(); g.moveTo(b.x0 - vzM(0.4), b.top + h * 0.58); g.lineTo(b.x0 - vzM(0.1), b.top + h * 0.58); g.lineTo(b.x0 - vzM(0.17), b.top + h * 0.55); g.stroke();
+    g.fillStyle = '#5ab0e0'; g.fillRect(b.x0 - vzM(0.4), b.top + h * 0.64, vzM(0.3), 3);
+    /* the low wooden fence across the foot */
+    for (let x = b.x0 + 4; x < b.x1 - 4; x += 7){ g.fillStyle = '#8a6038'; g.fillRect(x, b.bot - vzM(0.55), 5, vzM(0.55)); } } },
+  cpgreendoor:{ bg(g, p, R){ const b = vzWallBox(p, R), w = b.x1 - b.x0, h = b.bot - b.top;
+    g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(b.x0 + 3, b.top + 3, w, h - 3); g.fillStyle = '#3f6a4e'; g.fillRect(b.x0, b.top, w, h); g.strokeStyle = '#2a4a36'; g.lineWidth = 1.2; g.strokeRect(b.x0 + 3, b.top + 3, w - 6, h - 6);
+    vzText(g, 'ACQUA', b.x0 + w / 2, b.top + h * 0.26, '800 6.5px "Titillium Web", sans-serif', '#f0d54a', w - 3); vzText(g, 'ALTA', b.x0 + w / 2, b.top + h * 0.38, '800 6.5px "Titillium Web", sans-serif', '#f0d54a', w - 3);
+    vzText(g, 'Bookshop', b.x0 + w / 2, b.top + h * 0.52, 'italic 700 4.6px "Bodoni Moda", Georgia, serif', '#f0d54a', w - 3); vzText(g, 'ENTRANCE', b.x0 + w / 2, b.top + h * 0.72, '600 3.6px "Titillium Web", sans-serif', '#e8c35a', w - 3);
+    g.fillStyle = '#c9a54a'; circ(g, b.x0 + 3, b.top + h * 0.55, 1.4); g.fill(); } },
+  cpsign:{ bg(g, p, R){ const b = vzWallBox(p, R), w = b.x1 - b.x0, h = b.bot - b.top; g.fillStyle = 'rgba(0,0,0,.2)'; g.fillRect(b.x0 + 2, b.top + 2, w, h); g.fillStyle = '#e8dcc4'; g.fillRect(b.x0, b.top, w, h); g.strokeStyle = '#2f5a3e'; g.lineWidth = 1.4; g.strokeRect(b.x0 + 1.5, b.top + 1.5, w - 3, h - 3);
+    vzText(g, 'LIBRERIA', b.x0 + w / 2, b.top + h * 0.36, '800 4.6px "Titillium Web", sans-serif', '#2f5a3e', w - 4); vzText(g, 'ACQUA ALTA', b.x0 + w / 2, b.top + h * 0.68, '800 4.6px "Titillium Web", sans-serif', '#c23b2a', w - 4); } },
+  /* the staircase of old books in the courtyard (photo 08): six steps of books up to the wall's top, swollen, their covers peeling */
+  cpbookstairs:{ bg(g, p, R, r){ const x0 = R.X(p.x), w = vzM(p.w), y0 = R.Y(p.y), y1 = R.Y(p.y + p.d), N = 6, run = (y1 - y0) / N;
+    for (let k = N - 1; k >= 0; k--){ const z = vzM(0.3 * (k + 1)), ya = y1 - (k + 1) * run;
+      g.fillStyle = '#d8cdb6'; g.fillRect(x0, ya - z, w, run);                                                     // (the step's top: book covers)
+      for (let x = x0 + 2; x < x0 + w - 4; x += 6 + r() * 5){ g.fillStyle = ['#c9b48a', '#e9e1cf', '#8a6a48', '#c23b2a', '#2e6a8e'][Math.floor(r() * 5)]; g.fillRect(x, ya - z + 2, 5, run - 4); }
+      const fy = y1 - k * run - z, fh = vzM(0.3);
+      for (let x = x0; x < x0 + w - 1;){ const bw = 2 + r() * 3; g.fillStyle = ['#e9e1cf', '#d8cdb6', '#c23b2a', '#2e6a8e', '#e8c35a', '#5a8a3a', '#7a4a2a', '#f2ead8'][Math.floor(r() * 8)]; g.fillRect(x, fy, bw, fh); x += bw + 0.3; }
+      g.fillStyle = 'rgba(240,235,220,.55)'; for (let q = 0; q < 5; q++) g.fillRect(x0 + r() * (w - 6), fy + r() * fh, 4 + r() * 4, 1.4);         // (the peeling pages)
+      g.fillStyle = 'rgba(0,0,0,.14)'; g.fillRect(x0, fy + fh - 2, w, 2);
+      g.fillStyle = 'rgba(217,130,43,.5)'; g.fillRect(x0, fy - 1, w, 1.2);
+    } } },
+  /* the gondola full of books (photo 10) */
+  cpbookgondola:{ draw(g, p){ const { x0, x1, y0, y1, hp } = vzFloorBox(p), w = x1 - x0, r = rng(78), d = y1 - y0; vzShadow(g, x0, x1, y1, 4);
+    /* the black hull seen a little from above: its sides, the open inside heaped with books; the ferro at the bow, the stern's curl */
+    const top = y0 - hp * 0.5;
+    g.fillStyle = '#141416'; g.beginPath(); g.moveTo(x0, top + d * 0.3); g.quadraticCurveTo(x0 + w / 2, top - d * 0.25, x1, top + d * 0.15); g.lineTo(x1 - w * 0.04, y1 - 2); g.quadraticCurveTo(x0 + w / 2, y1 + d * 0.15, x0 + w * 0.04, y1 - 2); g.closePath(); g.fill();
+    g.fillStyle = '#5a4a3a'; g.beginPath(); g.ellipse(x0 + w / 2, top + d * 0.42, w * 0.44, d * 0.36, -0.02, 0, Math.PI * 2); g.fill();
+    for (let k = 0; k < 70; k++){ const u = r(), v = r(), ex = (u - 0.5) * 2, lim = Math.sqrt(Math.max(0, 1 - ex * ex)); const bx = x0 + w / 2 + ex * w * 0.4, by = top + d * 0.42 + (v - 0.5) * 2 * lim * d * 0.3;
+      g.fillStyle = ['#c23b2a', '#e8c35a', '#2e6a8e', '#f2ead8', '#5a8a3a', '#7a4a6a', '#d9822b', '#e9e1cf'][Math.floor(r() * 8)]; g.fillRect(bx - 3, by - 2 - r() * 3, 6, 3.4); }
+    g.fillStyle = 'rgba(255,255,255,.12)'; g.fillRect(x0 + w * 0.1, y1 - d * 0.22, w * 0.8, 1.4);
+    g.fillStyle = '#d8d8d0'; g.beginPath(); g.moveTo(x1 - 2, top + d * 0.12); g.lineTo(x1 + 4, top - d * 0.35); g.lineTo(x1 + 7, top - d * 0.3); g.lineTo(x1 + 2, top + d * 0.2); g.closePath(); g.fill();
+    for (let k = 0; k < 5; k++) g.fillRect(x1 - 1 - k * 1.3, top - d * 0.05 - k * 2.2, 3.4, 1.2);
+    g.strokeStyle = '#141416'; g.lineWidth = 3; g.beginPath(); g.arc(x0 + 3, top + d * 0.05, d * 0.22, Math.PI * 0.5, Math.PI * 1.7); g.stroke(); } },
+  cpbathtub:{ draw(g, p){ const { x0, x1, y0, y1, hp } = vzFloorBox(p), w = x1 - x0, r = rng(79); vzShadow(g, x0, x1, y1, 4);
+    g.fillStyle = '#8a4a3a'; g.fillRect(x0 + 4, y1 - 5, 7, 5); g.fillRect(x1 - 11, y1 - 5, 7, 5);
+    g.fillStyle = '#e8e6de'; rr(g, x0, y1 - hp - 2, w, hp, 10); g.fill();                                  // (its rolled side, then the rim and the inside seen from above)
+    g.fillStyle = '#f6f4ee'; ell(g, x0 + w / 2, y0 - hp + (y1 - y0) / 2, w / 2, (y1 - y0) / 2 + 2); g.fill();
+    g.fillStyle = '#c9c4b8'; ell(g, x0 + w / 2, y0 - hp + (y1 - y0) / 2 + 1, w / 2 - 4, (y1 - y0) / 2 - 2); g.fill();
+    g.fillStyle = '#c9a54a'; g.fillRect(x0 + 6, y0 - hp + 2, 3, 4);                                         // (the old taps)
+    g.fillStyle = 'rgba(120,80,40,.35)'; circ(g, x0 + w * 0.3, y1 - hp * 0.4, 2); g.fill(); circ(g, x0 + w * 0.7, y1 - hp * 0.5, 1.5); g.fill();      // (the rust)
+    for (let k = 0; k < 22; k++){ g.fillStyle = ['#f2ead8', '#2e4a8a', '#e8c35a', '#c23b2a', '#e9e1cf'][Math.floor(r() * 5)]; g.fillRect(x0 + 8 + r() * (w - 18), y0 - hp + 3 + r() * (y1 - y0 - 6), 6, 3); } } },
+  cpbarrel:{ draw(g, p){ const { x0, x1, y0, y1, hp } = vzFloorBox(p), cx = (x0 + x1) / 2, rx = (x1 - x0) / 2, r = rng(80); vzShadow(g, x0, x1, y1, 3);
+    g.fillStyle = '#6b4526'; g.fillRect(x0 + 1, y1 - hp - (y1 - y0) / 2, x1 - x0 - 2, hp); g.fillStyle = '#3a2a1a'; for (const f of [0.2, 0.75]) g.fillRect(x0 + 1, y1 - hp * (1 - f) - (y1 - y0) / 2, x1 - x0 - 2, 2);
+    g.fillStyle = '#8a6038'; ell(g, cx, y1 - hp - (y1 - y0) / 2, rx - 1, (y1 - y0) * 0.35); g.fill();
+    for (let k = 0; k < 10; k++){ g.fillStyle = ['#f2ead8', '#7fa8c9', '#e8c35a', '#e0405a'][Math.floor(r() * 4)]; g.fillRect(cx - rx * 0.6 + r() * rx * 1.2, y1 - hp - (y1 - y0) / 2 - 3 + r() * 4, 4, 2.4); } } },
+  cpbooktable:{ draw(g, p){ const { x0, x1, y0, y1, hp } = vzFloorBox(p), w = x1 - x0, r = rng(81); vzShadow(g, x0, x1, y1, 4);
+    g.fillStyle = '#4e321c'; g.fillRect(x0 + 3, y1 - hp, 3, hp); g.fillRect(x1 - 6, y1 - hp, 3, hp);
+    g.fillStyle = '#8a6a48'; g.fillRect(x0, y0 - hp, w, y1 - y0); g.fillStyle = '#6b4a30'; g.fillRect(x0, y1 - hp, w, 3);
+    for (let k = 0; k < 16; k++){ g.fillStyle = ['#e8c35a', '#7fa8c9', '#f2ead8', '#c23b2a', '#2e6a8e', '#d9c08a'][Math.floor(r() * 6)]; g.fillRect(x0 + 3 + r() * (w - 14), y0 - hp + 2 + r() * (y1 - y0 - 8), 10, 7); } } },
+  /* the cat (photo 11): fat, ginger and white, asleep on the books, his card PLEASE DON'T TOUCH THE CAT; his side rises and falls */
+  cpcat:{ y:(p, R) => R.byId[p.on].box.y + R.byId[p.on].box.h + 0.5, draw(g, p, R, t){
+    const host = R.byId[p.on], hp = vzM(host.h), cx = p.box.x + p.box.w * 0.45, cy = host.box.y + host.box.h * 0.45 - hp, br = 1 + Math.sin((t || 0) * 1.4) * 0.025;
+    g.fillStyle = 'rgba(30,20,10,.18)'; ell(g, cx + 2, cy + 6, 22, 5); g.fill();
+    g.save(); g.translate(cx, cy); g.scale(1, br);
+    g.fillStyle = '#fbf8f0'; ell(g, 0, 0, 20, 8.5); g.fill();
+    g.fillStyle = '#e0913e'; g.beginPath(); g.ellipse(2, -3, 15, 6.5, 0, Math.PI * 1.05, Math.PI * 1.95); g.fill(); ell(g, 10, -2, 7, 5); g.fill();
+    g.fillStyle = 'rgba(180,100,40,.5)'; for (let k = -2; k <= 2; k++) g.fillRect(k * 4, -7, 1.6, 4);
+    g.restore();
+    /* the head down on a paw, eyes shut; the tail along */
+    g.fillStyle = '#fbf8f0'; circ(g, cx - 19, cy + 1, 6.4); g.fill(); g.fillStyle = '#e0913e'; g.beginPath(); g.arc(cx - 19, cy - 1, 6.2, Math.PI * 1.0, Math.PI * 1.9); g.fill();
+    g.fillStyle = '#e0913e'; g.beginPath(); g.moveTo(cx - 24, cy - 3); g.lineTo(cx - 22, cy - 9); g.lineTo(cx - 19, cy - 4); g.fill(); g.beginPath(); g.moveTo(cx - 18, cy - 4); g.lineTo(cx - 15, cy - 9); g.lineTo(cx - 14, cy - 3); g.fill();
+    g.strokeStyle = '#5a3a2a'; g.lineWidth = 0.8; g.beginPath(); g.moveTo(cx - 22, cy + 1); g.quadraticCurveTo(cx - 20.5, cy + 2, cx - 19, cy + 1); g.moveTo(cx - 18, cy + 1); g.quadraticCurveTo(cx - 16.5, cy + 2, cx - 15, cy + 1); g.stroke();
+    g.fillStyle = '#e8a0a0'; circ(g, cx - 18.5, cy + 3.4, 0.9); g.fill();
+    g.fillStyle = '#fbf8f0'; ell(g, cx - 13, cy + 6.5, 4, 2); g.fill();
+    g.strokeStyle = '#e0913e'; g.lineWidth = 3; g.lineCap = 'round'; g.beginPath(); g.moveTo(cx + 18, cy + 3); g.quadraticCurveTo(cx + 26, cy + 6, cx + 22, cy + 9); g.stroke(); g.lineCap = 'butt';
+    if (performance.now() - cpCatWake.t < 2400){ g.fillStyle = 'rgba(90,90,120,.75)'; vzText(g, 'z', cx - 10, cy - 14 - ((performance.now() - cpCatWake.t) / 200) % 6, 'italic 700 6px sans-serif', '#5a5a7a'); }
+    /* the card: brown cardboard, the black letters */
+    const sx = cx + 8, sy = cy - 12; g.fillStyle = 'rgba(0,0,0,.2)'; g.fillRect(sx + 1.5, sy + 1.5, 16, 15); g.fillStyle = '#c9a070'; g.fillRect(sx, sy, 16, 15);
+    ['PLEASE', "DON'T", 'TOUCH', 'THE CAT'].forEach((s, k) => vzText(g, s, sx + 8, sy + 2.6 + k * 3.4, '700 2.6px "Titillium Web", sans-serif', '#1e1a16', 15));
+  } },
+  cpposters:{ draw(g, p){ const { x0, x1, y0, y1, hp } = vzFloorBox(p), w = x1 - x0; vzShadow(g, x0, x1, y1, 3);
+    g.fillStyle = '#8a6a48'; g.fillRect(x0 + 2, y1 - hp, 3, hp); g.fillRect(x1 - 5, y1 - hp, 3, hp); g.fillStyle = '#a8865e'; g.fillRect(x0, y0 - hp, w, y1 - y0); g.fillStyle = '#7a5a3a'; g.fillRect(x0, y1 - hp, w, 3);
+    g.fillStyle = '#f2ead8'; g.fillRect(x0 + 3, y0 - hp + 2, w * 0.5, y1 - y0 - 4); g.fillStyle = '#d9c08a'; g.fillRect(x0 + 5, y0 - hp + 4, w * 0.46, (y1 - y0) * 0.5); g.fillStyle = '#c23b2a'; circ(g, x0 + w * 0.28, y0 - hp + (y1 - y0) * 0.35, 3); g.fill();
+    vzText(g, 'VENEZIA LIDO', x0 + w * 0.28, y1 - hp - 5, '700 3.6px "Titillium Web", sans-serif', '#1c3d8f', w * 0.45);
+    g.fillStyle = '#2e4a8a'; g.fillRect(x0 + w * 0.56, y0 - hp + 3, w * 0.4, y1 - y0 - 6); g.fillStyle = '#e8c35a'; ell(g, x0 + w * 0.76, y0 - hp + (y1 - y0) * 0.45, 5, 3); g.fill(); } },
+  cpplant:{ draw(g, p){ const { x0, x1, y1, hp } = vzFloorBox(p), cx = (x0 + x1) / 2; vzShadow(g, x0, x1, y1, 3);
+    g.fillStyle = '#7a4a2a'; g.fillRect(cx - 8, y1 - 14, 16, 14);
+    g.strokeStyle = '#2f6a2a'; g.lineCap = 'round'; for (let k = -5; k <= 5; k++){ g.lineWidth = 3.4; g.beginPath(); g.moveTo(cx, y1 - 13); g.quadraticCurveTo(cx + k * 2.2, y1 - hp * 0.7, cx + k * 4.4, y1 - hp + Math.abs(k) * 3); g.stroke(); } g.lineCap = 'butt';
+    g.strokeStyle = '#4f8a3a'; g.lineWidth = 1; for (let k = -4; k <= 4; k += 2){ g.beginPath(); g.moveTo(cx, y1 - 13); g.quadraticCurveTo(cx + k * 2, y1 - hp * 0.7, cx + k * 4.2, y1 - hp + Math.abs(k) * 3 + 2); g.stroke(); } } },
+  cpdesk:{ draw(g, p){ const { x0, x1, y0, y1, hp } = vzFloorBox(p), w = x1 - x0, r = rng(82); vzShadow(g, x0, x1, y1, 3);
+    vzBox(g, x0, x1, y0, y1, hp, '#8a6a48', '#6b4a30'); g.fillStyle = '#2b2b2b'; g.fillRect(x0 + w * 0.6, y0 - hp - 8, w * 0.28, 8); g.fillStyle = '#7fc0a0'; g.fillRect(x0 + w * 0.62, y0 - hp - 7, w * 0.12, 3);
+    for (let k = 0; k < 5; k++){ g.fillStyle = ['#c23b2a', '#e8c35a', '#2e6a8e', '#f2ead8'][k % 4]; g.fillRect(x0 + 4, y0 - hp - 3 - k * 3, w * 0.35, 3); } } },
+});
+
+/* ---------- the roulette's panel: the wheel (European: 37 pockets) and the ball, the layout, the chips ---------- */
+const CP_WHEEL = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
+const CP_WS = { a:0, ba:0, t:0, spin0:-1 };
+function cpWheelPaint(g, W, H, st){
+  /* the felt */
+  g.fillStyle = '#1e5a3c'; g.fillRect(0, 0, W, H);
+  g.fillStyle = 'rgba(255,255,255,.035)'; for (let y = 0; y < H; y += 6) g.fillRect(0, y, W, 1);
+  /* the wheel: it turns slowly always, fast while spinning; the ball runs the other way, slows, drops into its pocket */
+  const cx = 150, cy = 172, R0 = 132, step = Math.PI * 2 / 37, now = st.t;
+  const dt = Math.min(0.05, Math.max(0, now - (CP_WS.t || now))); CP_WS.t = now;
+  if (st.spinning){ const k = st.k; CP_WS.a += dt * (0.4 + 7 * (1 - k) * (1 - k)); }
+  else CP_WS.a += dt * 0.35;
+  g.fillStyle = 'rgba(0,0,0,.3)'; circ(g, cx + 4, cy + 6, R0 + 6); g.fill();
+  g.fillStyle = '#5a3a22'; circ(g, cx, cy, R0 + 4); g.fill(); g.fillStyle = '#7a5230'; circ(g, cx, cy, R0 - 6); g.fill();
+  g.fillStyle = '#3a2416'; circ(g, cx, cy, R0 - 18); g.fill();
+  const pr0 = R0 - 22, pr1 = R0 - 58;
+  for (let i = 0; i < 37; i++){ const n = CP_WHEEL[i], a0 = CP_WS.a + i * step - step / 2;
+    g.fillStyle = n === 0 ? '#1f8a4a' : CP_RED.has(n) ? '#c8202e' : '#1a1a1a';
+    g.beginPath(); g.arc(cx, cy, pr0, a0, a0 + step); g.arc(cx, cy, pr1, a0 + step, a0, true); g.closePath(); g.fill();
+    g.strokeStyle = '#c9a54a'; g.lineWidth = 1; g.beginPath(); g.moveTo(cx + Math.cos(a0) * pr1, cy + Math.sin(a0) * pr1); g.lineTo(cx + Math.cos(a0) * pr0, cy + Math.sin(a0) * pr0); g.stroke();
+    g.save(); g.translate(cx + Math.cos(a0 + step / 2) * (pr0 - 9), cy + Math.sin(a0 + step / 2) * (pr0 - 9)); g.rotate(a0 + step / 2 + Math.PI / 2);
+    g.fillStyle = '#fffdf6'; g.font = '700 9px "Titillium Web", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(n), 0, 0); g.restore(); }
+  /* the cone and the turret */
+  const cg = g.createRadialGradient(cx - 14, cy - 14, 6, cx, cy, pr1); cg.addColorStop(0, '#d8b46a'); cg.addColorStop(1, '#7a5230'); g.fillStyle = cg; circ(g, cx, cy, pr1); g.fill();
+  g.fillStyle = '#c9a54a'; circ(g, cx, cy, 14); g.fill(); g.strokeStyle = '#c9a54a'; g.lineWidth = 4; for (let k = 0; k < 4; k++){ const a = CP_WS.a * 1 + k * Math.PI / 2; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + Math.cos(a) * 34, cy + Math.sin(a) * 34); g.stroke(); }
+  g.fillStyle = '#efd78a'; circ(g, cx, cy, 6); g.fill();
+  /* the ball */
+  let ba, br;
+  if (st.n !== null && st.n !== undefined && (st.spinning || st.landed)){
+    const pi = CP_WHEEL.indexOf(st.n), pocket = CP_WS.a + pi * step, k = st.spinning ? st.k : 1;
+    if (k < 0.78){ CP_WS.ba -= dt * (3 + 11 * (1 - k)); ba = CP_WS.ba; br = R0 - 12; }
+    else { const u = Math.min(1, (k - 0.78) / 0.22), e = u * u * (3 - 2 * u); let d = ((pocket - CP_WS.ba) % (Math.PI * 2) + Math.PI * 3) % (Math.PI * 2) - Math.PI; ba = CP_WS.ba + d * e; if (u >= 1) CP_WS.ba = pocket; br = (R0 - 12) + ((pr0 + pr1) / 2 + 6 - (R0 - 12)) * e; }
+    if (!st.spinning){ ba = pocket; br = (pr0 + pr1) / 2 + 6; }
+  } else { ba = -Math.PI / 2; br = R0 - 12; CP_WS.ba = ba; }
+  g.fillStyle = 'rgba(0,0,0,.35)'; circ(g, cx + Math.cos(ba) * br + 1.5, cy + Math.sin(ba) * br + 2, 6); g.fill();
+  const bg2 = g.createRadialGradient(cx + Math.cos(ba) * br - 2, cy + Math.sin(ba) * br - 2, 1, cx + Math.cos(ba) * br, cy + Math.sin(ba) * br, 6); bg2.addColorStop(0, '#ffffff'); bg2.addColorStop(1, '#c8c8c0'); g.fillStyle = bg2; circ(g, cx + Math.cos(ba) * br, cy + Math.sin(ba) * br, 5.5); g.fill();
+  /* the layout: 0 on top, 1–36 in three columns, the outside bets */
+  const lx = 318, ly = 18, cw = 46, ch = 22, cols = 3;
+  const cell = (x, y, w, h, fill, txt, hl, tcol = '#fffdf6') => { g.fillStyle = fill; g.fillRect(x, y, w, h); g.strokeStyle = 'rgba(255,255,255,.75)'; g.lineWidth = 1; g.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
+    if (txt) vzText(g, txt, x + w / 2, y + h / 2 + 0.5, '700 12px "Titillium Web", sans-serif', tcol, w - 4);
+    if (hl){ g.strokeStyle = '#f4d35a'; g.lineWidth = 3; g.strokeRect(x + 2, y + 2, w - 4, h - 4); } };
+  const resN = st.dolly ? st.n : null;
+  cell(lx, ly, cw * cols, ch, '#1f8a4a', '0', resN === 0);
+  const pos = {};
+  for (let r = 0; r < 12; r++) for (let c = 0; c < 3; c++){ const n = r * 3 + c + 1, x = lx + c * cw, y = ly + ch + r * ch; pos[n] = { x:x + cw / 2, y:y + ch / 2 };
+    cell(x, y, cw, ch, '#1e5a3c', String(n), resN === n, CP_RED.has(n) ? '#ff6a72' : '#fffdf6'); }
+  pos[0] = { x:lx + cw * 1.5, y:ly + ch / 2 };
+  const ox = lx + cw * cols + 8, ow = 76, oh = (ch * 13) / 4;
+  const outs = [['pari', 'PARI', '#1e5a3c'], ['rosso', '', '#c8202e'], ['nero', '', '#1a1a1a'], ['dispari', 'DISPARI', '#1e5a3c']];
+  const opos = {};
+  outs.forEach(([k, txt, col], i) => { const y = ly + i * oh; const win = resN !== null && CP_BETS[k].win(resN);
+    cell(ox, y, ow, oh, '#1e5a3c', txt, win); if (!txt){ g.fillStyle = col; g.beginPath(); g.moveTo(ox + ow / 2, y + 10); g.lineTo(ox + ow - 14, y + oh / 2); g.lineTo(ox + ow / 2, y + oh - 10); g.lineTo(ox + 14, y + oh / 2); g.closePath(); g.fill(); g.strokeStyle = '#fffdf6'; g.lineWidth = 1; g.stroke(); }
+    opos[k] = { x:ox + ow / 2, y:y + oh / 2 }; });
+  /* the player's chip on the bet */
+  const chip = (x, y, col = '#e8c35a', lab = '') => { g.fillStyle = 'rgba(0,0,0,.35)'; circ(g, x + 1.5, y + 2, 10); g.fill(); g.fillStyle = col; circ(g, x, y, 10); g.fill(); g.strokeStyle = '#fffdf6'; g.lineWidth = 2; g.setLineDash([3, 3]); circ(g, x, y, 8); g.stroke(); g.setLineDash([]);
+    if (lab) vzText(g, lab, x, y + 0.5, '800 8px "Titillium Web", sans-serif', '#3a2a10'); };
+  const betAt = st.bet ? (st.bet === 'diciassette' ? pos[17] : opos[st.bet]) : null;
+  if (betAt && (st.staked || (st.chips && st.chips.win))) chip(betAt.x + 8, betAt.y - 4, '#e8c35a', '1');
+  /* the dolly on the number called, once it has been understood */
+  if (resN !== null && pos[resN]){ const q = pos[resN]; g.fillStyle = 'rgba(0,0,0,.35)'; ell(g, q.x + 1, q.y + 3, 7, 3); g.fill(); g.fillStyle = '#f6f4ee'; g.fillRect(q.x - 3, q.y - 12, 6, 12); g.fillStyle = '#c9a54a'; circ(g, q.x, q.y - 13, 4.5); g.fill(); }
+  /* the chips: pushed to you (a win) or raked away (a loss), over 0.9 s; then your stack */
+  const sx = 34, sy = H - 26;
+  if (st.chips && betAt){ const u = Math.min(1, (performance.now() - st.chips.t0) / 900), e = u * u * (3 - 2 * u);
+    if (st.chips.win){ for (let k = 0; k < Math.min(6, st.chips.n); k++){ const fx = betAt.x + (sx - betAt.x) * Math.min(1, e * (1 + k * 0.08)), fy = betAt.y + (sy - k * 3 - betAt.y) * Math.min(1, e * (1 + k * 0.08)); chip(fx, fy, '#e8c35a'); } }
+    else if (u < 1){ chip(betAt.x + (W / 2 - betAt.x) * e, betAt.y + (-20 - betAt.y) * e, '#e8c35a'); } }
+  { const n = Math.min(12, st.fiches || 0); for (let k = 0; k < n; k++){ g.fillStyle = '#c9a54a'; ell(g, sx, sy - k * 3, 12, 5); g.fill(); g.strokeStyle = '#fffdf6'; g.lineWidth = 1; ell(g, sx, sy - k * 3, 12, 5); g.stroke(); }
+    g.fillStyle = 'rgba(0,0,0,.45)'; rr(g, sx + 18, sy - 12, 96, 20, 6); g.fill(); vzText(g, `Fiches: ${st.fiches || 0}`, sx + 66, sy - 2, '700 12px "Titillium Web", sans-serif', '#f6e6b4'); }
+  /* the call, written, once understood (the dolly is down) */
+  if (resN !== null){ g.fillStyle = 'rgba(0,0,0,.5)'; rr(g, cx - 82, 10, 164, 26, 7); g.fill(); vzText(g, cpCall(resN).replace(/!$/, ''), cx, 24, '700 13px "Titillium Web", sans-serif', resN === 0 ? '#7fe0a0' : CP_RED.has(resN) ? '#ff8a90' : '#fffdf6', 156); }
+  else if (st.spinning){ g.fillStyle = 'rgba(0,0,0,.45)'; rr(g, cx - 60, 10, 120, 24, 7); g.fill(); vzText(g, st.k > 0.3 ? 'Rien ne va plus!' : 'La ruota gira…', cx, 23, 'italic 700 12px "Bodoni Moda", Georgia, serif', '#f6e6b4', 112); }
 }
 
 /* ===== engine/boot.js ===== */
