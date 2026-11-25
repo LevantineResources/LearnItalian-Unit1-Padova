@@ -1,0 +1,16 @@
+{
+ "unit": "roma",
+ "unitNo": 3,
+ "title": "Roma",
+ "saveKey": "piazza-roma-1",
+ "finishedBy": null,
+ "lessons": [],
+ "quests": [],
+ "districts": [],
+ "nodes": [],
+ "side": [],
+ "replayNodes": true,
+ "name": "Roma",
+ "blurb": "Piazze, fountains, steps: the five districts to walk, the sights and their stories, the metro.",
+ "note": "Test drive only so far: the city to walk, no lessons yet."
+}

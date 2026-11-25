@@ -2003,7 +2003,12 @@ body.phonecam .tpad .tp-act,body.phonecam .tpad .tp-phone,body.phonecam .tpad .t
 .tp-phone svg{width:24px;height:24px}
 .tpad.phone-on .tp-phone{opacity:1;visibility:visible;transition:opacity .18s ease}
 .tpad .tp-side>.tp-phone{pointer-events:auto;touch-action:manipulation}
+
+/* the game build (ui/home.js): the replay's badge, the home menu */
+.replay-badge{position:fixed;left:50%;transform:translateX(-50%);bottom:8px;z-index:60;background:var(--giallo);color:var(--inchiostro);font:700 12px/1 'Titillium Web',sans-serif;padding:6px 11px;border-radius:999px;box-shadow:0 2px 6px rgba(0,0,0,.3);pointer-events:none;letter-spacing:.03em;white-space:nowrap}
+.home-cta{flex-wrap:wrap}
 </style>
+<script>window.PIAZZA_GAME = {"home":"../index.html","unit":"padova"};</script>
 </head>
 <body>
 <div id="app">
@@ -2041,6 +2046,10 @@ body.phonecam .tpad .tp-act,body.phonecam .tpad .tp-phone,body.phonecam .tpad .t
         <span class="lbl">Map</span><kbd>M</kbd>
       </button>
       <button id="btnSound" class="tool" aria-pressed="true" title="Italian voice on/off"></button>
+      <!-- the game build only (ui/home.js: the home screen, the save files) -->
+      <button id="btnHome" class="tool" hidden title="Home: the save files and the units" aria-label="Home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>
+      </button>
       <button id="btnReset" class="tool" title="Start over">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
       </button>
@@ -2155,6 +2164,10 @@ const PICTURE_REGIONS = {};
    world over while it plays (who is where, the objective, the talk) and must win over the tree's nodes and the lessons (Venezia: District 1's
    capstone at the Rialto). Each guards itself: it answers only while its beat is on. */
 const STORY_HOOKS = [];
+/* SIDE_STORIES: what a unit has besides its lessons, quests and tree nodes that the home screen counts (core/progress.js; ui/home.js
+   __gameManifest): { id, title, en?, done:<a rule on the save: { path:'a.b', eq? } | { lesson:n } | { lessonAtLeast:n } | { any | all:[…] }> }.
+   A rule, not a function: the home screen reads the save without the unit's code. Venezia's: il pozzo, le maschere e i gatti, the roulette… */
+const SIDE_STORIES = [];
 /* hooks(): the story beats' first (STORY_HOOKS), the skill tree's nodes with hooks of their own (core/tree.js treeHooks: open or done nodes;
    each guards itself), then the lessons', the quests', and the scripted conversations' (conversation/script.js CS_HOOK: only a conversation a
    script opened) */
@@ -2201,6 +2214,7 @@ Object.assign(UNIT, {
   id:'padova', title:'Piazza', unitNo:1,
   saveKey:'piazza-lezione-1',                         // never change it: players keep their saves
   start:{ scene:'piazza', x:480, y:520, tut:'walk' },
+  finishedBy:{ lesson:15 },                          // the home screen: Unit 1 is finished (Venezia opens) with Lesson 15 done (engine core/progress.js)
   friend:{ id:'mark', name:'Mark' },                  // Lesson 5: Ti presento il mio amico Mark; the companion of the typed scripts
   properNames:['mille', 'aurora', 'gattamelata', 'mark'],
   /* Padova's own fields in a new save (FRESH(), engine/core/state.js): Lessons 1–6's flags and records */
@@ -6139,6 +6153,150 @@ NPCS.push(
     .forEach(id => { const n = NPCS.find(x => x.id === id); NPC[id] = n; n.home = { x:n.x, y:n.y, face:{ ...n.baseFace } }; n.face = { ...n.baseFace }; });
 }
 
+/* ===== engine/core/slots.js ===== */
+/* Save files: the whole-game build's three slots (docs/features/home-screen.md; the home screen is game/home.js, the unit's side ui/home.js).
+   A slot is a set of the units' save keys: slot 1 is each unit's own key (UNIT.saveKey: Padova's piazza-lezione-1, so every save made before
+   the home screen is slot 1's), slot n the same key + ':s<n>'. A replay (the home screen's Skip to…) runs on a key of its own, the slot's key
+   + ':replay', thrown away when the player goes home: the slot's real save is never touched.
+   A page learns its slot from its URL (?slot=2, &name=… for a new game, &replay=1 for a replay the home screen asked for in
+   localStorage SLOT_REPLAY), or, in the game build only (window.PIAZZA_GAME, set by scripts/build.js game), from the small key the home
+   screen sets as it opens a unit (SLOT_HANDOFF, a minute's worth) or from this tab's last one (sessionStorage: a reload). With no slot
+   (a unit's page opened on its own) nothing changes: KEY is UNIT.saveKey, as before. */
+const GAME = (typeof window === 'object' && window && window.PIAZZA_GAME) || null;        // { home:'../index.html', unit } in the game build
+const SLOT_HANDOFF = 'piazza-game-open', SLOT_META = 'piazza-game-meta', SLOT_REPLAY = 'piazza-game-replay', SLOT_N = 3;
+const SLOT = (() => {
+  let q = {}; try { q = Object.fromEntries(new URLSearchParams((typeof location === 'object' && location && location.search) || '')); } catch (e){}
+  let n = +q.slot || 0, name = q.name || '', replay = q.replay === '1';
+  const get = (st, k) => { try { return JSON.parse(st.getItem(k) || 'null'); } catch (e){ return null; } };
+  if (GAME){
+    const h = typeof localStorage === 'object' ? get(localStorage, SLOT_HANDOFF) : null;
+    if (h){ try { localStorage.removeItem(SLOT_HANDOFF); } catch (e){} }      // (used once, whether the address kept its query or not)
+    if (!n && h && Date.now() - (+h.at || 0) < 60000 && (!h.unit || h.unit === UNIT.id)){ n = +h.slot || 0; name = name || h.name || ''; replay = replay || !!h.replay; }
+    const s = !n && typeof sessionStorage === 'object' ? get(sessionStorage, SLOT_HANDOFF) : null;
+    if (s && s.unit === UNIT.id){ n = +s.slot || 0; replay = !!s.replay; }
+  }
+  if (!(n >= 1 && n <= SLOT_N)) return null;
+  let R = null;
+  if (replay){ R = typeof localStorage === 'object' ? get(localStorage, SLOT_REPLAY) : null; if (!R || +R.slot !== n || R.unit !== UNIT.id) R = null; }
+  try { if (GAME) sessionStorage.setItem(SLOT_HANDOFF, JSON.stringify({ unit:UNIT.id, slot:n, replay:!!R })); } catch (e){}
+  return { n, name:String(name).slice(0, 14), replay:R };
+})();
+/* a unit's key in this page's slot (its own, slot 1, when there is none) */
+const slotBase = base => !SLOT || SLOT.n === 1 ? base : base + ':s' + SLOT.n;
+const slotKey = base => slotBase(base) + (SLOT && SLOT.replay ? ':replay' : '');
+/* the slot's record for the home screen (last played, the unit it was in): written as the game saves, at most every 10 s */
+let slotTouched = 0;
+function slotTouch(){
+  if (!SLOT || SLOT.replay || Date.now() - slotTouched < 10000) return;
+  slotTouched = Date.now();
+  try { const M = JSON.parse(localStorage.getItem(SLOT_META) || '{}') || {}; M[SLOT.n] = { unit:UNIT.id, at:Date.now() }; localStorage.setItem(SLOT_META, JSON.stringify(M)); } catch (e){}
+}
+
+/* ===== engine/core/progress.js ===== */
+/* How far a save is into a unit, from the save alone (the whole-game build's home screen: docs/features/home-screen.md). A pure
+   function: no game state, only the unit's manifest (what the unit has: window.__gameManifest() in ui/home.js, written by
+   `node scripts/build.js game`) and the save as stored (localStorage, JSON). The home screen (game/home.js) loads this very file
+   (scripts/build.js inlines it into dist/game/index.html), so the page and the units count the same way; in a unit's bundle it is
+   only used by window.__progressCheck() (ui/home.js: the pure count beside the game's own lessonCompleted / treeState, for the tests).
+
+   The manifest: { unit, unitNo, saveKey, finishedBy:<rule> | null, lessons:[{ n, title, done:[tut] }], quests:[{ id, n, title }],
+     nodes:[{ id, title, parent, depth, district, lesson, quest, continues, soon }], districts:[ids], side:[{ id, title, done:<rule> }] }.
+   A rule (side stories, finishedBy): { path:'a.b.c', eq? } (truthy, or equal), { lesson:n } (completed), { lessonAtLeast:n } (reached),
+     { any:[rules] }, { all:[rules] }.
+   What counts (one each: the weight): every lesson, every quest, every tree node that is not a lesson's or a quest's own node and not a
+   "coming soon" stub, every side story. A unit never opened (no save) counts 0. */
+const PROGRESS = (() => {
+  /* the save that counts: a unit's own replay keeps the real one aside (Padova's S.replay.home, lessons/15-venezia/unit.js) */
+  const real = S0 => { if (!S0 || typeof S0 !== 'object') return null;
+    if (S0.replay && typeof S0.replay.home === 'string') try { const h = JSON.parse(S0.replay.home); if (h && typeof h === 'object') return h; } catch (e){}
+    return S0; };
+  const at = (o, path) => String(path).split('.').reduce((a, k) => a == null ? undefined : a[k], o);
+  function lessonDone(M, S, n){
+    const L = M.lessons.find(l => l.n === n); if (!L || !S) return false;
+    const cur = +S.lesson || 1;
+    return cur > n || (cur === n && (L.done || []).includes(S.tut));
+  }
+  const questDone = (S, id) => !!(S && S.quests && S.quests[id] && S.quests[id].done);
+  function rule(M, S, r){
+    if (!r || !S) return false;
+    if (r.any) return r.any.some(x => rule(M, S, x));
+    if (r.all) return r.all.every(x => rule(M, S, x));
+    if (r.lesson) return lessonDone(M, S, r.lesson);
+    if (r.lessonAtLeast) return (+S.lesson || 1) >= r.lessonAtLeast;
+    if (r.path){ const v = at(S, r.path); return 'eq' in r ? v === r.eq : !!v; }
+    return false;
+  }
+  const node = (M, id) => M.nodes.find(n => n.id === id) || null;
+  function nodeDone(M, S, n){
+    if (!n || !S) return false;
+    return !!(S.tree && S.tree.done && S.tree.done[n.id]) || (!!n.lesson && lessonDone(M, S, n.lesson)) || (!!n.quest && questDone(S, n.quest));
+  }
+  /* the Albero's gate (core/tree.js treeGate): levels 1–2 of a district done; the next district opens with it */
+  function districtOpen(M, S, d, open){
+    if (open) return true;
+    const i = M.districts.indexOf(d); if (i <= 0) return i === 0;
+    const ns = M.nodes.filter(n => n.district === M.districts[i - 1] && n.depth <= 2);
+    return ns.length > 0 && ns.every(n => nodeDone(M, S, n));
+  }
+  /* open or done (core/tree.js treeState); o.open: designer mode (every district and core node open; a node still waits for its parent) */
+  function nodeReached(M, S, n, o = {}){
+    if (!S || !n) return false;
+    if (nodeDone(M, S, n)) return true;
+    if (n.parent){ if (!nodeDone(M, S, node(M, n.parent))) return false; }
+    else if (!districtOpen(M, S, n.district, o.open)) return false;
+    if (n.continues && !nodeDone(M, S, node(M, n.continues))) return false;
+    if (!o.open && n.lesson && (+S.lesson || 1) < n.lesson) return false;
+    return true;
+  }
+  /* every item that counts: [{ kind:'lesson' | 'quest' | 'node' | 'side', id, title }] */
+  function items(M){
+    return [
+      ...M.lessons.map(l => ({ kind:'lesson', id:'l' + l.n, n:l.n, title:l.title })),
+      ...M.quests.map(q => ({ kind:'quest', id:'q:' + q.id, qid:q.id, title:q.title })),
+      ...M.nodes.filter(n => !n.lesson && !n.quest && !n.soon).map(n => ({ kind:'node', id:'t:' + n.id, nid:n.id, title:n.title })),
+      ...(M.side || []).map(s => ({ kind:'side', id:'s:' + s.id, sid:s.id, title:s.title })),
+    ];
+  }
+  function isDone(M, S, it){
+    if (it.kind === 'lesson') return lessonDone(M, S, it.n);
+    if (it.kind === 'quest') return questDone(S, it.qid);
+    if (it.kind === 'node') return nodeDone(M, S, node(M, it.nid));
+    if (it.kind === 'side') return rule(M, S, (M.side.find(s => s.id === it.sid) || {}).done);
+    return false;
+  }
+  /* a unit's count from its stored save: { done, total, pct, ids (done), finished } */
+  function unit(M, S0){
+    const S = real(S0), all = items(M), ids = S ? all.filter(it => isDone(M, S, it)).map(it => it.id) : [];
+    const total = all.length, done = ids.length;
+    const finished = !!S && (M.finishedBy ? rule(M, S, M.finishedBy) : total > 0 && done === total);
+    return { done, total, pct:total ? Math.round(100 * done / total) : 0, ids, finished };
+  }
+  /* the whole game: every unit's count added up (one item, one weight) */
+  function game(Ms, saves){
+    const per = Ms.map(M => ({ unit:M.unit, ...unit(M, saves[M.unit]) }));
+    const done = per.reduce((a, u) => a + u.done, 0), total = per.reduce((a, u) => a + u.total, 0);
+    return { done, total, pct:total ? Math.floor(100 * done / total) : 0, units:per };
+  }
+  /* where a save is: { lesson, title, done (that lesson completed) } */
+  function where(M, S0){
+    const S = real(S0); if (!S) return null;
+    const n = +S.lesson || 1, L = M.lessons.find(l => l.n === n);
+    return { lesson:L ? n : null, title:L ? L.title : '', done:L ? lessonDone(M, S, n) : false, tut:S.tut || '' };
+  }
+  /* what a save can skip to (the home screen's replays): its lessons completed or current, its tree's nodes open or done, in order */
+  function reached(M, S0, o = {}){
+    const S = real(S0); if (!S && !o.open) return [];
+    const cur = S ? +S.lesson || 1 : 0;
+    return [
+      ...M.lessons.filter(l => o.open || l.n <= cur).map(l => ({ kind:'lesson', n:l.n, title:l.title, done:lessonDone(M, S, l.n) })),
+      ...M.nodes.filter(n => !n.lesson && !n.quest && !n.soon && (S ? nodeReached(M, S, n, o) : !n.parent))
+        .map(n => ({ kind:'node', id:n.id, title:n.title, depth:n.depth, district:n.district, done:nodeDone(M, S, n) })),
+    ];
+  }
+  return { unit, game, items, where, reached, real, rule, lessonDone, nodeDone, nodeReached };
+})();
+if (typeof module === 'object' && module && module.exports) module.exports = PROGRESS;      // (Node: the tests, scripts/build.js)
+
 /* ===== engine/core/state.js ===== */
 /* Constants, the save state S (FRESH), persistence, and who is where (sceneOf, activeNpcs, followers). */
 
@@ -6146,8 +6304,8 @@ NPCS.push(
    ENGINE
    ========================================================= */
 const W = 960, H = 600, NEAR = 58;
-let KEY = UNIT.saveKey;          // each unit saves under its own key (units/<id>/unit.js); a unit may switch to a slot of its own (useSaveKey: Venezia's test drive)
-function useSaveKey(k){ KEY = k || UNIT.saveKey; return KEY; }
+let KEY = slotKey(UNIT.saveKey);          // each unit saves under its own key (units/<id>/unit.js), in the page's save file (core/slots.js: slot 1 is the key itself); a unit may switch to a key of its own (useSaveKey: Venezia's test drive)
+function useSaveKey(k){ KEY = !k || k === UNIT.saveKey ? slotKey(UNIT.saveKey) : k; return KEY; }
 const DPR = Math.min(2, window.devicePixelRatio || 1);
 /* the canvas's resolution: its px per W × H unit. DPR, or (a unit with UNIT.sharpCanvas: Venezia) the canvas's CSS scale times the
    device's pixel ratio, so a canvas shown larger than 960 × 600 is drawn at the screen's own resolution, not upscaled
@@ -6198,7 +6356,7 @@ window.__debug = {
 const player = { x:480, y:520, face:{x:0,y:-1}, moving:false, walk:0, body:'#1c3d8f', hair:'#5a3a22', skin:'#e2b08a', isPlayer:true };
 NPCS.forEach(n => { n.home = { x:n.x, y:n.y, face:{...n.baseFace} }; n.face = {...n.baseFace}; });
 
-function save(){ questHooksBust(); S.px = player.x; S.py = player.y; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
+function save(){ questHooksBust(); S.px = player.x; S.py = player.y; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} if (KEY === slotKey(UNIT.saveKey)) slotTouch(); }
 function loadSaved(){ try { const raw = localStorage.getItem(KEY); if (raw){ const d = JSON.parse(raw); if (d && d.v === 1 && d.playerName) return d; } } catch(e){} return null; }
 window.claude?.hot?.snapshot?.(() => ({ S:{...S, px:player.x, py:player.y} }));
 
@@ -7083,7 +7241,7 @@ function designerMarkDone(n, o = {}){
   save(); renderHUD(); lastGuide = ''; renderGuide();
   if (typeof fastKnown === 'function') fastKnown();
   if (typeof treeRefresh === 'function') treeRefresh();
-  toast(`<b>Designer</b> · Lezione ${n}${n > 1 ? ` (and every lesson before it)` : ''} marked complete.`);
+  if (!o.quiet) toast(`<b>Designer</b> · Lezione ${n}${n > 1 ? ` (and every lesson before it)` : ''} marked complete.`);      // (quiet: a replay's set-up, ui/home.js)
   return true;
 }
 /* where the player is left: the unit's choice, or where they stand (the same scene, a free spot), or the scene's spawn, or a free spot */
@@ -7117,14 +7275,21 @@ function designerReset(n){
 function designerNodeDone(id, o = {}){
   const n = treeNode(id); if (!n || treeIsDone(n)) return false;
   designerQuiet();
-  if (n.parent && !treeIsDone(treeNode(n.parent))) designerNodeDone(n.parent, { inner:true });
-  if (n.lesson){ designerMarkDone(n.lesson, { stay:o.inner }); return treeIsDone(n); }
+  if (n.parent && !treeIsDone(treeNode(n.parent))) designerNodeDone(n.parent, { inner:true, quiet:o.quiet });
+  if (n.lesson){ designerMarkDone(n.lesson, { stay:o.inner, quiet:o.quiet }); return treeIsDone(n); }
   designerStudyDone(id, { inner:true });
   treeBegin(id);
   if (n.hooks && n.hooks.markDone) n.hooks.markDone();
   treeDone(id, { force:true, quiet:!!o.inner });
   save(); renderHUD(); if (typeof treeRefresh === 'function') treeRefresh();
   return true;
+}
+/* a replay of node n (the game build's home screen: ui/home.js slotReplay): its parents marked complete, quietly, so n is open and not begun;
+   a lesson parent's player left where its Mark as complete puts them (UNIT.designerPlace: Venezia's Lesson 5 at the Erberia, District 2's start) */
+function replayOpenNode(n){
+  const p = n && n.parent ? treeNode(n.parent) : null; if (!p) return false;
+  if (p.lesson) designerMarkDone(p.lesson, { quiet:true }); else designerNodeDone(p.id, { inner:true, quiet:true });
+  return treeState(n) === 'open';
 }
 function designerStudyDone(id, o = {}){
   const n = treeNode(id); if (!n || !n.study) return false;
@@ -8242,6 +8407,8 @@ $('#btnTypeDict').onclick = () => { openDict(); setTimeout(() => $('#dictSearch'
                  tell a companion in English what someone said (the player translates for them): an English choice (one option, or two or three
                  with one right: shuffled once; a wrong pick replays the line slowly and asks again, the third is answered); or a choice (no a)
      { do(C) }   a step of the unit's (it may change the world; the conversation goes on)
+     { await(C) → promise }   a step of the unit's that takes time (a wheel spinning, a door opening): run once the lines before it are shown,
+                 the conversation goes on when its promise settles (a value or nothing: at once)
      { picture:id, title?, kicker?, caption?, alt? }   a picture card over the conversation (ui/cards.js openPictureCard: PICTURES[id], the
                  unit's image): click, Space or Enter goes on
      { photo:id | null, title?, caption?, highlight? (a region name or [names]), hold? }   the photo panel (ui/photopanel.js): a photo kept open
@@ -8416,6 +8583,8 @@ function csRun(){
     return;
   }
   if (b.do){ try { b.do(C); } catch(e){ console.error(e); } csAdvance(); return; }
+  if (b.await){ C.waiting = b; enqueue(() => { if (!convo || convo.sc !== C) return; let p = null; try { p = b.await(C); } catch(e){ console.error(e); }
+      Promise.resolve(p).catch(e => console.error(e)).then(() => { if (convo && convo.sc === C && C.waiting === b){ C.waiting = null; csAdvance(); } }); }); return; }
   if (b.end){ const R = csRec(C.spec); R.at[C.name] = 'done'; save(); if (b.then) try { b.then(); } catch(e){ console.error(e); } if (C.cv.done) try { C.cv.done(); } catch(e){ console.error(e); }
     if (b.goto && C.spec.convos[b.goto]){ enqueue(() => { if (convo && convo.sc === C) scriptOpen(C.spec.id, b.goto); }); return; }      // (goto: the next conversation goes on in the same dialog)
     csEnded(); return; }
@@ -9202,7 +9371,7 @@ CS_HOOK = {
   hint:n => csHintFor(n),
 };
 dbgField('script', () => { const C = convo && convo.sc; return C ? { id:C.spec.id, convo:C.name, i:C.i, beat:C.beat ? (C.opt ? C.opt.id : C.cv.beats[C.i] && C.cv.beats[C.i].id) : null,
-  kind:C.ask ? 'ask' : C.check ? 'check' : C.tell ? 'tell' : C.picture ? 'picture' : C.board ? (C.board.move ? 'move' : C.board.pickup ? 'pickup' : 'fill') : C.press ? 'press' : C.beat ? 'sayit' : C.cv.beats[C.i] ? Object.keys(C.cv.beats[C.i]).find(k => ['say', 'next', 'ask', 'end', 'do'].includes(k)) || null : 'done', option:C.opt ? C.opt.id : null,
+  kind:C.ask ? 'ask' : C.check ? 'check' : C.tell ? 'tell' : C.picture ? 'picture' : C.board ? (C.board.move ? 'move' : C.board.pickup ? 'pickup' : 'fill') : C.press ? 'press' : C.beat ? 'sayit' : C.cv.beats[C.i] ? Object.keys(C.cv.beats[C.i]).find(k => ['say', 'next', 'ask', 'end', 'do', 'await'].includes(k)) || null : 'done', option:C.opt ? C.opt.id : null,
   busy:displayBusy() || !!convoBusy,
   checkRight:C.check ? fill(C.check.check.options[C.check.check.a]) : null, checks:C.checks ? { ...C.checks } : {},
   tellRight:C.tell && C.tell.tell.a !== undefined ? fill(csTellLabel(C.tell.tell.options[C.tell.tell.a])) : null, tellOptions:C.tell ? C.tell.tell.options.map(o => fill(csTellLabel(o))) : null, tells:C.tells ? { ...C.tells } : {},
@@ -27364,7 +27533,8 @@ function unitRender(){
       <div class="u-choices">
         <button class="u-choice primary" data-unit="free"><b>Free play in Padova</b><span>Back to the piazza: every place, the quests you haven't done, Studio, fast travel.</span></button>
         <button class="u-choice" data-unit="replay"><b>Replay a lesson</b><span>Any lesson, from its start. Your game is kept. <i>Hard mode: coming soon.</i></span></button>
-        <div class="u-choice soon" aria-disabled="true"><b>Unit 2 · Venezia</b><span>Margaret, Biscuit, il signor Bepi… and the calli of Venice. <i>Coming soon.</i></span></div>
+        ${GAME ? `<button class="u-choice" data-unit="venezia"><b>Unit 2 · Venezia</b><span>Margaret, Biscuit, il signor Bepi… and the calli of Venice. <i>Open now: through the home screen.</i></span></button>`
+          : `<div class="u-choice soon" aria-disabled="true"><b>Unit 2 · Venezia</b><span>Margaret, Biscuit, il signor Bepi… and the calli of Venice. <i>Coming soon.</i></span></div>`}
       </div>
       ${said ? `<h3>This morning, in your Italian</h3><div class="l13-said">${said}</div>` : ''}
     </div>`;
@@ -27377,6 +27547,7 @@ document.addEventListener('click', e => {
     if (k === 'free') unitFreePlay();
     else if (k === 'replay'){ UNIT_DONE.view = 'replay'; unitRender(); }
     else if (k === 'back'){ UNIT_DONE.view = 'main'; unitRender(); }
+    else if (k === 'venezia') gameHome({ go:'venezia' });      // (the game build: the home screen, Unit 2 open in this save file: engine ui/home.js)
     return; }
   const r = e.target.closest('[data-replay]'); if (r) replayLesson(+r.dataset.replay);
 });
@@ -31494,12 +31665,14 @@ hooks().filter(h => h.n > (UNIT.skips || []).length && h.start).forEach(h => {
   const b = document.createElement('button'); b.type = 'button'; b.className = 'linkbtn'; b.textContent = 'Lezione ' + h.n; b.dataset.jump = h.n;
   b.onclick = () => jumpTo(h.n); row.append(', ', b);
 });
-$('#btnContinue').onclick = () => {
-  const saved = loadSaved(); if (!saved) return;
+function continueSaved(){
+  const saved = loadSaved(); if (!saved) return false;
   S = Object.assign(FRESH(), saved); player.x = S.px; player.y = S.py;
   restoreAux();
   startGame();
-};
+  return true;
+}
+$('#btnContinue').onclick = () => { continueSaved(); };
 function restoreAux(){
   PX = freshPXAll();
   unitHook('restore');                            // (the unit's repairs of an older save: Padova's Lessons 1–6)
@@ -31509,6 +31682,101 @@ function restoreAux(){
   cutsceneRestore();                              // saved during a cutscene: control back, a lesson may restart it (world/cutscene.js)
 }
 function startGame(){ introOpen = false; $('#intro').hidden = true; renderHUD(); lastGuide = ''; renderGuide(); }
+
+/* ===== engine/ui/home.js ===== */
+/* The unit's side of the game build's home screen (docs/features/home-screen.md; the home screen itself: game/home.js; the slots: core/slots.js).
+   - In a save file (SLOT), the page goes straight in (slotBoot, from boot.js): the slot's save continued, else a new game with the name the home
+     screen passed (&name=…: a new save file starts Padova's Lesson 1 so; a unit opened for the first time takes the name of the slot's other
+     units), else the unit's own intro as before.
+   - A replay (the home screen's Skip to…: SLOT.replay = { slot, unit, kind:'lesson' | 'node', n | id, name, fresh }) runs on the slot's replay
+     key (core/slots.js), set up the way the intro's skip links and designer mode's Mark as complete do it: a lesson from its start, every lesson
+     before it skipped (Padova's #btnJump2…6, else jumpTo(n)); a node of the Albero open (its parents marked complete: core/designer.js replayOpenNode), its
+     panel shown. The badge says "Replay: progress here isn't kept"; going home throws the key away.
+   - In the game build (GAME), the header's ⌂ (#btnHome) opens the menu: Home · Save files.
+   - window.__gameManifest(): what the unit has, for the home screen's count (scripts/build.js game evaluates the bundle in a Node vm, as
+     scripts/unit1-words.js does, and writes it into the home screen); window.__progressCheck(): the pure count (core/progress.js) of the save
+     in play beside the game's own lessonCompleted / questPeek / treeIsDone (the tests compare them). */
+
+/* ---------- going home ---------- */
+function gameHomeURL(o = {}){
+  if (!GAME) return null;
+  const q = []; if (SLOT) q.push('slot=' + SLOT.n); if (o.go) q.push('go=' + encodeURIComponent(o.go));
+  return GAME.home + (q.length ? '?' + q.join('&') : '') + (o.saves ? '#saves' : '');
+}
+function gameHome(o = {}){
+  const url = gameHomeURL(o); if (!url) return false;
+  if (SLOT && SLOT.replay){ try { localStorage.removeItem(KEY); localStorage.removeItem(SLOT_REPLAY); } catch (e){} }      // (the replay: thrown away)
+  else if (!introOpen && S.playerName) save();
+  try { sessionStorage.removeItem(SLOT_HANDOFF); } catch (e){}
+  window.__homeNav = url;                                   // (the tests read where it went)
+  location.href = url;
+  return true;
+}
+function openHomeMenu(){
+  if (!GAME) return;
+  openModal('small home-menu');
+  const where = SLOT ? `Save ${SLOT.n}${SLOT.replay ? ' · a replay' : ''}` : 'No save file: this unit on its own';
+  sheet.innerHTML = `
+    <div class="sheet-head"><div><p class="kicker">${esc(where)}</p><h2>Piazza</h2></div><button class="x" data-close aria-label="Close">×</button></div>
+    <div class="sheet-body">${SLOT && SLOT.replay ? '<p>This is a replay: progress here isn\'t kept. Your save file is as you left it.</p>' : '<p>Your progress is saved as you play.</p>'}
+      <div class="cta home-cta"><button class="btn primary" id="homeGo" type="button">⌂ Home</button><button class="btn" id="homeSaves" type="button">Save files</button><button class="btn" data-close type="button">Back to the game</button></div></div>`;
+  $('#homeGo').onclick = () => gameHome();
+  $('#homeSaves').onclick = () => gameHome({ saves:true });
+}
+{ const b = document.getElementById('btnHome'); if (b){ b.hidden = !GAME; b.onclick = () => openHomeMenu(); } }
+/* the replay's badge (as designer mode's: a pill on the screen while it lasts) */
+if (SLOT && SLOT.replay){ const b = document.createElement('div'); b.id = 'replayBadge'; b.className = 'replay-badge'; b.textContent = 'Replay: progress here isn\'t kept'; document.body.appendChild(b); }
+
+/* ---------- straight in ---------- */
+function slotBoot(){
+  if (!SLOT) return false;
+  const R = SLOT.replay;
+  if (R && R.fresh){ R.fresh = false; try { localStorage.setItem(SLOT_REPLAY, JSON.stringify(R)); localStorage.removeItem(KEY); } catch (e){} return slotReplay(R); }
+  if (continueSaved()) return true;
+  const name = sanitizeName(SLOT.name || (R && R.name) || '');
+  if (name){ $('#nameInput').value = name; newGame(); save(); startGame(); return true; }
+  return false;
+}
+function slotReplay(R){
+  $('#nameInput').value = sanitizeName(R.name || '') || 'Alex';
+  if (R.kind === 'node'){
+    const n = treeNode(R.id);
+    newGame(); startGame();
+    if (n && typeof replayOpenNode === 'function') replayOpenNode(n);       // (core/designer.js: not in a release build, where the home screen offers no node)
+    save();
+    if (n) setTimeout(() => { if (!modalOpen && !dialogOpen) openAlbero(n.id); }, 900);
+  } else {
+    const k = +R.n || 1, b = document.getElementById('btnJump' + k);
+    if (k > 1 && b) b.click();
+    else if (k > 1 && hookFor(k) && hookFor(k).start) jumpTo(k);
+    else { newGame(); startGame(); }
+  }
+  save();
+  setTimeout(() => toast('<b>Replay</b> · progress here isn\'t kept: your save file is as you left it.'), 1200);
+  return true;
+}
+
+/* ---------- what the unit has (the home screen's manifest) ---------- */
+window.__gameManifest = () => ({
+  unit:UNIT.id, unitNo:UNIT.unitNo || 0, title:UNIT.title, saveKey:UNIT.saveKey, finishedBy:UNIT.finishedBy || null,
+  lessons:LESSONS.map((L, i) => ({ n:i + 1, title:L.title, done:[DONE_TUTS[i + 1] || (hookFor(i + 1) || {}).doneTut].filter(Boolean), placeholder:!!L.placeholder }))
+    .filter(L => !L.placeholder).map(({ placeholder, ...L }) => L),
+  quests:QUESTS.map(q => ({ id:q.id, n:q.n, title:q.title_it })),
+  districts:TREE.map(D => D.id),
+  nodes:treeNodes().map(n => ({ id:n.id, title:n.title, parent:n.parent || null, depth:n.depth, district:n.district, lesson:n.lesson || null,
+    quest:n.quest || null, continues:n.continues || null, soon:!!(n.soon || n.placeholder) })),
+  side:SIDE_STORIES.map(s => ({ id:s.id, title:s.title, en:s.en || '', done:s.done })),
+  replayNodes:typeof replayOpenNode === 'function',
+});
+/* the pure count of the save in play beside the game's own (tests: the two must agree) */
+window.__progressCheck = () => {
+  const M = window.__gameManifest(), saved = JSON.parse(JSON.stringify(S)), pure = PROGRESS.unit(M, saved), ids = new Set(pure.ids);
+  const game = PROGRESS.items(M).filter(it => it.kind === 'lesson' ? lessonCompleted(it.n) : it.kind === 'quest' ? !!(questPeek(it.qid) || {}).done
+    : it.kind === 'node' ? treeIsDone(treeNode(it.nid)) : ids.has(it.id)).map(it => it.id);
+  const reached = PROGRESS.reached(M, saved).filter(r => r.kind === 'node').map(r => r.id), open = treeNodes().filter(n => !n.lesson && !n.quest && !n.soon && treeState(n) !== 'locked').map(n => n.id);
+  return { pure:pure.ids, game, agree:pure.ids.join() === game.join(), reached, open, reachedAgree:reached.join() === open.join(), pct:pure.pct, key:KEY, slot:SLOT ? { n:SLOT.n, replay:!!SLOT.replay } : null };
+};
+dbgField('slot', () => ({ game:!!GAME, slot:SLOT ? SLOT.n : null, replay:SLOT && SLOT.replay ? { kind:SLOT.replay.kind, n:SLOT.replay.n, id:SLOT.replay.id } : null, key:KEY, home:gameHomeURL() }));
 
 /* ===== engine/ui/keyboard.js ===== */
 /* Keyboard controls. */
@@ -38894,7 +39162,7 @@ function start(data){
     S = Object.assign(FRESH(), data.S); player.x = S.px; player.y = S.py;
     restoreAux();
     startGame();
-  } else showIntro();
+  } else if (!slotBoot()) showIntro();          // (in a save file of the game build: straight in, ui/home.js)
 }
 window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
 

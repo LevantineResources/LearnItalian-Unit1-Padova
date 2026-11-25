@@ -1,0 +1,416 @@
+{
+ "unit": "venezia",
+ "unitNo": 2,
+ "title": "Venezia",
+ "saveKey": "piazza-venezia-1",
+ "finishedBy": null,
+ "lessons": [
+  {
+   "n": 1,
+   "title": "Benvenuti",
+   "done": [
+    "v1-done"
+   ]
+  },
+  {
+   "n": 2,
+   "title": "Che cosa faceva?",
+   "done": [
+    "v2-done"
+   ]
+  },
+  {
+   "n": 3,
+   "title": "Da bambina",
+   "done": [
+    "v3-done"
+   ]
+  },
+  {
+   "n": 4,
+   "title": "Il Rialto all’alba",
+   "done": [
+    "v4-done"
+   ]
+  },
+  {
+   "n": 5,
+   "title": "Acqua alta",
+   "done": [
+    "v5-done"
+   ]
+  }
+ ],
+ "quests": [],
+ "districts": [
+  1,
+  2
+ ],
+ "nodes": [
+  {
+   "id": "v3",
+   "title": "Da bambina",
+   "parent": null,
+   "depth": 1,
+   "district": 1,
+   "lesson": 3,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  },
+  {
+   "id": "a2",
+   "title": "Le date",
+   "parent": "v3",
+   "depth": 2,
+   "district": 1,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  },
+  {
+   "id": "famiglia",
+   "title": "L'album",
+   "parent": "v3",
+   "depth": 2,
+   "district": 1,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  },
+  {
+   "id": "c2",
+   "title": "Il viso",
+   "parent": "v3",
+   "depth": 2,
+   "district": 1,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  },
+  {
+   "id": "c3a",
+   "title": "La giacca",
+   "parent": "c2",
+   "depth": 3,
+   "district": 1,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  },
+  {
+   "id": "c3b",
+   "title": "Il ristorante",
+   "parent": "c2",
+   "depth": 3,
+   "district": 1,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  },
+  {
+   "id": "c4b",
+   "title": "La luce della sera",
+   "parent": "c3a",
+   "depth": 4,
+   "district": 1,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  },
+  {
+   "id": "lepanto",
+   "title": "Lepanto",
+   "parent": "a2",
+   "depth": 3,
+   "district": 1,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  },
+  {
+   "id": "notte66",
+   "title": "La notte del '66",
+   "parent": "a2",
+   "depth": 3,
+   "district": 1,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  },
+  {
+   "id": "arsenale",
+   "title": "La storia dell'Arsenale",
+   "parent": "lepanto",
+   "depth": 4,
+   "district": 1,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  },
+  {
+   "id": "domani",
+   "title": "E domani?",
+   "parent": "notte66",
+   "depth": 4,
+   "district": 1,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  },
+  {
+   "id": "registro",
+   "title": "Il registro",
+   "parent": "famiglia",
+   "depth": 3,
+   "district": 1,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  },
+  {
+   "id": "primoamore",
+   "title": "Il primo amore",
+   "parent": "famiglia",
+   "depth": 3,
+   "district": 1,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  },
+  {
+   "id": "v4",
+   "title": "Il Rialto all'alba",
+   "parent": null,
+   "depth": 1,
+   "district": 2,
+   "lesson": 4,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  },
+  {
+   "id": "v5",
+   "title": "Acqua alta",
+   "parent": null,
+   "depth": 1,
+   "district": 2,
+   "lesson": 5,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  },
+  {
+   "id": "d2-a2",
+   "title": "Al banco",
+   "parent": "v5",
+   "depth": 2,
+   "district": 2,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  },
+  {
+   "id": "d2-a3a",
+   "title": "La spesa per la festa",
+   "parent": "d2-a2",
+   "depth": 3,
+   "district": 2,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  },
+  {
+   "id": "d2-a4a",
+   "title": "In cucina a Sant'Erasmo",
+   "parent": "d2-a3a",
+   "depth": 4,
+   "district": 2,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  },
+  {
+   "id": "d2-a3b",
+   "title": "Bepi e le lire",
+   "parent": "d2-a2",
+   "depth": 3,
+   "district": 2,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  },
+  {
+   "id": "d2-a4b",
+   "title": "Bepi viene alla festa",
+   "parent": "d2-a3b",
+   "depth": 4,
+   "district": 2,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  },
+  {
+   "id": "d2-b2",
+   "title": "L'annuncio",
+   "parent": "v5",
+   "depth": 2,
+   "district": 2,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  },
+  {
+   "id": "d2-b3a",
+   "title": "Le pulizie",
+   "parent": "d2-b2",
+   "depth": 3,
+   "district": 2,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  },
+  {
+   "id": "d2-b4a",
+   "title": "L'ispezione",
+   "parent": "d2-b3a",
+   "depth": 4,
+   "district": 2,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  },
+  {
+   "id": "d2-b3b",
+   "title": "A Ca' Foscari",
+   "parent": "d2-b2",
+   "depth": 3,
+   "district": 2,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  },
+  {
+   "id": "d2-c2",
+   "title": "Nel laboratorio",
+   "parent": "v5",
+   "depth": 2,
+   "district": 2,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  },
+  {
+   "id": "d2-c3a",
+   "title": "Il borseggiatore",
+   "parent": "d2-c2",
+   "depth": 3,
+   "district": 2,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  },
+  {
+   "id": "d2-c4a",
+   "title": "La stanza dei falsi",
+   "parent": "d2-c3a",
+   "depth": 4,
+   "district": 2,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  },
+  {
+   "id": "d2-c3b",
+   "title": "Lo squero",
+   "parent": "d2-c2",
+   "depth": 3,
+   "district": 2,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  },
+  {
+   "id": "d2-c4b",
+   "title": "All'ospedale",
+   "parent": "d2-c3b",
+   "depth": 4,
+   "district": 2,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "soon": false
+  }
+ ],
+ "side": [
+  {
+   "id": "rialto",
+   "title": "Il Ponte di Rialto",
+   "en": "District 1's capstone",
+   "done": {
+    "any": [
+     {
+      "path": "d1r.step",
+      "eq": "fatto"
+     },
+     {
+      "lessonAtLeast": 4
+     }
+    ]
+   }
+  },
+  {
+   "id": "pozzo",
+   "title": "Il pozzo",
+   "en": "The wells and the old map",
+   "done": {
+    "path": "pozzo.outfit"
+   }
+  },
+  {
+   "id": "gatti",
+   "title": "Le maschere e i gatti",
+   "en": "Nane's census of the cats",
+   "done": {
+    "path": "gatti.given"
+   }
+  },
+  {
+   "id": "roulette",
+   "title": "La roulette",
+   "en": "The Casinò and il tricorno",
+   "done": {
+    "path": "cplaces.casino.given"
+   }
+  }
+ ],
+ "replayNodes": true,
+ "name": "Venezia",
+ "blurb": "Campi, calli, bridges: the city's four districts, the vaporetto, the Albero (the skill tree) and its stories.",
+ "note": ""
+}
