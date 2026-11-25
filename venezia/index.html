@@ -2279,6 +2279,8 @@ body.phonecam .tpad .tp-act,body.phonecam .tpad .tp-phone,body.phonecam .tpad .t
 .hb-notes #hbn-gt-censimento{grid-template-columns:1fr}
 .hb-notes #hbn-gt-censimento .gt-grid{grid-template-columns:repeat(6,minmax(0,1fr))}
 @media (max-width:640px){ .hb-notes #hbn-gt-censimento .gt-grid{grid-template-columns:repeat(3,minmax(0,1fr))} }
+/* the plaque on Tintoretto's tomb (world/xplaces.js): the English under its words */
+.xp-plaque .xp-en{margin:0 0 8px;text-align:center;color:#4a4236}
 </style>
 </head>
 <body>
@@ -36382,7 +36384,7 @@ Object.assign(window.__debug, {
    candles). Each kind's furniture is drawn by render/roomprops.js (and render/interiors.js for the kinds the first rooms had).
      VZ_ROOMS[key] = vzRoomKind(kind, { title, sub, door, seed, dress?, district?, names?, w?, d?, people?, props?, omit?, set? })
    - kind: bacaro, shop, flat, office, museum (VZ_ROOM_KINDS);
-   - dress: a dressing of that kind (VZ_ROOM_DRESS[kind][dress]: bacaro 'castello'; shop 'sarto' (the tailor) or 'merceria'; flat
+   - dress: a dressing of that kind (VZ_ROOM_DRESS[kind][dress]: bacaro 'castello'; shop 'sarto' (the tailor), 'merceria' or 'forno' (a bakery); flat
      'veneziano' (an old Venetian's kitchen-living room); office 'sacrestia' (a church's sacristy) or 'ufficio'; museum 'navale');
    - people: { npcId:{ x, y, approach?, talk?, post? } } in metres, as every room's (world/interiors.js); props: more props; omit: ids
      to leave out; set: { id:{ …changes } } (a prop's text, its view, its lines);
@@ -36476,6 +36478,18 @@ const VZ_ROOM_DRESS = {
       { id:'diploma', kind:'painting', wall:true, from:'giacca', x:4.8, w:1.1, z:2.05, h:0.6, scene:'diploma', it:'il diploma', en:'the diploma: tailors since 1921' },
     ] }),
     merceria:o => ({ props:[] }),
+    /* a bakery (Irene's, Cannaregio: world/xplaces.js): the bread on the shelves, the counter with its glass case of pastries and the till, the
+       oven in the wall, the chalkboard, the flour; drawn as the Mercerie's bakery's things (render/interiors.js) */
+    forno:o => ({ omit:['scaffale', 'specchio', 'banco', 'sedia'], props:[
+      { id:'pane', kind:'shelves', x:0.3, y:0, w:4.6, d:0.45, h:2.1, it:'il pane', en:'the bread, on the shelves: loaves, rolls, grissini' },
+      { id:'forno', kind:'oven', wall:true, x:6.2, w:1.3, z:0.35, h:1.4, it:'il forno', en:'the oven' },
+      { id:'lavagna', kind:'chalkboard', wall:true, x:7.75, w:1.0, z:1.3, h:1.0, lines:['Pane 3,20', 'Bussolai 2,50', 'Fritole 1,20', 'San Martin 4,00'], it:'la lavagna', en:'the chalkboard: the prices' },
+      { id:'bancone', word:'banco', kind:'counter', x:1.0, y:2.3, w:5.0, d:0.8, h:1.15, glass:[0.15, 3.0], it:'il banco', en:'the counter' },
+      { id:'dolci', kind:'none', on:'bancone', x:1.15, y:2.3, w:2.85, d:0.8, h:1.15, solid:false, it:'i dolci', en:'the pastries',
+        msg:'<b>I dolci</b> · under the glass: bussolài, baìcoli, fritole, a focaccia veneziana.' },
+      { id:'cassa', kind:'till', on:'bancone', x:5.25, y:2.4, w:0.5, d:0.4, h:1.45, solid:false, it:'la cassa', en:'the till' },
+      { id:'farina', kind:'sacks', x:0.3, y:4.9, w:0.9, d:0.9, h:0.75, it:'la farina', en:'the flour (sacks of it)' },
+    ] }),
   },
   flat:{
     /* an old Venetian's flat: a lace runner on the dresser, the photo of a regatta, a calendar, a rug under the table; the table laid */
@@ -36511,7 +36525,7 @@ const VZ_ROOM_DRESS = {
 function vzRoomKind(kind, o = {}){
   const K = VZ_ROOM_KINDS[kind]; if (!K) throw new Error('no room kind ' + kind);
   const R = K(o), D = o.dress && (VZ_ROOM_DRESS[kind] || {})[o.dress] ? VZ_ROOM_DRESS[kind][o.dress](o) : { props:[] };
-  const set = { ...(D.set || {}), ...(o.set || {}) }, omit = new Set(o.omit || []);
+  const set = { ...(D.set || {}), ...(o.set || {}) }, omit = new Set([...(D.omit || []), ...(o.omit || [])]);
   R.props = [...R.props, ...(D.props || []), ...(o.props || [])].filter(p => !omit.has(p.id)).map(p => set[p.id] ? { ...p, ...set[p.id] } : { ...p });
   /* (a thing on another goes after its host: drawn after it, reached before it) */
   const ids = new Set(R.props.map(p => p.id)); R.props = R.props.filter(p => !p.on || ids.has(p.on));
@@ -41871,6 +41885,251 @@ Object.assign(window.__debug, {
     const en = []; ['cpcasino', 'cpl'].forEach(id => Object.values(CONVO_SCRIPTS[id].convos).forEach(c => c.beats.forEach(b => { const ss = [b.sayit, ...((b.next && b.next.options) || [])].filter(Boolean);
       ss.forEach(s => en.push({ en:s.en, hint:s.hint, strong:s.strong, label:s.label })); if (b.check) en.push({ en:b.check.prompt, opts:(Array.isArray(b.check.options) ? b.check.options : []).join(' | ') }); if (b.next) en.push({ en:b.next.prompt }); })));
     return { casino:of('cpcasino'), cpl:of('cpl'), en }; },
+});
+
+/* ===== units/venezia/world/xplaces.js ===== */
+/* Four more places for District 3's branches (the designer's brief of 25 Nov: docs/lessons/venezia/scripts/d3/x-places-2-brief.md; as built:
+   docs/venezia-world.md "Cannaregio's places" (the bakery, the Madonna dell'Orto) and docs/venezia-san-marco.md "As built (District 1's places)"
+   (the statue, the Pietà)). The places only, their people a placeholder line each (ambient: E · their line); the branches' stories come later.
+   - Il Panificio Vianello, Irene's bakery (branch C): a shopfront facing the camera on the Rio Terà San Leonardo, a step east of the Ghetto's
+     sottoportego (the house at sketch cells 19–21, row 26: its own shop window, door and planter taken off, the front drawn over its ground
+     floor: render/xplaces.js VZ_PROP.xpforno); the room vz-xp-forno (the shop kind dressed as a bakery: the bread on the shelves, the counter
+     with its glass case of pastries, the oven, the chalkboard, the tall glass case of cakes and the San Martino biscuits on top). Irene (about 20,
+     behind the counter) and her father the baker (Lei).
+   - La Madonna dell'Orto (a landmark already: lm 'orto', poi p13): a door in its portal; the room vz-xp-orto (the 'chiesa' kind as a base: the
+     Greek marble columns, the pews, the apse with the high altar, Tintoretto's two huge canvases either side of it, the Contarini chapel on the
+     left, the Tintoretto chapel on the right of the choir with his bust and THE PLAQUE: E · Leggi → its words in Italian, the English under);
+     the sacristan (Lei). The front's look: its history card (CP_CARDS.orto, world/cplaces.js shows it).
+   - Il monumento a Vittorio Emanuele II (Ettore Ferrari, 1887) on the Riva degli Schiavoni: in the Arsenale stretch (District 1, San Marco's own
+     east end: VZ_DISTRICT.arsenale), between San Marco's gate (the Ponte del Vin's side) and the Pietà, as on the real Riva (Ponte del Vin, the
+     monument, the Ponte de la Pietà, the church); a solid prop (render/xplaces.js VZ_PROP.xpvittorio), its look the history card.
+   - La Pietà (a landmark of the stretch already: lm 'pieta', poi p3, drawn by render/d1places.js): a door in its portal; the room vz-xp-pieta (the
+     oval hall, white and gold, the choir galleries with their grilles, the high altar, Tiepolo's ceiling, chairs for a concert); the custodian
+     (Lei). The front's look: its history card (VZ_D1_CARDS.pieta, world/d1places.js shows it).
+   No sketch changes: the doors and the props are put on at the districts' building (vzUse), as world/d1places.js and world/cplaces.js do; San
+   Marco's converter output (its fingerprint) untouched (nothing here runs in San Marco), Cannaregio's and the stretch's outputs unchanged too.
+   Saved: S.xplaces (lazy): { seen:{ place:time }, plaque:n }.
+   Tests: tests/venezia/places-d3.js; __dbg().xplaces, __debug.xpGo(where, { inside, prop }), xpCard(id), xpPlaces(). */
+
+const XP_ROOMS = { forno:'vz-xp-forno', orto:'vz-xp-orto', pieta:'vz-xp-pieta' };
+const XP_DOORS = { forno:'xp-forno', orto:'xp-orto', pieta:'xp-pieta' };
+/* where each is (its district; the forno's house: a point on its front, sketch cells; the statue: its middle, metres in the stretch) */
+const XP_AT = {
+  forno:{ district:'cannaregio', at:[20.0, 27], name:'Il Panificio Vianello', label:'Entra' },
+  orto:{ district:'cannaregio', lm:'orto', poi:'p13', name:"La Madonna dell'Orto", label:'Entra' },
+  pieta:{ district:'arsenale', lm:'pieta', poi:'p3', name:'La Pietà', label:'Entra' },
+  statua:{ district:'arsenale', m:[14.5, 92.4], r:2.2, name:'Vittorio Emanuele II' },
+};
+function xpRec(){ if (!S.xplaces || typeof S.xplaces !== 'object') S.xplaces = { seen:{}, plaque:0 }; const R = S.xplaces; R.seen = R.seen || {}; return R; }
+const xpPeek = () => S.xplaces && typeof S.xplaces === 'object' ? S.xplaces : null;
+
+/* ---------- the people: placeholders, a line each (ambient: E says it; the ones behind their counters are talked to first) ---------- */
+const xpNpc = o => Object.assign({ ambient:true, talkFirst:true, baseFace:{ x:0, y:1 }, answerHow:{ it:'Bene, grazie.', en:'Fine, thanks.' }, greet:{ it:'Buongiorno', en:'Good morning' },
+  agenda:[], revisitAgenda:[], promptOffset:{ x:0, y:26 }, x:-999, y:-999, xp:true }, o);
+const XP_NPCS = [
+  xpNpc({ id:'xp-irene', name:'Irene', where:'the baker’s daughter, behind the counter', scene:XP_ROOMS.forno, district:'cannaregio', place:'Il Panificio Vianello', formal:false,
+    body:'#d2697a', legs:'#2e3a4a', hair:'#5a3320', longHair:true, skin:'#f0c9a8', apron:'#fffdf8', pron:['She', 'her'], pitch:1.14,
+    says:{ it:'Buongiorno! Il pane è appena sfornato… e ci sono ancora i San Martino!', en:'Good morning! The bread is just out of the oven… and there are still some San Martino biscuits!' } }),
+  xpNpc({ id:'xp-fornaio', name:'Il fornaio', where:'Irene’s father, the baker, by the oven', scene:XP_ROOMS.forno, district:'cannaregio', place:'Il Panificio Vianello', formal:true,
+    body:'#fffdf8', legs:'#3a3a40', hair:'#8a8a84', skin:'#e2b48e', apron:'#fffdf8', toque:true, pron:['He', 'his'], pitch:0.88,
+    says:{ it:'Buongiorno! Il pane lo facciamo qui, ogni mattina alle quattro.', en:'Good morning! We make the bread here, every morning at four.' } }),
+  xpNpc({ id:'xp-sagrestano', name:'Il sagrestano', where:'the sacristan of the Madonna dell’Orto', scene:XP_ROOMS.orto, district:'cannaregio', place:"La Madonna dell'Orto", formal:true,
+    body:'#2b2b33', legs:'#2b2b33', hair:'#b9b2a8', skin:'#e8bb94', glasses:true, pron:['He', 'his'], pitch:0.86,
+    says:{ it:'Buongiorno. Il Tintoretto è sepolto qui: la sua cappella è a destra dell’altare.', en:'Good morning. Tintoretto is buried here: his chapel is to the right of the altar.' } }),
+  xpNpc({ id:'xp-custode', name:'La custode', where:'the custodian of the Pietà', scene:XP_ROOMS.pieta, district:'arsenale', place:'La Pietà', formal:true,
+    body:'#3a4a6a', legs:'#2b2b33', hair:'#6b3a1f', longHair:true, skin:'#ecc4a2', scarf:'#c9a54a', pron:['She', 'her'], pitch:1.04,
+    says:{ it:'Buongiorno! È la chiesa di Vivaldi… ma lui non l’ha mai vista: è stata costruita dopo.', en:'Good morning! It’s Vivaldi’s church… but he never saw it: it was built afterwards.' } }),
+];
+XP_NPCS.forEach(n => { n.home = { x:0, y:0, face:{ ...n.baseFace } }; n.face = { ...n.baseFace }; NPCS.push(n); NPC[n.id] = n; });
+
+/* ---------- the rooms ---------- */
+/* the bakery: the shop kind, dressed as a bakery (world/roomkinds.js VZ_ROOM_DRESS.shop.forno: the bread, the counter with its glass case of pastries,
+   the oven, the chalkboard, the flour; the art: render/interiors.js, as the Mercerie's bakery's), the tall glass case of cakes with the San
+   Martino biscuits on top (render/xplaces.js) */
+VZ_ROOMS[XP_ROOMS.forno] = vzRoomKind('shop', { title:'Il Panificio Vianello', sub:'Pane, dolci e biscotti · Rio Terà San Leonardo', door:XP_DOORS.forno, seed:1111, district:'cannaregio', dress:'forno',
+  sign:'PANIFICIO VIANELLO',
+  props:[
+    { id:'vetrinetta', kind:'xpcakecase', x:6.7, y:3.3, w:1.9, d:0.7, h:1.35, it:'la vetrinetta', en:'the glass case: cakes, fritole, and the San Martino biscuits on top' },
+    { id:'sanmartino', kind:'none', on:'vetrinetta', x:6.8, y:3.35, w:1.7, d:0.6, h:1.6, solid:false, it:'il San Martino', en:'the San Martino biscuits',
+      msg:'<b>I San Martino</b> · shortcrust biscuits cut in the shape of St Martin on his horse, his sword and cloak, covered in icing, sweets and chocolates: Venice’s sweet for 11 November.' },
+  ],
+  people:{ 'xp-irene':{ x:2.5, y:1.55, approach:{ x:2.5, y:3.65 }, talk:{ x:1.0, y:3.0, w:5.0, d:1.1 }, post:true }, 'xp-fornaio':{ x:6.85, y:1.15, approach:{ x:6.85, y:2.6 }, post:true } } });
+/* (the kind's props left out by id: so ours have ids of their own, their words the same) */
+/* the Madonna dell'Orto (18 × 11 m, the back wall 9 m: the apse's end of the nave): the 'chiesa' kind (world/d1-c.js) as a base, its props for San
+   Vidal left out but the raised floor, the high altar and its candles */
+const XP_CHIESA_OMIT = ['tappeto', 'pala', 'altare', 'altare2', 'colonna', 'colonna2', 'colonna3', 'colonna4', 'sedie', 'sedie2', 'scaffale', 'scrivania', 'registro', 'sedia'];
+VZ_ROOMS[XP_ROOMS.orto] = vzRoomKind('chiesa', { title:"La Madonna dell'Orto", sub:'La chiesa del Tintoretto · Cannaregio', door:XP_DOORS.orto, seed:1594, district:'cannaregio', omit:XP_CHIESA_OMIT,
+  set:{ presbiterio:{ x:6.2, w:5.6, d:1.7 }, altaremaggiore:{ x:7.65, en:'the high altar, in the apse' }, candele:{ x:6.85 }, candele2:{ x:10.65 } },
+  props:[
+    { id:'annunciazione', word:'pala', kind:'xppala', wall:true, from:'altaremaggiore', x:8.2, w:1.6, z:2.0, h:2.6, it:'la pala', en:'the altarpiece over the high altar: the Annunciation' },
+    { id:'vitello', kind:'xptintoretto', scene:'vitello', wall:true, x:4.25, w:1.7, z:0.9, h:7.3, it:'il quadro', en:'Tintoretto: the Worship of the Golden Calf, a canvas nearly 15 metres high' },
+    { id:'giudizio', word:'quadro', kind:'xptintoretto', scene:'giudizio', wall:true, x:12.05, w:1.7, z:0.9, h:7.3, it:'il quadro', en:'Tintoretto: the Last Judgement, a canvas nearly 15 metres high' },
+    { id:'contarini', kind:'xpchapel', side:'contarini', wall:true, x:0.6, w:3.0, z:0, h:5.4, it:'la cappella', en:'the Contarini chapel: the family’s busts in marble, in their niches' },
+    { id:'cappella', kind:'xpchapel', side:'tintoretto', wall:true, x:14.4, w:3.0, z:0, h:5.4, look:false },
+    { id:'busto', kind:'xpbust', wall:true, x:14.85, w:0.7, z:2.35, h:1.05, it:'il busto', en:'Tintoretto’s bust (terracotta, by Napoleone Martinuzzi, 1937)' },
+    { id:'lapide', kind:'xpplaque', wall:true, x:16.0, w:1.1, z:1.05, h:0.75, it:'la lapide', en:'the plaque: Tintoretto’s tomb', label:'Leggi' },
+    { id:'colonnagreca', word:'colonna', kind:'xpcolumn', x:3.0, y:2.3, w:0.8, d:0.8, h:8.4, round:true, it:'la colonna', en:'a column of Greek marble, holding up the pointed arches' },
+    { id:'colonnagreca2', word:'colonna', kind:'xpcolumn', x:14.2, y:2.3, w:0.8, d:0.8, h:8.4, round:true, look:false },
+    { id:'colonnagreca3', word:'colonna', kind:'xpcolumn', x:3.0, y:6.4, w:0.8, d:0.8, h:8.4, round:true, look:false },
+    { id:'colonnagreca4', word:'colonna', kind:'xpcolumn', x:14.2, y:6.4, w:0.8, d:0.8, h:8.4, round:true, look:false },
+    { id:'banchi', kind:'xppews', x:4.4, y:3.2, w:3.6, d:4.4, h:0.95, rows:5, it:'i banchi', en:'the pews, dark wood' },
+    { id:'banchi2', word:'banchi', kind:'xppews', x:10.0, y:3.2, w:3.6, d:4.4, h:0.95, rows:5, look:false },
+    { id:'candelabro', kind:'candles', x:16.5, y:7.6, w:0.6, d:0.6, h:1.5, round:true, it:'le candele', en:'the candles: lit for the dead' },
+  ],
+  people:{ 'xp-sagrestano':{ x:15.4, y:8.7, approach:{ x:14.3, y:9.7 }, post:true } } });
+/* the Pietà (16 × 10 m, 9 m): the oval hall, white and gold */
+VZ_ROOMS[XP_ROOMS.pieta] = vzRoomKind('chiesa', { title:'La Pietà', sub:'Santa Maria della Pietà · la chiesa di Vivaldi', door:XP_DOORS.pieta, seed:1745, district:'arsenale', omit:XP_CHIESA_OMIT.filter(k => k !== 'sedie' && k !== 'sedie2' && k !== 'scrivania'),
+  set:{ presbiterio:{ x:5.4, w:5.2, d:1.6 }, altaremaggiore:{ x:6.65, en:'the high altar' }, candele:{ x:5.85 }, candele2:{ x:9.65 },
+    sedie:{ x:1.6, y:3.0, w:4.8, d:3.4, en:'the chairs: set out for a concert' }, sedie2:{ x:9.6, y:3.0, w:4.8, d:3.4 },
+    scrivania:{ x:11.9, y:7.7, w:2.0, d:0.8, it:'il tavolo', en:'the custodian’s table: tickets for the concert, postcards of Vivaldi' } },
+  props:[
+    { id:'visitazione', word:'pala', kind:'xppala', scene:'visita', wall:true, from:'altaremaggiore', x:7.2, w:1.6, z:2.0, h:2.6, it:'la pala', en:'the altarpiece over the high altar' },
+    { id:'cantoria', kind:'xpcantoria', wall:true, x:0.6, w:3.8, z:4.3, h:1.9, it:'la cantoria', en:'the choir gallery behind its gilded grille: up there the girls of the Pietà sang and played, unseen' },
+    { id:'cantoria2', word:'cantoria', kind:'xpcantoria', wall:true, x:11.6, w:3.8, z:4.3, h:1.9, look:false },
+    { id:'affresco', kind:'xpceiling', wall:true, x:4.3, w:7.4, z:6.75, h:2.0, look:false },
+    /* (its look a step left of the altar, where nothing else is: E there is the ceiling's, not the altar's) */
+    { id:'soffitto', kind:'none', wall:true, x:4.45, w:0.7, z:6.75, h:2.0, it:'il soffitto', en:'the ceiling: Tiepolo’s fresco, angels playing music round the sky', label:'Guarda in su' },
+  ],
+  people:{ 'xp-custode':{ x:12.9, y:7.15, approach:{ x:12.9, y:9.3 }, talk:{ x:11.9, y:8.5, w:2.0, d:1.0 }, post:true } } });
+Object.entries({ [XP_ROOMS.forno]:[9, 6.5, 3.4, 'cannaregio'], [XP_ROOMS.orto]:[18, 11, 9, 'cannaregio'], [XP_ROOMS.pieta]:[16, 10, 9, 'arsenale'] })
+  .forEach(([k, [w, d, wall, dist]]) => { Object.assign(VZ_ROOMS[k], { w, d, wall }); VZ_SCENE_D[k] = dist; });
+VZ_ROOMS[XP_ROOMS.forno].zones = [{ x0:0, x1:9, floor:'cotto', wall:'tiles' }];
+VZ_ROOMS[XP_ROOMS.orto].zones = [{ x0:0, x1:18, floor:'xporto', wall:'xporto' }];
+VZ_ROOMS[XP_ROOMS.pieta].zones = [{ x0:0, x1:16, floor:'xppieta', wall:'xppieta' }];
+Object.assign(VZ_ROOMS[XP_ROOMS.forno].exit, { x:3.8, w:1.4 }); VZ_ROOMS[XP_ROOMS.forno].spawn = { x:4.5, y:5.7 };
+Object.assign(VZ_ROOMS[XP_ROOMS.orto].exit, { x:8.25, w:1.5 }); VZ_ROOMS[XP_ROOMS.orto].spawn = { x:9.0, y:10.2 };
+Object.assign(VZ_ROOMS[XP_ROOMS.pieta].exit, { x:7.25, w:1.5 }); VZ_ROOMS[XP_ROOMS.pieta].spawn = { x:8.0, y:9.2 };
+Object.values(XP_ROOMS).forEach(vzRoomScene);
+const XP_ROOM_OF = Object.fromEntries(Object.entries(XP_ROOMS).map(([k, v]) => [v, k]));
+
+/* ---------- the city: the doors, the bakery's front, the statue, once each district is built ---------- */
+function xpPlace(id){
+  if (!VZ || VZ.xp || (id !== 'cannaregio' && id !== 'arsenale')) return;
+  VZ.xp = {};
+  const T = VZ_TILE, M = VZ_M, CP = VZ_CPX;
+  const door = (k, x, y) => { VZ.doors.push({ id:XP_DOORS[k], to:XP_ROOMS[k], name:XP_AT[k].name, label:XP_AT[k].label, x:Math.round(x), y:Math.round(y), poi:null, xp:k }); VZ.xp[k] = { x:Math.round(x), y:Math.round(y) }; };
+  const atLm = k => { const l = VZ.landmarks.find(q => q.id === XP_AT[k].lm); if (l) door(k, l.x + l.w / 2, l.base); };
+  if (id === 'cannaregio'){
+    /* the bakery: the house whose front is at the point; its own shop (window, door, sign) taken off, the shopfront drawn over its ground floor */
+    const P = XP_AT.forno, px = P.at[0] * CP, yb = Math.round(P.at[1] * CP / T);
+    const h = VZ.houses.filter(q => q.front === 'land' && q.x0 * T <= px && q.x1 * T >= px && Math.abs(q.yb - yb) <= 1).sort((a, b) => Math.abs(a.yb - yb) - Math.abs(b.yb - yb))[0];
+    if (h){
+      const x0 = h.x0 * T, w = (h.x1 - h.x0) * T, y = h.yb * T;
+      h.shopWin = null; h.shop = false; h.shopKind = null; h.flowers = false; h.doors = (h.doors || []).filter(d => d.kind !== 'door' && d.kind !== 'shop');
+      (VZ.shopDoors || []).forEach(s => { if (s.h === h) s.covered = true; });
+      /* what stood at its foot (a planter) stands up in front of the shopfront instead (still solid); a sign on the wall stays over it */
+      h.wallProps = (h.wallProps || []).filter(p => { if (p.kind !== 'vaso') return true; VZ.props.push({ kind:'vasoFront', x:p.x, y:y + 12, seed:p.seed, r:0 }); return false; });
+      VZ.props.push({ kind:'xpforno', x:Math.round(x0 + w / 2), y, w:Math.round(w), r:0 });
+      door('forno', x0 + w / 2 + 0.65 * M, y); VZ.xp.fornoHouse = { x0, x1:x0 + w, y };
+    }
+    atLm('orto');
+  } else {
+    atLm('pieta');
+    /* the statue: solid (a circle), on the Riva between the gate and the Pietà; a lamp or bin in its way taken off */
+    const S2 = XP_AT.statua, sx = S2.m[0] * M, sy = S2.m[1] * M, r = S2.r * M;
+    VZ.props = VZ.props.filter(p => !(p.kind !== 'xpvittorio' && Math.hypot(p.x - sx, p.y - sy) < r + 1.6 * M));
+    VZ.props.push({ kind:'xpvittorio', x:Math.round(sx), y:Math.round(sy), r:Math.round(r) });
+    VZ.xp.statua = { x:Math.round(sx), y:Math.round(sy), r:Math.round(r) };
+  }
+  VZ.dlm = null; VZ_NAV.grid = null; vzPoints.memo = null; if (typeof vzPropHash === 'function') vzPropHash.m = null;
+  Object.values(VZ_CITY).forEach(sc => { if (sc.made && sc.camBox){ sc.doors = vzDoorsIn(sc.camBox); const inB = (x, y) => x >= sc.camBox.x && x <= sc.camBox.x + sc.camBox.w && y >= sc.camBox.y && y <= sc.camBox.y + sc.camBox.h; sc.C = VZ.props.filter(p => p.r > 0 && inB(p.x, p.y)).map(p => ({ x:p.x, y:p.y, r:p.r })); } });
+}
+{ const prev = vzUse; vzUse = (id, already) => { const r = prev(id, already); try { xpPlace(id); } catch (e){ console.error(e); } return r; }; }
+if (VZD.id === 'cannaregio' || VZD.id === 'arsenale') xpPlace(VZD.id);
+/* the statue's look (world/districts.js vzDistrictDoors: the stretch's looks) */
+{ const prev = vzDistrictDoors; vzDistrictDoors = B => { const out = prev(B), s = VZD.id === 'arsenale' && VZ.xp && VZ.xp.statua, M = VZ_M;
+    if (s && s.x >= B.x && s.x <= B.x + B.w && s.y >= B.y && s.y <= B.y + B.h) out.push({ id:'pr:vittorio', look:true, xpCard:'statua', reach:56, area:{ x:s.x - s.r, y:s.y - s.r, w:2 * s.r, h:2 * s.r }, x:s.x, y:s.y,
+      name:'Vittorio Emanuele II', lookAt:'the statue', pill:{ x:s.x, y:s.y - 10.8 * M } });
+    return out; }; }
+/* the named points: before each door; the statue's look (on its east side, in front of it) */
+{ const prev = vzDistrictPoints; vzDistrictPoints = () => { const P = prev(); if (!VZ.xp || (VZD.id !== 'cannaregio' && VZD.id !== 'arsenale')) return P;
+    ['forno', 'orto', 'pieta'].forEach(k => { const q = VZ.xp[k]; if (q) P['xp-' + k] = VZ.snap(q.x, q.y + 1.2 * VZ_M, 14); });
+    const s = VZ.xp.statua; if (s) P['xp-statua'] = VZ.snap(s.x + s.r + 0.9 * VZ_M, s.y + 0.8 * VZ_M, 14);
+    return P; }; }
+
+/* ---------- the history cards (≤ 3 sentences; every fact checked on the web, 25 Nov: the sources in the as-built docs) ---------- */
+const XP_CARDS = {
+  statua:{ title:'Il monumento a Vittorio Emanuele II', sub:'Ettore Ferrari, 1887 · the Riva degli Schiavoni',
+    text:'This bronze monument to King Victor Emmanuel II, by the Roman sculptor Ettore Ferrari, was unveiled on 1 May 1887 in front of King Umberto I and Queen Margherita. The king rides with his sword drawn; below him two figures of Venice, one beaten with a broken sword and one triumphant, each have a lion of St Mark, one biting Austria’s chains, the other tearing up the Treaty of Vienna. On the granite base, bronze reliefs show the battle of Palestro of 1859 and the king entering Venice on 7 November 1866, after the vote that joined Venice to Italy.' },
+};
+/* the Pietà's front (world/d1places.js vzHistoryCard: its look in the Arsenale stretch) and the Madonna dell'Orto's (world/cplaces.js cpCard) */
+VZ_D1_CARDS.pieta = { title:'La Pietà', sub:'Santa Maria della Pietà · Vivaldi’s church',
+  text:'Beside it stood the Ospedale della Pietà, a home for abandoned children, where babies could be left through a little window, and whose girls became famous for their music. Antonio Vivaldi taught them, on and off, from 1703 to 1740. The church you see came after his death: Giorgio Massari built it from 1745 to 1760, its oval hall designed for music under a ceiling by Giambattista Tiepolo, and its white front was only finished in 1906.' };
+CP_CARDS.orto = { title:"La Madonna dell'Orto", sub:'Cannaregio · Tintoretto’s church',
+  text:'Built in the 14th century and first named after St Christopher, the church took its new name from a statue of the Madonna found in a nearby orto, a garden. Tintoretto lived a few steps away, on the Fondamenta dei Mori, and painted for it the two huge canvases either side of the choir, the Worship of the Golden Calf and the Last Judgement, each nearly 15 metres high. He is buried here, in the chapel to the right of the choir, with his children Marietta and Domenico.' };
+/* the plaque on Tintoretto's tomb (its words in Italian, the English under; read aloud) */
+const XP_PLAQUE = { title:'La tomba del Tintoretto', sub:"La Madonna dell'Orto · the chapel to the right of the choir",
+  lines:['QUI RIPOSA', 'JACOPO ROBUSTI', 'DETTO IL TINTORETTO', 'PITTORE', 'VENEZIA 1518 – 1594', 'CON I FIGLI', 'MARIETTA E DOMENICO'],
+  say:'Qui riposa Jacopo Robusti, detto il Tintoretto, pittore. Venezia, millecinquecentodiciotto, millecinquecentonovantaquattro. Con i figli Marietta e Domenico.',
+  en:'Here lies Jacopo Robusti, called Tintoretto, painter. Venice, 1518–1594. With his children Marietta and Domenico.',
+  gloss:[['qui riposa', 'here lies (riposare: to rest)'], ['detto', 'called, known as'], ['pittore', 'painter'], ['i figli', 'the children']],
+  note:'His father was a dyer, a <i>tintore</i>: so the son was <i>il Tintoretto</i>, the little dyer.' };
+const XP_CARD = { last:null, n:0 };
+function xpPlaqueCard(o = {}){
+  const T = XP_PLAQUE, R = xpRec(); R.plaque = (R.plaque || 0) + 1; save();
+  XP_CARD.last = 'lapide'; XP_CARD.n++;
+  const html = `<div class="vz-targa"><button class="play" data-say="${esc(T.say)}" aria-label="Read it aloud">${SPK}</button>${T.lines.map(l => `<p>${esc(l)}</p>`).join('')}</div>
+    <p class="xp-en"><i>${esc(T.en)}</i></p>
+    <p class="note">${T.gloss.map(([w, e]) => `<i>${esc(w)}</i>: ${esc(e)}`).join(' · ')}</p><p class="note">${T.note}</p>`;
+  openInfoCard({ kicker:'Una lapide', title:T.title, sub:T.sub, html, cls:'v1-card vz-targa-card xp-plaque', onClose:o.onClose });
+  return true;
+}
+/* a card of ours (the statue's): its text, a picture of it drawn by the game */
+function xpCard(id, o = {}){
+  if (id === 'pieta') return VZD.id === 'arsenale' ? vzHistoryCard('pieta') : false;
+  if (id === 'orto') return typeof cpCard === 'function' && VZD.id === 'cannaregio' ? cpCard('orto') : false;
+  if (id === 'lapide') return xpPlaqueCard(o);
+  const c = XP_CARDS[id]; if (!c) return false;
+  XP_CARD.last = id; XP_CARD.n++; VZ_POICARD.last = 'card:' + id; VZ_POICARD.lm = id; VZ_POICARD.n++; VZ_POICARD.history = id;
+  let img = '';
+  try { const s = VZD.id === 'arsenale' && VZ.xp && VZ.xp.statua; if (s) img = vzSnapshot({ key:'arsenale:xpcard:statua', ax:s.x, ay:s.y - s.r - 1.2 * VZ_M, x:s.x + 1.0 * VZ_M, y:s.y - 5.0 * VZ_M, cy:s.y - 5.0 * VZ_M, z:1.2, w:0.6, h:0.72 }); } catch (e){ img = ''; }
+  VZ_POICARD.img = !!img;
+  openInfoCard({ kicker:'Venezia · la storia', title:c.title, sub:c.sub, img, alt:c.title, html:`<p>${esc(c.text)}</p>`, cls:'v1-card', onClose:o.onClose });
+  return true;
+}
+{ const prev = UNIT.enterDoor; UNIT.enterDoor = d => { if (d && d.xpCard) return xpCard(d.xpCard); return prev(d); }; }
+
+/* ---------- the hooks: a story hook (guarded by its rooms) ---------- */
+const XP_HOOKS = { story:'xplaces',
+  door(d){ if (!d || !XP_ROOM_OF[S.scene]) return undefined; const m = /^pr:(.+)$/.exec(d.id || ''); if (m && m[1] === 'lapide') return xpPlaqueCard(); return undefined; },
+  /* the map (M): a pin at each place in its district */
+  sideMarks(){ if (!VZ.xp || (VZD.id !== 'cannaregio' && VZD.id !== 'arsenale')) return null; const seen = (xpPeek() || {}).seen || {};
+    return ['forno', 'orto', 'pieta', 'statua'].filter(k => VZ.xp[k]).map(k => { const q = VZ.xp[k], P = XP_AT[k];
+      return { id:'xp-' + k, label:P.name, poi:P.poi, x:q.x, y:k === 'statua' ? q.y : q.y + 0.8 * VZ_M, seen:k === 'statua' ? !!seen.statua : !!seen[k] }; }); },
+  guide(){ const k = XP_ROOM_OF[S.scene]; if (!k) return undefined;
+    if (k === 'forno') return 'The <b>Panificio Vianello</b>: Irene behind the counter, her father by the oven. Look round (<kbd>E</kbd>): the bread, the pastries, the San Martino biscuits.';
+    if (k === 'orto') return 'The <b>Madonna dell’Orto</b>: Tintoretto’s huge canvases either side of the altar. His tomb is in the chapel to the right of the choir: read the plaque (<kbd>E</kbd>).';
+    return 'The <b>Pietà</b>, Vivaldi’s church: the oval hall, the choir galleries with their grilles, Tiepolo’s ceiling (look up: <kbd>E</kbd>).'; },
+  notes:() => [],
+};
+STORY_HOOKS.unshift(XP_HOOKS);
+/* a visit remembered (the map's pins turn "seen"); the people back at their places; the statue's look counts as a visit */
+{ const prev = UNIT.arrive; UNIT.arrive = sc => { const r = prev ? prev(sc) : undefined, k = XP_ROOM_OF[sc];
+    if (k){ const R = xpRec(); if (!R.seen[k]){ R.seen[k] = Date.now(); save(); } vzRoomSeat(sc); }
+    return r; }; }
+{ const prev = xpCard; xpCard = (id, o) => { const r = prev(id, o); if (r && id === 'statua'){ const R = xpRec(); if (!R.seen.statua){ R.seen.statua = Date.now(); save(); } } return r; }; }
+
+/* ---------- tests ---------- */
+dbgField('xplaces', () => { const R = xpPeek();
+  return { district:VZD.id, doors:VZ.xp ? Object.fromEntries(['forno', 'orto', 'pieta'].filter(k => VZ.xp[k]).map(k => [k, { ...VZ.xp[k], door:!!VZ.doors.find(d => d.id === XP_DOORS[k]) }])) : null,
+    statua:VZ.xp && VZ.xp.statua ? { ...VZ.xp.statua, solid:blockedAtCity(VZ.xp.statua.x, VZ.xp.statua.y) && blockedAtCity(VZ.xp.statua.x + VZ.xp.statua.r - 6, VZ.xp.statua.y) } : null, room:XP_ROOM_OF[S.scene] || null, seen:R ? Object.keys(R.seen) : [], plaque:R ? R.plaque || 0 : 0, card:XP_CARD.last, cards:XP_CARD.n }; });
+Object.assign(window.__debug, {
+  /* where: 'forno' | 'orto' | 'pieta' (before its door; o.inside: in the room, at its spawn; o.prop: in front of a room's prop or person), 'statua'
+     (on the Riva, its look in reach); the district loaded first if need be (a promise) */
+  async xpGo(where, o = {}){
+    const d = (XP_AT[where] || {}).district; if (!d) return false;
+    if (VZD.id !== d) await vzGoDistrict(d, {});
+    if ((o.inside || o.prop) && XP_ROOMS[where]){ const key = XP_ROOMS[where], R = VZ_ROOMS[key], q = o.prop ? R.spots[o.prop] : R.spots.spawn; if (!q) return false;
+      travelTo(key, { x:q.x, y:q.y }, R.title, R.sub, { face:{ x:0, y:-1 } }); return true; }
+    const P = vzPoints(), q = P['xp-' + where]; if (!q) return false;
+    const a = vzAreaAt(q.x, q.y), ar = a >= 0 ? VZ.areas[a] : VZ.areas[0];
+    __debug.go(ar.key, q.x / VZ_TILE - 0.5, q.y / VZ_TILE - 0.5); return true;
+  },
+  xpCard:id => xpCard(id),
+  xpPlaces:() => ({ rooms:{ ...XP_ROOMS }, doors:VZ.doors.filter(d => d.xp).map(d => ({ id:d.id, to:d.to, x:d.x, y:d.y })), statua:VZ.xp ? VZ.xp.statua || null : null,
+    cards:Object.fromEntries([['statua', XP_CARDS.statua], ['pieta', VZ_D1_CARDS.pieta], ['orto', CP_CARDS.orto]].map(([k, c]) => [k, { title:c.title, n:(c.text.match(/[^.!?]+[.!?]+/g) || []).length }])),
+    plaque:{ lines:XP_PLAQUE.lines.slice(), en:XP_PLAQUE.en },
+    people:XP_NPCS.map(n => ({ id:n.id, scene:n.scene, x:Math.round(n.x), y:Math.round(n.y), ambient:!!n.ambient, formal:!!n.formal })) }),
 });
 
 /* ===== engine/render/helpers.js ===== */
@@ -51261,6 +51520,347 @@ function cpWheelPaint(g, W, H, st){
   if (resN !== null){ g.fillStyle = 'rgba(0,0,0,.5)'; rr(g, cx - 82, 10, 164, 26, 7); g.fill(); vzText(g, cpCall(resN).replace(/!$/, ''), cx, 24, '700 13px "Titillium Web", sans-serif', resN === 0 ? '#7fe0a0' : CP_RED.has(resN) ? '#ff8a90' : '#fffdf6', 156); }
   else if (st.spinning){ g.fillStyle = 'rgba(0,0,0,.45)'; rr(g, cx - 60, 10, 120, 24, 7); g.fill(); vzText(g, st.k > 0.3 ? 'Rien ne va plus!' : 'La ruota gira…', cx, 23, 'italic 700 12px "Bodoni Moda", Georgia, serif', '#f6e6b4', 112); }
 }
+
+/* ===== units/venezia/render/xplaces.js ===== */
+/* Four more places for District 3's branches, drawn (world/xplaces.js; the brief: docs/lessons/venezia/scripts/d3/x-places-2-brief.md). In the city's
+   manner: flat colours, crisp lines, lit from the west, in metres (VZ_M px a metre), facing the camera, a little larger than life.
+   - VZ_PROP.xpforno: Irene's bakery's shopfront over its house's ground floor (a painted wooden front, the name board PANIFICIO VIANELLO in gold,
+     the two windows full of bread, the big San Martino biscuit in the right one, the glazed door, two lanterns).
+   - VZ_PROP.xpvittorio: the monument to Vittorio Emanuele II (Ettore Ferrari, 1887): the king in bronze on his horse, in profile (the horse
+     heading west, the king's sword raised), on a pink granite base with a bronze relief on the side we see, Venice with St Mark's lion at its
+     front end, the steps, the low bronze railing round it.
+   - The rooms (VZ_WALLS, VZ_FLOORS, VZ_PROP_ART): the Madonna dell'Orto (the brick-and-plaster apse end of the nave under the keel-shaped wooden
+     ceiling, the pointed arches, Tintoretto's two tall canvases either side of the apse, the Contarini chapel, the Tintoretto chapel with its altar,
+     the floor slab, the bust and the plaque, the Greek marble columns, the pews); the Pietà (the oval hall's far end, white and gold, the
+     choir galleries with their gilded grilles, the high altar under its arch, Tiepolo's ceiling seen in the cove); the bakery's glass case of
+     cakes with the San Martino biscuits on top. */
+
+const XPB = { bronze:'#4a5446', bronze2:'#6d7a62', bronzeD:'#323a30', pink:'#c99b8c', pink2:'#b5857a', stone:'#efe9dc', gold:'#c9a54a', gold2:'#e8c35a' };
+/* the San Martino: a shortcrust horse and rider, its icing and its sweets (cx, cy: its middle; s: its size, px) */
+function xpSanMartino(g, cx, cy, s, seed = 11){
+  const r = rng(seed);
+  g.fillStyle = '#d9a35b';
+  g.beginPath(); g.ellipse(cx, cy + s * 0.1, s * 0.42, s * 0.2, 0, 0, Math.PI * 2); g.fill();                          // the horse's body
+  g.fillRect(cx - s * 0.36, cy + s * 0.15, s * 0.1, s * 0.38); g.fillRect(cx + s * 0.24, cy + s * 0.15, s * 0.1, s * 0.38);   // legs
+  g.beginPath(); g.moveTo(cx - s * 0.32, cy); g.lineTo(cx - s * 0.56, cy - s * 0.32); g.lineTo(cx - s * 0.66, cy - s * 0.2); g.lineTo(cx - s * 0.42, cy + s * 0.12); g.closePath(); g.fill();   // the neck, the head
+  g.fillRect(cx - s * 0.1, cy - s * 0.5, s * 0.22, s * 0.46); circ(g, cx + s * 0.01, cy - s * 0.58, s * 0.11); g.fill();   // the rider
+  g.fillStyle = '#c23b2a'; g.beginPath(); g.moveTo(cx + s * 0.1, cy - s * 0.46); g.lineTo(cx + s * 0.4, cy - s * 0.1); g.lineTo(cx + s * 0.12, cy - s * 0.06); g.closePath(); g.fill();   // the cloak
+  g.strokeStyle = '#fffdf8'; g.lineWidth = Math.max(1, s * 0.05); g.beginPath(); g.moveTo(cx - s * 0.36, cy + s * 0.08); g.quadraticCurveTo(cx, cy - s * 0.04, cx + s * 0.36, cy + s * 0.1); g.stroke();   // icing
+  const cols = ['#e0405a', '#f4b928', '#1c3d8f', '#5fbf6a', '#fffdf8', '#9a5ad0'];
+  for (let k = 0; k < 9; k++){ g.fillStyle = cols[Math.floor(r() * cols.length)]; circ(g, cx - s * 0.34 + r() * s * 0.68, cy + s * 0.02 + r() * s * 0.16, Math.max(0.8, s * 0.045)); g.fill(); }
+  g.fillStyle = '#5a3a22'; g.fillRect(cx + s * 0.12, cy - s * 0.44, s * 0.05, s * 0.3);                                   // the sword
+}
+Object.assign(VZ_PROP, {
+  /* the bakery's front: p.x its middle, p.y its foot, p.w its width (the house's); its door at p.x + 0.65 m */
+  xpforno:{ fade:1, box:p => ({ x:p.x - p.w / 2 - 0.6 * VZ_M, y:p.y - 5.2 * VZ_M, w:p.w + 1.2 * VZ_M, h:5.5 * VZ_M }), draw:(g, p) => {
+    const M = VZ_M, b = p.y, at = m => b - m * M, x0 = p.x - p.w / 2, x1 = p.x + p.w / 2, dx = p.x + 0.65 * M, wood = '#2f4a3a', wood2 = '#263d30', trim = '#c9a54a';
+    /* the painted wooden front, its pilasters, the plinth */
+    g.fillStyle = wood; g.fillRect(x0 + 2, at(4.0), p.w - 4, 4.0 * M);
+    g.fillStyle = wood2; [x0 + 2, dx - 0.95 * M, dx + 0.75 * M, x1 - 0.32 * M].forEach(px => g.fillRect(px, at(3.3), 0.3 * M, 3.3 * M));
+    g.fillStyle = 'rgba(255,255,255,.10)'; [x0 + 2, dx - 0.95 * M, dx + 0.75 * M, x1 - 0.32 * M].forEach(px => g.fillRect(px, at(3.3), 2, 3.3 * M));
+    g.fillStyle = '#1f3328'; g.fillRect(x0 + 2, at(0.55), p.w - 4, 0.55 * M);
+    /* the name board, its gold letters, the cornice over it */
+    g.fillStyle = '#1f3328'; g.fillRect(x0 - 0.1 * M, at(4.15), p.w + 0.2 * M, 0.25 * M); g.fillStyle = trim; g.fillRect(x0 - 0.1 * M, at(4.15), p.w + 0.2 * M, 2);
+    g.fillStyle = '#233a2e'; g.fillRect(x0 + 0.3 * M, at(3.9), p.w - 0.6 * M, 0.62 * M); g.strokeStyle = trim; g.lineWidth = 1.4; g.strokeRect(x0 + 0.38 * M, at(3.84), p.w - 0.76 * M, 0.5 * M);
+    vzText(g, 'PANIFICIO VIANELLO', p.x, at(3.59), '700 12px "Bodoni Moda", Georgia, serif', XPB.gold2, p.w - 1.0 * M);
+    /* the windows: warm, the bread on two shelves; the right one's big San Martino on its stand */
+    const win = (a, c, sm) => { const y0 = at(3.05), y1 = at(0.7);
+      g.fillStyle = '#3a2a1a'; g.fillRect(a - 3, y0 - 3, c - a + 6, y1 - y0 + 6);
+      g.fillStyle = '#f2d9a8'; g.fillRect(a, y0, c - a, y1 - y0); g.fillStyle = 'rgba(255,214,140,.35)'; g.fillRect(a, y0, c - a, (y1 - y0) * 0.5);
+      for (const sy of [at(1.0), at(1.95)]){ g.fillStyle = '#a8743c'; g.fillRect(a + 2, sy, c - a - 4, 3); }
+      const r = rng(Math.round(a));
+      for (let xx = a + 6; xx < c - 6; xx += 9){ const k = Math.floor(r() * 3); g.fillStyle = ['#c98d42', '#b5763a', '#d9a35b'][k];
+        if (k === 0){ ell(g, xx, at(1.0) - 4, 4.6, 3.2); g.fill(); g.fillStyle = 'rgba(255,240,200,.6)'; g.fillRect(xx - 3, at(1.0) - 6, 4, 1); } else { circ(g, xx, at(1.0) - 3.6, 3.4); g.fill(); } }
+      if (!sm) for (let xx = a + 6; xx < c - 6; xx += 8){ g.fillStyle = r() < 0.5 ? '#e3b06a' : '#c98d62'; g.save(); g.translate(xx, at(1.95) - 4); g.rotate(-0.9); rr(g, -6, -1.4, 12, 2.8, 1.4); g.fill(); g.restore(); }
+      else { g.fillStyle = '#efe6d2'; g.fillRect((a + c) / 2 - 0.7 * M, at(1.95) - 2, 1.4 * M, 2); xpSanMartino(g, (a + c) / 2, at(2.45), 1.05 * M, 1111);
+        g.fillStyle = '#fffdf8'; g.fillRect(c - 0.95 * M, at(1.4), 0.75 * M, 0.32 * M); vzText(g, 'SAN MARTIN', c - 0.575 * M, at(1.24), '700 5px "Titillium Web", sans-serif', '#8a2a2a', 0.7 * M); }
+      g.fillStyle = 'rgba(255,255,255,.28)'; g.fillRect(a + 3, y0 + 2, 3, y1 - y0 - 4);
+      g.fillStyle = wood2; g.fillRect(a - 3, y1 + 3, c - a + 6, at(0.55) - y1 - 3); g.strokeStyle = 'rgba(255,255,255,.12)'; g.strokeRect(a + 2, y1 + 6, c - a - 4, at(0.55) - y1 - 9);
+    };
+    win(x0 + 0.45 * M, dx - 0.95 * M, false); win(dx + 1.05 * M, x1 - 0.45 * M, true);
+    /* the door: glazed above, the warm light inside, its brass handle, APERTO */
+    const dw = 1.2 * M, dt = at(2.7);
+    g.fillStyle = '#1f3328'; g.fillRect(dx - dw / 2 - 3, dt - 3, dw + 6, 2.7 * M + 3);
+    g.fillStyle = '#3a5a46'; g.fillRect(dx - dw / 2, dt, dw, 2.7 * M); g.fillStyle = 'rgba(255,222,160,.75)'; g.fillRect(dx - dw / 2 + 4, dt + 4, dw - 8, 1.45 * M);
+    g.fillStyle = '#c9a54a'; g.fillRect(dx + dw / 2 - 7, at(1.2), 3, 7);
+    g.fillStyle = '#fffdf8'; g.fillRect(dx - 0.3 * M, at(1.75), 0.6 * M, 0.22 * M); vzText(g, 'APERTO', dx, at(1.64), '700 4.5px "Titillium Web", sans-serif', '#2e6a3e', 0.56 * M);
+    g.fillStyle = VZC.ist; g.fillRect(dx - dw / 2 - 6, b - 5, dw + 12, 5);
+    /* the lanterns at the board's ends */
+    for (const lx of [x0 + 0.35 * M, x1 - 0.35 * M]){ g.fillStyle = '#2b2b2b'; g.fillRect(lx - 1, at(4.6), 2, 0.5 * M); g.fillStyle = '#ffd98a'; g.fillRect(lx - 5, at(4.6) - 13, 10, 13); g.strokeStyle = '#2b2b2b'; g.lineWidth = 1.2; g.strokeRect(lx - 5, at(4.6) - 13, 10, 13); }
+    /* the shadow at its foot */
+    g.fillStyle = 'rgba(30,20,10,.18)'; g.fillRect(x0 + 4, b - 2, p.w - 8, 4);
+  } },
+  /* the monument to Vittorio Emanuele II: p.x, p.y its footprint's middle (solid, p.r) */
+  xpvittorio:{ fade:0.45, box:p => ({ x:p.x - 3.8 * VZ_M, y:p.y - 11.0 * VZ_M, w:7.6 * VZ_M, h:12.2 * VZ_M }), draw:(g, p) => {
+    const M = VZ_M, x = p.x, b = p.y + 0.6 * M, at = m => b - m * M, X = m => x + m * M, B = XPB;
+    g.save(); g.translate(x, b); g.scale(1.25, 1.25); g.translate(-x, -b);      // (drawn at 0.8, shown a little larger than life: about 10 m to the sword's tip, as the real one)
+    g.fillStyle = 'rgba(30,20,10,.24)'; ell(g, X(0.4), b + 2, 2.7 * M, 0.55 * M); g.fill();
+    /* the steps (Istrian stone), the pink granite base, its cornice */
+    g.fillStyle = '#ddd5c4'; g.fillRect(X(-2.4), at(0.3), 4.8 * M, 0.3 * M); g.fillStyle = '#e8e2d4'; g.fillRect(X(-2.1), at(0.6), 4.2 * M, 0.3 * M);
+    g.fillStyle = B.pink; g.fillRect(X(-1.7), at(3.4), 3.4 * M, 2.8 * M); g.fillStyle = 'rgba(0,0,0,.12)'; g.fillRect(X(1.25), at(3.4), 0.45 * M, 2.8 * M);
+    g.fillStyle = B.pink2; g.fillRect(X(-1.85), at(1.0), 3.7 * M, 0.4 * M); g.fillRect(X(-1.95), at(3.75), 3.9 * M, 0.35 * M); g.fillStyle = '#d9b0a2'; g.fillRect(X(-1.95), at(3.75), 3.9 * M, 2);
+    g.fillStyle = 'rgba(255,255,255,.10)'; for (let k = 0; k < 18; k++) g.fillRect(X(-1.6 + (k * 0.37) % 3.2), at(1.2 + (k * 0.53) % 2), 2, 2);
+    /* the bronze relief on the side we see (the king entering Venice): a frame, little figures, a horse, a flag */
+    g.fillStyle = B.bronzeD; g.fillRect(X(-1.2), at(3.1), 2.4 * M, 1.6 * M); g.fillStyle = B.bronze; g.fillRect(X(-1.1), at(3.0), 2.2 * M, 1.4 * M);
+    g.fillStyle = B.bronze2; for (let k = 0; k < 8; k++){ const fx = X(-0.95 + k * 0.27); g.fillRect(fx, at(2.2), 0.12 * M, 0.55 * M); circ(g, fx + 0.06 * M, at(2.3), 0.08 * M); g.fill(); }
+    g.fillStyle = B.bronze2; ell(g, X(0.45), at(1.95), 0.32 * M, 0.14 * M); g.fill(); g.fillRect(X(0.25), at(1.95), 2, 0.3 * M); g.fillRect(X(0.62), at(1.95), 2, 0.3 * M);
+    g.strokeStyle = B.bronze2; g.lineWidth = 1.2; g.beginPath(); g.moveTo(X(-0.6), at(1.75)); g.lineTo(X(-0.6), at(2.9)); g.stroke(); g.fillRect(X(-0.6), at(2.9), 0.35 * M, 0.2 * M);
+    /* at the front end (west): Venice standing, a sword in her hand, St Mark's lion roaring at her feet */
+    g.fillStyle = B.bronze; g.beginPath(); g.moveTo(X(-2.2), at(0.9)); g.lineTo(X(-2.05), at(2.7)); g.lineTo(X(-1.75), at(2.7)); g.lineTo(X(-1.6), at(0.9)); g.closePath(); g.fill();
+    circ(g, X(-1.9), at(2.9), 0.17 * M); g.fill(); g.fillStyle = B.bronze2; g.fillRect(X(-2.1), at(3.08), 0.4 * M, 0.08 * M);          // her crown
+    g.strokeStyle = B.bronze; g.lineWidth = 2.4; g.beginPath(); g.moveTo(X(-2.0), at(2.4)); g.lineTo(X(-2.55), at(2.75)); g.stroke();      // her arm held out
+    g.strokeStyle = '#8a9480'; g.lineWidth = 1.4; g.beginPath(); g.moveTo(X(-1.7), at(2.0)); g.lineTo(X(-1.55), at(1.1)); g.stroke();      // the sword
+    g.fillStyle = B.bronze; ell(g, X(-2.0), at(1.15), 0.42 * M, 0.2 * M); g.fill(); circ(g, X(-2.38), at(1.35), 0.2 * M); g.fill();       // the lion
+    g.fillStyle = B.bronzeD; circ(g, X(-2.42), at(1.38), 0.26 * M); g.fill(); g.fillStyle = B.bronze; circ(g, X(-2.44), at(1.36), 0.17 * M); g.fill();
+    g.fillStyle = B.bronze2; g.beginPath(); g.moveTo(X(-1.95), at(1.3)); g.lineTo(X(-1.75), at(1.75)); g.lineTo(X(-1.6), at(1.3)); g.closePath(); g.fill();   // its wing
+    /* the horse, in profile, heading west; a little larger than life */
+    const hb = at(3.75), sx = X(0.15);
+    g.fillStyle = B.bronze;
+    for (const [lx, back] of [[-0.95, 0], [-0.55, 1], [0.75, 0], [1.05, 1]]){ g.fillStyle = back ? B.bronzeD : B.bronze; g.fillRect(sx + lx * M - 0.09 * M, hb - 1.45 * M, 0.18 * M, 1.45 * M); }
+    g.fillStyle = B.bronzeD; g.save(); g.translate(sx - 1.05 * M, hb - 1.2 * M); g.rotate(0.9); g.fillRect(-0.09 * M, -0.1 * M, 0.18 * M, 0.75 * M); g.restore();   // a foreleg raised, stepping out
+    g.fillStyle = B.bronze; ell(g, sx, hb - 1.85 * M, 1.4 * M, 0.55 * M); g.fill();
+    g.beginPath(); g.moveTo(sx - 1.0 * M, hb - 2.1 * M); g.lineTo(sx - 1.55 * M, hb - 3.15 * M); g.lineTo(sx - 1.95 * M, hb - 3.0 * M); g.lineTo(sx - 2.05 * M, hb - 2.65 * M); g.lineTo(sx - 1.7 * M, hb - 2.55 * M); g.lineTo(sx - 1.15 * M, hb - 1.6 * M); g.closePath(); g.fill();   // the neck, the head
+    g.fillStyle = B.bronzeD; g.beginPath(); g.moveTo(sx - 1.05 * M, hb - 2.25 * M); g.lineTo(sx - 1.5 * M, hb - 3.15 * M); g.lineTo(sx - 1.35 * M, hb - 3.2 * M); g.lineTo(sx - 0.85 * M, hb - 2.3 * M); g.closePath(); g.fill();   // the mane
+    g.fillStyle = B.bronze2; g.beginPath(); g.moveTo(sx - 1.6 * M, hb - 3.15 * M); g.lineTo(sx - 1.55 * M, hb - 3.4 * M); g.lineTo(sx - 1.45 * M, hb - 3.12 * M); g.fill();   // an ear
+    g.fillStyle = B.bronzeD; g.beginPath(); g.moveTo(sx + 1.3 * M, hb - 2.05 * M); g.quadraticCurveTo(sx + 1.75 * M, hb - 1.6 * M, sx + 1.55 * M, hb - 0.9 * M); g.lineTo(sx + 1.42 * M, hb - 1.0 * M); g.quadraticCurveTo(sx + 1.5 * M, hb - 1.6 * M, sx + 1.2 * M, hb - 1.85 * M); g.closePath(); g.fill();   // the tail
+    g.fillStyle = 'rgba(160,190,150,.28)'; ell(g, sx - 0.3 * M, hb - 2.15 * M, 0.9 * M, 0.12 * M); g.fill();      // the light along its back
+    /* the king: his boots, his coat, the sash, the head with its moustache and plumed hat; the sword raised high */
+    const kx = sx - 0.05 * M, ks = hb - 2.25 * M;
+    g.fillStyle = B.bronzeD; g.fillRect(kx - 0.15 * M, ks - 0.15 * M, 0.3 * M, 0.9 * M);                                     // his leg down the horse's side
+    g.fillStyle = B.bronze; g.beginPath(); g.moveTo(kx - 0.38 * M, ks); g.lineTo(kx - 0.3 * M, ks - 1.25 * M); g.lineTo(kx + 0.3 * M, ks - 1.25 * M); g.lineTo(kx + 0.42 * M, ks); g.closePath(); g.fill();
+    g.fillStyle = B.bronze2; g.beginPath(); g.moveTo(kx - 0.3 * M, ks - 1.15 * M); g.lineTo(kx + 0.32 * M, ks - 0.35 * M); g.lineTo(kx + 0.32 * M, ks - 0.5 * M); g.lineTo(kx - 0.22 * M, ks - 1.25 * M); g.closePath(); g.fill();   // the sash
+    g.fillStyle = B.bronze; circ(g, kx, ks - 1.47 * M, 0.24 * M); g.fill();
+    g.fillStyle = B.bronzeD; g.fillRect(kx - 0.3 * M, ks - 1.42 * M, 0.3 * M, 0.08 * M);                                     // the great moustache
+    g.fillStyle = B.bronzeD; g.beginPath(); g.moveTo(kx - 0.3 * M, ks - 1.6 * M); g.lineTo(kx + 0.28 * M, ks - 1.62 * M); g.lineTo(kx + 0.2 * M, ks - 1.85 * M); g.lineTo(kx - 0.22 * M, ks - 1.85 * M); g.closePath(); g.fill();   // the hat
+    g.fillStyle = B.bronze2; g.beginPath(); g.moveTo(kx + 0.05 * M, ks - 1.85 * M); g.quadraticCurveTo(kx + 0.35 * M, ks - 2.3 * M, kx + 0.55 * M, ks - 2.05 * M); g.quadraticCurveTo(kx + 0.3 * M, ks - 2.0 * M, kx + 0.12 * M, ks - 1.82 * M); g.fill();   // its plume
+    g.strokeStyle = B.bronze; g.lineWidth = 0.2 * M; g.lineCap = 'round'; g.beginPath(); g.moveTo(kx - 0.2 * M, ks - 1.1 * M); g.lineTo(kx - 0.65 * M, ks - 1.75 * M); g.stroke(); g.lineCap = 'butt';
+    g.strokeStyle = '#9aa48e'; g.lineWidth = 2.2; g.beginPath(); g.moveTo(kx - 0.68 * M, ks - 1.78 * M); g.lineTo(kx - 1.05 * M, ks - 2.9 * M); g.stroke();   // the sword
+    g.strokeStyle = B.bronzeD; g.lineWidth = 2.2; g.beginPath(); g.moveTo(kx - 0.82 * M, ks - 1.72 * M); g.lineTo(kx - 0.52 * M, ks - 1.88 * M); g.stroke();
+    g.fillStyle = 'rgba(200,220,190,.25)'; g.fillRect(kx - 0.28 * M, ks - 1.2 * M, 0.1 * M, 1.0 * M);
+    /* the low bronze railing round it (the front run, its posts) */
+    g.strokeStyle = B.bronzeD; g.lineWidth = 1.6; g.beginPath(); g.moveTo(X(-2.7), b - 0.55 * M); g.lineTo(X(2.7), b - 0.55 * M); g.stroke();
+    for (let m = -2.7; m <= 2.71; m += 0.6){ g.fillStyle = B.bronzeD; g.fillRect(X(m) - 1.2, b - 0.75 * M, 2.4, 0.75 * M); circ(g, X(m), b - 0.78 * M, 2); g.fill(); }
+    g.strokeStyle = 'rgba(50,58,48,.6)'; g.lineWidth = 1; for (let m = -2.7; m < 2.7; m += 0.3){ g.beginPath(); g.moveTo(X(m), b - 0.25 * M); g.lineTo(X(m + 0.3), b - 0.5 * M); g.stroke(); }
+    g.restore();
+  } },
+});
+
+/* ---------- the rooms ---------- */
+Object.assign(VZ_FLOORS, {
+  /* the Madonna dell'Orto: worn squares of red and white Verona marble, set diagonally */
+  xporto(g, R, x0, x1, y0, y1, r){
+    g.fillStyle = '#e6dccb'; g.fillRect(x0, y0, x1 - x0, y1 - y0);
+    const s = vzM(0.9);
+    g.save(); g.beginPath(); g.rect(x0, y0, x1 - x0, y1 - y0); g.clip();
+    for (let j = -1; j * s / 2 < y1 - y0 + s; j++) for (let i = -1; i * s < x1 - x0 + s; i++){
+      const cx = x0 + i * s + (j % 2 ? s / 2 : 0), cy = y0 + j * s / 2;
+      g.fillStyle = (j % 2) ? `hsl(8, ${38 + r() * 8}%, ${54 + r() * 6}%)` : `hsl(38, ${18 + r() * 8}%, ${86 + r() * 4}%)`;
+      g.beginPath(); g.moveTo(cx, cy - s / 2 + 0.6); g.lineTo(cx + s / 2 - 0.6, cy); g.lineTo(cx, cy + s / 2 - 0.6); g.lineTo(cx - s / 2 + 0.6, cy); g.closePath(); g.fill();
+    }
+    g.restore();
+    g.fillStyle = 'rgba(40,25,10,.08)'; g.fillRect(x0, y0, x1 - x0, y1 - y0);
+  },
+  /* the Pietà: pale marble, a great oval inlaid in the middle, red and white */
+  xppieta(g, R, x0, x1, y0, y1, r){
+    g.fillStyle = '#efe8dc'; g.fillRect(x0, y0, x1 - x0, y1 - y0);
+    g.fillStyle = 'rgba(150,130,100,.18)'; for (let x = x0 + vzM(1); x < x1; x += vzM(1)) g.fillRect(x, y0, 1, y1 - y0); for (let y = y0 + vzM(1); y < y1; y += vzM(1)) g.fillRect(x0, y, x1 - x0, 1);
+    const cx = (x0 + x1) / 2, cy = y0 + (y1 - y0) * 0.55, rx = (x1 - x0) * 0.36, ry = (y1 - y0) * 0.32;
+    g.strokeStyle = '#a8483a'; g.lineWidth = vzM(0.25); ell(g, cx, cy, rx, ry); g.stroke();
+    g.strokeStyle = '#d8cdb6'; g.lineWidth = vzM(0.12); ell(g, cx, cy, rx - vzM(0.45), ry - vzM(0.45)); g.stroke();
+    g.fillStyle = 'rgba(168,72,58,.35)'; for (let k = 0; k < 16; k++){ const a = k / 16 * Math.PI * 2; ell(g, cx + Math.cos(a) * (rx - vzM(0.9)), cy + Math.sin(a) * (ry - vzM(0.9)), vzM(0.2), vzM(0.12)); g.fill(); }
+    g.fillStyle = 'rgba(255,255,255,.12)'; g.fillRect(x0, y0, x1 - x0, (y1 - y0) * 0.3);
+  },
+});
+Object.assign(VZ_WALLS, {
+  /* the Madonna dell'Orto's far end: warm plaster over brick, the pointed arches of the aisles either side, the apse's great pointed arch with
+     its lancets, the ship's-keel wooden ceiling across the top */
+  xporto(g, R, x0, x1, top, bot){
+    const X = R.X, Z = m => bot - vzM(m);
+    g.fillStyle = '#e2d6c0'; g.fillRect(x0, top, x1 - x0, bot - top);
+    g.fillStyle = 'rgba(160,80,50,.10)'; for (let y = Z(0.6); y > top; y -= 5) g.fillRect(x0, y, x1 - x0, 1);
+    /* the aisles' pointed arches (over the chapels), brick-trimmed */
+    for (const [a, c] of [[0, 3.8], [14.2, 18]]){ g.fillStyle = '#cdbfa6'; vzArchPath(g, X(a + 0.1), Z(7.0), vzM(c - a - 0.2), vzM(7.0), 'gothic'); g.fill();
+      g.strokeStyle = '#a85a3e'; g.lineWidth = vzM(0.22); vzArchPath(g, X(a + 0.1), Z(7.0), vzM(c - a - 0.2), vzM(7.0), 'gothic'); g.stroke(); }
+    /* the apse: a deep pointed arch, its five faces (lit from the west), three lancet windows, the vault's frescoed Virtues (small) */
+    const ax0 = X(6.2), aw = vzM(5.6);
+    g.fillStyle = '#d6c8ae'; vzArchPath(g, ax0, Z(8.4), aw, vzM(8.4), 'gothic'); g.fill();
+    g.save(); vzArchPath(g, ax0, Z(8.4), aw, vzM(8.4), 'gothic'); g.clip();
+    [['rgba(255,250,235,.16)', 0, 0.2], ['rgba(0,0,0,0)', 0.2, 0.4], ['rgba(0,0,0,.05)', 0.6, 0.2], ['rgba(0,0,0,.10)', 0.8, 0.2]].forEach(([c, f, w]) => { g.fillStyle = c; g.fillRect(ax0 + aw * f, Z(8.4), aw * w, vzM(8.4)); });
+    g.strokeStyle = 'rgba(120,90,60,.3)'; g.lineWidth = 1; for (const f of [0.2, 0.4, 0.6, 0.8]){ g.beginPath(); g.moveTo(ax0 + aw * f, bot); g.lineTo(ax0 + aw * f, Z(6.2)); g.stroke(); }
+    for (const f of [0.3, 0.5, 0.7]){ const wx = ax0 + aw * f; g.fillStyle = '#efe6d2'; vzArchPath(g, wx - vzM(0.32), Z(7.2), vzM(0.64), vzM(2.2), 'gothic'); g.fill(); g.fillStyle = '#bcd0d8'; vzArchPath(g, wx - vzM(0.22), Z(7.1), vzM(0.44), vzM(2.0), 'gothic'); g.fill(); g.fillStyle = 'rgba(255,255,255,.45)'; g.fillRect(wx - vzM(0.15), Z(6.6), 2, vzM(1.2)); }
+    [[0.28, '#8a5a3a'], [0.72, '#6a4a5a']].forEach(([f, c]) => { const vx = ax0 + aw * f; g.fillStyle = '#c9a54a'; g.fillRect(vx - vzM(0.55), Z(4.9) - 2, vzM(1.1) + 4, vzM(0.75) + 4); g.fillStyle = c; g.fillRect(vx - vzM(0.55) + 2, Z(4.9), vzM(1.1), vzM(0.75));
+      g.fillStyle = 'rgba(240,210,170,.6)'; for (const d of [-0.25, 0.25]){ circ(g, vx + vzM(d), Z(4.6), 2.2); g.fill(); g.fillRect(vx + vzM(d) - 1.5, Z(4.5), 3, vzM(0.3)); } });
+    g.restore();
+    g.strokeStyle = '#a85a3e'; g.lineWidth = vzM(0.28); vzArchPath(g, ax0, Z(8.4), aw, vzM(8.4), 'gothic'); g.stroke();
+    g.strokeStyle = '#f2ead8'; g.lineWidth = vzM(0.08); vzArchPath(g, ax0 - vzM(0.18), Z(8.55), aw + vzM(0.36), vzM(8.55), 'gothic'); g.stroke();
+    /* the ship's-keel ceiling: dark wood, its ribs, across the top */
+    g.fillStyle = '#5a3a22'; g.fillRect(x0, top, x1 - x0, vzM(0.5)); g.fillStyle = '#6e4626'; for (let x = x0 + 4; x < x1; x += vzM(0.9)) g.fillRect(x, top, vzM(0.12), vzM(0.5));
+    g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(x0, top + vzM(0.5), x1 - x0, 2);
+    /* the dado */
+    g.fillStyle = '#cbbfa8'; g.fillRect(x0, Z(0.8), x1 - x0, vzM(0.8)); g.fillStyle = 'rgba(0,0,0,.12)'; g.fillRect(x0, Z(0.8), x1 - x0, 1.5);
+  },
+  /* the Pietà's far end: white plaster and gold, the pilasters, the high altar's round arch, the cornice; the cove above it curving into the
+     ceiling, the oval's ends shaded where the walls turn away */
+  xppieta(g, R, x0, x1, top, bot){
+    const X = R.X, Z = m => bot - vzM(m), w = x1 - x0;
+    g.fillStyle = '#f6f2ea'; g.fillRect(x0, top, w, bot - top);
+    /* the cove (above the cornice): paler, with stucco garlands */
+    g.fillStyle = '#f9f6f0'; g.fillRect(x0, top, w, Z(6.6) - top); g.strokeStyle = 'rgba(201,165,74,.55)'; g.lineWidth = 1.2;
+    for (let x = x0 + vzM(0.5); x < x1 - vzM(0.5); x += vzM(1.2)){ g.beginPath(); g.moveTo(x, Z(6.95)); g.quadraticCurveTo(x + vzM(0.6), Z(6.65), x + vzM(1.2), Z(6.95)); g.stroke(); }
+    /* the arch of the presbytery, deeper: the altar's light */
+    const ax0 = X(5.2), aw = vzM(5.6);
+    g.fillStyle = '#ebe4d6'; vzArchPath(g, ax0, Z(6.3), aw, vzM(6.3), 'arch'); g.fill();
+    const gr = g.createLinearGradient(0, Z(6.3), 0, bot); gr.addColorStop(0, 'rgba(255,240,200,.35)'); gr.addColorStop(1, 'rgba(255,240,200,0)'); g.fillStyle = gr; vzArchPath(g, ax0 + vzM(0.3), Z(6.0), aw - vzM(0.6), vzM(6.0), 'arch'); g.fill();
+    g.strokeStyle = XPB.gold; g.lineWidth = vzM(0.14); vzArchPath(g, ax0 - vzM(0.1), Z(6.4), aw + vzM(0.2), vzM(6.4), 'arch'); g.stroke();
+    /* the pilasters: white, gilded capitals, between the galleries and the arch */
+    [0.35, 4.75, 11.25, 15.65].forEach(m => { const px = X(m) - vzM(0.25), pw = vzM(0.5);
+      g.fillStyle = '#fbf9f4'; g.fillRect(px, Z(6.3), pw, vzM(6.3)); g.fillStyle = 'rgba(0,0,0,.06)'; g.fillRect(px + pw - 3, Z(6.3), 3, vzM(6.3));
+      g.fillStyle = XPB.gold; g.fillRect(px - 2, Z(6.55), pw + 4, vzM(0.3)); g.fillStyle = XPB.gold2; circ(g, px + 2, Z(6.45), 2); g.fill(); circ(g, px + pw - 2, Z(6.45), 2); g.fill(); });
+    /* the cornice, gilded */
+    g.fillStyle = '#ece5d6'; g.fillRect(x0, Z(6.85), w, vzM(0.32)); g.fillStyle = XPB.gold; g.fillRect(x0, Z(6.6), w, 2); g.fillRect(x0, Z(6.85), w, 1.5);
+    /* the oval: the hall's walls turning away at both ends */
+    for (const [ex, dir] of [[x0, 1], [x1, -1]]){ const sg = g.createLinearGradient(ex, 0, ex + dir * vzM(1.6), 0); sg.addColorStop(0, 'rgba(120,100,70,.22)'); sg.addColorStop(1, 'rgba(120,100,70,0)'); g.fillStyle = sg; g.fillRect(dir > 0 ? ex : ex - vzM(1.6), top, vzM(1.6), bot - top); }
+    /* the dado: grey-veined marble */
+    g.fillStyle = '#e3ddd0'; g.fillRect(x0, Z(1.0), w, vzM(1.0)); g.fillStyle = 'rgba(110,100,90,.16)'; for (let x = x0 + 6; x < x1; x += 11) g.fillRect(x, Z(0.9), 1, vzM(0.8)); g.fillStyle = XPB.gold; g.fillRect(x0, Z(1.0), w, 1.5);
+  },
+});
+/* a painting's ground: a dark canvas with figures in the light */
+function xpFigures(g, x, y, w, h, n, seed, cols){ const r = rng(seed); for (let k = 0; k < n; k++){ const fx = x + r() * w, fy = y + r() * h, s = 2 + r() * 2.4; g.fillStyle = cols[Math.floor(r() * cols.length)]; g.fillRect(fx - s * 0.4, fy, s * 0.8, s * 2.2); g.fillStyle = '#d9b08a'; circ(g, fx, fy - s * 0.3, s * 0.45); g.fill(); } }
+Object.assign(VZ_PROP_ART, {
+  /* Tintoretto's canvases (tall, their tops pointed): the Golden Calf carried up on a litter, Moses on the mountain in the clouds above; the Last
+     Judgement, Christ in the light above, the souls tumbling down, the river at the bottom */
+  xptintoretto:{ bg(g, p, R){ const b = vzWallBox(p, R), w = b.x1 - b.x0, h = b.bot - b.top, x = b.x0, y = b.top;
+    g.fillStyle = 'rgba(0,0,0,.2)'; vzArchPath(g, x + 3, y + 3, w, h, 'gothic'); g.fill();
+    g.fillStyle = '#7a5a2a'; vzArchPath(g, x - 3, y - 3, w + 6, h + 6, 'gothic'); g.fill();
+    g.save(); vzArchPath(g, x, y, w, h, 'gothic'); g.clip();
+    const calf = p.scene === 'vitello', gr = g.createLinearGradient(0, y, 0, b.bot);
+    if (calf){ gr.addColorStop(0, '#8a8f8a'); gr.addColorStop(0.35, '#4a4238'); gr.addColorStop(1, '#2a221a'); } else { gr.addColorStop(0, '#d8c48a'); gr.addColorStop(0.25, '#6a5a44'); gr.addColorStop(0.8, '#2a2420'); gr.addColorStop(1, '#2a3a40'); }
+    g.fillStyle = gr; g.fillRect(x, y, w, h);
+    if (calf){
+      g.fillStyle = 'rgba(230,225,210,.6)'; ell(g, x + w * 0.55, y + h * 0.16, w * 0.42, h * 0.07); g.fill();               // the clouds, Moses on the mountain
+      g.fillStyle = '#c23b2a'; g.fillRect(x + w * 0.5, y + h * 0.13, 3, 6); g.fillStyle = '#d9b08a'; circ(g, x + w * 0.51, y + h * 0.12, 1.6); g.fill();
+      xpFigures(g, x + 2, y + h * 0.45, w - 4, h * 0.4, 22, 1562, ['#c23b2a', '#e8d8b0', '#3a5a8a', '#8a6a2a', '#5a7a4a']);
+      g.fillStyle = '#6a4a2a'; g.fillRect(x + w * 0.15, y + h * 0.56, w * 0.7, 3);                                            // the litter
+      g.fillStyle = '#e8c35a'; ell(g, x + w * 0.5, y + h * 0.53, w * 0.18, h * 0.022); g.fill(); g.fillRect(x + w * 0.38, y + h * 0.53, 2, 6); g.fillRect(x + w * 0.6, y + h * 0.53, 2, 6);   // the golden calf
+      circ(g, x + w * 0.32, y + h * 0.51, w * 0.06); g.fill();
+    } else {
+      g.fillStyle = 'rgba(255,240,190,.7)'; circ(g, x + w * 0.5, y + h * 0.12, w * 0.2); g.fill(); g.fillStyle = '#c23b2a'; g.fillRect(x + w * 0.47, y + h * 0.11, 4, 8); g.fillStyle = '#d9b08a'; circ(g, x + w * 0.5, y + h * 0.1, 1.8); g.fill();
+      xpFigures(g, x + 2, y + h * 0.2, w - 4, h * 0.65, 34, 1563, ['#d9b08a', '#c9a07a', '#8a6a4a', '#e8d8b0', '#5a6a8a']);
+      g.fillStyle = 'rgba(90,130,140,.6)'; g.fillRect(x, y + h * 0.88, w, h * 0.12);
+    }
+    g.restore();
+  } },
+  /* an altarpiece: the Annunciation (the angel, the Virgin, the dove's light), or the Visitation (two women embracing, an arch behind) */
+  xppala:{ bg(g, p, R){ const b = vzWallBox(p, R), w = b.x1 - b.x0, h = b.bot - b.top, x = b.x0, y = b.top;
+    g.fillStyle = 'rgba(0,0,0,.18)'; vzArchPath(g, x + 3, y + 3, w, h, 'arch'); g.fill();
+    g.fillStyle = XPB.gold; vzArchPath(g, x - vzM(0.12), y - vzM(0.12), w + vzM(0.24), h + vzM(0.24), 'arch'); g.fill();
+    const gr = g.createLinearGradient(0, y, 0, b.bot); gr.addColorStop(0, '#e8d8a8'); gr.addColorStop(0.5, '#8a7a5a'); gr.addColorStop(1, '#4a3a2a');
+    g.fillStyle = gr; vzArchPath(g, x, y, w, h, 'arch'); g.fill();
+    if (p.scene === 'visita'){ g.fillStyle = 'rgba(240,230,210,.5)'; vzArchPath(g, x + w * 0.25, y + h * 0.3, w * 0.5, h * 0.4, 'arch'); g.fill();
+      g.fillStyle = '#2e5a8a'; g.fillRect(x + w * 0.3, b.bot - h * 0.5, w * 0.17, h * 0.42); g.fillStyle = '#a8342a'; g.fillRect(x + w * 0.5, b.bot - h * 0.5, w * 0.18, h * 0.42);
+      g.fillStyle = '#d9b08a'; circ(g, x + w * 0.4, b.bot - h * 0.54, w * 0.055); g.fill(); circ(g, x + w * 0.57, b.bot - h * 0.54, w * 0.055); g.fill(); }
+    else { g.fillStyle = '#f2ead8'; g.beginPath(); g.moveTo(x + w * 0.12, b.bot - h * 0.4); g.lineTo(x + w * 0.38, b.bot - h * 0.62); g.lineTo(x + w * 0.4, b.bot - h * 0.3); g.closePath(); g.fill();   // the angel's wings
+      g.fillStyle = '#e8d8c8'; g.fillRect(x + w * 0.18, b.bot - h * 0.4, w * 0.16, h * 0.32); g.fillStyle = '#d9b08a'; circ(g, x + w * 0.26, b.bot - h * 0.44, w * 0.05); g.fill();
+      g.fillStyle = '#2e5a8a'; g.fillRect(x + w * 0.6, b.bot - h * 0.38, w * 0.2, h * 0.32); g.fillStyle = '#a8342a'; g.fillRect(x + w * 0.63, b.bot - h * 0.42, w * 0.14, h * 0.1); g.fillStyle = '#d9b08a'; circ(g, x + w * 0.7, b.bot - h * 0.46, w * 0.05); g.fill();
+      g.fillStyle = 'rgba(255,250,220,.8)'; circ(g, x + w * 0.55, y + h * 0.22, w * 0.06); g.fill(); g.strokeStyle = 'rgba(255,250,220,.5)'; g.lineWidth = 1; g.beginPath(); g.moveTo(x + w * 0.55, y + h * 0.22); g.lineTo(x + w * 0.7, b.bot - h * 0.48); g.stroke(); }
+  } },
+  /* a chapel opening in the back wall (the aisle's end): its pointed arch, the chapel's own wall behind, darker; the Contarini busts in their
+     aedicules, or Tintoretto's chapel: its altar and painting, the tomb's white slab in the floor at its foot */
+  xpchapel:{ bg(g, p, R){ const b = vzWallBox(p, R), w = b.x1 - b.x0, h = b.bot - b.top, x = b.x0;
+    g.fillStyle = '#b9ab92'; vzArchPath(g, x, b.top, w, h, 'gothic'); g.fill();
+    g.fillStyle = 'rgba(40,25,10,.18)'; vzArchPath(g, x + vzM(0.25), b.top + vzM(0.3), w - vzM(0.5), h - vzM(0.3), 'gothic'); g.fill();
+    g.strokeStyle = '#efe6d2'; g.lineWidth = vzM(0.1); vzArchPath(g, x, b.top, w, h, 'gothic'); g.stroke();
+    if (p.side === 'contarini'){
+      for (const [f, z] of [[0.2, 1.6], [0.5, 1.6], [0.8, 1.6], [0.2, 3.1], [0.5, 3.1], [0.8, 3.1]]){ if (z > 3 && f !== 0.5) continue; const cx = x + w * f, cy = b.bot - vzM(z);
+        g.fillStyle = '#efe9dc'; g.fillRect(cx - vzM(0.38), cy - vzM(1.05), vzM(0.76), vzM(1.15)); vzPediment(g, cx, cy - vzM(1.05), vzM(0.9), vzM(0.28), '#f6f2e8');
+        g.fillStyle = '#3a3238'; vzArchPath(g, cx - vzM(0.26), cy - vzM(0.95), vzM(0.52), vzM(0.9), 'arch'); g.fill();
+        g.fillStyle = '#ece6da'; circ(g, cx, cy - vzM(0.55), vzM(0.13)); g.fill(); g.fillRect(cx - vzM(0.2), cy - vzM(0.4), vzM(0.4), vzM(0.32));    // the bust
+        g.fillStyle = '#dcd5c6'; g.fillRect(cx - vzM(0.32), cy - vzM(0.08), vzM(0.64), vzM(0.14)); }
+    } else {
+      /* the altar at the back, its painting (two saints), the candles */
+      const cx = x + w * 0.5; g.fillStyle = XPB.gold; g.fillRect(cx - vzM(0.6), b.bot - vzM(3.4), vzM(1.2), vzM(1.5)); g.fillStyle = '#4a3a2a'; g.fillRect(cx - vzM(0.52), b.bot - vzM(3.32), vzM(1.04), vzM(1.34));
+      g.fillStyle = '#7a2a2a'; g.fillRect(cx - vzM(0.35), b.bot - vzM(2.6), vzM(0.25), vzM(0.6)); g.fillStyle = '#5a5a6a'; g.fillRect(cx + vzM(0.1), b.bot - vzM(2.6), vzM(0.25), vzM(0.6));
+      g.fillStyle = '#efe9dc'; g.fillRect(cx - vzM(0.7), b.bot - vzM(1.0), vzM(1.4), vzM(1.0)); g.fillStyle = 'rgba(181,70,47,.45)'; g.fillRect(cx - vzM(0.55), b.bot - vzM(0.85), vzM(1.1), vzM(0.6));
+      for (const d of [-0.5, 0.5]){ g.fillStyle = '#fffdf8'; g.fillRect(cx + vzM(d) - 1, b.bot - vzM(1.25), 2, vzM(0.25)); g.fillStyle = '#ffd98a'; circ(g, cx + vzM(d), b.bot - vzM(1.28), 1.6); g.fill(); }
+    }
+  } },
+  /* Tintoretto's bust: terracotta, the old painter's beard, on a white bracket */
+  xpbust:{ bg(g, p, R){ const b = vzWallBox(p, R), w = b.x1 - b.x0, h = b.bot - b.top, cx = (b.x0 + b.x1) / 2;
+    g.fillStyle = '#efe9dc'; g.fillRect(cx - w * 0.45, b.bot - h * 0.14, w * 0.9, h * 0.14); g.fillStyle = 'rgba(0,0,0,.15)'; g.fillRect(cx - w * 0.45, b.bot - 2, w * 0.9, 2);
+    g.fillStyle = '#a8583a'; g.beginPath(); g.moveTo(cx - w * 0.42, b.bot - h * 0.14); g.quadraticCurveTo(cx - w * 0.4, b.bot - h * 0.46, cx, b.bot - h * 0.5); g.quadraticCurveTo(cx + w * 0.4, b.bot - h * 0.46, cx + w * 0.42, b.bot - h * 0.14); g.closePath(); g.fill();
+    g.fillStyle = '#b8683f'; ell(g, cx, b.bot - h * 0.66, w * 0.2, h * 0.17); g.fill();
+    g.fillStyle = '#8f4a30'; g.beginPath(); g.moveTo(cx - w * 0.17, b.bot - h * 0.64); g.quadraticCurveTo(cx, b.bot - h * 0.32, cx + w * 0.17, b.bot - h * 0.64); g.closePath(); g.fill();   // the beard
+    g.fillStyle = 'rgba(255,220,190,.25)'; ell(g, cx - w * 0.07, b.bot - h * 0.72, w * 0.05, h * 0.06); g.fill();
+  } },
+  /* the plaque: white marble in a darker frame, its lines of letters */
+  xpplaque:{ bg(g, p, R){ const b = vzWallBox(p, R), w = b.x1 - b.x0, h = b.bot - b.top;
+    g.fillStyle = 'rgba(0,0,0,.22)'; g.fillRect(b.x0 + 2, b.top + 2, w, h); g.fillStyle = '#8a7a64'; g.fillRect(b.x0 - 2, b.top - 2, w + 4, h + 4);
+    g.fillStyle = '#f4efe4'; g.fillRect(b.x0, b.top, w, h); g.strokeStyle = '#b8ab92'; g.lineWidth = 1; g.strokeRect(b.x0 + 2, b.top + 2, w - 4, h - 4);
+    g.fillStyle = 'rgba(70,60,45,.75)'; [0.62, 0.8, 0.62, 0.4, 0.7, 0.45, 0.66].forEach((f, k) => g.fillRect(b.x0 + w * (1 - f) / 2, b.top + 4 + k * (h - 8) / 7, w * f, 1.4));
+  } },
+  /* a column of Greek marble: grey-veined, round, its Gothic capital, seen through when you are behind it */
+  xpcolumn:{ draw(g, p){ const { x0, x1, y0, y1, hp } = vzFloorBox(p), cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, sr = (x1 - x0) * 0.34, top = cy - hp;
+    g.globalAlpha = seeThrough({ x:x0 - vzM(1.4), y:top - 6, w:x1 - x0 + vzM(2.8), h:hp + 6 }, y1, 0.35);
+    g.fillStyle = 'rgba(30,20,10,.22)'; ell(g, cx + 4, cy + 2, sr + 6, 4); g.fill();
+    g.fillStyle = '#d8d2c4'; g.fillRect(x0, cy - vzM(0.5), x1 - x0, vzM(0.5)); g.fillStyle = '#ece6da'; g.fillRect(x0 - 2, cy - vzM(0.55), x1 - x0 + 4, 3);
+    const gr = g.createLinearGradient(cx - sr, 0, cx + sr, 0); gr.addColorStop(0, '#f4f0e8'); gr.addColorStop(0.55, '#e2ddd2'); gr.addColorStop(1, '#bdb6a8');
+    g.fillStyle = gr; g.fillRect(cx - sr, top + vzM(0.9), 2 * sr, hp - vzM(1.4));
+    g.strokeStyle = 'rgba(120,115,105,.35)'; g.lineWidth = 0.8; const r = rng(Math.round(p.x * 13 + p.y));
+    for (let k = 0; k < 7; k++){ const vy = top + vzM(1.2) + r() * (hp - vzM(2)); g.beginPath(); g.moveTo(cx - sr, vy); g.quadraticCurveTo(cx, vy + 6 * (r() - 0.5), cx + sr, vy + 8 * (r() - 0.5)); g.stroke(); }
+    g.fillStyle = '#ece6da'; g.beginPath(); g.moveTo(cx - sr - 4, top + vzM(0.6)); g.lineTo(cx + sr + 4, top + vzM(0.6)); g.lineTo(cx + sr, top + vzM(0.95)); g.lineTo(cx - sr, top + vzM(0.95)); g.closePath(); g.fill();
+    g.fillStyle = 'rgba(150,140,110,.45)'; for (let k = 0; k < 3; k++){ ell(g, cx - sr + (k + 0.5) * 2 * sr / 3, top + vzM(0.78), 2.4, 3); g.fill(); }
+    g.fillStyle = '#d8d0c0'; g.fillRect(cx - sr - 6, top + vzM(0.4), 2 * sr + 12, vzM(0.22));
+    g.globalAlpha = 1;
+  } },
+  /* the pews: dark wooden benches in rows, their backs to us */
+  xppews:{ draw(g, p){ const { x0, x1, y0, y1 } = vzFloorBox(p), n = p.rows || 5, rowD = (y1 - y0) / n;
+    for (let k = 0; k < n; k++){ const ry = y0 + (k + 1) * rowD - 3;
+      g.fillStyle = 'rgba(30,10,5,.2)'; g.fillRect(x0 + 2, ry + 1, x1 - x0, 3);
+      g.fillStyle = '#5a3a22'; g.fillRect(x0, ry - vzM(0.5) - rowD * 0.32, x1 - x0, rowD * 0.32);                    // the seat
+      g.fillStyle = '#4a2e1a'; g.fillRect(x0, ry - vzM(0.95), x1 - x0, vzM(0.48)); g.fillStyle = '#6e4626'; g.fillRect(x0, ry - vzM(0.97), x1 - x0, 2);   // the back
+      g.fillStyle = '#3a2414'; g.fillRect(x0, ry - vzM(1.0), 3, vzM(1.0)); g.fillRect(x1 - 3, ry - vzM(1.0), 3, vzM(1.0));   // the ends
+      g.fillStyle = 'rgba(255,220,180,.10)'; g.fillRect(x0 + 2, ry - vzM(0.9), x1 - x0 - 4, 1.5);
+    }
+  } },
+  /* a choir gallery: a white and gold balcony, a gilded lattice grille over it, the dark behind (the girls of the Pietà sang unseen) */
+  xpcantoria:{ bg(g, p, R){ const b = vzWallBox(p, R), w = b.x1 - b.x0, h = b.bot - b.top;
+    g.fillStyle = 'rgba(0,0,0,.18)'; g.fillRect(b.x0 + 3, b.top + 3, w, h);
+    g.fillStyle = '#3a3028'; g.fillRect(b.x0, b.top, w, h * 0.7);
+    g.save(); g.beginPath(); g.rect(b.x0, b.top, w, h * 0.7); g.clip(); g.strokeStyle = XPB.gold; g.lineWidth = 1.3;
+    for (let k = -h; k < w + h; k += 6){ g.beginPath(); g.moveTo(b.x0 + k, b.top); g.lineTo(b.x0 + k + h, b.top + h); g.stroke(); g.beginPath(); g.moveTo(b.x0 + k, b.top + h); g.lineTo(b.x0 + k + h, b.top); g.stroke(); }
+    g.restore();
+    g.fillStyle = '#fbf9f4'; g.fillRect(b.x0 - 4, b.top + h * 0.7, w + 8, h * 0.3); g.fillStyle = XPB.gold; g.fillRect(b.x0 - 4, b.top + h * 0.7, w + 8, 2); g.fillRect(b.x0 - 4, b.bot - 2, w + 8, 2);
+    g.fillStyle = 'rgba(201,165,74,.6)'; for (let x = b.x0 + 6; x < b.x1 - 4; x += 10){ g.fillRect(x, b.top + h * 0.74, 3, h * 0.22); }
+    g.fillStyle = XPB.gold; g.fillRect(b.x0 - 4, b.top - 4, w + 8, 4); vzPediment(g, (b.x0 + b.x1) / 2, b.top - 4, w * 0.4, vzM(0.35), '#f6f2ea');
+  } },
+  /* Tiepolo's ceiling, seen in the cove: an oval of sky in a gilded frame, clouds, angels with their instruments, the light in the middle */
+  xpceiling:{ bg(g, p, R){ const b = vzWallBox(p, R), w = b.x1 - b.x0, h = b.bot - b.top, cx = (b.x0 + b.x1) / 2, cy = (b.top + b.bot) / 2;
+    g.fillStyle = XPB.gold; ell(g, cx, cy, w / 2 + 4, h / 2 + 4); g.fill(); g.fillStyle = '#f4efe2'; ell(g, cx, cy, w / 2 + 1.5, h / 2 + 1.5); g.fill();
+    g.save(); ell(g, cx, cy, w / 2, h / 2); g.clip();
+    const gr = g.createRadialGradient(cx, cy, 2, cx, cy, w / 2); gr.addColorStop(0, '#fff6d8'); gr.addColorStop(0.35, '#cfe0ea'); gr.addColorStop(1, '#7fa8c9'); g.fillStyle = gr; g.fillRect(b.x0, b.top, w, h);
+    const r = rng(1755); g.fillStyle = 'rgba(255,255,255,.75)'; for (let k = 0; k < 9; k++){ ell(g, b.x0 + w * (0.1 + 0.8 * r()), b.top + h * (0.25 + 0.6 * r()), vzM(0.5 + r() * 0.4), vzM(0.18)); g.fill(); }
+    for (let k = 0; k < 10; k++){ const a = k / 10 * Math.PI * 2, ax = cx + Math.cos(a) * w * 0.36, ay = cy + Math.sin(a) * h * 0.34;
+      g.fillStyle = ['#e8c35a', '#c23b2a', '#2e5a8a', '#f2ead8'][k % 4]; g.fillRect(ax - 2, ay - 1, 4, 5); g.fillStyle = '#e8c4a0'; circ(g, ax, ay - 2.4, 1.8); g.fill();
+      g.fillStyle = 'rgba(255,255,255,.85)'; ell(g, ax - 3, ay, 2.6, 1.2, -0.5); g.fill(); g.strokeStyle = '#8a5a2a'; g.lineWidth = 1; g.beginPath(); g.moveTo(ax + 2, ay); g.lineTo(ax + 5, ay - 2); g.stroke(); }
+    g.restore();
+  } },
+  /* the bakery's tall glass case: three shelves of cakes and pastries, the San Martino biscuits standing on top */
+  xpcakecase:{ draw(g, p){ const { x0, x1, y0, y1, hp } = vzFloorBox(p), w = x1 - x0, r = rng(1111); vzShadow(g, x0, x1, y1, 4);
+    g.fillStyle = '#6e4626'; g.fillRect(x0, y1 - vzM(0.35), w, vzM(0.35));
+    g.fillStyle = 'rgba(245,240,228,.95)'; g.fillRect(x0 + 2, y1 - hp, w - 4, hp - vzM(0.35));
+    for (const z of [0.5, 0.85, 1.2]){ const sy = y1 - vzM(z); g.fillStyle = '#d8cdb6'; g.fillRect(x0 + 2, sy, w - 4, 2);
+      for (let x = x0 + 7; x < x1 - 6; x += 9){ const k = Math.floor(r() * 4); g.fillStyle = ['#f7c6d0', '#e3b06a', '#8a4a2a', '#f4d29a'][k];
+        if (k === 0){ g.fillRect(x - 3.5, sy - 6, 7, 6); g.fillStyle = '#fffdf8'; g.fillRect(x - 3.5, sy - 6, 7, 1.6); g.fillStyle = '#c23b2a'; circ(g, x, sy - 7, 1.2); g.fill(); }
+        else if (k === 1){ circ(g, x, sy - 3, 3); g.fill(); g.fillStyle = 'rgba(255,255,255,.7)'; circ(g, x, sy - 4.5, 1); g.fill(); }
+        else { ell(g, x, sy - 2.5, 3.6, 2.4); g.fill(); } } }
+    g.fillStyle = 'rgba(200,225,235,.32)'; g.fillRect(x0 + 2, y1 - hp, w - 4, hp - vzM(0.35)); g.fillStyle = 'rgba(255,255,255,.4)'; g.fillRect(x0 + 5, y1 - hp + 3, 2, hp - vzM(0.5));
+    g.strokeStyle = '#b8b4aa'; g.lineWidth = 1; g.strokeRect(x0 + 2, y1 - hp, w - 4, hp - vzM(0.35));
+    g.fillStyle = '#efe6d2'; g.fillRect(x0 - 1, y0 - hp, w + 2, y1 - y0); g.fillStyle = '#d8cdb6'; g.fillRect(x0 - 1, y1 - hp - 2, w + 2, 2);
+    /* on top: the San Martino biscuits standing in a row, and their card */
+    for (let k = 0; k < 3; k++) xpSanMartino(g, x0 + w * (0.22 + k * 0.28), y1 - hp - vzM(0.32), vzM(0.42), 1100 + k);
+    g.fillStyle = '#fffdf8'; g.fillRect(x1 - vzM(0.5), y1 - hp - vzM(0.18), vzM(0.45), vzM(0.16)); vzText(g, 'S. MARTIN', x1 - vzM(0.275), y1 - hp - vzM(0.1), '700 3px "Titillium Web", sans-serif', '#8a2a2a', vzM(0.42));
+  } },
+});
 
 /* ===== engine/boot.js ===== */
 /* Boot: build the unit's backgrounds, restore or show the intro. */
