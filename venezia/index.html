@@ -5201,19 +5201,29 @@ D2C_NPCS.forEach(n => { n.home = { x:n.x, y:n.y, face:{ ...(n.baseFace || { x:0,
    A page learns its slot from its URL (?slot=2, &name=… for a new game, &replay=1 for a replay the home screen asked for in
    localStorage SLOT_REPLAY), or, in the game build only (window.PIAZZA_GAME, set by scripts/build.js game), from the small key the home
    screen sets as it opens a unit (SLOT_HANDOFF, a minute's worth) or from this tab's last one (sessionStorage: a reload). With no slot
-   (a unit's page opened on its own) nothing changes: KEY is UNIT.saveKey, as before. */
+   (a unit's page opened on its own) nothing changes: KEY is UNIT.saveKey, as before.
+   The two test saves of the home screen (docs/features/home-screen.md, "Two test saves"): ?mode=drive (the Lesson test drive: a lesson, quest,
+   node or side story picked on the home screen, its request in localStorage SLOT_DRIVE, set up with everything before it done) and ?mode=world
+   (the Open world: every area open, free play). Each runs on a key of its own, the unit's key + ':drive' / ':world' (SLOT.mode; SLOT.n is 0):
+   never a save file's, never counted, no last played. */
 const GAME = (typeof window === 'object' && window && window.PIAZZA_GAME) || null;        // { home:'../index.html', unit } in the game build
-const SLOT_HANDOFF = 'piazza-game-open', SLOT_META = 'piazza-game-meta', SLOT_REPLAY = 'piazza-game-replay', SLOT_N = 3;
+const SLOT_HANDOFF = 'piazza-game-open', SLOT_META = 'piazza-game-meta', SLOT_REPLAY = 'piazza-game-replay', SLOT_DRIVE = 'piazza-game-drive', SLOT_N = 3;
+const SLOT_MODES = ['drive', 'world'];
 const SLOT = (() => {
   let q = {}; try { q = Object.fromEntries(new URLSearchParams((typeof location === 'object' && location && location.search) || '')); } catch (e){}
-  let n = +q.slot || 0, name = q.name || '', replay = q.replay === '1';
+  let n = +q.slot || 0, name = q.name || '', replay = q.replay === '1', mode = SLOT_MODES.includes(q.mode) ? q.mode : null;
   const get = (st, k) => { try { return JSON.parse(st.getItem(k) || 'null'); } catch (e){ return null; } };
   if (GAME){
     const h = typeof localStorage === 'object' ? get(localStorage, SLOT_HANDOFF) : null;
     if (h){ try { localStorage.removeItem(SLOT_HANDOFF); } catch (e){} }      // (used once, whether the address kept its query or not)
-    if (!n && h && Date.now() - (+h.at || 0) < 60000 && (!h.unit || h.unit === UNIT.id)){ n = +h.slot || 0; name = name || h.name || ''; replay = replay || !!h.replay; }
-    const s = !n && typeof sessionStorage === 'object' ? get(sessionStorage, SLOT_HANDOFF) : null;
-    if (s && s.unit === UNIT.id){ n = +s.slot || 0; replay = !!s.replay; }
+    if (!n && !mode && h && Date.now() - (+h.at || 0) < 60000 && (!h.unit || h.unit === UNIT.id)){ n = +h.slot || 0; mode = SLOT_MODES.includes(h.mode) ? h.mode : null; name = name || h.name || ''; replay = replay || !!h.replay; }
+    const s = !n && !mode && typeof sessionStorage === 'object' ? get(sessionStorage, SLOT_HANDOFF) : null;
+    if (s && s.unit === UNIT.id){ n = +s.slot || 0; mode = SLOT_MODES.includes(s.mode) ? s.mode : null; replay = !!s.replay; }
+  }
+  if (mode){
+    let D = mode === 'drive' && typeof localStorage === 'object' ? get(localStorage, SLOT_DRIVE) : null; if (!D || D.unit !== UNIT.id) D = null;
+    try { if (GAME) sessionStorage.setItem(SLOT_HANDOFF, JSON.stringify({ unit:UNIT.id, mode })); } catch (e){}
+    return { n:0, mode, name:String(name).slice(0, 14), replay:null, drive:D };
   }
   if (!(n >= 1 && n <= SLOT_N)) return null;
   let R = null;
@@ -5222,12 +5232,12 @@ const SLOT = (() => {
   return { n, name:String(name).slice(0, 14), replay:R };
 })();
 /* a unit's key in this page's slot (its own, slot 1, when there is none) */
-const slotBase = base => !SLOT || SLOT.n === 1 ? base : base + ':s' + SLOT.n;
+const slotBase = base => !SLOT ? base : SLOT.mode ? base + ':' + SLOT.mode : SLOT.n === 1 ? base : base + ':s' + SLOT.n;
 const slotKey = base => slotBase(base) + (SLOT && SLOT.replay ? ':replay' : '');
 /* the slot's record for the home screen (last played, the unit it was in): written as the game saves, at most every 10 s */
 let slotTouched = 0;
 function slotTouch(){
-  if (!SLOT || SLOT.replay || Date.now() - slotTouched < 10000) return;
+  if (!SLOT || SLOT.replay || SLOT.mode || Date.now() - slotTouched < 10000) return;
   slotTouched = Date.now();
   try { const M = JSON.parse(localStorage.getItem(SLOT_META) || '{}') || {}; M[SLOT.n] = { unit:UNIT.id, at:Date.now() }; localStorage.setItem(SLOT_META, JSON.stringify(M)); } catch (e){}
 }
@@ -5345,7 +5355,7 @@ if (typeof module === 'object' && module && module.exports) module.exports = PRO
    ========================================================= */
 const W = 960, H = 600, NEAR = 58;
 let KEY = slotKey(UNIT.saveKey);          // each unit saves under its own key (units/<id>/unit.js), in the page's save file (core/slots.js: slot 1 is the key itself); a unit may switch to a key of its own (useSaveKey: Venezia's test drive)
-function useSaveKey(k){ KEY = !k || k === UNIT.saveKey ? slotKey(UNIT.saveKey) : k; return KEY; }
+function useSaveKey(k){ KEY = !k || k === UNIT.saveKey || (SLOT && SLOT.mode) ? slotKey(UNIT.saveKey) : k; return KEY; }      // (a test save of the home screen keeps its own key whatever the unit asks: core/slots.js)
 const DPR = Math.min(2, window.devicePixelRatio || 1);
 /* the canvas's resolution: its px per W × H unit. DPR, or (a unit with UNIT.sharpCanvas: Venezia) the canvas's CSS scale times the
    device's pixel ratio, so a canvas shown larger than 960 × 600 is drawn at the screen's own resolution, not upscaled
@@ -6327,10 +6337,13 @@ function designerNodeDone(id, o = {}){
 /* a replay of node n (the game build's home screen: ui/home.js slotReplay): its parents marked complete, quietly, so n is open and not begun;
    a lesson parent's player left where its Mark as complete puts them (UNIT.designerPlace: Venezia's Lesson 5 at the Erberia, District 2's start) */
 function replayOpenNode(n){
+  if (n && n.continues && !treeIsDone(treeNode(n.continues))) designerNodeDone(n.continues, { inner:true, quiet:true });      // (what it continues, in an earlier district)
   const p = n && n.parent ? treeNode(n.parent) : null; if (!p) return false;
   if (p.lesson) designerMarkDone(p.lesson, { quiet:true }); else designerNodeDone(p.id, { inner:true, quiet:true });
   return treeState(n) === 'open';
 }
+/* every lesson of the unit marked complete, quietly (the home screen's Lesson test drive, a quest: ui/home.js driveSetup) */
+function replayAllLessons(){ return LESSONS.length ? designerMarkDone(LESSONS.length, { quiet:true }) : false; }
 function designerStudyDone(id, o = {}){
   const n = treeNode(id); if (!n || !n.study) return false;
   const r = treeStudyRec(id); r.words = r.practice = true; if (n.study.numbers) r.numbers = true;
@@ -30702,6 +30715,22 @@ document.addEventListener('click', e => {
 document.addEventListener('input', e => { const r = e.target.closest && e.target.closest('[data-vzflood="level"]'); if (!r || !designerOn()) return; vzSetFlood({ level:+r.value, ms:0 }); vzFloodDeskPaint(); });
 Object.assign(window.__debug, { floodDesk:(open = true) => { VZ_FLOOD_DESK.open = open; vzFloodDeskPaint(); return !!document.getElementById('vzFloodDesk'); } });
 
+/* The home screen's Lesson test drive (engine ui/home.js driveSetup; docs/features/home-screen.md, "Two test saves"): each side story set up with
+   what comes before it done, you at its start. Il Ponte di Rialto: the Albero's gate met (Lessons 1–3, the level-2 nodes), Margaret waiting at
+   Campo San Bartolomeo (as __debug.d1rAt('wait')); il pozzo: Lesson 3 done, you by Lina's campiello's well; le maschere e i gatti: Lessons 1–5
+   done, you at Nane's workshop on Campo San Barnaba; la roulette: Lessons 1–5 done, Cannaregio open, you at the Casinò's door. */
+const vzAfterLoad = fn => { const t = setInterval(() => { if (!VZD.loading){ clearInterval(t); fn(); } }, 120); };
+const vzDriveSide = {
+  rialto(){ d1rAt('wait', { near:true }); },
+  pozzo(){ designerMarkDone(3, { quiet:true });
+    vzAfterLoad(() => { const w = POZZO_WELL.campiello.at(), q = VZ.snap(w.x, w.y + 3 * VZ_M, 16), a = vzAreaAt(q.x, q.y);
+      __debug.go(a >= 0 ? VZ.areas[a].key : 'vz-calli', q.x / VZ_TILE, q.y / VZ_TILE); player.face = { x:0, y:-1 }; save(); }); },
+  gatti(){ designerMarkDone(5, { quiet:true }); vzAfterLoad(() => { __debug.gtGo('shop'); save(); }); },
+  roulette(){ designerMarkDone(5, { quiet:true }); vzOpenDistrict('cannaregio');
+    vzAfterLoad(() => { Promise.resolve(__debug.cpGo('casino')).then(() => save()); }); },
+};
+SIDE_STORIES.forEach(s => { if (vzDriveSide[s.id]) s.drive = vzDriveSide[s.id]; });
+
 /* ===== engine/ui/menu.js ===== */
 /* Reset dialog and header button wiring. */
 
@@ -30794,6 +30823,10 @@ function startGame(){ introOpen = false; $('#intro').hidden = true; renderHUD();
      key (core/slots.js), set up the way the intro's skip links and designer mode's Mark as complete do it: a lesson from its start, every lesson
      before it skipped (Padova's #btnJump2…6, else jumpTo(n)); a node of the Albero open (its parents marked complete: core/designer.js replayOpenNode), its
      panel shown. The badge says "Replay: progress here isn't kept"; going home throws the key away.
+   - The two test saves (SLOT.mode, core/slots.js; never a save file's keys, never counted): the Lesson test drive (mode 'drive': SLOT.drive =
+     { unit, kind:'lesson' | 'quest' | 'node' | 'side', n | id, name, fresh }, set up by driveSetup on the unit's ':drive' key, wiped each time a new
+     one is picked; the badge "Lesson test drive") and the Open world (mode 'world': the unit's UNIT.openWorld({ fresh, name }) on its ':world' key,
+     kept between visits; the badge "Open world").
    - In the game build (GAME), the header's ⌂ (#btnHome) opens the menu: Home · Save files.
    - window.__gameManifest(): what the unit has, for the home screen's count (scripts/build.js game evaluates the bundle in a Node vm, as
      scripts/unit1-words.js does, and writes it into the home screen); window.__progressCheck(): the pure count (core/progress.js) of the save
@@ -30802,7 +30835,7 @@ function startGame(){ introOpen = false; $('#intro').hidden = true; renderHUD();
 /* ---------- going home ---------- */
 function gameHomeURL(o = {}){
   if (!GAME) return null;
-  const q = []; if (SLOT) q.push('slot=' + SLOT.n); if (o.go) q.push('go=' + encodeURIComponent(o.go));
+  const q = []; if (SLOT && SLOT.mode) q.push('test=' + SLOT.mode); else if (SLOT) q.push('slot=' + SLOT.n); if (o.go) q.push('go=' + encodeURIComponent(o.go));
   return GAME.home + (q.length ? '?' + q.join('&') : '') + (o.saves ? '#saves' : '');
 }
 function gameHome(o = {}){
@@ -30817,21 +30850,29 @@ function gameHome(o = {}){
 function openHomeMenu(){
   if (!GAME) return;
   openModal('small home-menu');
-  const where = SLOT ? `Save ${SLOT.n}${SLOT.replay ? ' · a replay' : ''}` : 'No save file: this unit on its own';
+  const where = SLOT && SLOT.mode ? SLOT_MODE_NAME[SLOT.mode] : SLOT ? `Save ${SLOT.n}${SLOT.replay ? ' · a replay' : ''}` : 'No save file: this unit on its own';
   sheet.innerHTML = `
     <div class="sheet-head"><div><p class="kicker">${esc(where)}</p><h2>Piazza</h2></div><button class="x" data-close aria-label="Close">×</button></div>
-    <div class="sheet-body">${SLOT && SLOT.replay ? '<p>This is a replay: progress here isn\'t kept. Your save file is as you left it.</p>' : '<p>Your progress is saved as you play.</p>'}
+    <div class="sheet-body">${SLOT && SLOT.mode ? `<p>${SLOT_MODE_NOTE[SLOT.mode]}</p>` : SLOT && SLOT.replay ? '<p>This is a replay: progress here isn\'t kept. Your save file is as you left it.</p>' : '<p>Your progress is saved as you play.</p>'}
       <div class="cta home-cta"><button class="btn primary" id="homeGo" type="button">⌂ Home</button><button class="btn" id="homeSaves" type="button">Save files</button><button class="btn" data-close type="button">Back to the game</button></div></div>`;
   $('#homeGo').onclick = () => gameHome();
   $('#homeSaves').onclick = () => gameHome({ saves:true });
 }
 { const b = document.getElementById('btnHome'); if (b){ b.hidden = !GAME; b.onclick = () => openHomeMenu(); } }
 /* the replay's badge (as designer mode's: a pill on the screen while it lasts) */
-if (SLOT && SLOT.replay){ const b = document.createElement('div'); b.id = 'replayBadge'; b.className = 'replay-badge'; b.textContent = 'Replay: progress here isn\'t kept'; document.body.appendChild(b); }
+const SLOT_MODE_NAME = { drive:'Lesson test drive', world:'Open world' };
+const SLOT_MODE_NOTE = { drive:'A lesson test drive: it runs apart from your save files and is never counted. Picking another one on the home screen starts afresh.',
+  world:'The open world: every unit and every area open, free play. It is kept between visits, apart from your save files, and never counted (the home screen\'s Reset starts it afresh).' };
+if (SLOT && (SLOT.replay || SLOT.mode)){ const b = document.createElement('div'); b.id = 'replayBadge'; b.className = 'replay-badge' + (SLOT.mode ? ' mode-' + SLOT.mode : '');
+  b.textContent = SLOT.mode ? SLOT_MODE_NAME[SLOT.mode] : 'Replay: progress here isn\'t kept'; document.body.appendChild(b); }
 
 /* ---------- straight in ---------- */
 function slotBoot(){
   if (!SLOT) return false;
+  if (SLOT.mode === 'world') return worldBoot();
+  if (SLOT.mode === 'drive'){ const D = SLOT.drive;
+    if (D && D.fresh){ D.fresh = false; try { localStorage.setItem(SLOT_DRIVE, JSON.stringify(D)); localStorage.removeItem(KEY); } catch (e){} return driveSetup(D); }
+    return continueSaved(); }
   const R = SLOT.replay;
   if (R && R.fresh){ R.fresh = false; try { localStorage.setItem(SLOT_REPLAY, JSON.stringify(R)); localStorage.removeItem(KEY); } catch (e){} return slotReplay(R); }
   if (continueSaved()) return true;
@@ -30854,8 +30895,53 @@ function slotReplay(R){
     else { newGame(); startGame(); }
   }
   save();
-  setTimeout(() => toast('<b>Replay</b> · progress here isn\'t kept: your save file is as you left it.'), 1200);
+  if (!R.quietToast) setTimeout(() => toast('<b>Replay</b> · progress here isn\'t kept: your save file is as you left it.'), 1200);
   return true;
+}
+
+/* ---------- the two test saves ---------- */
+/* the Open world: the unit's own (UNIT.openWorld({ fresh, name }): Padova's free play with every place known, Venezia's and Roma's test drives),
+   continued when its key has a save; a unit without one: a new game, as its intro would */
+function worldBoot(){
+  const fresh = !loadSaved(), name = sanitizeName(SLOT.name || '') || 'Explorer';
+  if ($('#nameInput')) $('#nameInput').value = name;
+  if (UNIT.openWorld){ if (UNIT.openWorld({ fresh, name }) === false) return false; }
+  else if (fresh || !continueSaved()){ newGame(); S.playerName = name; save(); startGame(); }
+  save();
+  setTimeout(() => toast(`<b>Open world</b> · ${fresh ? 'every area open, free play.' : 'as you left it.'} Saved apart from your save files; never counted.`), 1400);
+  return true;
+}
+/* the Lesson test drive: the item picked set up with everything before it done (designer mode's Mark as complete: core/designer.js, so not in a
+   release build, whose home screen has no such card). A lesson: from its start, the lessons before it skipped (as slotReplay); a quest: every
+   lesson done (core/designer.js replayAllLessons; the unit's free play: UNIT.freePlay()), the quest open, you at its place; a node: its parents
+   (and what it continues) marked complete (replayOpenNode), the Albero at it; a side story: its own set-up (SIDE_STORIES[i].drive(): the unit's, what comes before it done, you at its start). */
+function driveSetup(D){
+  $('#nameInput').value = sanitizeName(D.name || '') || 'Alex';
+  const done = what => { save(); setTimeout(() => toast(`<b>Lesson test drive</b> · ${what}: everything before it done. Apart from your save files; never counted.`), 1300); return true; };
+  if (D.kind === 'lesson') return slotReplay({ ...D, quietToast:true }) && done(`Lezione ${D.n}`);
+  newGame(); startGame();
+  if (D.kind === 'quest'){
+    const q = QUESTS.find(x => x.id === D.id);
+    if (typeof replayAllLessons === 'function') replayAllLessons();
+    unitHook('freePlay');
+    if (q && q.place) travelTo(q.place.scene, { x:q.place.x, y:q.place.y }, q.title_it, 'Lesson test drive · a quest');
+    save(); renderHUD();
+    return done(q ? `the quest ${esc(q.title_it)}` : 'a quest');
+  }
+  if (D.kind === 'node'){
+    const n = treeNode(D.id);
+    if (n && typeof replayOpenNode === 'function') replayOpenNode(n);
+    save();
+    if (n) setTimeout(() => { if (!modalOpen && !dialogOpen) openAlbero(n.id); }, 900);
+    return done(n ? `◆ ${esc(n.title)}` : 'a node');
+  }
+  if (D.kind === 'side'){
+    const st = SIDE_STORIES.find(x => x.id === D.id);
+    if (st && st.drive) st.drive();
+    save();
+    return done(st ? esc(st.title) : 'a side story');
+  }
+  return done('nothing');
 }
 
 /* ---------- what the unit has (the home screen's manifest) ---------- */
@@ -30867,8 +30953,11 @@ window.__gameManifest = () => ({
   districts:TREE.map(D => D.id),
   nodes:treeNodes().map(n => ({ id:n.id, title:n.title, parent:n.parent || null, depth:n.depth, district:n.district, lesson:n.lesson || null,
     quest:n.quest || null, continues:n.continues || null, soon:!!(n.soon || n.placeholder) })),
-  side:SIDE_STORIES.map(s => ({ id:s.id, title:s.title, en:s.en || '', done:s.done })),
+  side:SIDE_STORIES.map(s => ({ id:s.id, title:s.title, en:s.en || '', done:s.done, drive:typeof s.drive === 'function' })),
   replayNodes:typeof replayOpenNode === 'function',
+  /* the home screen's two test saves: the Lesson test drive needs designer mode's Mark as complete (not in a release build); the open world the
+     unit's UNIT.openWorld (else a new game) */
+  drive:typeof replayOpenNode === 'function', openWorld:typeof UNIT.openWorld === 'function',
 });
 /* the pure count of the save in play beside the game's own (tests: the two must agree) */
 window.__progressCheck = () => {
@@ -30878,7 +30967,7 @@ window.__progressCheck = () => {
   const reached = PROGRESS.reached(M, saved).filter(r => r.kind === 'node').map(r => r.id), open = treeNodes().filter(n => !n.lesson && !n.quest && !n.soon && treeState(n) !== 'locked').map(n => n.id);
   return { pure:pure.ids, game, agree:pure.ids.join() === game.join(), reached, open, reachedAgree:reached.join() === open.join(), pct:pure.pct, key:KEY, slot:SLOT ? { n:SLOT.n, replay:!!SLOT.replay } : null };
 };
-dbgField('slot', () => ({ game:!!GAME, slot:SLOT ? SLOT.n : null, replay:SLOT && SLOT.replay ? { kind:SLOT.replay.kind, n:SLOT.replay.n, id:SLOT.replay.id } : null, key:KEY, home:gameHomeURL() }));
+dbgField('slot', () => ({ game:!!GAME, slot:SLOT ? SLOT.n : null, mode:SLOT ? SLOT.mode || null : null, drive:SLOT && SLOT.drive ? { kind:SLOT.drive.kind, n:SLOT.drive.n, id:SLOT.drive.id } : null, replay:SLOT && SLOT.replay ? { kind:SLOT.replay.kind, n:SLOT.replay.n, id:SLOT.replay.id } : null, key:KEY, home:gameHomeURL() }));
 
 /* ===== engine/ui/keyboard.js ===== */
 /* Keyboard controls. */
@@ -35434,7 +35523,10 @@ const vzZoom = () => VZ_CAM.z || (S && S.vzZoom) || VZ_ZOOM;
 /* the camera taken over for a moment (a lesson's beat: Lesson 1's look up at the whole Campanile, the campanile-view approach of
    rework A2's shot 04b; the history cards' pictures): z (a zoom), fx, fy (the point the camera keeps where the player would be).
    vzCamLook({ x, y, z, ms }) eases there (a promise), vzCamBack(ms) eases back to the player and the zoom in use. */
-const VZ_CAM = { z:null, fx:null, fy:null, anim:null };
+const VZ_CAM = { z:null, fx:null, fy:null, anim:null, lift:0 };
+/* (lift: world px the camera looks above the player, eased in by whoever needs a tall thing framed: world/xplaces.js, the statue on the Riva;
+   vzGuideKeep(area): world rects the guide must not cover (engine ui/hud.js guideKeep: it moves to the bottom corner), none by default) */
+function vzGuideKeep(a){ return null; }
 const VZ_CITY = {};                // area key → its scene
 const VZ_LOADED = {};              // area key → { ms } once its chunk is made
 /* the city's scenes: one per area of the district in use (VZ). San Marco's when the game loads; world/districts.js makes another
@@ -35448,7 +35540,8 @@ function vzCityScenes(art){
       tiles:{ size:VZ_TILE, cols:VZ.cols, rows:VZ.rows, solid:VZ.solid },
       camBox:a.camBox, pathBox:a.pathBox, camEase:8, camAnchor:VZ_ANCHOR, speed:VZ_SPEED, run:VZ_RUN, stride:() => (running() ? VZ_STRIDE.run : VZ_STRIDE.walk) / (2 * Math.PI), personLift:VZ_LIFT,
       zoneAt:(x, y) => vzZoneAt(a, x, y), get zoom(){ return vzZoom(); },
-      focusX:() => VZ_CAM.fx != null ? VZ_CAM.fx : player.x, focusY:() => VZ_CAM.fy != null ? VZ_CAM.fy : player.y,
+      focusX:() => VZ_CAM.fx != null ? VZ_CAM.fx : player.x, focusY:() => VZ_CAM.fy != null ? VZ_CAM.fy : player.y - VZ_CAM.lift,
+      get guideKeep(){ return vzGuideKeep(a); },
     };
     SCENES[a.key].spawn = a.spawn;
     /* the walking speed in the city: slowed by the crowd ahead; nothing while a closed gate pushes you back (world/crowd.js) */
@@ -37566,10 +37659,18 @@ function vzTestDriveStart(o = {}){
     S.scene = UNIT.start.scene; player.x = UNIT.start.x; player.y = UNIT.start.y - 40; player.face = { x:0, y:-1 };
     save(); startGame(); unitHook('arrive', S.scene);
   }
-  toast('<b>Test drive</b> · all four districts open, no lessons. The vaporetti run. Your game is saved apart (the normal one is untouched).');
+  if (!o.quiet) toast('<b>Test drive</b> · all four districts open, no lessons. The vaporetti run. Your game is saved apart (the normal one is untouched).');
   return true;
 }
 { const b = document.getElementById('btnTestDrive'); if (b) b.onclick = () => vzTestDriveStart(); }
+/* the home screen's Open world (engine ui/home.js worldBoot): the test drive on the open world's own key (engine useSaveKey keeps it), continued
+   when it has one */
+UNIT.openWorld = (o = {}) => {
+  vzTestDriveStart({ fresh:o.fresh, quiet:true });
+  /* (and fast travel to every area of every district, as if walked in: the map's "Go straight there" offers the district you are in) */
+  if (o.fresh){ const seen = S.vzSeen = S.vzSeen || {}; [...VZ_DISTRICT_IDS, 'arsenale'].forEach(id => Object.values(vzDPlaces(id).areas || {}).forEach(a => { seen[a.key] = true; })); save(); }
+  return true;
+};
 /* a new game (or a start over): its save slot (the test drive's own, or the unit's), and San Marco as the city in use */
 { const prev = UNIT.newGame;
   UNIT.newGame = () => { useSaveKey(VZD.exploring ? VZ_EXPLORE_KEY : UNIT.saveKey); VZD.exploring = false; if (VZD.id !== 'sanmarco' && !VZD.loading) vzUse('sanmarco'); if (prev) prev(); };
@@ -42309,8 +42410,22 @@ if (VZD.id === 'cannaregio' || VZD.id === 'arsenale') xpPlace(VZD.id);
 /* the statue's look (world/districts.js vzDistrictDoors: the stretch's looks) */
 { const prev = vzDistrictDoors; vzDistrictDoors = B => { const out = prev(B), s = VZD.id === 'arsenale' && VZ.xp && VZ.xp.statua, M = VZ_M;
     if (s && s.x >= B.x && s.x <= B.x + B.w && s.y >= B.y && s.y <= B.y + B.h) out.push({ id:'pr:vittorio', look:true, xpCard:'statua', reach:56, area:{ x:s.x - s.r, y:s.y - s.r, w:2 * s.r, h:2 * s.r }, x:s.x, y:s.y,
-      name:'Vittorio Emanuele II', lookAt:'the statue', pill:{ x:s.x, y:s.y - 10.8 * M } });
+      name:'Vittorio Emanuele II', lookAt:'the statue', pill:{ x:s.x + 3.3 * M, y:s.y - 6.4 * M } });     // (the prompt beside the horse's tail, over where you stand to look: never on the rider)
     return out; }; }
+/* the statue framed in a typical view (the designer, 25 Nov: the horse and the king hidden over the view's top and under the guide): walking up
+   to it from the Riva the camera eases up until the sword's tip is in view (world/sanmarco.js VZ_CAM.lift: at most a quarter of the view, the
+   player kept on screen), and the guide goes to the bottom corner while the horse and rider would be under it (vzGuideKeep) */
+const XP_FIG = s => ({ x:s.x - 2.7 * VZ_M, y:s.y - 10.1 * VZ_M, w:4.9 * VZ_M, h:6.0 * VZ_M });     // (the horse and rider, over the base: render/xplaces.js xpRider at 1.25)
+{ const prev = vzGuideKeep; vzGuideKeep = a => { const s = VZD.id === 'arsenale' && VZ.xp && VZ.xp.statua; return s ? [XP_FIG(s)] : prev(a); }; }
+function xpFrameTick(dt){
+  const s = VZD.id === 'arsenale' && VZ_CITY[S.scene] && VZ.xp && VZ.xp.statua, M = VZ_M; let want = 0;
+  if (s && Math.abs(player.x - s.x) < 8.5 * M && player.y > s.y - s.r && player.y < s.y + 7.5 * M){
+    const H = viewH(), top = s.y - 10.1 * M;     // (the sword's tip, and a little over it)
+    want = Math.max(0, Math.min(H * 0.26, player.y - top + 8 - H * (phoneCamOn() ? 0.5 : VZ_ANCHOR)));
+  }
+  VZ_CAM.lift += (want - VZ_CAM.lift) * Math.min(1, dt * 3.5); if (Math.abs(VZ_CAM.lift) < 0.2 && !want) VZ_CAM.lift = 0;
+}
+{ const prev = UNIT.updateWorldLate; UNIT.updateWorldLate = dt => { if (prev) prev(dt); xpFrameTick(dt); }; }
 /* the named points: before each door; the statue's look (on its east side, in front of it) */
 { const prev = vzDistrictPoints; vzDistrictPoints = () => { const P = prev(); if (!VZ.xp || (VZD.id !== 'cannaregio' && VZD.id !== 'arsenale')) return P;
     ['forno', 'orto', 'pieta'].forEach(k => { const q = VZ.xp[k]; if (q) P['xp-' + k] = VZ.snap(q.x, q.y + 1.2 * VZ_M, 14); });
@@ -42396,6 +42511,9 @@ Object.assign(window.__debug, {
     __debug.go(ar.key, q.x / VZ_TILE - 0.5, q.y / VZ_TILE - 0.5); return true;
   },
   xpCard:id => xpCard(id),
+  /* the camera on the statue (z: the zoom; null: back to the player), for close-up shots; the lift and the guide's rect now */
+  xpStatueLook(z = 2.2){ const st = VZ.xp && VZ.xp.statua; if (z === null || !st){ vzCamReset(); return !!st; } vzCamReset(); VZ_CAM.z = z; VZ_CAM.fx = st.x; VZ_CAM.fy = st.y - 6.0 * VZ_M + 0.1 * viewH(); cam.fx = undefined; return true; },
+  xpFrame:() => ({ lift:Math.round(VZ_CAM.lift), keep:VZ.xp && VZ.xp.statua ? XP_FIG(VZ.xp.statua) : null, low:$('#guide').classList.contains('low') }),
   xpPlaces:() => ({ rooms:{ ...XP_ROOMS }, doors:VZ.doors.filter(d => d.xp).map(d => ({ id:d.id, to:d.to, x:d.x, y:d.y })), statua:VZ.xp ? VZ.xp.statua || null : null,
     cards:Object.fromEntries([['statua', XP_CARDS.statua], ['pieta', VZ_D1_CARDS.pieta], ['orto', CP_CARDS.orto]].map(([k, c]) => [k, { title:c.title, n:(c.text.match(/[^.!?]+[.!?]+/g) || []).length }])),
     plaque:{ lines:XP_PLAQUE.lines.slice(), en:XP_PLAQUE.en },
@@ -43144,7 +43262,7 @@ function vzPerson(g, p, t){
   if (p.isPlayer && typeof phoneCamOn === 'function' && phoneCamOn()) return;   // (the phone's camera is up: the photographer isn't in the picture, so the cats aren't hidden behind you: engine/ui/camera.js)
   if (p.isPlayer) p = vzPlayerDress(p);
   if (p.carriedBy) return;                         // (a dog in someone's arms is drawn with them: the high water, world/flood.js)
-  if (VZ_CITY[S.scene] && vzFloodOn()){ const q = p; if (vzFloodWade(g, p.x, p.y, () => vzPersonDraw(g, q, t), t)) return; return; }      // (wading: render/flood.js)
+  if (VZ_CITY[S.scene] && typeof vzFloodOn === 'function' && vzFloodOn()){ const q = p; if (vzFloodWade(g, p.x, p.y, () => vzPersonDraw(g, q, t), t)) return; return; }      // (wading: render/flood.js; Roma draws its people with this file too, and has no high water)
   vzPersonDraw(g, p, t);
 }
 /* what the player wears, each a layer over the figure (Object.create: never a copy, {...p}, which loses its place: 24 Nov, the player went invisible):
@@ -51820,6 +51938,118 @@ function xpSanMartino(g, cx, cy, s, seed = 11){
   for (let k = 0; k < 9; k++){ g.fillStyle = cols[Math.floor(r() * cols.length)]; circ(g, cx - s * 0.34 + r() * s * 0.68, cy + s * 0.02 + r() * s * 0.16, Math.max(0.8, s * 0.045)); g.fill(); }
   g.fillStyle = '#5a3a22'; g.fillRect(cx + s * 0.12, cy - s * 0.44, s * 0.05, s * 0.3);                                   // the sword
 }
+/* ---------- Ettore Ferrari's horse and rider (VZ_PROP.xpvittorio): drawn in metres, (x0, y0) the hooves' line under the horse's middle, s px a
+   metre; the horse heading west (left) at a walk, its near foreleg raised and bent at the knee (as the real one), its neck arched and its head
+   tucked, the mane, the tail; the king upright in the saddle, his near hand on the reins, the sword raised high in the other, the plumed
+   cap, the great moustache. Bronze with a dark green patina, lit from the west and above: the far legs and the far arm in shadow. ---------- */
+const XPR = { hi:'#93a888', mid:'#5c6b55', lo:'#3a4537', far:'#2b332b', line:'#1c221c', glint:'rgba(196,220,180,.55)', patina:'rgba(108,168,138,.30)', blade:'#c3cdb6' };
+function xpRider(g, x0, y0, s){
+  const P = (x, y) => [x0 + x * s, y0 - y * s];
+  const path = segs => { g.beginPath(); segs.forEach(([k, ...q]) => { const pts = []; for (let i = 0; i < q.length; i += 2) pts.push(...P(q[i], q[i + 1]));
+    if (k === 'M') g.moveTo(...pts); else if (k === 'L') g.lineTo(...pts); else if (k === 'Q') g.quadraticCurveTo(...pts); else if (k === 'C') g.bezierCurveTo(...pts); else if (k === 'Z') g.closePath(); }); };
+  const shade = (x1, y1, x2, y2, c1, c2) => { const [ax, ay] = P(x1, y1), [bx, by] = P(x2, y2), gr = g.createLinearGradient(ax, ay, bx, by); gr.addColorStop(0, c1); gr.addColorStop(1, c2); return gr; };
+  const ink = (w = 1.3) => { g.strokeStyle = XPR.line; g.lineWidth = w; g.lineJoin = 'round'; g.stroke(); };
+  const glint = (segs, w = 1.6, c = XPR.glint) => { path(segs); g.strokeStyle = c; g.lineWidth = w; g.lineCap = 'round'; g.stroke(); g.lineCap = 'butt'; };
+  /* a limb: a centre line [x, y, width] (metres), its outline smoothed through the offsets */
+  const limb = (pts, fill, edge = true) => {
+    const L = [], R = [];
+    pts.forEach((q, i) => { const a = pts[Math.max(0, i - 1)], b = pts[Math.min(pts.length - 1, i + 1)], dx = b[0] - a[0], dy = b[1] - a[1], d = Math.hypot(dx, dy) || 1, nx = -dy / d, ny = dx / d;
+      L.push([q[0] + nx * q[2] / 2, q[1] + ny * q[2] / 2]); R.push([q[0] - nx * q[2] / 2, q[1] - ny * q[2] / 2]); });
+    const Q = L.concat(R.reverse()); g.beginPath(); g.moveTo(...P(...Q[0]));
+    for (let i = 1; i < Q.length - 1; i++){ if (i === L.length - 1 || i === L.length){ g.lineTo(...P(...Q[i])); continue; } const m = [(Q[i][0] + Q[i + 1][0]) / 2, (Q[i][1] + Q[i + 1][1]) / 2]; g.quadraticCurveTo(...P(...Q[i]), ...P(...m)); }
+    g.lineTo(...P(...Q[Q.length - 1])); g.closePath(); g.fillStyle = fill; g.fill(); if (edge) ink(1.1);
+    return L;
+  };
+  /* a hoof: its toe to the west; (x, y) the coronet's back, a its tilt (radians; a raised hoof turned back) */
+  const hoof = (x, y, a, fill, k = 1) => { const [px, py] = P(x, y); g.save(); g.translate(px, py); g.rotate(a); g.scale(k, k);
+    g.beginPath(); g.moveTo(0.04 * s, 0); g.lineTo(-0.13 * s, 0); g.lineTo(-0.19 * s, 0.13 * s); g.lineTo(0.06 * s, 0.13 * s); g.closePath(); g.fillStyle = fill; g.fill(); ink(1.1);
+    g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(-0.19 * s, 0.1 * s, 0.25 * s, 0.03 * s); g.restore(); };
+  /* the far legs, in shadow (the far fore planted under the chest, the far hind a step forward) */
+  limb([[-0.66, 1.02, 0.3], [-0.7, 0.72, 0.19], [-0.71, 0.56, 0.17], [-0.71, 0.3, 0.11], [-0.72, 0.17, 0.13], [-0.77, 0.1, 0.1]], XPR.far); hoof(-0.72, 0.12, 0, XPR.far);
+  limb([[0.5, 1.05, 0.4], [0.62, 0.74, 0.22], [0.7, 0.52, 0.17], [0.66, 0.3, 0.11], [0.64, 0.17, 0.13], [0.6, 0.1, 0.1]], XPR.far); hoof(0.64, 0.12, 0, XPR.far);
+  /* the tail: full, falling to the hocks, its strands */
+  path([['M', 1.04, 1.6], ['C', 1.32, 1.52, 1.34, 1.02, 1.24, 0.52], ['Q', 1.18, 0.44, 1.12, 0.52], ['C', 1.14, 0.9, 1.1, 1.24, 0.98, 1.44], ['Z']]);
+  g.fillStyle = shade(1.0, 1.6, 1.3, 0.5, XPR.mid, XPR.far); g.fill(); ink();
+  for (const k of [0.25, 0.5, 0.75]) glint([['M', 1.06 + k * 0.06, 1.52 - k * 0.08], ['C', 1.24, 1.3, 1.24, 0.95, 1.15 + k * 0.04, 0.6]], 1, 'rgba(20,26,20,.55)');
+  /* the body, the arched neck and the head (one outline) */
+  const body = [['M', -0.5, 1.8], ['C', -0.2, 1.67, 0.25, 1.63, 0.55, 1.73], ['C', 0.8, 1.81, 1.0, 1.76, 1.07, 1.56], ['C', 1.12, 1.36, 1.06, 1.1, 0.92, 0.98],
+    ['C', 0.62, 0.9, 0.3, 0.84, -0.2, 0.84], ['C', -0.55, 0.86, -0.85, 0.96, -0.98, 1.16], ['C', -1.07, 1.32, -1.07, 1.48, -1.0, 1.6],
+    ['C', -1.08, 1.8, -1.22, 1.96, -1.3, 2.06], ['C', -1.4, 2.04, -1.56, 1.88, -1.68, 1.77], ['C', -1.77, 1.74, -1.86, 1.78, -1.87, 1.86],
+    ['C', -1.86, 1.96, -1.74, 2.13, -1.6, 2.32], ['C', -1.53, 2.44, -1.44, 2.53, -1.35, 2.55], ['C', -1.1, 2.52, -0.76, 2.22, -0.5, 1.8], ['Z']];
+  path(body); g.fillStyle = shade(-1.2, 2.5, 0.6, 0.85, XPR.hi, XPR.lo); g.fill(); ink(1.4);
+  /* its modelling: the shoulder, the belly's shadow, the haunch, the jowl; the light along the crest, the back, the chest and the face */
+  g.save(); path(body); g.clip();
+  g.fillStyle = 'rgba(20,28,20,.32)'; path([['M', -0.9, 0.95], ['C', -0.4, 0.84, 0.4, 0.86, 0.95, 0.98], ['L', 0.95, 0.8], ['L', -0.9, 0.8], ['Z']]); g.fill();
+  g.fillStyle = 'rgba(20,28,20,.22)'; ell(g, ...P(0.72, 1.32), 0.34 * s, 0.38 * s); g.fill();
+  g.fillStyle = 'rgba(200,225,190,.16)'; ell(g, ...P(-0.68, 1.38), 0.24 * s, 0.34 * s, -0.3); g.fill();
+  g.fillStyle = XPR.patina; for (const [px, py] of [[-0.3, 1.2], [0.2, 1.15], [0.4, 1.4], [-0.95, 2.0]]){ ell(g, ...P(px, py), 0.06 * s, 0.16 * s); g.fill(); }
+  g.fillStyle = 'rgba(20,28,20,.25)'; ell(g, ...P(-1.42, 2.12), 0.13 * s, 0.11 * s); g.fill();
+  g.restore();
+  glint([['M', -1.36, 2.5], ['C', -1.1, 2.47, -0.78, 2.2, -0.52, 1.84]], 2.2);
+  glint([['M', -0.45, 1.76], ['C', -0.15, 1.66, 0.25, 1.62, 0.55, 1.71]], 1.6);
+  glint([['M', -1.0, 1.58], ['C', -1.06, 1.46, -1.06, 1.32, -0.98, 1.18]], 1.6);
+  glint([['M', -1.6, 2.3], ['C', -1.72, 2.13, -1.83, 1.98, -1.85, 1.88]], 1.4);
+  path([['M', -0.84, 1.62], ['C', -0.78, 1.4, -0.74, 1.2, -0.7, 1.02]]); g.strokeStyle = 'rgba(20,28,20,.45)'; g.lineWidth = 1; g.stroke();      // the shoulder's line
+  path([['M', 0.42, 1.62], ['C', 0.56, 1.4, 0.6, 1.2, 0.58, 1.0]]); g.stroke();                                                                       // the flank's
+  /* the mane along the crest, its locks falling on the near side; the forelock */
+  path([['M', -1.38, 2.56], ['C', -1.12, 2.6, -0.76, 2.3, -0.46, 1.86], ['L', -0.56, 1.8], ['C', -0.8, 2.12, -1.1, 2.4, -1.36, 2.44], ['Z']]); g.fillStyle = XPR.lo; g.fill(); ink(1);
+  for (let k = 0; k < 7; k++){ const t = k / 6, cx = -1.3 + t * 0.8, cy = 2.5 - t * 0.62 - t * t * 0.05;
+    path([['M', cx, cy], ['Q', cx + 0.09, cy - 0.1, cx + 0.05, cy - 0.2], ['Q', cx + 0.0, cy - 0.12, cx - 0.05, cy - 0.04], ['Z']]); g.fillStyle = k % 2 ? XPR.lo : XPR.far; g.fill(); }
+  glint([['M', -1.34, 2.58], ['C', -1.1, 2.6, -0.8, 2.34, -0.5, 1.9]], 1.2, 'rgba(196,220,180,.4)');
+  path([['M', -1.4, 2.52], ['Q', -1.52, 2.46, -1.56, 2.34], ['Q', -1.48, 2.4, -1.4, 2.42], ['Z']]); g.fillStyle = XPR.lo; g.fill();
+  /* the ears (pricked), the eye, the nostril, the mouth; the bridle and the reins to the king's hand */
+  path([['M', -1.27, 2.53], ['L', -1.25, 2.76], ['L', -1.19, 2.52], ['Z']]); g.fillStyle = XPR.lo; g.fill(); ink(1);
+  path([['M', -1.38, 2.53], ['L', -1.34, 2.8], ['L', -1.27, 2.52], ['Z']]); g.fillStyle = XPR.mid; g.fill(); ink(1);
+  g.fillStyle = XPR.line; circ(g, ...P(-1.5, 2.27), Math.max(1.4, 0.035 * s)); g.fill(); g.fillStyle = XPR.glint; circ(g, ...P(-1.51, 2.29), Math.max(0.6, 0.012 * s)); g.fill();
+  g.fillStyle = XPR.line; ell(g, ...P(-1.8, 1.92), 0.035 * s, 0.022 * s, -0.6); g.fill();
+  path([['M', -1.86, 1.81], ['Q', -1.8, 1.79, -1.73, 1.82]]); g.strokeStyle = XPR.line; g.lineWidth = 1; g.stroke();
+  g.strokeStyle = XPR.far; g.lineWidth = 1.4;
+  path([['M', -1.36, 2.5], ['L', -1.66, 1.86]]); g.stroke(); path([['M', -1.58, 2.06], ['L', -1.79, 2.03]]); g.stroke();         // the cheekpiece, the noseband
+  path([['M', -1.71, 1.84], ['C', -1.4, 1.84, -0.9, 2.02, -0.52, 2.08]]); g.strokeStyle = XPR.line; g.lineWidth = 1.2; g.stroke();   // the reins
+  /* the near legs: the hind planted under the haunch, its hock; the fore raised, bent at the knee, the hoof turned back */
+  const nh = limb([[0.72, 1.18, 0.5], [0.86, 0.78, 0.26], [0.97, 0.53, 0.19], [0.93, 0.3, 0.11], [0.91, 0.17, 0.14], [0.86, 0.1, 0.11]], shade(0.6, 1.2, 1.0, 0.1, XPR.mid, XPR.lo)); hoof(0.9, 0.12, 0, XPR.lo);
+  const nf = limb([[-0.76, 1.1, 0.28], [-0.9, 0.9, 0.18], [-1.1, 0.72, 0.14], [-1.12, 0.55, 0.1], [-1.1, 0.42, 0.11], [-1.04, 0.35, 0.09]], shade(-0.8, 1.1, -1.1, 0.3, XPR.hi, XPR.mid)); hoof(-1.01, 0.37, 2.5, XPR.lo, 0.8);
+  glint([['M', ...nf[1]], ['L', ...nf[2]], ['L', ...nf[3]]], 1.2); glint([['M', ...nh[0]], ['Q', ...nh[1], ...nh[2]]], 1.2, 'rgba(196,220,180,.35)');
+  g.fillStyle = 'rgba(20,28,20,.35)'; ell(g, ...P(0.97, 0.53), 0.05 * s, 0.06 * s); g.fill(); ell(g, ...P(-1.11, 0.72), 0.045 * s, 0.045 * s); g.fill();   // the hock, the knee
+  /* the saddle cloth (its border), the saddle */
+  path([['M', -0.42, 1.78], ['L', 0.3, 1.72], ['L', 0.34, 1.26], ['Q', 0.32, 1.16, 0.2, 1.16], ['L', -0.38, 1.2], ['Z']]); g.fillStyle = XPR.lo; g.fill(); ink(1.1);
+  path([['M', -0.36, 1.72], ['L', 0.25, 1.67], ['L', 0.28, 1.28], ['Q', 0.26, 1.22, 0.18, 1.22], ['L', -0.33, 1.25], ['Z']]); g.strokeStyle = 'rgba(196,220,180,.35)'; g.lineWidth = 1; g.stroke();
+  path([['M', -0.3, 1.86], ['Q', 0.0, 1.76, 0.26, 1.84], ['L', 0.24, 1.72], ['L', -0.3, 1.76], ['Z']]); g.fillStyle = XPR.far; g.fill();
+  /* the king's far arm raised, the sword high over his head (drawn before him: it is behind) */
+  limb([[0.06, 2.62, 0.15], [-0.06, 2.95, 0.12], [-0.24, 3.26, 0.11]], XPR.far);
+  g.fillStyle = XPR.far; circ(g, ...P(-0.26, 3.28), 0.07 * s); g.fill();
+  path([['M', -0.24, 3.3], ['L', -0.62, 4.22], ['L', -0.56, 4.22], ['L', -0.19, 3.33], ['Z']]); g.fillStyle = XPR.blade; g.fill(); ink(1);                    // the blade
+  glint([['M', -0.25, 3.36], ['L', -0.58, 4.16]], 1, 'rgba(255,255,240,.7)');
+  path([['M', -0.36, 3.22], ['L', -0.12, 3.38]]); g.strokeStyle = XPR.line; g.lineWidth = 2.2; g.stroke();                                               // the guard
+  /* the king: the near leg down the horse's side (the boot in the stirrup), the coat's skirt over the saddle, the body upright */
+  limb([[-0.02, 1.9, 0.3], [-0.3, 1.64, 0.22], [-0.27, 1.3, 0.17], [-0.27, 1.06, 0.15]], shade(-0.3, 1.9, 0.0, 1.0, XPR.mid, XPR.lo));
+  path([['M', -0.36, 1.02], ['L', -0.18, 1.02], ['L', -0.17, 0.96], ['L', -0.4, 0.96], ['Z']]); g.fillStyle = XPR.far; g.fill(); ink(1);                  // the boot's foot
+  path([['M', -0.26, 1.02], ['L', -0.26, 1.5]]); g.strokeStyle = 'rgba(196,220,180,.35)'; g.lineWidth = 1; g.stroke();
+  path([['M', -0.22, 2.12], ['L', 0.16, 2.12], ['L', 0.34, 1.74], ['Q', 0.12, 1.66, -0.04, 1.7], ['L', -0.2, 1.84], ['Z']]); g.fillStyle = shade(-0.2, 2.1, 0.3, 1.7, XPR.mid, XPR.lo); g.fill(); ink(1.1);
+  path([['M', -0.24, 2.1], ['C', -0.3, 2.3, -0.29, 2.48, -0.22, 2.62], ['L', 0.1, 2.64], ['C', 0.16, 2.46, 0.18, 2.26, 0.16, 2.1], ['Z']]); g.fillStyle = shade(-0.3, 2.6, 0.2, 2.1, XPR.hi, XPR.mid); g.fill(); ink(1.2);
+  path([['M', -0.2, 2.58], ['L', 0.14, 2.16], ['L', 0.15, 2.08], ['L', -0.25, 2.5], ['Z']]); g.fillStyle = XPR.lo; g.fill();                           // the sash
+  g.fillStyle = XPR.far; g.fillRect(...P(-0.25, 2.16), 0.42 * s, 0.05 * s);                                                                             // the belt
+  g.fillStyle = 'rgba(196,220,180,.5)'; for (const y of [2.22, 2.32, 2.42]){ circ(g, ...P(-0.24, y), Math.max(0.8, 0.018 * s)); g.fill(); }            // the buttons
+  path([['M', -0.22, 2.6], ['Q', -0.1, 2.7, 0.08, 2.62], ['L', 0.1, 2.56], ['L', -0.22, 2.55], ['Z']]); g.fillStyle = XPR.mid; g.fill();              // the epaulette
+  glint([['M', -0.25, 2.14], ['C', -0.3, 2.3, -0.29, 2.48, -0.22, 2.6]], 1.4);
+  /* his near arm, the hand on the reins */
+  limb([[-0.1, 2.54, 0.15], [-0.2, 2.26, 0.12], [-0.48, 2.1, 0.1]], shade(-0.1, 2.5, -0.5, 2.1, XPR.hi, XPR.mid));
+  g.fillStyle = XPR.mid; circ(g, ...P(-0.52, 2.09), 0.055 * s); g.fill(); ink(1);
+  /* the head: the neck, the face turned west, the great moustache curled up at its ends, the tuft on the chin; the cap, its peak and plume */
+  { const [hx, hy] = P(-0.05, 2.66); g.save(); g.translate(hx, hy); g.scale(1.3, 1.3); g.translate(-hx, -hy); }     // (the head a little larger: it must read at the game's zoom)
+  g.fillStyle = XPR.mid; g.fillRect(...P(-0.11, 2.72), 0.14 * s, 0.1 * s);
+  path([['M', -0.02, 2.96], ['C', -0.14, 2.98, -0.2, 2.93, -0.21, 2.86], ['L', -0.25, 2.82], ['L', -0.2, 2.8], ['C', -0.2, 2.74, -0.16, 2.7, -0.08, 2.7], ['C', 0.04, 2.7, 0.08, 2.8, 0.06, 2.88], ['C', 0.05, 2.94, 0.02, 2.96, -0.02, 2.96], ['Z']]);
+  g.fillStyle = shade(-0.2, 2.9, 0.06, 2.75, XPR.hi, XPR.mid); g.fill(); ink(1.1);
+  path([['M', -0.19, 2.78], ['C', -0.29, 2.76, -0.37, 2.79, -0.41, 2.88], ['C', -0.34, 2.83, -0.27, 2.84, -0.21, 2.83], ['Z']]); g.fillStyle = XPR.line; g.fill();   // the moustache, its ends turned up
+  path([['M', -0.17, 2.78], ['C', -0.08, 2.75, 0.02, 2.78, 0.07, 2.86], ['C', 0.0, 2.82, -0.09, 2.81, -0.16, 2.82], ['Z']]); g.fill();
+  path([['M', -0.15, 2.72], ['L', -0.13, 2.64], ['L', -0.09, 2.71], ['Z']]); g.fill();                                                                       // the tuft
+  g.fillStyle = XPR.line; circ(g, ...P(-0.14, 2.88), Math.max(0.8, 0.014 * s)); g.fill();                                                                  // the eye
+  path([['M', -0.2, 2.95], ['L', 0.06, 2.96], ['L', 0.05, 3.12], ['L', -0.16, 3.11], ['Z']]); g.fillStyle = shade(-0.2, 3.1, 0.05, 2.95, XPR.mid, XPR.lo); g.fill(); ink(1.1);   // the cap
+  path([['M', -0.2, 2.95], ['L', -0.32, 2.93], ['L', -0.2, 2.99], ['Z']]); g.fillStyle = XPR.line; g.fill();                                             // its peak
+  path([['M', -0.08, 3.1], ['C', 0.0, 3.3, 0.22, 3.3, 0.34, 3.12], ['C', 0.24, 3.2, 0.1, 3.18, 0.04, 3.1], ['Z']]); g.fillStyle = XPR.lo; g.fill(); ink(1);   // the plume, falling back
+  glint([['M', -0.06, 3.14], ['C', 0.02, 3.26, 0.18, 3.26, 0.28, 3.16]], 1, 'rgba(196,220,180,.4)');
+  g.restore();
+}
 Object.assign(VZ_PROP, {
   /* the bakery's front: p.x its middle, p.y its foot, p.w its width (the house's); its door at p.x + 0.65 m */
   xpforno:{ fade:1, box:p => ({ x:p.x - p.w / 2 - 0.6 * VZ_M, y:p.y - 5.2 * VZ_M, w:p.w + 1.2 * VZ_M, h:5.5 * VZ_M }), draw:(g, p) => {
@@ -51883,30 +52113,8 @@ Object.assign(VZ_PROP, {
     g.fillStyle = B.bronze; ell(g, X(-2.0), at(1.15), 0.42 * M, 0.2 * M); g.fill(); circ(g, X(-2.38), at(1.35), 0.2 * M); g.fill();       // the lion
     g.fillStyle = B.bronzeD; circ(g, X(-2.42), at(1.38), 0.26 * M); g.fill(); g.fillStyle = B.bronze; circ(g, X(-2.44), at(1.36), 0.17 * M); g.fill();
     g.fillStyle = B.bronze2; g.beginPath(); g.moveTo(X(-1.95), at(1.3)); g.lineTo(X(-1.75), at(1.75)); g.lineTo(X(-1.6), at(1.3)); g.closePath(); g.fill();   // its wing
-    /* the horse, in profile, heading west; a little larger than life */
-    const hb = at(3.75), sx = X(0.15);
-    g.fillStyle = B.bronze;
-    for (const [lx, back] of [[-0.95, 0], [-0.55, 1], [0.75, 0], [1.05, 1]]){ g.fillStyle = back ? B.bronzeD : B.bronze; g.fillRect(sx + lx * M - 0.09 * M, hb - 1.45 * M, 0.18 * M, 1.45 * M); }
-    g.fillStyle = B.bronzeD; g.save(); g.translate(sx - 1.05 * M, hb - 1.2 * M); g.rotate(0.9); g.fillRect(-0.09 * M, -0.1 * M, 0.18 * M, 0.75 * M); g.restore();   // a foreleg raised, stepping out
-    g.fillStyle = B.bronze; ell(g, sx, hb - 1.85 * M, 1.4 * M, 0.55 * M); g.fill();
-    g.beginPath(); g.moveTo(sx - 1.0 * M, hb - 2.1 * M); g.lineTo(sx - 1.55 * M, hb - 3.15 * M); g.lineTo(sx - 1.95 * M, hb - 3.0 * M); g.lineTo(sx - 2.05 * M, hb - 2.65 * M); g.lineTo(sx - 1.7 * M, hb - 2.55 * M); g.lineTo(sx - 1.15 * M, hb - 1.6 * M); g.closePath(); g.fill();   // the neck, the head
-    g.fillStyle = B.bronzeD; g.beginPath(); g.moveTo(sx - 1.05 * M, hb - 2.25 * M); g.lineTo(sx - 1.5 * M, hb - 3.15 * M); g.lineTo(sx - 1.35 * M, hb - 3.2 * M); g.lineTo(sx - 0.85 * M, hb - 2.3 * M); g.closePath(); g.fill();   // the mane
-    g.fillStyle = B.bronze2; g.beginPath(); g.moveTo(sx - 1.6 * M, hb - 3.15 * M); g.lineTo(sx - 1.55 * M, hb - 3.4 * M); g.lineTo(sx - 1.45 * M, hb - 3.12 * M); g.fill();   // an ear
-    g.fillStyle = B.bronzeD; g.beginPath(); g.moveTo(sx + 1.3 * M, hb - 2.05 * M); g.quadraticCurveTo(sx + 1.75 * M, hb - 1.6 * M, sx + 1.55 * M, hb - 0.9 * M); g.lineTo(sx + 1.42 * M, hb - 1.0 * M); g.quadraticCurveTo(sx + 1.5 * M, hb - 1.6 * M, sx + 1.2 * M, hb - 1.85 * M); g.closePath(); g.fill();   // the tail
-    g.fillStyle = 'rgba(160,190,150,.28)'; ell(g, sx - 0.3 * M, hb - 2.15 * M, 0.9 * M, 0.12 * M); g.fill();      // the light along its back
-    /* the king: his boots, his coat, the sash, the head with its moustache and plumed hat; the sword raised high */
-    const kx = sx - 0.05 * M, ks = hb - 2.25 * M;
-    g.fillStyle = B.bronzeD; g.fillRect(kx - 0.15 * M, ks - 0.15 * M, 0.3 * M, 0.9 * M);                                     // his leg down the horse's side
-    g.fillStyle = B.bronze; g.beginPath(); g.moveTo(kx - 0.38 * M, ks); g.lineTo(kx - 0.3 * M, ks - 1.25 * M); g.lineTo(kx + 0.3 * M, ks - 1.25 * M); g.lineTo(kx + 0.42 * M, ks); g.closePath(); g.fill();
-    g.fillStyle = B.bronze2; g.beginPath(); g.moveTo(kx - 0.3 * M, ks - 1.15 * M); g.lineTo(kx + 0.32 * M, ks - 0.35 * M); g.lineTo(kx + 0.32 * M, ks - 0.5 * M); g.lineTo(kx - 0.22 * M, ks - 1.25 * M); g.closePath(); g.fill();   // the sash
-    g.fillStyle = B.bronze; circ(g, kx, ks - 1.47 * M, 0.24 * M); g.fill();
-    g.fillStyle = B.bronzeD; g.fillRect(kx - 0.3 * M, ks - 1.42 * M, 0.3 * M, 0.08 * M);                                     // the great moustache
-    g.fillStyle = B.bronzeD; g.beginPath(); g.moveTo(kx - 0.3 * M, ks - 1.6 * M); g.lineTo(kx + 0.28 * M, ks - 1.62 * M); g.lineTo(kx + 0.2 * M, ks - 1.85 * M); g.lineTo(kx - 0.22 * M, ks - 1.85 * M); g.closePath(); g.fill();   // the hat
-    g.fillStyle = B.bronze2; g.beginPath(); g.moveTo(kx + 0.05 * M, ks - 1.85 * M); g.quadraticCurveTo(kx + 0.35 * M, ks - 2.3 * M, kx + 0.55 * M, ks - 2.05 * M); g.quadraticCurveTo(kx + 0.3 * M, ks - 2.0 * M, kx + 0.12 * M, ks - 1.82 * M); g.fill();   // its plume
-    g.strokeStyle = B.bronze; g.lineWidth = 0.2 * M; g.lineCap = 'round'; g.beginPath(); g.moveTo(kx - 0.2 * M, ks - 1.1 * M); g.lineTo(kx - 0.65 * M, ks - 1.75 * M); g.stroke(); g.lineCap = 'butt';
-    g.strokeStyle = '#9aa48e'; g.lineWidth = 2.2; g.beginPath(); g.moveTo(kx - 0.68 * M, ks - 1.78 * M); g.lineTo(kx - 1.05 * M, ks - 2.9 * M); g.stroke();   // the sword
-    g.strokeStyle = B.bronzeD; g.lineWidth = 2.2; g.beginPath(); g.moveTo(kx - 0.82 * M, ks - 1.72 * M); g.lineTo(kx - 0.52 * M, ks - 1.88 * M); g.stroke();
-    g.fillStyle = 'rgba(200,220,190,.25)'; g.fillRect(kx - 0.28 * M, ks - 1.2 * M, 0.1 * M, 1.0 * M);
+    /* the horse and the king (render/xplaces.js xpRider): in profile, heading west, the near foreleg raised, the sword held high */
+    xpRider(g, X(0.12), at(3.75), M * 1.08);
     /* the low bronze railing round it (the front run, its posts) */
     g.strokeStyle = B.bronzeD; g.lineWidth = 1.6; g.beginPath(); g.moveTo(X(-2.7), b - 0.55 * M); g.lineTo(X(2.7), b - 0.55 * M); g.stroke();
     for (let m = -2.7; m <= 2.71; m += 0.6){ g.fillStyle = B.bronzeD; g.fillRect(X(m) - 1.2, b - 0.75 * M, 2.4, 0.75 * M); circ(g, X(m), b - 0.78 * M, 2); g.fill(); }

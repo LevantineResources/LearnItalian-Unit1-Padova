@@ -10,6 +10,8 @@
  "nodes": [],
  "side": [],
  "replayNodes": true,
+ "drive": true,
+ "openWorld": true,
  "name": "Roma",
  "blurb": "Piazze, fountains, steps: the five districts to walk, the sights and their stories, the metro.",
  "note": "Test drive only so far: the city to walk, no lessons yet."

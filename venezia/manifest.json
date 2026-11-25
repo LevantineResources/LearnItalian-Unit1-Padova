@@ -382,7 +382,8 @@
       "lessonAtLeast": 4
      }
     ]
-   }
+   },
+   "drive": true
   },
   {
    "id": "pozzo",
@@ -390,7 +391,8 @@
    "en": "The wells and the old map",
    "done": {
     "path": "pozzo.outfit"
-   }
+   },
+   "drive": true
   },
   {
    "id": "gatti",
@@ -398,7 +400,8 @@
    "en": "Nane's census of the cats",
    "done": {
     "path": "gatti.given"
-   }
+   },
+   "drive": true
   },
   {
    "id": "roulette",
@@ -406,10 +409,13 @@
    "en": "The Casinò and il tricorno",
    "done": {
     "path": "cplaces.casino.given"
-   }
+   },
+   "drive": true
   }
  ],
  "replayNodes": true,
+ "drive": true,
+ "openWorld": true,
  "name": "Venezia",
  "blurb": "Campi, calli, bridges: the city's four districts, the vaporetto, the Albero (the skill tree) and its stories.",
  "note": ""

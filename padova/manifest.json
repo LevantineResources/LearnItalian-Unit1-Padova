@@ -179,6 +179,8 @@
  "nodes": [],
  "side": [],
  "replayNodes": true,
+ "drive": true,
+ "openWorld": true,
  "name": "Padova",
  "blurb": "A small Italian town where nobody speaks English: the bar, the market, the museum, the night train. Lessons 1–15 and twelve quests.",
  "note": ""

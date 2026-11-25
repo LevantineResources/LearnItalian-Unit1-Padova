@@ -6161,19 +6161,29 @@ NPCS.push(
    A page learns its slot from its URL (?slot=2, &name=… for a new game, &replay=1 for a replay the home screen asked for in
    localStorage SLOT_REPLAY), or, in the game build only (window.PIAZZA_GAME, set by scripts/build.js game), from the small key the home
    screen sets as it opens a unit (SLOT_HANDOFF, a minute's worth) or from this tab's last one (sessionStorage: a reload). With no slot
-   (a unit's page opened on its own) nothing changes: KEY is UNIT.saveKey, as before. */
+   (a unit's page opened on its own) nothing changes: KEY is UNIT.saveKey, as before.
+   The two test saves of the home screen (docs/features/home-screen.md, "Two test saves"): ?mode=drive (the Lesson test drive: a lesson, quest,
+   node or side story picked on the home screen, its request in localStorage SLOT_DRIVE, set up with everything before it done) and ?mode=world
+   (the Open world: every area open, free play). Each runs on a key of its own, the unit's key + ':drive' / ':world' (SLOT.mode; SLOT.n is 0):
+   never a save file's, never counted, no last played. */
 const GAME = (typeof window === 'object' && window && window.PIAZZA_GAME) || null;        // { home:'../index.html', unit } in the game build
-const SLOT_HANDOFF = 'piazza-game-open', SLOT_META = 'piazza-game-meta', SLOT_REPLAY = 'piazza-game-replay', SLOT_N = 3;
+const SLOT_HANDOFF = 'piazza-game-open', SLOT_META = 'piazza-game-meta', SLOT_REPLAY = 'piazza-game-replay', SLOT_DRIVE = 'piazza-game-drive', SLOT_N = 3;
+const SLOT_MODES = ['drive', 'world'];
 const SLOT = (() => {
   let q = {}; try { q = Object.fromEntries(new URLSearchParams((typeof location === 'object' && location && location.search) || '')); } catch (e){}
-  let n = +q.slot || 0, name = q.name || '', replay = q.replay === '1';
+  let n = +q.slot || 0, name = q.name || '', replay = q.replay === '1', mode = SLOT_MODES.includes(q.mode) ? q.mode : null;
   const get = (st, k) => { try { return JSON.parse(st.getItem(k) || 'null'); } catch (e){ return null; } };
   if (GAME){
     const h = typeof localStorage === 'object' ? get(localStorage, SLOT_HANDOFF) : null;
     if (h){ try { localStorage.removeItem(SLOT_HANDOFF); } catch (e){} }      // (used once, whether the address kept its query or not)
-    if (!n && h && Date.now() - (+h.at || 0) < 60000 && (!h.unit || h.unit === UNIT.id)){ n = +h.slot || 0; name = name || h.name || ''; replay = replay || !!h.replay; }
-    const s = !n && typeof sessionStorage === 'object' ? get(sessionStorage, SLOT_HANDOFF) : null;
-    if (s && s.unit === UNIT.id){ n = +s.slot || 0; replay = !!s.replay; }
+    if (!n && !mode && h && Date.now() - (+h.at || 0) < 60000 && (!h.unit || h.unit === UNIT.id)){ n = +h.slot || 0; mode = SLOT_MODES.includes(h.mode) ? h.mode : null; name = name || h.name || ''; replay = replay || !!h.replay; }
+    const s = !n && !mode && typeof sessionStorage === 'object' ? get(sessionStorage, SLOT_HANDOFF) : null;
+    if (s && s.unit === UNIT.id){ n = +s.slot || 0; mode = SLOT_MODES.includes(s.mode) ? s.mode : null; replay = !!s.replay; }
+  }
+  if (mode){
+    let D = mode === 'drive' && typeof localStorage === 'object' ? get(localStorage, SLOT_DRIVE) : null; if (!D || D.unit !== UNIT.id) D = null;
+    try { if (GAME) sessionStorage.setItem(SLOT_HANDOFF, JSON.stringify({ unit:UNIT.id, mode })); } catch (e){}
+    return { n:0, mode, name:String(name).slice(0, 14), replay:null, drive:D };
   }
   if (!(n >= 1 && n <= SLOT_N)) return null;
   let R = null;
@@ -6182,12 +6192,12 @@ const SLOT = (() => {
   return { n, name:String(name).slice(0, 14), replay:R };
 })();
 /* a unit's key in this page's slot (its own, slot 1, when there is none) */
-const slotBase = base => !SLOT || SLOT.n === 1 ? base : base + ':s' + SLOT.n;
+const slotBase = base => !SLOT ? base : SLOT.mode ? base + ':' + SLOT.mode : SLOT.n === 1 ? base : base + ':s' + SLOT.n;
 const slotKey = base => slotBase(base) + (SLOT && SLOT.replay ? ':replay' : '');
 /* the slot's record for the home screen (last played, the unit it was in): written as the game saves, at most every 10 s */
 let slotTouched = 0;
 function slotTouch(){
-  if (!SLOT || SLOT.replay || Date.now() - slotTouched < 10000) return;
+  if (!SLOT || SLOT.replay || SLOT.mode || Date.now() - slotTouched < 10000) return;
   slotTouched = Date.now();
   try { const M = JSON.parse(localStorage.getItem(SLOT_META) || '{}') || {}; M[SLOT.n] = { unit:UNIT.id, at:Date.now() }; localStorage.setItem(SLOT_META, JSON.stringify(M)); } catch (e){}
 }
@@ -6305,7 +6315,7 @@ if (typeof module === 'object' && module && module.exports) module.exports = PRO
    ========================================================= */
 const W = 960, H = 600, NEAR = 58;
 let KEY = slotKey(UNIT.saveKey);          // each unit saves under its own key (units/<id>/unit.js), in the page's save file (core/slots.js: slot 1 is the key itself); a unit may switch to a key of its own (useSaveKey: Venezia's test drive)
-function useSaveKey(k){ KEY = !k || k === UNIT.saveKey ? slotKey(UNIT.saveKey) : k; return KEY; }
+function useSaveKey(k){ KEY = !k || k === UNIT.saveKey || (SLOT && SLOT.mode) ? slotKey(UNIT.saveKey) : k; return KEY; }      // (a test save of the home screen keeps its own key whatever the unit asks: core/slots.js)
 const DPR = Math.min(2, window.devicePixelRatio || 1);
 /* the canvas's resolution: its px per W × H unit. DPR, or (a unit with UNIT.sharpCanvas: Venezia) the canvas's CSS scale times the
    device's pixel ratio, so a canvas shown larger than 960 × 600 is drawn at the screen's own resolution, not upscaled
@@ -7287,10 +7297,13 @@ function designerNodeDone(id, o = {}){
 /* a replay of node n (the game build's home screen: ui/home.js slotReplay): its parents marked complete, quietly, so n is open and not begun;
    a lesson parent's player left where its Mark as complete puts them (UNIT.designerPlace: Venezia's Lesson 5 at the Erberia, District 2's start) */
 function replayOpenNode(n){
+  if (n && n.continues && !treeIsDone(treeNode(n.continues))) designerNodeDone(n.continues, { inner:true, quiet:true });      // (what it continues, in an earlier district)
   const p = n && n.parent ? treeNode(n.parent) : null; if (!p) return false;
   if (p.lesson) designerMarkDone(p.lesson, { quiet:true }); else designerNodeDone(p.id, { inner:true, quiet:true });
   return treeState(n) === 'open';
 }
+/* every lesson of the unit marked complete, quietly (the home screen's Lesson test drive, a quest: ui/home.js driveSetup) */
+function replayAllLessons(){ return LESSONS.length ? designerMarkDone(LESSONS.length, { quiet:true }) : false; }
 function designerStudyDone(id, o = {}){
   const n = treeNode(id); if (!n || !n.study) return false;
   const r = treeStudyRec(id); r.words = r.practice = true; if (n.study.numbers) r.numbers = true;
@@ -27577,6 +27590,20 @@ function unitFreePlay(){
   setTimeout(() => toast('<b>Free play.</b> The quests you haven\'t done are open (the phone, <kbd>P</kbd>), and Studio (<kbd>T</kbd>) has every lesson\'s words.'), 1900);
 }
 
+/* ---------- the home screen's two test saves (engine ui/home.js; docs/features/home-screen.md, "Two test saves") ----------
+   UNIT.freePlay(): the Lesson test drive's quests start in free play (every lesson done first: every quest open at any time).
+   UNIT.openWorld({ fresh, name }): the Open world on its own key: continued when it has a save, else every lesson's skip (as the intro's
+   skip links do: no designer mode needed), free play in the afternoon, every fast-travel place known, you in the piazza. */
+UNIT.freePlay = () => { l15ToFreeState(); const F = S.fast || (S.fast = {}); DESTS.forEach(d => { F[d.key || d.scene] = true; }); save(); };
+UNIT.openWorld = (o = {}) => {
+  if (!o.fresh && continueSaved()) return true;
+  newGame(); if (o.name) S.playerName = o.name;
+  for (let k = 1; k <= LESSONS.length; k++){ const f = UNIT.skips[k - 1] || (hookFor(k) && hookFor(k).skip); if (f) f(); }
+  startGame(); UNIT.freePlay();
+  travelTo('piazza', { x:480, y:520 }, 'Padova', 'Open world · il pomeriggio');
+  return true;
+};
+
 /* ---------- replaying a lesson ---------- */
 function replayLesson(n){
   if (!LESSONS[n - 1] || !(n <= 6 || (hookFor(n) && hookFor(n).start))) return;
@@ -31692,6 +31719,10 @@ function startGame(){ introOpen = false; $('#intro').hidden = true; renderHUD();
      key (core/slots.js), set up the way the intro's skip links and designer mode's Mark as complete do it: a lesson from its start, every lesson
      before it skipped (Padova's #btnJump2…6, else jumpTo(n)); a node of the Albero open (its parents marked complete: core/designer.js replayOpenNode), its
      panel shown. The badge says "Replay: progress here isn't kept"; going home throws the key away.
+   - The two test saves (SLOT.mode, core/slots.js; never a save file's keys, never counted): the Lesson test drive (mode 'drive': SLOT.drive =
+     { unit, kind:'lesson' | 'quest' | 'node' | 'side', n | id, name, fresh }, set up by driveSetup on the unit's ':drive' key, wiped each time a new
+     one is picked; the badge "Lesson test drive") and the Open world (mode 'world': the unit's UNIT.openWorld({ fresh, name }) on its ':world' key,
+     kept between visits; the badge "Open world").
    - In the game build (GAME), the header's ⌂ (#btnHome) opens the menu: Home · Save files.
    - window.__gameManifest(): what the unit has, for the home screen's count (scripts/build.js game evaluates the bundle in a Node vm, as
      scripts/unit1-words.js does, and writes it into the home screen); window.__progressCheck(): the pure count (core/progress.js) of the save
@@ -31700,7 +31731,7 @@ function startGame(){ introOpen = false; $('#intro').hidden = true; renderHUD();
 /* ---------- going home ---------- */
 function gameHomeURL(o = {}){
   if (!GAME) return null;
-  const q = []; if (SLOT) q.push('slot=' + SLOT.n); if (o.go) q.push('go=' + encodeURIComponent(o.go));
+  const q = []; if (SLOT && SLOT.mode) q.push('test=' + SLOT.mode); else if (SLOT) q.push('slot=' + SLOT.n); if (o.go) q.push('go=' + encodeURIComponent(o.go));
   return GAME.home + (q.length ? '?' + q.join('&') : '') + (o.saves ? '#saves' : '');
 }
 function gameHome(o = {}){
@@ -31715,21 +31746,29 @@ function gameHome(o = {}){
 function openHomeMenu(){
   if (!GAME) return;
   openModal('small home-menu');
-  const where = SLOT ? `Save ${SLOT.n}${SLOT.replay ? ' · a replay' : ''}` : 'No save file: this unit on its own';
+  const where = SLOT && SLOT.mode ? SLOT_MODE_NAME[SLOT.mode] : SLOT ? `Save ${SLOT.n}${SLOT.replay ? ' · a replay' : ''}` : 'No save file: this unit on its own';
   sheet.innerHTML = `
     <div class="sheet-head"><div><p class="kicker">${esc(where)}</p><h2>Piazza</h2></div><button class="x" data-close aria-label="Close">×</button></div>
-    <div class="sheet-body">${SLOT && SLOT.replay ? '<p>This is a replay: progress here isn\'t kept. Your save file is as you left it.</p>' : '<p>Your progress is saved as you play.</p>'}
+    <div class="sheet-body">${SLOT && SLOT.mode ? `<p>${SLOT_MODE_NOTE[SLOT.mode]}</p>` : SLOT && SLOT.replay ? '<p>This is a replay: progress here isn\'t kept. Your save file is as you left it.</p>' : '<p>Your progress is saved as you play.</p>'}
       <div class="cta home-cta"><button class="btn primary" id="homeGo" type="button">⌂ Home</button><button class="btn" id="homeSaves" type="button">Save files</button><button class="btn" data-close type="button">Back to the game</button></div></div>`;
   $('#homeGo').onclick = () => gameHome();
   $('#homeSaves').onclick = () => gameHome({ saves:true });
 }
 { const b = document.getElementById('btnHome'); if (b){ b.hidden = !GAME; b.onclick = () => openHomeMenu(); } }
 /* the replay's badge (as designer mode's: a pill on the screen while it lasts) */
-if (SLOT && SLOT.replay){ const b = document.createElement('div'); b.id = 'replayBadge'; b.className = 'replay-badge'; b.textContent = 'Replay: progress here isn\'t kept'; document.body.appendChild(b); }
+const SLOT_MODE_NAME = { drive:'Lesson test drive', world:'Open world' };
+const SLOT_MODE_NOTE = { drive:'A lesson test drive: it runs apart from your save files and is never counted. Picking another one on the home screen starts afresh.',
+  world:'The open world: every unit and every area open, free play. It is kept between visits, apart from your save files, and never counted (the home screen\'s Reset starts it afresh).' };
+if (SLOT && (SLOT.replay || SLOT.mode)){ const b = document.createElement('div'); b.id = 'replayBadge'; b.className = 'replay-badge' + (SLOT.mode ? ' mode-' + SLOT.mode : '');
+  b.textContent = SLOT.mode ? SLOT_MODE_NAME[SLOT.mode] : 'Replay: progress here isn\'t kept'; document.body.appendChild(b); }
 
 /* ---------- straight in ---------- */
 function slotBoot(){
   if (!SLOT) return false;
+  if (SLOT.mode === 'world') return worldBoot();
+  if (SLOT.mode === 'drive'){ const D = SLOT.drive;
+    if (D && D.fresh){ D.fresh = false; try { localStorage.setItem(SLOT_DRIVE, JSON.stringify(D)); localStorage.removeItem(KEY); } catch (e){} return driveSetup(D); }
+    return continueSaved(); }
   const R = SLOT.replay;
   if (R && R.fresh){ R.fresh = false; try { localStorage.setItem(SLOT_REPLAY, JSON.stringify(R)); localStorage.removeItem(KEY); } catch (e){} return slotReplay(R); }
   if (continueSaved()) return true;
@@ -31752,8 +31791,53 @@ function slotReplay(R){
     else { newGame(); startGame(); }
   }
   save();
-  setTimeout(() => toast('<b>Replay</b> · progress here isn\'t kept: your save file is as you left it.'), 1200);
+  if (!R.quietToast) setTimeout(() => toast('<b>Replay</b> · progress here isn\'t kept: your save file is as you left it.'), 1200);
   return true;
+}
+
+/* ---------- the two test saves ---------- */
+/* the Open world: the unit's own (UNIT.openWorld({ fresh, name }): Padova's free play with every place known, Venezia's and Roma's test drives),
+   continued when its key has a save; a unit without one: a new game, as its intro would */
+function worldBoot(){
+  const fresh = !loadSaved(), name = sanitizeName(SLOT.name || '') || 'Explorer';
+  if ($('#nameInput')) $('#nameInput').value = name;
+  if (UNIT.openWorld){ if (UNIT.openWorld({ fresh, name }) === false) return false; }
+  else if (fresh || !continueSaved()){ newGame(); S.playerName = name; save(); startGame(); }
+  save();
+  setTimeout(() => toast(`<b>Open world</b> · ${fresh ? 'every area open, free play.' : 'as you left it.'} Saved apart from your save files; never counted.`), 1400);
+  return true;
+}
+/* the Lesson test drive: the item picked set up with everything before it done (designer mode's Mark as complete: core/designer.js, so not in a
+   release build, whose home screen has no such card). A lesson: from its start, the lessons before it skipped (as slotReplay); a quest: every
+   lesson done (core/designer.js replayAllLessons; the unit's free play: UNIT.freePlay()), the quest open, you at its place; a node: its parents
+   (and what it continues) marked complete (replayOpenNode), the Albero at it; a side story: its own set-up (SIDE_STORIES[i].drive(): the unit's, what comes before it done, you at its start). */
+function driveSetup(D){
+  $('#nameInput').value = sanitizeName(D.name || '') || 'Alex';
+  const done = what => { save(); setTimeout(() => toast(`<b>Lesson test drive</b> · ${what}: everything before it done. Apart from your save files; never counted.`), 1300); return true; };
+  if (D.kind === 'lesson') return slotReplay({ ...D, quietToast:true }) && done(`Lezione ${D.n}`);
+  newGame(); startGame();
+  if (D.kind === 'quest'){
+    const q = QUESTS.find(x => x.id === D.id);
+    if (typeof replayAllLessons === 'function') replayAllLessons();
+    unitHook('freePlay');
+    if (q && q.place) travelTo(q.place.scene, { x:q.place.x, y:q.place.y }, q.title_it, 'Lesson test drive · a quest');
+    save(); renderHUD();
+    return done(q ? `the quest ${esc(q.title_it)}` : 'a quest');
+  }
+  if (D.kind === 'node'){
+    const n = treeNode(D.id);
+    if (n && typeof replayOpenNode === 'function') replayOpenNode(n);
+    save();
+    if (n) setTimeout(() => { if (!modalOpen && !dialogOpen) openAlbero(n.id); }, 900);
+    return done(n ? `◆ ${esc(n.title)}` : 'a node');
+  }
+  if (D.kind === 'side'){
+    const st = SIDE_STORIES.find(x => x.id === D.id);
+    if (st && st.drive) st.drive();
+    save();
+    return done(st ? esc(st.title) : 'a side story');
+  }
+  return done('nothing');
 }
 
 /* ---------- what the unit has (the home screen's manifest) ---------- */
@@ -31765,8 +31849,11 @@ window.__gameManifest = () => ({
   districts:TREE.map(D => D.id),
   nodes:treeNodes().map(n => ({ id:n.id, title:n.title, parent:n.parent || null, depth:n.depth, district:n.district, lesson:n.lesson || null,
     quest:n.quest || null, continues:n.continues || null, soon:!!(n.soon || n.placeholder) })),
-  side:SIDE_STORIES.map(s => ({ id:s.id, title:s.title, en:s.en || '', done:s.done })),
+  side:SIDE_STORIES.map(s => ({ id:s.id, title:s.title, en:s.en || '', done:s.done, drive:typeof s.drive === 'function' })),
   replayNodes:typeof replayOpenNode === 'function',
+  /* the home screen's two test saves: the Lesson test drive needs designer mode's Mark as complete (not in a release build); the open world the
+     unit's UNIT.openWorld (else a new game) */
+  drive:typeof replayOpenNode === 'function', openWorld:typeof UNIT.openWorld === 'function',
 });
 /* the pure count of the save in play beside the game's own (tests: the two must agree) */
 window.__progressCheck = () => {
@@ -31776,7 +31863,7 @@ window.__progressCheck = () => {
   const reached = PROGRESS.reached(M, saved).filter(r => r.kind === 'node').map(r => r.id), open = treeNodes().filter(n => !n.lesson && !n.quest && !n.soon && treeState(n) !== 'locked').map(n => n.id);
   return { pure:pure.ids, game, agree:pure.ids.join() === game.join(), reached, open, reachedAgree:reached.join() === open.join(), pct:pure.pct, key:KEY, slot:SLOT ? { n:SLOT.n, replay:!!SLOT.replay } : null };
 };
-dbgField('slot', () => ({ game:!!GAME, slot:SLOT ? SLOT.n : null, replay:SLOT && SLOT.replay ? { kind:SLOT.replay.kind, n:SLOT.replay.n, id:SLOT.replay.id } : null, key:KEY, home:gameHomeURL() }));
+dbgField('slot', () => ({ game:!!GAME, slot:SLOT ? SLOT.n : null, mode:SLOT ? SLOT.mode || null : null, drive:SLOT && SLOT.drive ? { kind:SLOT.drive.kind, n:SLOT.drive.n, id:SLOT.drive.id } : null, replay:SLOT && SLOT.replay ? { kind:SLOT.replay.kind, n:SLOT.replay.n, id:SLOT.replay.id } : null, key:KEY, home:gameHomeURL() }));
 
 /* ===== engine/ui/keyboard.js ===== */
 /* Keyboard controls. */
