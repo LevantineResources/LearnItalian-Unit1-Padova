@@ -299,7 +299,7 @@ ul.albero li.lv-2 > ul{padding-top:46px}
 ul.albero li.lv-2 > ul::before{height:46px}
 .al-wrap{position:relative}
 .al-gate-line{position:absolute;left:0;right:0;height:0;border-top:2px dashed var(--giallo);pointer-events:none}
-.al-gate-line span{position:absolute;left:4px;top:-11px;background:var(--carta);color:#8a6300;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border:1.5px solid var(--giallo);border-radius:999px;line-height:1.3}
+.al-gate-line span{position:absolute;left:4px;top:-11px;white-space:nowrap;background:var(--carta);color:#8a6300;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border:1.5px solid var(--giallo);border-radius:999px;line-height:1.3}
 .al-gate-line.met{border-top-color:var(--verde)}
 .al-gate-line.met span{color:var(--verde);border-color:var(--verde)}
 .tn{display:flex;flex-direction:column;gap:3px;width:200px;height:170px;overflow:hidden;text-align:left;background:#fffdf8;border:2px solid var(--cobalto);border-radius:12px;padding:8px 11px 9px;cursor:pointer;font:inherit;color:var(--inchiostro);box-shadow:0 3px 0 rgba(15,34,96,.35);transition:transform .12s}
@@ -5193,6 +5193,30 @@ const D2C_NPCS = [
 ];
 D2C_NPCS.forEach(n => { n.home = { x:n.x, y:n.y, face:{ ...(n.baseFace || { x:0, y:1 }) } }; n.face = { ...(n.baseFace || { x:0, y:1 }) }; NPCS.push(n); NPC[n.id] = n; });
 
+/* ===== units/venezia/tree/d3-a/npcs.js ===== */
+/* District 3 · branch A (Il quiz al bacaro): the branch's people (content phase). One file for the branch's builder: nobody else edits it.
+   A person of Cannaregio (or of the district their scene is in), as Lesson 4's (world/l4-rialto.js): { id, name, where, district:'cannaregio', city:true, formal:true (Lei) | false (tu),
+   place:'…', x:-999, y:-999 (placed by the branch's sceneOf / place hooks), the look (body, legs, hair, skin, …: render/people.js), pron:['She', 'her'], pitch }
+   then NPCS.push(n); NPC[n.id] = n. Prefix new ids with the branch ('d3a-…') so the three branches never collide. (The frame's placeholders are in branch.js.) */
+const D3A_NPCS = [];
+D3A_NPCS.forEach(n => { n.home = { x:n.x, y:n.y, face:{ ...(n.baseFace || { x:0, y:1 }) } }; n.face = { ...(n.baseFace || { x:0, y:1 }) }; NPCS.push(n); NPC[n.id] = n; });
+
+/* ===== units/venezia/tree/d3-b/npcs.js ===== */
+/* District 3 · branch B (Cartoline da Venezia): the branch's people (content phase). One file for the branch's builder: nobody else edits it.
+   A person of Cannaregio (or of the district their scene is in), as Lesson 4's (world/l4-rialto.js): { id, name, where, district:'cannaregio', city:true, formal:true (Lei) | false (tu),
+   place:'…', x:-999, y:-999 (placed by the branch's sceneOf / place hooks), the look (body, legs, hair, skin, …: render/people.js), pron:['She', 'her'], pitch }
+   then NPCS.push(n); NPC[n.id] = n. Prefix new ids with the branch ('d3b-…') so the three branches never collide. (The frame's placeholders are in branch.js.) */
+const D3B_NPCS = [];
+D3B_NPCS.forEach(n => { n.home = { x:n.x, y:n.y, face:{ ...(n.baseFace || { x:0, y:1 }) } }; n.face = { ...(n.baseFace || { x:0, y:1 }) }; NPCS.push(n); NPC[n.id] = n; });
+
+/* ===== units/venezia/tree/d3-c/npcs.js ===== */
+/* District 3 · branch C (Il nipote timido): the branch's people (content phase). One file for the branch's builder: nobody else edits it.
+   A person of Cannaregio (or of the district their scene is in), as Lesson 4's (world/l4-rialto.js): { id, name, where, district:'cannaregio', city:true, formal:true (Lei) | false (tu),
+   place:'…', x:-999, y:-999 (placed by the branch's sceneOf / place hooks), the look (body, legs, hair, skin, …: render/people.js), pron:['She', 'her'], pitch }
+   then NPCS.push(n); NPC[n.id] = n. Prefix new ids with the branch ('d3c-…') so the three branches never collide. (The frame's placeholders are in branch.js.) */
+const D3C_NPCS = [];
+D3C_NPCS.forEach(n => { n.home = { x:n.x, y:n.y, face:{ ...(n.baseFace || { x:0, y:1 }) } }; n.face = { ...(n.baseFace || { x:0, y:1 }) }; NPCS.push(n); NPC[n.id] = n; });
+
 /* ===== engine/core/slots.js ===== */
 /* Save files: the whole-game build's three slots (docs/features/home-screen.md; the home screen is game/home.js, the unit's side ui/home.js).
    A slot is a set of the units' save keys: slot 1 is each unit's own key (UNIT.saveKey: Padova's piazza-lezione-1, so every save made before
@@ -5250,11 +5274,12 @@ function slotTouch(){
    only used by window.__progressCheck() (ui/home.js: the pure count beside the game's own lessonCompleted / treeState, for the tests).
 
    The manifest: { unit, unitNo, saveKey, finishedBy:<rule> | null, lessons:[{ n, title, done:[tut] }], quests:[{ id, n, title }],
-     nodes:[{ id, title, parent, depth, district, lesson, quest, continues, soon }], districts:[ids], side:[{ id, title, done:<rule> }] }.
+     nodes:[{ id, title, parent, depth, district, lesson, quest, continues, lessonNo, soon }], districts:[ids], side:[{ id, title, done:<rule>, soon }] }.
    A rule (side stories, finishedBy): { path:'a.b.c', eq? } (truthy, or equal), { lesson:n } (completed), { lessonAtLeast:n } (reached),
      { any:[rules] }, { all:[rules] }.
    What counts (one each: the weight): every lesson, every quest, every tree node that is not a lesson's or a quest's own node and not a
-   "coming soon" stub, every side story. A unit never opened (no save) counts 0. */
+   "coming soon" stub (a node or a side story with soon: Venezia's District 3 frame, its closing scene of District 2), every side story. A unit never opened
+   (no save) counts 0. */
 const PROGRESS = (() => {
   /* the save that counts: a unit's own replay keeps the real one aside (Padova's S.replay.home, lessons/15-venezia/unit.js) */
   const real = S0 => { if (!S0 || typeof S0 !== 'object') return null;
@@ -5304,7 +5329,7 @@ const PROGRESS = (() => {
       ...M.lessons.map(l => ({ kind:'lesson', id:'l' + l.n, n:l.n, title:l.title })),
       ...M.quests.map(q => ({ kind:'quest', id:'q:' + q.id, qid:q.id, title:q.title })),
       ...M.nodes.filter(n => !n.lesson && !n.quest && !n.soon).map(n => ({ kind:'node', id:'t:' + n.id, nid:n.id, title:n.title })),
-      ...(M.side || []).map(s => ({ kind:'side', id:'s:' + s.id, sid:s.id, title:s.title })),
+      ...(M.side || []).filter(s => !s.soon).map(s => ({ kind:'side', id:'s:' + s.id, sid:s.id, title:s.title })),
     ];
   }
   function isDone(M, S, it){
@@ -12559,7 +12584,8 @@ Object.assign(window.__debug, { boardTap:name => boardClick(name, 'tap'), boardT
      main lesson), depth (1–4: a core node is 1, its first branch nodes 2…), words? ([{ it, en, g?, note?, say? }], the Vocabolario's
      word format) or count? (a number, when the list is not written yet), person:{ name, npc? (an NPC id) }, place:{ name, … (the
      rest is the unit's: UNIT.treePlace(node) turns it into a point) }, where? (English: what to do there), lesson? (n: the node IS
-     main lesson n; its words are then the chapter's Vocabolario once it has one) | quest? (a quest id: done when the quest is),
+     main lesson n; its words are then the chapter's Vocabolario once it has one) | lessonNo? (n: a core node that will be lesson n, while the
+     lesson isn't built: drawn as Lezione n, done in the save like any node) | quest? (a quest id: done when the quest is),
      continues? (a node of an earlier district: part 2 opens only once part 1 is done), soon? (true or html: "Coming soon", its task
      is not written yet), placeholder? (true: a stand-in for the designer's later content) }.
    The rules (treeLint(), tests/venezia/tree.js): unique ids; a strict chain (every parent exists, in the same district, one level up);
@@ -12882,6 +12908,7 @@ function treeGateLine(){
   if (b <= a) return;
   const D = treeCurDistrict(), g = D ? treeGate(D.id) : null, el = document.createElement('div');
   el.className = 'al-gate-line' + (g && g.open ? ' met' : ''); el.style.top = Math.round(a + 21 - top) + 'px';
+  el.style.right = 'auto'; el.style.width = wrap.scrollWidth + 'px';      // (across the whole tree, not only the part in view: a tree wider than its box keeps its label whole)
   el.innerHTML = `<span>${g && g.open ? '✓ ' : '↑ '}Per il prossimo sestiere · ${g ? g.done + '/' + g.total : ''}</span>`;
   wrap.appendChild(el);
   /* the label in the widest gap between the connectors that cross the line (the level-2 cards' middles) */
@@ -12903,7 +12930,7 @@ function treeMeter(n, cls = ''){
 const treeWordsLabel = n => { const k = treeWordCount(n); return n.soon && !k ? 'Coming soon' : k ? `${k} parole` : 'Coming soon'; };
 function treeCard(n){
   const st = treeState(n), sel = TREEUI.sel === n.id;
-  const lv = n.lesson ? `Lezione ${n.lesson}` : `Livello ${n.depth}`;
+  const lv = n.lesson || n.lessonNo ? `Lezione ${n.lesson || n.lessonNo}` : `Livello ${n.depth}`;      // (lessonNo: a core node whose lesson isn't built yet)
   return `<button class="tn tn-${st}${sel ? ' sel' : ''}${n.depth <= TREE_GATE_DEPTH ? ' gate' : ''}" data-al-node="${esc(n.id)}" aria-label="${esc(n.title)}: ${TREE_STATE_IT[st]}">
       <span class="tn-top"><span class="tn-lv">${lv}</span><span class="tn-st">${st === 'done' ? '✓ ' : st === 'locked' ? TREE_LOCK : ''}${TREE_STATE_IT[st]}</span></span>
       <span class="tn-t">${esc(n.title)}</span>
@@ -12913,8 +12940,11 @@ function treeCard(n){
     </button>`;
 }
 
-/* the fork's mark (core/tree.js treeChoose): the lead taken, and the other one, open for later */
-const treeLeadTag = n => { const L = treeLeadOf(n); return !L ? '' : L === 'mine' ? '<span class="tn-lead mine">La tua pista</span>' : '<span class="tn-lead other">L\'altra pista</span>'; };
+/* the fork's mark (core/tree.js treeChoose): the lead taken, and the other one, open for later (a fork of three or more: each of the others is
+   "un'altra pista", one more lead) */
+const treeForkN = n => n && n.parent ? treeChildren(n.parent).length : 0;
+const treeOtherName = n => treeForkN(n) > 2 ? "Un'altra pista" : "L'altra pista";
+const treeLeadTag = n => { const L = treeLeadOf(n); return !L ? '' : L === 'mine' ? '<span class="tn-lead mine">La tua pista</span>' : `<span class="tn-lead other">${treeOtherName(n)}</span>`; };
 /* a node's handbook entry: its words (the Vocabolario) and how they are used (node.howto), folded */
 function treeHowtoHTML(n){
   const W = n.words || [], H = n.howto;
@@ -12935,7 +12965,7 @@ function renderTreePanel(){
   wrap.hidden = false;
   const st = treeState(n), k = treeWordCount(n), s = treeStrength(n);
   const head = `<button class="x tp-x" data-al-close aria-label="Close">×</button>
-    <p class="kicker">${n.lesson ? `Lezione ${n.lesson} · ` : ''}Livello ${n.depth} · ${TREE_STATE_IT[st]}${n.placeholder ? ' · placeholder' : ''}</p>
+    <p class="kicker">${n.lesson || n.lessonNo ? `Lezione ${n.lesson || n.lessonNo} · ` : ''}Livello ${n.depth} · ${TREE_STATE_IT[st]}${n.placeholder ? ' · placeholder' : ''}</p>
     <h3 class="tp-t">${esc(n.title)}</h3><p class="sub">${esc(n.en)}</p>`;
   const who = `<p class="tp-who">${TREE_PIN}<span><b>${esc(n.person.name)}</b> · ${esc(n.place.name)}</span></p>`;
   const fromLesson = n.lesson && LESSONS[n.lesson - 1] && hasVocabCheck(n.lesson);
@@ -12945,7 +12975,8 @@ function renderTreePanel(){
     body = `<h4>Dove andare · where to go</h4>${who}
       ${n.where ? `<p>${n.where}</p>` : ''}
       ${n.soon ? `<p class="tp-soon"><b>Coming soon.</b> ${n.soon === true ? 'This task is still being written: its person is not there yet.' : n.soon}</p>` : ''}
-      ${treeLeadOf(n) === 'other' ? '<p class="tp-lead"><b>L\'altra pista</b>: the lead you didn\'t take first. It stays open: play it whenever you like, it tells the rest of the story.</p>' : ''}
+      ${treeLeadOf(n) === 'other' ? (treeForkN(n) > 2 ? `<p class="tp-lead"><b>${treeOtherName(n)}</b>: one of the ${treeForkN(n)} leads, not the one you took first. It stays open: play it whenever you like, each tells its own part of the story.</p>`
+        : '<p class="tp-lead"><b>L\'altra pista</b>: the lead you didn\'t take first. It stays open: play it whenever you like, it tells the rest of the story.</p>') : ''}
       ${words}
       ${treeHowtoHTML(n)}
       ${treeStudyRow(n)}
@@ -13085,7 +13116,7 @@ Object.assign(window.__debug, {
   treeOpen(id){ openAlbero(id || null); return !!(modalOpen && hbTab === 'albero'); },
   treeAddDistrict(d, at){ TREE.push(d); if (at !== undefined && at >= 0 && at < TREE.length - 1) TREE.splice(at, 0, TREE.pop()); return treeLint(); },
   /* the Albero's tutorial: start it as the first time (true), or mark it seen (false: the HUD's line gone) */
-  treeTutor(on = true){ if (on){ const R = treeRec(); delete R.tutor; return treeTutorStart(); } document.querySelectorAll('.al-coach-hud').forEach(e => e.remove()); TREEUI.tutor = null; treeRec().tutor = { done:Date.now() }; save(); return true; },
+  treeTutor(on = true){ if (on){ const R = treeRec(); delete R.tutor; return treeTutorStart(); } return treeTutorSeen(); },
 });
 
 
@@ -13192,6 +13223,14 @@ function treeTutorAct(a){
   renderTree();
   const el = sheet.querySelector('.al-tutor'); if (el) el.scrollIntoView({ block:'nearest' });
 }
+/* the tutorial marked seen, nothing of it left on screen (the HUD's line, the handbook button's pulse, the card): a node picked on the home screen
+   (ui/home.js nodeDriveGo: a drive or a replay opens the Albero at its node, never behind the tutorial), __debug.treeTutor(false) */
+function treeTutorSeen(){
+  document.querySelectorAll('.al-coach-hud').forEach(e => e.remove()); const b = $('#btnBook'); if (b) b.classList.remove('pulse');
+  TREEUI.tutor = null; treeRec().tutor = { done:Date.now() }; save();
+  if (modalOpen && sheet.classList.contains('book') && hbTab === 'albero') renderTree();
+  return true;
+}
 /* the first time: the handbook's button pointed at (the HUD), the tutorial waiting in the Albero */
 function treeTutorStart(){
   const T = treeTutorSpec(), R = treeRec(); if (!T || (R.tutor && (R.tutor.done || R.tutor.started))) return false;
@@ -13225,13 +13264,13 @@ function treeComplete(id, o = {}){
   const kids = treeChildren(id), W = treeWords(n);
   const pills = (o.tiles || []).map((t, i) => `<span class="tc-tile" style="animation-delay:${0.35 + i * 0.18}s">${esc(t)}</span>`).join('');
   const words = W.map((w, i) => `<span class="tc-word" style="animation-delay:${0.1 + i * 0.05}s"><b>${esc(w.it)}</b> <i>${esc(w.en)}</i></span>`).join('');
-  const opened = kids.map(k => `<div class="tc-node${treeLeadOf(k) === 'mine' ? ' mine' : ''}"><p class="kicker">Livello ${k.depth} · ${treeLeadOf(k) === 'mine' ? 'la tua pista' : treeLeadOf(k) === 'other' ? "l'altra pista" : 'aperto'}</p>
+  const opened = kids.map(k => `<div class="tc-node${treeLeadOf(k) === 'mine' ? ' mine' : ''}"><p class="kicker">Livello ${k.depth} · ${treeLeadOf(k) === 'mine' ? 'la tua pista' : treeLeadOf(k) === 'other' ? treeOtherName(k).toLowerCase() : 'aperto'}</p>
       <b>${esc(k.title)}</b><span>${esc(k.en)}</span></div>`).join('');
   openLessonComplete({ kicker:'Albero · node done', title:`${n.title}: fatto!`, sub:n.en, story:o.story || '',
     sections:[...(pills ? [{ title:'New in your tile bank: the Frasi fatte', html:`<div class="tc-tiles">${pills}</div><p class="note">They are in every conversation's bank from now on.</p>` }] : []),
       { title:`Your words: ${W.length}`, html:`<div class="tc-words">${words}</div><p class="note">They are flashcards on the Albero now (tap the node), and in your dictionary.</p>` },
       ...(kids.length ? [{ title:'Now open on the Albero', html:`<div class="tc-nodes">${opened}</div>` }] : [])],
-    stats:o.stats, next:{ html:'<b>L\'Albero.</b> Choose your next node: the lead you picked, or the other one.', go:{ label:'Open the Albero', fn:() => { closeModal(); openAlbero(id); } } },
+    stats:o.stats, next:{ html:`<b>L'Albero.</b> Choose your next node: the lead you picked, or ${kids.length > 2 ? 'another one' : 'the other one'}.`, go:{ label:'Open the Albero', fn:() => { closeModal(); openAlbero(id); } } },
     onClose:o.onClose });
   CARD = { kind:'complete', title:`${n.title}: fatto!`, node:id };
   return true;
@@ -23064,11 +23103,11 @@ UNIT.treeTutorial = () => ({ after:'v3',
   ] });
 UNIT.onTreeDone = node => { if (node && node.id === 'v3') setTimeout(() => { if (typeof treeTutorStart === 'function') treeTutorStart(); }, 400); };
 
-const VZ_TREE_VZD = { 1:'sanmarco', 2:'sanpolo' };
+const VZ_TREE_VZD = { 1:'sanmarco', 2:'sanpolo', 3:'cannaregio' };
 /* a node's place → its point (world px) and its chunk; null until the city is built */
 UNIT.treePlace = n => {
-  /* the city district a place is in: place.vzd (a VZ_DISTRICT id), else its tree district's (District 1: San Marco; District 2: San Polo & Dorsoduro,
-     VZ_TREE_VZD); nothing while you are in another (each district's map shows its own pins) */
+  /* the city district a place is in: place.vzd (a VZ_DISTRICT id), else its tree district's (District 1: San Marco; District 2: San Polo & Dorsoduro;
+     District 3: Cannaregio: VZ_TREE_VZD); nothing while you are in another (each district's map shows its own pins) */
   const pl = n.place || {}, vzd = pl.vzd || VZ_TREE_VZD[n.district] || 'sanmarco'; if (!VZ.areas || VZD.id !== vzd) return null;
   let P = null;
   /* pl.npc (a node's start: core/tree.js node.start): where that person is, when they are out in the city (Margaret walking with you);
@@ -23081,6 +23120,21 @@ UNIT.treePlace = n => {
   if (!P) return null;
   const k = vzAreaAt(P.x, P.y);
   return { x:P.x, y:P.y, scene:k >= 0 ? VZ.areas[k].key : 'vz-piazza', name:pl.name, labelAt:pl.labelAt };
+};
+/* a node picked on the home screen (the Lesson test drive, a replay: engine ui/home.js nodeDriveGo): you at its start, as its pin shows (treePinOf:
+   its start while not begun), in its own city district (loaded first: vzGoDistrict; a load already under way, a lesson's set-up, is waited for);
+   beside its start person when they stand there (as __debug.d2Go) */
+UNIT.treeGo = async n => {
+  const idle = async () => { for (let i = 0; i < 600 && VZD.loading; i++) await new Promise(r => setTimeout(r, 50)); };
+  await idle();
+  const pl = treePinOf(n).place || {}, vzd = pl.vzd || VZ_TREE_VZD[n.district] || 'sanmarco';
+  if (VZD.id !== vzd && VZ_DISTRICT[vzd]){ await vzGoDistrict(vzd, {}, { fast:true }); await idle(); }
+  const p = treePlaceOf(n); if (!p) return false;
+  const who = n.start && n.start.npc && NPC[n.start.npc], P = who && who.x !== undefined && sceneOf(who) === p.scene ? VZ.snap(who.x, who.y + 1.6 * VZ_M, 16) : p;
+  if (S.scene !== p.scene) __debug.go(p.scene, P.x / VZ_TILE, P.y / VZ_TILE);
+  __debug.place(P.x, P.y, { x:0, y:-1 }); cam.fx = undefined;
+  save(); renderHUD();
+  return true;
 };
 
 /* forgiving answers (engine conversation/script.js csMoreLine): an answer given in part, the NPC takes the part and asks only for the rest,
@@ -23257,7 +23311,7 @@ const d2EndingBoth = id => { const E = D2_ENDINGS[id]; return !!E && E.after.len
     const x = D2_GATE_NODES.filter(d2Done).length, L = [4, 5].map(n => lessonCompleted(n));
     const ns = D2_GATE_NODES.map(id => { const n = treeNode(id); return n ? `<i>${esc(n.title)}</i>${d2Done(id) ? ' ✓' : ''}` : ''; }).filter(Boolean).join(', ');
     return `<p class="note d2-gate"><b>Per Cannaregio</b> (District 3): Lessons 4 and 5${L[0] && L[1] ? ' ✓' : ` (${L.filter(Boolean).length} of 2)`}, and the first node of each branch:
-      <b class="d2-gate-x">${x} of 3</b> (${ns}).${g && g.open ? ' <b>Gate met.</b> District 3 opens with the next lessons: coming soon.' : ''}</p>`;
+      <b class="d2-gate-x">${x} of 3</b> (${ns}).${g && g.open ? ' <b>Gate met.</b> District 3 · Cannaregio opens after Margaret’s dinner (below).' : ''}</p>`;
   }; }
 
 /* ---------- tests and the builders: __dbg().d2, __debug.d2Go(id) (you beside a node's start), d2Start(id) (started, as the player would: its person
@@ -30030,6 +30084,511 @@ d2cReg('fine', {
 /* the ending's words in the dictionary (with the nodes that bring it) */
 ['d2-c4a', 'd2-c4b'].forEach(id => { const n = treeNode(id); n.extra = (n.extra || []).concat(D2CFINE_EXTRA); });
 
+/* ===== units/venezia/tree-d3.js ===== */
+/* Unit 2 · Venezia: District 3's tree, the FRAME (Cannaregio · Secondo me…). The design: docs/lessons/venezia/scripts/d3/ (00-overview.md with the
+   designer's answers, d2-capstone-cena.md, l6-che-ne-pensa.md); the builders' guide: docs/lessons/venezia/scripts/d3/BUILD.md. This file is shared and
+   final: the branch builders never edit it (nor unit.json), as District 2's tree-d2.js.
+
+   The tree (TREE district 3): one core node, Lesson 6 (v6, Che ne pensa?: a stub until the lesson is built; once a Lesson 6 hook exists it becomes the
+   lesson's own node, lesson:6, below), then three branches, each node registered by its own folder, units/venezia/tree/d3-<id>/node.js, with d3Node({ … }),
+   loaded by the build's "@folders:tree/d3-" entry (each folder's files.json: { order, content?, logic?, world?, render? }):
+     A · Il quiz al bacaro (Ernesto)        d3-a2 La squadra → d3-a3 Il prete rosso → d3-a4 Il ghetto e il Tintoretto            ending d3-a-quiz
+                                            (a chain, no fork: two endings, your team's photo on the wall or theirs)
+     B · Cartoline da Venezia (the shop)    d3-b2 Il negozio di souvenir → d3-b3a Cari Bruno ed Enzo → d3-b4a (biscuits)
+                                                                         → d3-b3b Cara Rosa          → d3-b4b (Murano glass)
+                                                                         → d3-b3c Cara Lucia         → d3-b4c (Ottavio's book)  ending d3-b-fine (San Michele)
+                                            (the tree's first three-way fork: every path playable, a new postcard for each)
+     C · Il nipote timido (Ester, Davide)   d3-c2 Davide → d3-c3a Le amiche → d3-c4a Il coraggio
+                                                         → d3-c3b Il biglietto                                                  ending d3-c-fine (la Festa della Salute)
+   The gate to District 4 (engine treeGate: levels 1–2): v6, d3-a2, d3-b2, d3-c2; the Albero's note says it as "the branches' first nodes: x of 3".
+   Before it, District 2's closing scene, La vera Venezia (story/d2-cena/: a stub too), opens Cannaregio.
+   A node not built yet has soon:true: its pin is on the map where it starts (node.start), and starting it (its person, its door, or E at its spot)
+   says "Coming soon" (D3_SOON_HOOKS below). A builder sets soon:false and gives the node its own hooks, words, study, script.
+   The endings are not tree nodes (as District 2's): d3Ending({ … }) registers one; due when one of its nodes is done (need:'all': every one).
+   The people a branch has that the city hasn't yet are placeholders (d3Placeholder: one Italian line each, glossed), placed in their district by
+   world/d3places.js; a placeholder shop door, the same (d3Door).
+
+   API (BUILD.md has the details): d3Node(spec), d3Ending(spec), d3Placeholder(spec), d3Door(spec), d3Done(id), d3Pending(id), d3Altra(id), d3Begin(id),
+   d3Claims(npc), d3Wants(npc), d3Soon(id), d3Branch(letter), d3EndingDue(id), d3EndingAll(id), d3LmSpot(lm, dx, dy), d3PtSpot(point, dx, dy), d3Bridges(),
+   d3Rec(); __dbg().d3; __debug.d3Go(id), d3Start(id), d3Ends(), d3Bridges(), d3Talk(id), d3Choose(parent, child). Saved: S.d3 = { soon:{ id:n }, altra:{ id:bool }, ended:{ id:time }, pointed }. */
+const D3_SCRIPTS = 'docs/lessons/venezia/scripts/d3/';
+const D3_TREE = {
+  id:3, title:'Cannaregio', sub:'Secondo me… · what the Venetians think of their city: some and how many (partitives), opinions', next:'District 4',
+  nodes:[
+    /* the core: Lesson 6 (one lesson: the old Lessons 6 and 7 together, the designer, 24 Nov). A stub: a core node without a lesson until the lesson
+       is built (lessonNo: drawn as "Lezione 6"; done in the save, so designer mode's Mark as complete opens the branches) */
+    { id:'v6', lessonNo:6, depth:1, parent:null, title:'Che ne pensa?', en:'Five locals, five places: what they like about their city and what they don’t (some, how many, opinions)',
+      person:{ name:'Ernesto e i veneziani' }, place:{ name:'il bacaro sulla Misericordia', vzd:'cannaregio', point:'door-bacaro', labelAt:[-60, -16] },
+      start:{ name:'the bacaro on the Fondamenta della Misericordia', who:'Ernesto', door:'bacaro', point:'door-bacaro', vzd:'cannaregio',
+        card:{ title:'Il bacaro sulla Misericordia', html:'<p>Nine in the morning on the Fondamenta della Misericordia: boats unloading, a man walking his dog, no tour groups. The bacaro’s door is open; <b>Ernesto</b>, the oste, behind the counter, two regulars with their coffee.</p>' } },
+      where:'Lezione 6 starts the morning after Margaret’s dinner (<i>La vera Venezia</i>, in San Polo): the traghetto to Cannaregio, then the <b>bacaro on the Fondamenta della Misericordia</b>. Ernesto, the oste, and four more locals round the district.',
+      soon:'Lezione 6 is still being written: the bacaro’s door says so.' },
+  ],
+};
+TREE.push(D3_TREE);
+/* Lesson 6 built (its hook registered: lessons load before this file): v6 is the lesson's own node, as Lessons 4 and 5 are District 2's */
+if (LESSON_HOOKS[6] && LESSONS[5]){ const v6 = D3_TREE.nodes[0]; v6.lesson = 6; delete v6.lessonNo; delete v6.start; v6.soon = false; }
+/* the branches: their gate node, their person, the ending(s), the fork (BUILD.md "The tree as built") */
+const D3_BRANCHES = {
+  a:{ id:'a', title:'Il quiz al bacaro', who:'Ernesto', gate:'d3-a2', fork:[], ending:'d3-a-quiz', save:'d3a' },
+  b:{ id:'b', title:'Cartoline da Venezia', who:'the souvenir shop', gate:'d3-b2', fork:['d3-b3a', 'd3-b3b', 'd3-b3c'], ending:'d3-b-fine', save:'d3b' },
+  c:{ id:'c', title:'Il nipote timido', who:'Ester', gate:'d3-c2', fork:['d3-c3a', 'd3-c3b'], ending:'d3-c-fine', save:'d3c' },
+};
+const d3Branch = L => D3_BRANCHES[L] || null;
+const D3_GATE_NODES = ['d3-a2', 'd3-b2', 'd3-c2'];
+const D3_ENDINGS = {};
+const D3 = { last:null, log:[], cards:0 };
+
+/* ---------- registering (a node folder's node.js; an ending folder's ending.js; a branch's placeholders) ----------
+   d3Node({ id, branch:'a'|'b'|'c', parent, depth, title, en, person:{ name, npc? }, place:{ name, vzd?, point? | lm? | npc? | at?() }, start:{ name,
+     who?, npc? | door? | point? | at?(), vzd?, label?, line?:{ it, en, gloss? }, card?:{ title, html }, early? }, where, doc (the script's file), altra:[ids], soon?, … })
+   The rest of a node's fields are the engine's (core/tree.js): words, extra, howto, study, studyFirst, script, hooks, rule3.
+   A start in another city district than its place gives its own vzd (a start's fields go over the place's: core/tree.js treePinOf). */
+function d3Node(spec){
+  if (!spec || !/^d3-/.test(spec.id || '')) throw new Error('d3Node: an id d3-…');
+  if (treeNode(spec.id)) throw new Error('d3Node: ' + spec.id + ' twice');
+  const n = Object.assign({ soon:true, altra:[] }, spec);
+  D3_TREE.nodes.push(n); treeAdopt(D3_TREE);
+  return n;
+}
+/* an ending: { id, branch, title, en, after:[ids], need:'any' (default: one of them done) | 'all', place:{ name, vzd, point }, outcomes?:[…], soon } */
+function d3Ending(spec){ D3_ENDINGS[spec.id] = Object.assign({ soon:true, after:[], need:'any' }, spec); return D3_ENDINGS[spec.id]; }
+/* a placeholder person (one Italian line, glossed: E says it, the English in a toast; the name tag says "placeholder"): { id, name, where, vzd, at:() → { x, y }
+   (in that district, once it is built: world/d3places.js), line:{ it, en, gloss?:{ words:English } }, node (shown once that node or branch isn't locked), look… }.
+   A builder who makes the real person keeps the id (or sends the placeholder away: its sceneOf → 'away') */
+const D3_PLACEHOLDERS = [];
+function d3Placeholder(o){
+  const g = o.line.gloss ? ' (' + Object.entries(o.line.gloss).map(([w, e]) => `${w}: ${e}`).join('; ') + ')' : '';
+  const n = Object.assign({ formal:true, city:true, district:o.vzd, ambient:true, placeholder:true, d3ph:true, baseFace:{ x:0, y:1 }, answerHow:{ it:'Bene, grazie.', en:'Fine, thanks.' },
+    greet:{ it:'Buongiorno', en:'Good morning' }, agenda:[], revisitAgenda:[], promptOffset:{ x:0, y:26 }, pron:['They', 'their'], pitch:1, x:-999, y:-999,
+    place:o.placeName || o.where, says:{ it:o.line.it, en:o.line.en + g + ' (A placeholder: their story is to come.)' } }, o);
+  n.home = { x:n.x, y:n.y, face:{ ...n.baseFace } }; n.face = { ...n.baseFace };
+  NPCS.push(n); NPC[n.id] = n; D3_PLACEHOLDERS.push(n);
+  return n;
+}
+const d3PhShown = n => !n.node || !treeNode(n.node) || treeState(n.node) !== 'locked' || (typeof vzTestDrive === 'function' && vzTestDrive());
+/* a placeholder door on a house front of a district (world/d3places.js puts it on at the district's building): { id, vzd, name, label, near:() → { x, y }
+   (the shop door nearest it on a front of that area), area?, kind? (the shop's goods: a VZ_SHOP_KINDS key), point (a named point in front of it) } */
+const D3_DOORS = [];
+function d3Door(o){ D3_DOORS.push(Object.assign({ label:'Entra' }, o)); return o; }
+
+/* a spot by a landmark of the current district (its look's stand, dx / dy metres off it), or by a named point (vzPoints): for start.at / place.at */
+function d3LmSpot(id, dx = 0, dy = 0){ try { const l = vzDLandmarks().find(q => q.id === id); return l ? VZ.snap(l.stand.x + dx * VZ_M, l.stand.y + dy * VZ_M, 16) : null; } catch (e){ return null; } }
+function d3PtSpot(key, dx = 0, dy = 0){ const P = vzPoints()[key]; return P ? VZ.snap(P.x + dx * VZ_M, P.y + dy * VZ_M, 16) : null; }
+
+/* ---------- states ---------- */
+function d3Rec(){ const R = S.d3 && typeof S.d3 === 'object' ? S.d3 : (S.d3 = {}); R.soon = R.soon || {}; R.altra = R.altra || {}; R.ended = R.ended || {}; return R; }
+const d3Done = id => { const n = treeNode(id); return !!n && treeIsDone(n); };
+/* a node whose start is still ahead: open, not begun (its pin points at node.start, core/tree.js treeStartPending) */
+const d3Pending = id => { const n = typeof id === 'string' ? treeNode(id) : id; return !!n && n.district === 3 && treeState(n) === 'open' && !treeBegun(n.id); };
+const d3Nodes = () => D3_TREE.nodes.filter(n => !n.lesson);
+/* L'altra pista: node.altra lists the nodes whose being done first changes this one; kept from d3Begin on (as tree-d2.js d2Altra) */
+function d3Altra(id){
+  const n = treeNode(id); if (!n) return false;
+  const R = (S.d3 && S.d3.altra) || {};
+  if (R[id] !== undefined && treeBegun(id)) return !!R[id];
+  return (n.altra || []).some(d3Done);
+}
+/* a node's story starts (use it in place of the engine's treeBegin: it keeps the altra answer) */
+function d3Begin(id){ const R = d3Rec(); if (R.altra[id] === undefined) R.altra[id] = (treeNode(id).altra || []).some(d3Done); treeBegin(id); save(); }
+/* someone a District 3 node wants: its start's person while it is pending, or what its own hooks claim (hooks.claims(npc) → true) while it is open */
+function d3Claims(npc){
+  if (!npc) return false;
+  return d3Nodes().some(n => n.start && n.start.npc === npc.id && d3Pending(n)) || d3Wants(npc);
+}
+function d3Wants(npc){
+  if (!npc) return false;
+  return d3Nodes().some(n => { if (!n.hooks || !n.hooks.claims || treeState(n) === 'locked') return false; try { return !!n.hooks.claims(npc); } catch (e){ return false; } });
+}
+
+/* ---------- "Coming soon" (a node with soon set, started) ---------- */
+const d3SoonNodes = () => d3Nodes().filter(n => n.soon && d3Pending(n));
+function d3SoonLog(ns){ const R = d3Rec(); ns.forEach(n => { R.soon[n.id] = (R.soon[n.id] || 0) + 1; }); D3.last = ns.map(n => n.id).join(','); D3.log.push(D3.last); save(); }
+const d3SoonLine = ns => ns.map(n => `<b>Albero · ${esc(n.title)}</b>`).join(ns.length > 2 ? ', ' : ' and ').replace(/, ([^,]*)$/, ' and $1')
+  + `: <b>coming soon</b>. ${ns.length > 1 ? 'These parts' : 'This part'} of the story ${ns.length > 1 ? 'are' : 'is'} still being written.`;
+/* a person: their line, then the note (Leave) */
+function d3SoonTalk(npc, ns){
+  convo.mode = 'cutscene'; convo.known = true; S.known[npc.id] = true;
+  const L = ns[0].start.line || { it:'Buongiorno, {Me}!', en:'Good morning, {Me}!' };
+  npcLine(fill(L.it), fill(L.en || ''), { gloss:L.gloss });
+  sysLine(d3SoonLine(ns));
+  showChoices([{ label:'Leave', primary:true, fn:closeDialog }]);
+  d3SoonLog(ns);
+  return true;
+}
+/* a door or a spot: a card */
+function d3SoonCard(ns){
+  const n = ns[0], c = n.start.card || {};
+  openInfoCard({ kicker:`Albero · ${n.lessonNo ? 'Lezione ' + n.lessonNo : 'Livello ' + n.depth}`, title:c.title || n.title, sub:n.en, cls:'d2-soon d3-soon',
+    html:`${c.html || ''}<p class="tp-soon">${d3SoonLine(ns)}</p>` });
+  D3.cards++; d3SoonLog(ns);
+  return true;
+}
+function d3Soon(id){ const n = treeNode(id); if (!n || !n.soon) return false; return n.start && n.start.npc && NPC[n.start.npc] && dialogOpen ? d3SoonTalk(NPC[n.start.npc], [n]) : d3SoonCard([n]); }
+/* where a pending node with a spot (no person, no door) starts: its pin's point (UNIT.treePlace), in this district's city */
+function d3SpotOf(n){ if (!n.start || n.start.npc || n.start.door) return null; const p = treePlaceOf(n); return p && p.scene === S.scene ? p : null; }
+function d3SpotNear(){
+  if (!VZ_CITY[S.scene] || dialogOpen || modalOpen || introOpen) return null;
+  let best = null, bd = 1.8 * VZ_M;
+  for (const n of d3SoonNodes()){ const p = d3SpotOf(n); if (!p) continue; const d = Math.hypot(player.x - p.x, player.y - p.y); if (d < bd){ bd = d; best = { n, p }; } }
+  return best;
+}
+const D3_SOON_HOOKS = {
+  story:'d3-soon',
+  talk(npc){ if (!npc || !convo) return undefined; const ns = d3SoonNodes().filter(n => n.start && n.start.npc === npc.id); return ns.length ? d3SoonTalk(npc, ns) : undefined; },
+  visitorTalk:npc => (npc && d3SoonNodes().some(n => n.start && n.start.npc === npc.id)) || undefined,
+  door(d){ if (!d) return undefined; const ns = d3SoonNodes().filter(n => n.start && n.start.door && n.start.door === d.id); return ns.length ? d3SoonCard(ns) : undefined; },
+  guide(){ const s = d3SpotNear(); return s ? `<b>${esc(s.n.title)}</b> · ${esc(s.n.start.name || '')}: press <kbd>E</kbd>.` : undefined; },
+  ePrompt(){ const s = d3SpotNear(); return s ? { x:s.p.x, y:s.p.y - 1.2 * VZ_M, label:s.n.start.label || s.n.title } : undefined; },
+  /* the placeholders: in their district once their node (or branch) is open */
+  sceneOf(n){ if (!n || !n.d3ph) return undefined; return d3PhShown(n) ? undefined : 'away'; },
+  /* an ending due: its toast once, while it is not built */
+  onTreeDone(node){
+    if (!node || node.district !== 3) return;
+    Object.values(D3_ENDINGS).forEach(E => { if (!E.after.includes(node.id) || !d3EndingDue(E.id)) return; const R = d3Rec(); if (R.ended[E.id] || !E.soon) return; R.ended[E.id] = Date.now(); save();
+      setTimeout(() => toast(`<b>${esc(E.title)}</b> · ${esc(E.en || '')}: coming soon.`), 1800); });
+    /* the core done: the Albero points at the branches (once) */
+    if (node.id === 'v6' && !d3Rec().pointed){ d3Rec().pointed = true; save(); handbookPointTo('albero', { line:'New on the <b>Albero</b>: <b>District 3</b>, three stories. Tap it!', quiet:true }); }
+  },
+};
+STORY_HOOKS.push(D3_SOON_HOOKS);
+/* E at a pending node's spot (its ePrompt above) */
+{ const prev = UNIT.key; UNIT.key = (k, e) => {
+    if (k === 'e' && !frozen() && !cutsceneOn()){ const s = d3SpotNear(); if (s){ d3SoonCard(d3SoonNodes().filter(n => d3SpotOf(n) && Math.hypot(player.x - d3SpotOf(n).x, player.y - d3SpotOf(n).y) < 1.8 * VZ_M)); return true; } }
+    return prev ? prev(k, e) : false; }; }
+/* an ending: due once one of its nodes is done (need:'all': every one); all: every one done (the second visit, the last postcard) */
+const d3EndingAll = id => { const E = D3_ENDINGS[id]; return !!E && E.after.length > 0 && E.after.every(d3Done); };
+const d3EndingDue = id => { const E = D3_ENDINGS[id]; return !!E && (E.need === 'all' ? d3EndingAll(id) : E.after.some(d3Done)); };
+
+/* ---------- the quiz's tiebreaker (branch A's ending; the designer, 25 Nov): how many bridges in San Marco (with the Arsenale stretch), San Polo and
+   Cannaregio together, counted from the game's own maps, so it stays right when a map changes: every bridge of each sketch (a run of '=' cells), and
+   the two district gates that are bridges (the Rialto, the Accademia). 50 on 25 Nov: 7 + 3, 21, 17, and 2 ---------- */
+const D3_BRIDGE_DISTRICTS = ['sanmarco', 'arsenale', 'sanpolo', 'cannaregio'], D3_BRIDGE_GATES = ['rialto', 'accademia'];
+function d3SketchBridges(sk){
+  const R = (sk && sk.rows) || [], H = R.length, W = H ? R[0].length : 0, seen = new Uint8Array(W * H); let n = 0;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++){
+    if (R[y][x] !== '=' || seen[y * W + x]) continue;
+    n++; const q = [[x, y]]; seen[y * W + x] = 1;
+    while (q.length){ const [a, b] = q.pop(); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]){ const u = a + dx, v = b + dy;
+      if (u < 0 || v < 0 || u >= W || v >= H || seen[v * W + u] || R[v][u] !== '=') continue; seen[v * W + u] = 1; q.push([u, v]); } }
+  }
+  return n;
+}
+function d3Bridges(){
+  const by = Object.fromEntries(D3_BRIDGE_DISTRICTS.map(id => [id, d3SketchBridges(VZ_SKETCHES[id])]));
+  const gates = VZ_LINKS.filter(L => D3_BRIDGE_GATES.includes(L.id)).length;
+  return { ...by, gates, total:Object.values(by).reduce((a, b) => a + b, 0) + gates };
+}
+
+/* ---------- the Albero's gate note (engine ui/tree.js UNIT.treeGateNote; District 1's and 2's are chained before it) ---------- */
+{ const prev = UNIT.treeGateNote; UNIT.treeGateNote = (D, g) => {
+    if (!D || D.id !== 3) return prev ? prev(D, g) : '';
+    const x = D3_GATE_NODES.filter(d3Done).length, v6 = treeNode('v6'), L = d3Done('v6');
+    const ns = D3_GATE_NODES.map(id => { const n = treeNode(id); return n ? `<i>${esc(n.title)}</i>${d3Done(id) ? ' ✓' : ''}` : ''; }).filter(Boolean).join(', ');
+    return `<p class="note d3-gate"><b>Per il quarto sestiere</b> (District 4): Lesson 6${L ? ' ✓' : v6 && v6.soon ? ' (coming soon)' : ''}, and the first node of each branch:
+      <b class="d3-gate-x">${x} of 3</b> (${ns}).${g && g.open ? ' <b>Gate met.</b> District 4 is still to be sketched: <b>coming soon</b>.' : ''}</p>`;
+  }; }
+
+/* ---------- tests and the builders: __dbg().d3, __debug.d3Go(id) (you beside a node's start, in its district), d3Start(id) (started, as the player would:
+   its person talked to, its door entered, or E at its spot), d3Ends(), d3Bridges() ---------- */
+const d3PinOf = n => (p => p ? { x:Math.round(p.x), y:Math.round(p.y), scene:p.scene } : null)(treePlaceOf(n));
+/* the city district of a node's pin: its start's while it hasn't begun (locked too: where it will start), else its place's */
+const d3VzdOf = n => { const P = n.start && !treeBegun(n.id) ? { ...(n.place || {}), ...n.start } : n.place || {}; return P.vzd || VZ_TREE_VZD[n.district] || 'sanmarco'; };
+dbgField('d3', () => { const R = S.d3 || {};
+  return { nodes:Object.fromEntries(D3_TREE.nodes.map(n => [n.id, { state:treeState(n), soon:!!n.soon, pending:d3Pending(n), begun:treeBegun(n.id), altra:d3Altra(n.id), branch:n.branch || null,
+      start:n.start ? (n.start.npc ? 'npc:' + n.start.npc : n.start.door ? 'door:' + n.start.door : 'spot') : null, vzd:d3VzdOf(n), pin:d3PinOf(n) }])),
+    gate:{ ...treeGate(3), x:D3_GATE_NODES.filter(d3Done).length }, endings:Object.fromEntries(Object.values(D3_ENDINGS).map(E => [E.id, { due:d3EndingDue(E.id), all:d3EndingAll(E.id), need:E.need,
+      soon:!!E.soon, toasted:!!(R.ended || {})[E.id], place:E.place ? { name:E.place.name, vzd:E.place.vzd } : null }])),
+    placeholders:Object.fromEntries(D3_PLACEHOLDERS.map(n => [n.id, { name:n.name, vzd:n.district, shown:d3PhShown(n), scene:sceneOf(n), at:n.x > -900 ? [Math.round(n.x), Math.round(n.y)] : null }])),
+    doors:D3_DOORS.map(o => ({ id:o.id, vzd:o.vzd, on:!!(VZD.id === o.vzd && VZ.doors.find(d => d.id === o.id)) })),
+    soon:{ last:D3.last, log:D3.log.slice(-10), cards:D3.cards, saved:{ ...(R.soon || {}) } }, spot:(s => s ? s.n.id : null)(d3SpotNear()), bridges:d3Bridges() }; });
+Object.assign(window.__debug, {
+  /* you beside a node's start (its person when they are out in the same scene, else its pin), in its own district (loaded first: a promise then) */
+  d3Go(id){ const n = treeNode(id); if (!n) return null;
+    const go = () => { const p = treePlaceOf(n); if (!p) return null;
+      const who = n.start && n.start.npc && NPC[n.start.npc], P = who && sceneOf(who) === p.scene && who.x > -900 ? VZ.snap(who.x, who.y + 1.6 * VZ_M, 16) : p;
+      if (S.scene !== p.scene) __debug.go(p.scene, P.x / VZ_TILE, P.y / VZ_TILE); __debug.place(P.x, P.y); player.face = { x:0, y:-1 }; return { x:Math.round(P.x), y:Math.round(P.y), scene:p.scene }; };
+    const vzd = d3VzdOf(n);
+    if (VZD.id === vzd && !VZD.loading) return go();
+    return vzGoDistrict(vzd, {}).then(() => go()); },
+  d3Start(id){ const n = treeNode(id); if (!n || !n.start) return false;
+    if (n.start.npc){ const who = NPC[n.start.npc]; if (!who) return false; openConvo(who); return true; }
+    if (n.start.door){ const d = VZ.doors.find(q => q.id === n.start.door); if (!d) return false; enterDoor(d); return true; }
+    return d3SoonCard([n]); },
+  d3Ends:() => Object.values(D3_ENDINGS).map(E => ({ id:E.id, due:d3EndingDue(E.id), all:d3EndingAll(E.id), need:E.need })),
+  d3Bridges:() => d3Bridges(),
+  /* a person's conversation, as E beside them; the lead taken at a fork (the engine's treeChoose) */
+  d3Talk(id){ const n = NPC[id]; if (!n || frozen()) return false; openConvo(n); return !document.querySelector('#dialog').hidden; },
+  d3Choose:(parent, child) => { treeChoose(parent, child); return ((treePeek() || {}).lead || {})[parent] === child; },
+});
+
+/* ===== units/venezia/tree/d3-a/branch.js ===== */
+/* District 3 · branch A (Il quiz al bacaro, Ernesto): the branch's shared logic (logic phase, before its nodes' files). Its save: S.d3a
+   (d3ARec() below; lazy, not in FRESH()). Its nodes: d3-a2, d3-a3, d3-a4; its ending: d3-a-quiz. See README.md here and BUILD.md.
+   Reflexives are allowed (District 3 comes after Lesson 5: scripts/reflexive-lint.js skips tree/d3…). */
+function d3ARec(){ if (!S.d3a || typeof S.d3a !== 'object') S.d3a = {}; return S.d3a; }
+
+/* ===== units/venezia/tree/d3-a2/node.js ===== */
+/* District 3 · A2 · La squadra (the script: docs/lessons/venezia/scripts/d3/a2-la-squadra.md, to be written from 00-overview.md; README.md here: what to build).
+   Registered with the frame's d3Node() (units/venezia/tree-d3.js; docs/lessons/venezia/scripts/d3/BUILD.md). soon:true until it is built: its pin points at
+   start, and starting it says "Coming soon". The builder: set soon:false and add words, extra, howto, study, studyFirst, script, hooks, rule3 (here or in
+   this folder's other files). */
+d3Node({ id:'d3-a2', branch:'a', parent:'v6', depth:2, doc:'a2-la-squadra',
+  title:"La squadra", en:"Ernesto’s quiz needs teams of three: Bepi and Toni join you; the first question, the gondola’s pieces of wood",
+  person:{ name:"Bepi e Toni", npc:"bepi" },
+  place:{ name:'lo squero di San Trovaso', vzd:'sanpolo', point:'poi-p33', labelAt:[-50, -16] },
+  start:{ name:"Ernesto’s bacaro, the Misericordia", who:'Ernesto', door:'bacaro', point:'door-bacaro', vzd:'cannaregio', card:{ title:'Il quiz al bacaro', html:'<p>A poster on the bacaro’s door: <b>QUIZ SU VENEZIA · venerdì sera · squadre di tre</b>. Ernesto: <i>Lei ha una squadra?</i></p>' } },
+  where:"It starts at <b>Ernesto’s bacaro</b> on the Fondamenta della Misericordia: a quiz night about Venice, teams of three. Bepi and Toni (District 1’s bacaro) are your team; the first question takes you to the <b>squero di San Trovaso</b> (San Polo): how many pieces of wood make a gondola?",
+  altra:[],      // L'altra pista: this node's variant when one of these is done first (d3Altra('d3-a2'))
+  soon:true });
+
+/* ===== units/venezia/tree/d3-a3/node.js ===== */
+/* District 3 · A3 · Il prete rosso (the script: docs/lessons/venezia/scripts/d3/a3-il-prete-rosso.md, to be written from 00-overview.md; README.md here: what to build).
+   Registered with the frame's d3Node() (units/venezia/tree-d3.js; docs/lessons/venezia/scripts/d3/BUILD.md). soon:true until it is built: its pin points at
+   start, and starting it says "Coming soon". The builder: set soon:false and add words, extra, howto, study, studyFirst, script, hooks, rule3 (here or in
+   this folder's other files). */
+d3Node({ id:'d3-a3', branch:'a', parent:'d3-a2', depth:3, doc:'a3-il-prete-rosso',
+  title:"Il prete rosso", en:"Which composer was called “the red priest”? Vivaldi, at the Pietà; and whose is the statue on the Riva?",
+  person:{ name:"La custode della Pietà", npc:"xp-custode" },
+  place:{ name:'la Pietà, sulla Riva degli Schiavoni', vzd:'arsenale', point:'xp-pieta', labelAt:[-50, -16] },
+  start:{ name:'the Riva degli Schiavoni, between the statue and the Pietà', who:'Bepi e Toni', at:() => d3PtSpot('xp-pieta', 5, 3), vzd:'arsenale', label:'Il prete rosso', card:{ title:'Il prete rosso', html:'<p>Two questions on the Riva degli Schiavoni: <i>Chi era il prete rosso?</i> and <i>Di chi è la statua a cavallo?</i></p>' } },
+  where:"The <b>Riva degli Schiavoni</b> (the Arsenale stretch, District 1): the <b>Pietà</b>, Vivaldi’s church (the custodian), and the statue of <b>Vittorio Emanuele II</b> on its way. Two questions for the quiz.",
+  altra:[],      // L'altra pista: this node's variant when one of these is done first (d3Altra('d3-a3'))
+  soon:true });
+
+/* ===== units/venezia/tree/d3-a4/node.js ===== */
+/* District 3 · A4 · Il ghetto e il Tintoretto (the script: docs/lessons/venezia/scripts/d3/a4-il-ghetto-e-il-tintoretto.md, to be written from 00-overview.md; README.md here: what to build).
+   Registered with the frame's d3Node() (units/venezia/tree-d3.js; docs/lessons/venezia/scripts/d3/BUILD.md). soon:true until it is built: its pin points at
+   start, and starting it says "Coming soon". The builder: set soon:false and add words, extra, howto, study, studyFirst, script, hooks, rule3 (here or in
+   this folder's other files). */
+d3Node({ id:'d3-a4', branch:'a', parent:'d3-a3', depth:4, doc:'a4-il-ghetto-e-il-tintoretto',
+  title:"Il ghetto e il Tintoretto", en:"Which painter is buried in the Madonna dell’Orto? Read the plaque; and where does the word “ghetto” come from?",
+  person:{ name:"Il sagrestano e la signora Ester", npc:"xp-sagrestano" },
+  place:{ name:"la Madonna dell'Orto e il Ghetto", vzd:'cannaregio', point:'xp-orto', labelAt:[-60, -16] },
+  start:{ name:"the campo of the Madonna dell'Orto", who:'Bepi e Toni', at:() => d3PtSpot('xp-orto', 5, 3), vzd:'cannaregio', label:'Il ghetto e il Tintoretto', card:{ title:'Il ghetto e il Tintoretto', html:'<p>The last two questions are here in Cannaregio: <i>Chi è sepolto nella Madonna dell’Orto?</i> and <i>Da dove viene la parola “ghetto”?</i></p>' } },
+  where:"Cannaregio: inside the <b>Madonna dell’Orto</b>, Tintoretto’s plaque in the chapel right of the choir; then <b>Campo del Ghetto Novo</b>, where <b>la signora Ester</b> knows where the word “ghetto” comes from (<i>il getto</i>, the foundry; 1516).",
+  altra:[],      // L'altra pista: this node's variant when one of these is done first (d3Altra('d3-a4'))
+  soon:true });
+
+/* ===== units/venezia/tree/d3-a-quiz/ending.js ===== */
+/* District 3 · branch A's ending · La serata del quiz (the script: docs/lessons/venezia/scripts/d3/a-quiz.md, to be written; README.md here).
+   Not a tree node: registered with the frame's d3Ending() (units/venezia/tree-d3.js). Due when one of its nodes is done (d3EndingDue); all done:
+   d3EndingAll. soon:true: a "coming soon" toast the first time it is due. The builder: set soon:false and play it (a hook of the branch's). */
+d3Ending({ id:'d3-a-quiz', branch:'a', doc:'a-quiz', title:"La serata del quiz", en:"Branch A’s ending: quiz night at Ernesto’s, the bridges tiebreaker; your team’s photo on the wall, or theirs",
+  after:['d3-a4'], need:'any',
+  place:{ name:'il bacaro sulla Misericordia', vzd:'cannaregio', point:'door-bacaro' },
+  outcomes:['vinta: your team’s photo goes up on the wall (kept, in the album)', 'persa: theirs goes on the wall'],
+  soon:true });
+
+/* ===== units/venezia/tree/d3-b/branch.js ===== */
+/* District 3 · branch B (Cartoline da Venezia, the souvenir shop): the branch's shared logic (logic phase, before its nodes' files). Its save: S.d3b
+   (d3BRec() below; lazy, not in FRESH()). Its nodes: d3-b2, d3-b3a, d3-b4a, d3-b3b, d3-b4b, d3-b3c, d3-b4c; its ending: d3-b-fine. See README.md here and BUILD.md.
+   Reflexives are allowed (District 3 comes after Lesson 5: scripts/reflexive-lint.js skips tree/d3…). */
+function d3BRec(){ if (!S.d3b || typeof S.d3b !== 'object') S.d3b = {}; return S.d3b; }
+
+/* ---------- the frame's placeholders (tree-d3.js d3Placeholder, d3Door; placed by world/d3places.js): a line each, until you build the real ones
+   (keep the ids; or send a placeholder away from your hook's sceneOf: 'away') ---------- */
+d3Placeholder({ id:'d3b-negoziante', name:'La negoziante', where:'the souvenir shopkeeper on the Strada Nova', placeName:'Il negozio di souvenir, Strada Nova', vzd:'cannaregio', node:'d3-b2',
+  at:() => d3PtSpot('d3b-negozio', 1.1, 0.2), pron:['She', 'her'], pitch:1.08, body:'#2e6a8e', legs:'#2b2b33', hair:'#3a2318', longHair:true, skin:'#ecc4a2', scarf:'#f4b928',
+  line:{ it:'Buongiorno! Cartoline, francobolli, souvenir: entri pure!', en:'Good morning! Postcards, stamps, souvenirs: do come in!', gloss:{ 'i francobolli':'stamps', 'entri pure':'do come in' } } });
+d3Placeholder({ id:'d3b-barcaiolo', name:'Il barcaiolo', where:'a boatman at the Fondamente Nove, his boat moored by the quay', placeName:'Le Fondamente Nove', vzd:'cannaregio', node:'d3-b2', formal:false,
+  at:() => d3PtSpot('poi-p17', -2.5, 1.5), pron:['He', 'his'], pitch:0.8, body:'#3f5a6a', legs:'#2b2b2b', hair:'#d8d8d8', skin:'#c98d62', flatcap:'#2b2b2b',
+  line:{ it:'San Michele? Ti porto io… ma mi devi dare qualcosa di buono.', en:'San Michele? I’ll take you… but you have to give me something good.', gloss:{ 'ti porto io':'I’ll take you', 'qualcosa di buono':'something good' } } });
+/* the shop's door: a shop door of the Strada Nova near its middle (world/d3places.js puts it on; "Coming soon" until your door hook takes it) */
+d3Door({ id:'d3b-negozio', vzd:'cannaregio', name:'Souvenir · cartoline e francobolli', area:'vz-cn-stradanova', kind:'souvenir', near:() => vzPoints()['poi-p1'], point:'d3b-negozio' });
+
+/* ===== units/venezia/tree/d3-b2/node.js ===== */
+/* District 3 · B2 · Il negozio di souvenir (the script: docs/lessons/venezia/scripts/d3/b2-il-negozio-di-souvenir.md, to be written from 00-overview.md; README.md here: what to build).
+   Registered with the frame's d3Node() (units/venezia/tree-d3.js; docs/lessons/venezia/scripts/d3/BUILD.md). soon:true until it is built: its pin points at
+   start, and starting it says "Coming soon". The builder: set soon:false and add words, extra, howto, study, studyFirst, script, hooks, rule3 (here or in
+   this folder's other files). */
+d3Node({ id:'d3-b2', branch:'b', parent:'v6', depth:2, doc:'b2-il-negozio-di-souvenir',
+  title:"Il negozio di souvenir", en:"Postcards and a stamp on the Strada Nova: compare, ask the prices, choose a picture, and whom to write to",
+  person:{ name:"La negoziante", npc:"d3b-negoziante" },
+  place:{ name:'il negozio di souvenir, Strada Nova', vzd:'cannaregio', point:'d3b-negozio', labelAt:[-56, -16] },
+  start:{ name:'the souvenir shop on the Strada Nova', who:'the shopkeeper', npc:'d3b-negoziante', point:'d3b-negozio', vzd:'cannaregio', line:{ it:'Buongiorno! Cartoline, francobolli, souvenir: entri pure!', en:'Good morning! Postcards, stamps, souvenirs: do come in!', gloss:{ 'i francobolli':'stamps', 'entri pure':'do come in' } } },
+  where:"A souvenir shop on the <b>Strada Nova</b> that sells stamps too: <i>qualche cartolina</i> and a stamp; pick a picture (the Rialto, the Ca’ d’Oro, the Libreria Acqua Alta, gondolas at sunset); then whom to write to: Bruno and Enzo, Rosa, or Lucia.",
+  altra:[],      // L'altra pista: this node's variant when one of these is done first (d3Altra('d3-b2'))
+  soon:true });
+
+/* ===== units/venezia/tree/d3-b3a/node.js ===== */
+/* District 3 · B3A · Cari Bruno ed Enzo (the script: docs/lessons/venezia/scripts/d3/b3a-cari-bruno-ed-enzo.md, to be written from 00-overview.md; README.md here: what to build).
+   Registered with the frame's d3Node() (units/venezia/tree-d3.js; docs/lessons/venezia/scripts/d3/BUILD.md). soon:true until it is built: its pin points at
+   start, and starting it says "Coming soon". The builder: set soon:false and add words, extra, howto, study, studyFirst, script, hooks, rule3 (here or in
+   this folder's other files). */
+d3Node({ id:'d3-b3a', branch:'b', parent:'d3-b2', depth:3, doc:'b3a-cari-bruno-ed-enzo',
+  title:"Cari Bruno ed Enzo", en:"A postcard to Bruno and Enzo at the Bar Centrale (voi): what you did, what you like, what you don’t",
+  person:{ name:"Bruno ed Enzo" },
+  place:{ name:'la cassetta delle lettere, Strada Nova', vzd:'cannaregio', point:'d3b-negozio', labelAt:[-60, 18] },
+  start:{ name:'the souvenir shop on the Strada Nova (another postcard)', who:'the shopkeeper', npc:'d3b-negoziante', point:'d3b-negozio', vzd:'cannaregio', line:{ it:'Un’altra cartolina? Ecco, scelga pure!', en:'Another postcard? Here you are, take your pick!', gloss:{ 'scelga pure':'take your pick' } } },
+  where:"Another postcard from the shop on the <b>Strada Nova</b>, written freely: to <b>Bruno ed Enzo</b> (voi). Greet them, say where you are and what the picture is, one thing you did, one you like and one you don’t, a plan, a sign-off; then the red postbox.",
+  altra:['d3-b3b', 'd3-b3c'],      // L'altra pista: this node's variant when one of these is done first (d3Altra('d3-b3a'))
+  soon:true });
+
+/* ===== units/venezia/tree/d3-b4a/node.js ===== */
+/* District 3 · B4A · I biscotti (the script: docs/lessons/venezia/scripts/d3/b4a-i-biscotti.md, to be written from 00-overview.md; README.md here: what to build).
+   Registered with the frame's d3Node() (units/venezia/tree-d3.js; docs/lessons/venezia/scripts/d3/BUILD.md). soon:true until it is built: its pin points at
+   start, and starting it says "Coming soon". The builder: set soon:false and add words, extra, howto, study, studyFirst, script, hooks, rule3 (here or in
+   this folder's other files). */
+d3Node({ id:'d3-b4a', branch:'b', parent:'d3-b3a', depth:4, doc:'b4a-i-biscotti',
+  title:"I biscotti", en:"Bruno and Enzo’s reply and their request: a taste of Venice for the bar, the right biscuits",
+  person:{ name:"Il signor Alvise, poi il forno", npc:"alvise" },
+  place:{ name:'un forno sulle Mercerie (the right biscuits)', vzd:'sanmarco', point:'forno', labelAt:[-50, -16] },
+  start:{ name:'the hotel desk, San Marco (C’è posta per Lei!)', who:'il signor Alvise', npc:'alvise', point:'hotel', vzd:'sanmarco', line:{ it:'C’è posta per Lei! Una cartolina… da Padova.', en:'There’s post for you! A postcard… from Padova.', gloss:{ 'la posta':'the post, the mail' } } },
+  where:"Margaret finds you in Cannaregio: <i>Alvise has a letter for you at the hotel</i>. At the desk, <b>il signor Alvise</b>: Bruno and Enzo’s reply, a PS that recasts one of your mistakes, and a request: a taste of Venice for the bar: the right biscuits (*baicoli*? *zaleti*? **check**), bought and sent.",
+  altra:[],      // L'altra pista: this node's variant when one of these is done first (d3Altra('d3-b4a'))
+  soon:true });
+
+/* ===== units/venezia/tree/d3-b3b/node.js ===== */
+/* District 3 · B3B · Cara Rosa (the script: docs/lessons/venezia/scripts/d3/b3b-cara-rosa.md, to be written from 00-overview.md; README.md here: what to build).
+   Registered with the frame's d3Node() (units/venezia/tree-d3.js; docs/lessons/venezia/scripts/d3/BUILD.md). soon:true until it is built: its pin points at
+   start, and starting it says "Coming soon". The builder: set soon:false and add words, extra, howto, study, studyFirst, script, hooks, rule3 (here or in
+   this folder's other files). */
+d3Node({ id:'d3-b3b', branch:'b', parent:'d3-b2', depth:3, doc:'b3b-cara-rosa',
+  title:"Cara Rosa", en:"A postcard to Rosa at the Caffè Aurora (tu): where you are, the picture, a plan",
+  person:{ name:"Rosa" },
+  place:{ name:'la cassetta delle lettere, Strada Nova', vzd:'cannaregio', point:'d3b-negozio', labelAt:[-60, 18] },
+  start:{ name:'the souvenir shop on the Strada Nova (another postcard)', who:'the shopkeeper', npc:'d3b-negoziante', point:'d3b-negozio', vzd:'cannaregio', line:{ it:'Un’altra cartolina? Ecco, scelga pure!', en:'Another postcard? Here you are, take your pick!', gloss:{ 'scelga pure':'take your pick' } } },
+  where:"Another postcard from the shop on the <b>Strada Nova</b>, written freely: to <b>Rosa</b> (tu). Greet them, say where you are and what the picture is, one thing you did, one you like and one you don’t, a plan, a sign-off; then the red postbox.",
+  altra:['d3-b3a', 'd3-b3c'],      // L'altra pista: this node's variant when one of these is done first (d3Altra('d3-b3b'))
+  soon:true });
+
+/* ===== units/venezia/tree/d3-b4b/node.js ===== */
+/* District 3 · B4B · Il vetro di Murano (the script: docs/lessons/venezia/scripts/d3/b4b-il-vetro-di-murano.md, to be written from 00-overview.md; README.md here: what to build).
+   Registered with the frame's d3Node() (units/venezia/tree-d3.js; docs/lessons/venezia/scripts/d3/BUILD.md). soon:true until it is built: its pin points at
+   start, and starting it says "Coming soon". The builder: set soon:false and add words, extra, howto, study, studyFirst, script, hooks, rule3 (here or in
+   this folder's other files). */
+d3Node({ id:'d3-b4b', branch:'b', parent:'d3-b3b', depth:4, doc:'b4b-il-vetro-di-murano',
+  title:"Il vetro di Murano", en:"Rosa’s reply and her request: something in Murano glass, not a tourist one (compare, a discount, gift-wrapped)",
+  person:{ name:"Il signor Alvise, poi il negozio di vetro", npc:"alvise" },
+  place:{ name:'un negozio di vetro di Murano, Strada Nova', vzd:'cannaregio', point:'area-cn-stradanova', labelAt:[-60, -16] },
+  start:{ name:'the hotel desk, San Marco (C’è posta per Lei!)', who:'il signor Alvise', npc:'alvise', point:'hotel', vzd:'sanmarco', line:{ it:'C’è posta per Lei! Una cartolina… da Padova.', en:'There’s post for you! A postcard… from Padova.', gloss:{ 'la posta':'the post, the mail' } } },
+  where:"Margaret finds you in Cannaregio: <i>Alvise has a letter for you at the hotel</i>. At the desk, <b>il signor Alvise</b>: Rosa’s reply, a PS that recasts one of your mistakes, and a request: something in Murano glass, not a tourist one: compare, a discount, gift-wrapped.",
+  altra:[],      // L'altra pista: this node's variant when one of these is done first (d3Altra('d3-b4b'))
+  soon:true });
+
+/* ===== units/venezia/tree/d3-b3c/node.js ===== */
+/* District 3 · B3C · Cara Lucia (the script: docs/lessons/venezia/scripts/d3/b3c-cara-lucia.md, to be written from 00-overview.md; README.md here: what to build).
+   Registered with the frame's d3Node() (units/venezia/tree-d3.js; docs/lessons/venezia/scripts/d3/BUILD.md). soon:true until it is built: its pin points at
+   start, and starting it says "Coming soon". The builder: set soon:false and add words, extra, howto, study, studyFirst, script, hooks, rule3 (here or in
+   this folder's other files). */
+d3Node({ id:'d3-b3c', branch:'b', parent:'d3-b2', depth:3, doc:'b3c-cara-lucia',
+  title:"Cara Lucia", en:"A postcard to Lucia at the museum (tu): the city, its painters, a plan",
+  person:{ name:"Lucia" },
+  place:{ name:'la cassetta delle lettere, Strada Nova', vzd:'cannaregio', point:'d3b-negozio', labelAt:[-60, 18] },
+  start:{ name:'the souvenir shop on the Strada Nova (another postcard)', who:'the shopkeeper', npc:'d3b-negoziante', point:'d3b-negozio', vzd:'cannaregio', line:{ it:'Un’altra cartolina? Ecco, scelga pure!', en:'Another postcard? Here you are, take your pick!', gloss:{ 'scelga pure':'take your pick' } } },
+  where:"Another postcard from the shop on the <b>Strada Nova</b>, written freely: to <b>Lucia</b> (tu). Greet them, say where you are and what the picture is, one thing you did, one you like and one you don’t, a plan, a sign-off; then the red postbox.",
+  altra:['d3-b3a', 'd3-b3b'],      // L'altra pista: this node's variant when one of these is done first (d3Altra('d3-b3c'))
+  soon:true });
+
+/* ===== units/venezia/tree/d3-b4c/node.js ===== */
+/* District 3 · B4C · Il libro (the script: docs/lessons/venezia/scripts/d3/b4c-il-libro.md, to be written from 00-overview.md; README.md here: what to build).
+   Registered with the frame's d3Node() (units/venezia/tree-d3.js; docs/lessons/venezia/scripts/d3/BUILD.md). soon:true until it is built: its pin points at
+   start, and starting it says "Coming soon". The builder: set soon:false and add words, extra, howto, study, studyFirst, script, hooks, rule3 (here or in
+   this folder's other files). */
+d3Node({ id:'d3-b4c', branch:'b', parent:'d3-b3c', depth:4, doc:'b4c-il-libro',
+  title:"Il libro", en:"Lucia’s reply and her request: a book about Venice’s painters; Ottavio finds it at the Libreria Acqua Alta",
+  person:{ name:"Il signor Ottavio", npc:"cp-libraio" },
+  place:{ name:'la Libreria Acqua Alta', vzd:'cannaregio', point:'cp-libreria', labelAt:[-50, -16] },
+  start:{ name:'the hotel desk, San Marco (C’è posta per Lei!)', who:'il signor Alvise', npc:'alvise', point:'hotel', vzd:'sanmarco', line:{ it:'C’è posta per Lei! Una cartolina… da Padova.', en:'There’s post for you! A postcard… from Padova.', gloss:{ 'la posta':'the post, the mail' } } },
+  where:"Margaret finds you in Cannaregio: <i>Alvise has a letter for you at the hotel</i>. At the desk, <b>il signor Alvise</b>: Lucia’s reply, a PS that recasts one of your mistakes, and a request: a book about Venice’s painters, which Ottavio finds at the Libreria Acqua Alta.",
+  altra:[],      // L'altra pista: this node's variant when one of these is done first (d3Altra('d3-b4c'))
+  soon:true });
+
+/* ===== units/venezia/tree/d3-b-fine/ending.js ===== */
+/* District 3 · branch B's ending · San Michele (the script: docs/lessons/venezia/scripts/d3/b-fine.md, to be written; README.md here).
+   Not a tree node: registered with the frame's d3Ending() (units/venezia/tree-d3.js). Due when every one of its nodes is done (d3EndingDue, need:'all'); all done:
+   d3EndingAll. soon:true: a "coming soon" toast the first time it is due. The builder: set soon:false and play it (a hook of the branch's). */
+d3Ending({ id:'d3-b-fine', branch:'b', doc:'b-fine', title:"San Michele", en:"Branch B’s ending: the three postcards from Padova, their stamps the boatman’s ticket to San Michele",
+  after:['d3-b4a', 'd3-b4b', 'd3-b4c'], need:'all',
+  place:{ name:'le Fondamente Nove, then San Michele', vzd:'cannaregio', point:'poi-p17' },
+  outcomes:[],
+  soon:true });
+
+/* ===== units/venezia/tree/d3-c/branch.js ===== */
+/* District 3 · branch C (Il nipote timido, Ester): the branch's shared logic (logic phase, before its nodes' files). Its save: S.d3c
+   (d3CRec() below; lazy, not in FRESH()). Its nodes: d3-c2, d3-c3a, d3-c4a, d3-c3b; its ending: d3-c-fine. See README.md here and BUILD.md.
+   Reflexives are allowed (District 3 comes after Lesson 5: scripts/reflexive-lint.js skips tree/d3…). */
+function d3CRec(){ if (!S.d3c || typeof S.d3c !== 'object') S.d3c = {}; return S.d3c; }
+
+/* ---------- the frame's placeholders (tree-d3.js d3Placeholder, d3Door; placed by world/d3places.js): a line each, until you build the real ones
+   (keep the ids; or send a placeholder away from your hook's sceneOf: 'away') ---------- */
+d3Placeholder({ id:'d3c-davide', name:'Davide', where:'Ester’s grandson, twenty, who talks to nobody', placeName:'Campo del Ghetto Novo', vzd:'cannaregio', node:'d3-c2', formal:false,
+  at:() => d3PtSpot('poi-p7', 3.2, 2.4), pron:['He', 'his'], pitch:1.05, body:'#4a5a7a', legs:'#2a2a30', hair:'#2a1a12', skin:'#e2b48e', rucksack:'#5a6a4a',
+  line:{ it:'Ciao… scusa, non ho tempo. Devo… andare.', en:'Hi… sorry, I haven’t got time. I have to… go.', gloss:{ 'non ho tempo':'I haven’t got time', 'devo andare':'I have to go' } } });
+d3Placeholder({ id:'d3c-amica1', name:'Un’amica di Irene', where:'a friend of Irene’s, outside the bakery', placeName:'Il Rio Terà San Leonardo', vzd:'cannaregio', node:'d3-c3a', formal:false,
+  at:() => d3PtSpot('xp-forno', 2.6, 2.2), pron:['She', 'her'], pitch:1.16, body:'#c9465a', legs:'#2a2a3a', hair:'#7a4a2a', longHair:true, skin:'#f0c9a8', bag:'#e8c35a',
+  line:{ it:'Irene? È simpaticissima! E le piacciono tanto i dolci.', en:'Irene? She’s really nice! And she loves sweet things.', gloss:{ 'simpaticissima':'really nice', 'le piacciono':'she likes' } } });
+d3Placeholder({ id:'d3c-amica2', name:'Un’altra amica', where:'another friend of Irene’s', placeName:'Il Rio Terà San Leonardo', vzd:'cannaregio', node:'d3-c3a', formal:false,
+  at:() => d3PtSpot('xp-forno', 3.8, 2.5), pron:['She', 'her'], pitch:1.2, body:'#5a8a3a', legs:'#2e3a4a', hair:'#1e1a17', longHair:true, skin:'#c98d62', rucksack:'#2e5a8a',
+  line:{ it:'Stasera andiamo al cinema con Irene. Vieni anche tu?', en:'Tonight we’re going to the cinema with Irene. Are you coming too?', gloss:{ 'stasera':'tonight', 'vieni anche tu?':'are you coming too?' } } });
+
+/* ===== units/venezia/tree/d3-c2/node.js ===== */
+/* District 3 · C2 · Davide (the script: docs/lessons/venezia/scripts/d3/c2-davide.md, to be written from 00-overview.md; README.md here: what to build).
+   Registered with the frame's d3Node() (units/venezia/tree-d3.js; docs/lessons/venezia/scripts/d3/BUILD.md). soon:true until it is built: its pin points at
+   start, and starting it says "Coming soon". The builder: set soon:false and add words, extra, howto, study, studyFirst, script, hooks, rule3 (here or in
+   this folder's other files). */
+d3Node({ id:'d3-c2', branch:'c', parent:'v6', depth:2, doc:'c2-davide',
+  title:"Davide", en:"Ester’s grandson talks to nobody: find out what’s wrong, describe him, and her (Irene, the baker’s daughter)",
+  person:{ name:"La signora Ester e Davide", npc:"d3c-davide" },
+  place:{ name:'Campo del Ghetto Novo', vzd:'cannaregio', point:'poi-p7', labelAt:[-50, -16] },
+  start:{ name:'Ester’s house, Campo del Ghetto Novo', who:'la signora Ester', door:'nonna', point:'door-nonna', vzd:'cannaregio', card:{ title:'Casa della signora Ester', html:'<p>A green door on the Campo del Ghetto Novo. Ester told you about her grandson this morning: <i>Davide è timido, non parla con nessuno…</i></p>' }, early:{ 'd3c-davide':{ it:'Mia nonna? È a casa, lì. Io… devo andare.', en:'My grandmother? She’s at home, there. I… have to go.', gloss:{ 'mia nonna':'my grandmother' } } } },
+  where:"<b>Campo del Ghetto Novo</b>: la signora Ester introduces her grandson <b>Davide</b> (twenty, talks to nobody). He has loved <b>Irene</b>, the baker’s daughter at the Panificio Vianello, for a year. The Festa della Salute is on 21 November…",
+  altra:[],      // L'altra pista: this node's variant when one of these is done first (d3Altra('d3-c2'))
+  soon:true });
+
+/* ===== units/venezia/tree/d3-c3a/node.js ===== */
+/* District 3 · C3A · Le amiche (the script: docs/lessons/venezia/scripts/d3/c3a-le-amiche.md, to be written from 00-overview.md; README.md here: what to build).
+   Registered with the frame's d3Node() (units/venezia/tree-d3.js; docs/lessons/venezia/scripts/d3/BUILD.md). soon:true until it is built: its pin points at
+   start, and starting it says "Coming soon". The builder: set soon:false and add words, extra, howto, study, studyFirst, script, hooks, rule3 (here or in
+   this folder's other files). */
+d3Node({ id:'d3-c3a', branch:'c', parent:'d3-c2', depth:3, doc:'c3a-le-amiche',
+  title:"Le amiche", en:"Ask Irene’s friends what she’s like and what she likes (È simpatica? Le piace…?), and tell Davide",
+  person:{ name:"Le amiche di Irene", npc:"d3c-amica1" },
+  place:{ name:'il Rio Terà San Leonardo, by the Panificio Vianello', vzd:'cannaregio', point:'xp-forno', labelAt:[-60, 18] },
+  start:{ name:'Davide, Campo del Ghetto Novo', who:'Davide', npc:'d3c-davide', point:'poi-p7', vzd:'cannaregio', line:{ it:'Allora… cosa faccio? Non so niente di lei.', en:'So… what do I do? I know nothing about her.', gloss:{ 'non so niente di lei':'I know nothing about her' } } },
+  where:"Davide knows nothing about Irene. Her <b>friends</b> wait for her outside the <b>Panificio Vianello</b> on the Rio Terà San Leonardo: ask them what she’s like and what she likes, then tell Davide.",
+  altra:['d3-c3b'],      // L'altra pista: this node's variant when one of these is done first (d3Altra('d3-c3a'))
+  soon:true });
+
+/* ===== units/venezia/tree/d3-c4a/node.js ===== */
+/* District 3 · C4A · Il coraggio (the script: docs/lessons/venezia/scripts/d3/c4a-il-coraggio.md, to be written from 00-overview.md; README.md here: what to build).
+   Registered with the frame's d3Node() (units/venezia/tree-d3.js; docs/lessons/venezia/scripts/d3/BUILD.md). soon:true until it is built: its pin points at
+   start, and starting it says "Coming soon". The builder: set soon:false and add words, extra, howto, study, studyFirst, script, hooks, rule3 (here or in
+   this folder's other files). */
+d3Node({ id:'d3-c4a', branch:'c', parent:'d3-c3a', depth:4, doc:'c4a-il-coraggio',
+  title:"Il coraggio", en:"A rehearsal (you play Irene, he stammers; Dai! Più lento! Sorridi!), then the real moment at the bakery’s counter",
+  person:{ name:"Davide e Irene", npc:"xp-irene" },
+  place:{ name:'il Panificio Vianello', vzd:'cannaregio', point:'xp-forno', labelAt:[-50, -16] },
+  start:{ name:'Davide, Campo del Ghetto Novo', who:'Davide', npc:'d3c-davide', point:'poi-p7', vzd:'cannaregio', line:{ it:'Proviamo? Tu fai Irene, va bene?', en:'Shall we practise? You play Irene, OK?', gloss:{ 'proviamo':'shall we try, practise', 'tu fai Irene':'you play Irene' } } },
+  where:"A rehearsal with <b>Davide</b> in the campo (you play Irene; he stammers; you coach him: <i>Dai! Più lento! Sorridi!</i>), then the real moment at the <b>Panificio Vianello</b>’s counter, you prompting him from behind the bread.",
+  altra:['d3-c3b'],      // L'altra pista: this node's variant when one of these is done first (d3Altra('d3-c4a'))
+  soon:true });
+
+/* ===== units/venezia/tree/d3-c3b/node.js ===== */
+/* District 3 · C3B · Il biglietto (the script: docs/lessons/venezia/scripts/d3/c3b-il-biglietto.md, to be written from 00-overview.md; README.md here: what to build).
+   Registered with the frame's d3Node() (units/venezia/tree-d3.js; docs/lessons/venezia/scripts/d3/BUILD.md). soon:true until it is built: its pin points at
+   start, and starting it says "Coming soon". The builder: set soon:false and add words, extra, howto, study, studyFirst, script, hooks, rule3 (here or in
+   this folder's other files). */
+d3Node({ id:'d3-c3b', branch:'c', parent:'d3-c2', depth:3, doc:'c3b-il-biglietto',
+  title:"Il biglietto", en:"Help Davide write Irene a note (things to get across), tucked into a San Martino biscuit",
+  person:{ name:"Davide", npc:"d3c-davide" },
+  place:{ name:'il Panificio Vianello (the San Martino biscuit)', vzd:'cannaregio', point:'xp-forno', labelAt:[-60, 18] },
+  start:{ name:'Davide, Campo del Ghetto Novo', who:'Davide', npc:'d3c-davide', point:'poi-p7', vzd:'cannaregio', line:{ it:'E se le scrivo un biglietto? Mi aiuti?', en:'What if I write her a note? Will you help me?', gloss:{ 'un biglietto':'a note', 'mi aiuti?':'will you help me?' } } },
+  where:"Davide would rather write: help him write <b>Irene</b> a note (branch B’s free writing: things to get across), then the <b>San Martino</b> biscuit (the horse and rider covered in sweets, for 11 November) from the bakery, the note tucked in.",
+  altra:['d3-c3a', 'd3-c4a'],      // L'altra pista: this node's variant when one of these is done first (d3Altra('d3-c3b'))
+  soon:true });
+
+/* ===== units/venezia/tree/d3-c-fine/ending.js ===== */
+/* District 3 · branch C's ending · La Festa della Salute (the script: docs/lessons/venezia/scripts/d3/c-fine.md, to be written; README.md here).
+   Not a tree node: registered with the frame's d3Ending() (units/venezia/tree-d3.js). Due when one of its nodes is done (d3EndingDue); all done:
+   d3EndingAll. soon:true: a "coming soon" toast the first time it is due. The builder: set soon:false and play it (a hook of the branch's). */
+d3Ending({ id:'d3-c-fine', branch:'c', doc:'c-fine', title:"La Festa della Salute", en:"Branch C’s ending: 21 November, the bridge of boats to the Salute: Davide walks over it with Irene, or he doesn’t",
+  after:['d3-c4a', 'd3-c3b'], need:'any',
+  place:{ name:'la Salute: the votive bridge from Santa Maria del Giglio', vzd:'sanpolo', point:'poi-p26' },
+  outcomes:['he walks over the bridge with Irene', 'he doesn’t'],
+  soon:true });
+
 /* ===== units/venezia/story/d1-rialto/content.js ===== */
 /* District 1 → 2 · Il Ponte di Rialto: District 1's capstone, and Lesson 4's first lines (docs/lessons/venezia/scripts/d1-capstone-rialto.md,
    with the designer's answers of 17 Nov: the player takes Margaret's photo, no passer-by; no comprehension checks; the other crossings open
@@ -30608,6 +31167,87 @@ Object.assign(window.__debug, {
   d1rReset:() => { delete S.d1r; save(); Object.assign(D1R, { snapped:false, busy:false, soon:null, carry:false, placedAt:null, talk:null }); return true; },
 });
 
+/* ===== units/venezia/story/d2-cena/flow.js ===== */
+/* District 2's closing scene · La vera Venezia (the script: docs/lessons/venezia/scripts/d3/d2-capstone-cena.md, a draft with three questions for the designer;
+   the frame of District 3's tree: tree-d3.js, docs/lessons/venezia/scripts/d3/BUILD.md). A STUB, as District 1's capstone's place was before it was
+   built: once District 2's gate is met (Lessons 4 and 5 and its three level-2 nodes), Margaret waits at San Giacometto to take you to her favourite
+   bacaro, Da Ugo, in a calle behind it (San Polo: a map pin (sideMarks: shown beside any lesson's marks), the objective, E at the spot). The scene isn't written yet: E there says so, and
+   opens Cannaregio (vzOpenDistrict('cannaregio'): the traghetto from the Rialto market), as the scene's end will (Ugo: "Prenda il traghetto domani
+   mattina: là c'è ancora la vera Venezia"). The builder of the scene: replace vvStub() with the scenes (Scene 1 San Giacometto, Scene 2 Da Ugo:
+   a new room of the bacaro kind, Ugo (Lei), Scene 3 the traghetto at dawn), keep the step names, and call vvEnd() at the end.
+   Saved: S.d2cena = { step:'wait' | 'soon' (the stub seen: Cannaregio open) | 'fatto' (the scene played), opened }. The home screen counts it
+   (SIDE_STORIES 'cena') once it is no longer soon.
+   Tests: tests/venezia/tree-d3.js; __dbg().d2cena, __debug.vvGo() (you at the spot, San Polo), __debug.vvAt(step). */
+const VV = { soon:true, cards:0 };
+const vvPeek = () => S.d2cena && typeof S.d2cena === 'object' ? S.d2cena : null;
+function vvRec(){ if (!vvPeek()) S.d2cena = { step:'wait' }; return S.d2cena; }
+const vvStep = () => (vvPeek() || {}).step || 'wait';
+/* due: District 2's gate met, the scene not played */
+const vvDue = () => treeGateOpen(2) && vvStep() !== 'fatto';
+/* the spot: in front of San Giacometto, a few steps east of its portico (its look stays San Giacometto's), San Polo */
+function vvSpot(){ if (VZD.id !== 'sanpolo' || !VZ.giac) return null; const g = VZ.giac; return VZ.snap(g.x + g.w / 2 + 3 * VZ_M, g.y + 2.5 * VZ_M, 16); }
+function vvNear(){
+  if (!vvDue() || !VZ_CITY[S.scene] || dialogOpen || modalOpen || introOpen) return null;
+  const p = vvSpot(); return p && Math.hypot(player.x - p.x, player.y - p.y) < 2 * VZ_M ? p : null;
+}
+/* the stub: the card, Cannaregio opened */
+function vvStub(){
+  const R = vvRec(), first = R.step === 'wait';
+  VV.cards++;
+  openInfoCard({ kicker:'District 2 · the closing scene', title:'La vera Venezia', sub:'Margaret’s favourite bacaro, Da Ugo, behind San Giacometto',
+    html:`<p>Margaret is waiting at San Giacometto: <i>Tonight I’m taking you to my favourite place in Venice. And I’m paying.</i> Ugo’s cicchetti, two <i>ombre</i> of white wine, and her line about the real Venice: the people who live here, whom she can’t ask.</p>
+      <p class="tp-soon"><b>La vera Venezia: coming soon.</b> This scene is still being written. Ugo’s advice stands, though: <i>I veneziani? A Cannaregio!</i> The <b>traghetto</b> from the Rialto market to Cannaregio is open now.</p>`, cls:'d2-soon vv-soon' });
+  if (first){ R.step = 'soon'; R.opened = Date.now(); }
+  vzOpenDistrict('cannaregio'); save(); renderHUD();
+  if (first) setTimeout(() => toast('<b>Cannaregio</b> is open: the traghetto at the Rialto market (the gate north of the Erberia).'), 700);
+  return true;
+}
+/* the scene's end (the builder's: after Scene 3) */
+function vvEnd(){ const R = vvRec(); R.step = 'fatto'; R.done = Date.now(); vzOpenDistrict('cannaregio'); save(); renderHUD(); }
+const VV_HOOKS = {
+  story:'d2cena',
+  /* (only while no node of the Albero is under way: a node's own objective comes first, unit.js vzNodeUnderWay) */
+  objective(){ if (!vvDue() || vvStep() !== 'wait' || (typeof vzNodeUnderWay === 'function' && vzNodeUnderWay())) return undefined; return 'Meet Margaret at San Giacometto: dinner at Da Ugo (San Polo)'; },
+  guide(){ const p = vvNear(); return p ? '<b>La vera Venezia</b> · Margaret’s dinner at Da Ugo: press <kbd>E</kbd>.' : undefined; },
+  ePrompt(){ const p = vvNear(); return p ? { x:p.x, y:p.y - 1.2 * VZ_M, label:'Da Ugo' } : undefined; },
+  sideMarks(){ if (!vvDue() || vvStep() !== 'wait') return undefined; const p = vvSpot(); return p ? [{ id:'d2cena', label:'Margaret · Da Ugo', x:p.x, y:p.y }] : undefined; },
+  onTreeDone(node){ if (node && node.district === 2 && treeGateOpen(2) && vvStep() === 'wait' && !(vvPeek() || {}).told){ vvRec().told = true; save();
+    setTimeout(() => toast('<b>District 2 · gate met.</b> Margaret is waiting for you at <b>San Giacometto</b>: her favourite bacaro. Its pin is on the map (<kbd>M</kbd>).'), 2600); } },
+};
+STORY_HOOKS.push(VV_HOOKS);
+{ const prev = UNIT.key; UNIT.key = (k, e) => { if (k === 'e' && !frozen() && !cutsceneOn() && vvNear()) return vvStub(); return prev ? prev(k, e) : false; }; }
+/* the Albero's gate note for District 2 (after tree-d2.js's): where the gate leads now */
+{ const prev = UNIT.treeGateNote; UNIT.treeGateNote = (D, g) => {
+    const before = prev ? prev(D, g) : '';
+    if (!D || D.id !== 2 || !treeGateOpen(2)) return before;
+    const st = vvStep();
+    return before + `<p class="note vv-gate"><b>La vera Venezia</b> (District 2’s closing scene${VV.soon ? ', coming soon' : ''}): ${st === 'wait' ? 'Margaret is waiting for you at <b>San Giacometto</b>: dinner at Da Ugo, then the traghetto to Cannaregio.'
+      : st === 'soon' ? 'Cannaregio is open: the traghetto from the Rialto market. <i>Lezione 6 · Che ne pensa?</i> starts at the bacaro on the Misericordia.' : 'done. Cannaregio is open.'}</p>${typeof designerVvHTML === 'function' ? designerVvHTML() : ''}`;
+  }; }
+/* the home screen's count (engine core/registry.js SIDE_STORIES): not counted while it is a stub (soon) */
+SIDE_STORIES.push({ id:'cena', title:'La vera Venezia', en:'District 2’s closing scene', soon:VV.soon, done:{ path:'d2cena.step', eq:'fatto' } });
+
+dbgField('d2cena', () => { const p = vvSpot(); return { due:vvDue(), step:vvStep(), soon:VV.soon, cannaregio:vzDistrictOpen('cannaregio'), spot:p ? { x:Math.round(p.x), y:Math.round(p.y) } : null, near:!!vvNear(), cards:VV.cards }; });
+Object.assign(window.__debug, {
+  /* you at the spot (San Polo loaded first: a promise then) */
+  vvGo(){ const go = () => { const p = vvSpot(); if (!p) return null; const k = vzAreaAt(p.x, p.y), sc = k >= 0 ? VZ.areas[k].key : S.scene;
+      if (S.scene !== sc) __debug.go(sc, p.x / VZ_TILE, p.y / VZ_TILE); __debug.place(p.x, p.y + 0.4 * VZ_M); player.face = { x:0, y:-1 }; return { x:Math.round(p.x), y:Math.round(p.y), scene:sc }; };
+    return VZD.id === 'sanpolo' && !VZD.loading ? go() : vzGoDistrict('sanpolo', {}).then(go); },
+  vvAt(step = 'wait'){ vvRec().step = step; if (step !== 'wait') vzOpenDistrict('cannaregio'); else vzOpenDistrict('cannaregio', false); save(); renderHUD(); return vvStep(); },
+});
+
+/* ===== units/venezia/story/d2-cena/designer.js ===== */
+/* La vera Venezia (story/d2-cena/flow.js): designer mode's Mark as complete, on District 2's gate note in the Albero (a release build strips this file:
+   designerVvHTML is then undefined, and the note has no button) */
+function designerVvHTML(){
+  if (!designerSkip('complete') || !treeGateOpen(2)) return '';
+  return designerBar(`<span>La vera Venezia:</span> ${vvStep() === 'fatto' ? '<b>✓ Done</b>' : '<button class="btn primary" data-dz-vv="done">Mark as complete</button>'}`);
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest && e.target.closest('[data-dz-vv]'); if (!b || !designerSkip('complete')) return;
+  e.stopPropagation(); vvEnd(); toast('<b>Designer</b> · La vera Venezia marked complete: Cannaregio is open.'); if (typeof treeRefresh === 'function') treeRefresh();
+}, true);
+
 /* ===== units/venezia/designer.js ===== */
 /* Venezia's part of designer mode (engine core/designer.js; docs/unit-2-venezia.md, "Designer mode"). A release build replaces this file
    (scripts/build.js). Mark as complete, a lesson: the player is left where the tests' end-of-lesson saves put them (__debug.v1At('v1-done'):
@@ -30821,8 +31461,8 @@ function startGame(){ introOpen = false; $('#intro').hidden = true; renderHUD();
      units), else the unit's own intro as before.
    - A replay (the home screen's Skip to…: SLOT.replay = { slot, unit, kind:'lesson' | 'node', n | id, name, fresh }) runs on the slot's replay
      key (core/slots.js), set up the way the intro's skip links and designer mode's Mark as complete do it: a lesson from its start, every lesson
-     before it skipped (Padova's #btnJump2…6, else jumpTo(n)); a node of the Albero open (its parents marked complete: core/designer.js replayOpenNode), its
-     panel shown. The badge says "Replay: progress here isn't kept"; going home throws the key away.
+     before it skipped (Padova's #btnJump2…6, else jumpTo(n)); a node of the Albero open (its parents marked complete: core/designer.js replayOpenNode), you at
+     its start in its own district, its panel shown, the Albero's tutorial marked seen (nodeDriveGo). The badge says "Replay: progress here isn't kept"; going home throws the key away.
    - The two test saves (SLOT.mode, core/slots.js; never a save file's keys, never counted): the Lesson test drive (mode 'drive': SLOT.drive =
      { unit, kind:'lesson' | 'quest' | 'node' | 'side', n | id, name, fresh }, set up by driveSetup on the unit's ':drive' key, wiped each time a new
      one is picked; the badge "Lesson test drive") and the Open world (mode 'world': the unit's UNIT.openWorld({ fresh, name }) on its ':world' key,
@@ -30887,7 +31527,7 @@ function slotReplay(R){
     newGame(); startGame();
     if (n && typeof replayOpenNode === 'function') replayOpenNode(n);       // (core/designer.js: not in a release build, where the home screen offers no node)
     save();
-    if (n) setTimeout(() => { if (!modalOpen && !dialogOpen) openAlbero(n.id); }, 900);
+    if (n) nodeDriveGo(n);
   } else {
     const k = +R.n || 1, b = document.getElementById('btnJump' + k);
     if (k > 1 && b) b.click();
@@ -30897,6 +31537,17 @@ function slotReplay(R){
   save();
   if (!R.quietToast) setTimeout(() => toast('<b>Replay</b> · progress here isn\'t kept: your save file is as you left it.'), 1200);
   return true;
+}
+
+/* a node picked (a replay, the Lesson test drive), once its parents are marked complete: the Albero's tutorial marked seen (its parents' being done
+   would bring it up behind the node's panel; a real save's first Albero still has it: ui/tree.js treeTutorSeen), you at the node's start in its
+   own part of the world (the unit's UNIT.treeGo(n), a promise: Venezia loads the node's city district and puts you at its pin), then the Albero
+   open at the node */
+function nodeDriveGo(n){
+  treeTutorSeen();
+  let go; try { go = unitHook('treeGo', n); } catch (e){ console.error(e); }
+  Promise.resolve(go).catch(e => console.error(e)).then(() => { treeTutorSeen(); save(); renderHUD();
+    setTimeout(() => { if (!modalOpen && !dialogOpen) openAlbero(n.id); }, 900); });
 }
 
 /* ---------- the two test saves ---------- */
@@ -30914,7 +31565,7 @@ function worldBoot(){
 /* the Lesson test drive: the item picked set up with everything before it done (designer mode's Mark as complete: core/designer.js, so not in a
    release build, whose home screen has no such card). A lesson: from its start, the lessons before it skipped (as slotReplay); a quest: every
    lesson done (core/designer.js replayAllLessons; the unit's free play: UNIT.freePlay()), the quest open, you at its place; a node: its parents
-   (and what it continues) marked complete (replayOpenNode), the Albero at it; a side story: its own set-up (SIDE_STORIES[i].drive(): the unit's, what comes before it done, you at its start). */
+   (and what it continues) marked complete (replayOpenNode), you at its start in its own district (nodeDriveGo), the Albero at it; a side story: its own set-up (SIDE_STORIES[i].drive(): the unit's, what comes before it done, you at its start). */
 function driveSetup(D){
   $('#nameInput').value = sanitizeName(D.name || '') || 'Alex';
   const done = what => { save(); setTimeout(() => toast(`<b>Lesson test drive</b> · ${what}: everything before it done. Apart from your save files; never counted.`), 1300); return true; };
@@ -30932,7 +31583,7 @@ function driveSetup(D){
     const n = treeNode(D.id);
     if (n && typeof replayOpenNode === 'function') replayOpenNode(n);
     save();
-    if (n) setTimeout(() => { if (!modalOpen && !dialogOpen) openAlbero(n.id); }, 900);
+    if (n) nodeDriveGo(n);
     return done(n ? `◆ ${esc(n.title)}` : 'a node');
   }
   if (D.kind === 'side'){
@@ -30952,8 +31603,8 @@ window.__gameManifest = () => ({
   quests:QUESTS.map(q => ({ id:q.id, n:q.n, title:q.title_it })),
   districts:TREE.map(D => D.id),
   nodes:treeNodes().map(n => ({ id:n.id, title:n.title, parent:n.parent || null, depth:n.depth, district:n.district, lesson:n.lesson || null,
-    quest:n.quest || null, continues:n.continues || null, soon:!!(n.soon || n.placeholder) })),
-  side:SIDE_STORIES.map(s => ({ id:s.id, title:s.title, en:s.en || '', done:s.done, drive:typeof s.drive === 'function' })),
+    quest:n.quest || null, continues:n.continues || null, lessonNo:n.lessonNo || null, soon:!!(n.soon || n.placeholder) })),      // (lessonNo: a core node that will be a lesson, not built yet)
+  side:SIDE_STORIES.map(s => ({ id:s.id, title:s.title, en:s.en || '', done:s.done, drive:typeof s.drive === 'function', soon:!!s.soon })),      // (soon: a stub, not counted)
   replayNodes:typeof replayOpenNode === 'function',
   /* the home screen's two test saves: the Lesson test drive needs designer mode's Mark as complete (not in a release build); the open world the
      unit's UNIT.openWorld (else a new game) */
@@ -36952,7 +37603,7 @@ function vzOpenMap(o = {}){
   /* (VZM.tree: each node's pin is in its own district: tree.js UNIT.treePlace, place.vzd) */
   const tf = VZM.focus ? VZM.tree.find(m => m.id === VZM.focus) : null, tn = tf ? treeNode(tf.node) : null;
   /* a node asked for that is in another district (District 2's are in San Polo & Dorsoduro: tree.js VZ_TREE_VZD): where it is */
-  const away = !tn && o.focus && treeNode(String(o.focus).replace(/^tree-/, '')), awayD = away && VZ_DISTRICT[(away.place || {}).vzd || VZ_TREE_VZD[away.district] || 'sanmarco'];
+  const away = !tn && o.focus && treeNode(String(o.focus).replace(/^tree-/, '')), awayD = away && VZ_DISTRICT[(treePinOf(away).place || {}).vzd || VZ_TREE_VZD[away.district] || 'sanmarco'];      // (a node not begun: where it starts)
   const stops = VZ.stops.filter(s => (S.vzStops || {})[s.id]);
   VZM.open = true; VZM.pin = vzPinCell(); VZM.stops = stops.map(s => s.id); VZM.district = VZD.id;
   const D = VZ_DISTRICT[VZD.id], sm = VZD.id === 'sanmarco';
@@ -37717,7 +38368,7 @@ dbgField('district', () => ({ id:VZD.id, name:VZ_DISTRICT[VZD.id].name, loading:
   bump:{ last:VZ_BUMP.last, n:VZ_BUMP.n } }));
 Object.assign(window.__debug, {
   district:() => ({ id:VZD.id, areas:VZ.areas.map(a => a.key), stops:VZ.stops.map(s => s.id), gates:VZ.gates.map(g => g.poi), vgates:vzVGates().map(g => g.poi), landings:VZ.landings.length,
-    pois:SKETCH_OF().pois.map(p => ({ id:p.id, type:p.type, name:p.name })), placeholders:NPCS.filter(n => n.placeholder && vzNpcHere(n)).map(n => ({ id:n.id, name:n.name, x:n.x, y:n.y })),
+    pois:SKETCH_OF().pois.map(p => ({ id:p.id, type:p.type, name:p.name })), placeholders:NPCS.filter(n => n.placeholder && !n.d3ph && vzNpcHere(n)).map(n => ({ id:n.id, name:n.name, x:n.x, y:n.y })),      // (the sketch's: District 3's tree's own placeholders are __dbg().d3.placeholders)
     gondoliers:NPCS.filter(n => n.gondola && vzNpcHere(n)).map(n => ({ id:n.id, x:Math.round(n.x), y:Math.round(n.y) })) }),
   goDistrict:(id, to, o) => vzGoDistrict(id, to || {}, o || {}),
   links:() => VZ_LINKS.map(L => ({ id:L.id, a:L.a, b:L.b, walk:!!L.walk, open:{ ab:vzLinkOpen({ ...L, from:L.a, to:L.b }), ba:vzLinkOpen({ ...L, from:L.b, to:L.a }) } })),
@@ -42519,6 +43170,64 @@ Object.assign(window.__debug, {
     plaque:{ lines:XP_PLAQUE.lines.slice(), en:XP_PLAQUE.en },
     people:XP_NPCS.map(n => ({ id:n.id, scene:n.scene, x:Math.round(n.x), y:Math.round(n.y), ambient:!!n.ambient, formal:!!n.formal })) }),
 });
+
+/* ===== units/venezia/world/d3places.js ===== */
+/* District 3's tree, the frame's world part (world phase, after world/xplaces.js; the frame: tree-d3.js; docs/lessons/venezia/scripts/d3/BUILD.md). Shared and
+   final, as tree-d3.js: the branch builders never edit it. It only places what the branches register (tree/d3-…/branch.js):
+   - the placeholder people (d3Placeholder: D3_PLACEHOLDERS): each at its at() in its own district, once that district is built (and every time it is
+     used again: a placeholder a hook moved goes back), facing the walk;
+   - the placeholder doors (d3Door: D3_DOORS): a shop door on a house front of an area (the shop door nearest its near() point, its goods the shop
+     kind asked for, no generic shopkeeper in its doorway), "Coming soon" until a builder's door hook takes it (the soon door's own message);
+   - their named points (vzPoints): 'd3-<id>' before each placeholder, and each door's point (before the door).
+   No sketch changes: the doors are put on at the district's building (vzUse), as world/xplaces.js does; the converter's output is unchanged (San
+   Marco's fingerprint: nothing here runs in San Marco unless a branch puts something there). */
+function d3PlacePeople(id){
+  if (!VZ || !VZ.areas) return;
+  D3_PLACEHOLDERS.filter(n => n.district === id && !n.cutWalk).forEach(n => {
+    let p = null; try { p = n.at ? n.at() : null; } catch (e){ p = null; }
+    if (!p) return;
+    n.x = p.x; n.y = p.y; n.face = { ...(n.baseFace || { x:0, y:1 }) }; n.home = { x:p.x, y:p.y, face:{ ...n.face } };
+  });
+}
+function d3PlaceDoors(id){
+  if (!VZ || !VZ.areas || !VZ.doors) return;
+  const T = VZ_TILE;
+  D3_DOORS.filter(o => o.vzd === id && !VZ.doors.some(d => d.id === o.id)).forEach(o => {
+    let q = null; try { q = o.near(); } catch (e){ q = null; } if (!q) return;
+    const inArea = s => !o.area || (vzAreaAt(s.x, s.y + T) >= 0 && VZ.areas[vzAreaAt(s.x, s.y + T)].key === o.area);
+    const s = (VZ.shopDoors || []).filter(x => !x.covered && inArea(x)).sort((a, b) => Math.hypot(a.x - q.x, a.y - q.y) - Math.hypot(b.x - q.x, b.y - q.y))[0];
+    if (!s) return;
+    s.covered = true;                                                  // (no generic shopkeeper in its doorway: the placeholder stands there)
+    if (o.kind){ const k = VZ_SHOP_KINDS.find(x => x.key === o.kind); if (k) s.h.shopKind = k; }
+    VZ.doors.push({ id:o.id, name:o.name, label:o.label, x:Math.round(s.x), y:Math.round(s.y), poi:null, soon:true, d3:true });
+    o.at = { x:Math.round(s.x), y:Math.round(s.y) };
+  });
+  Object.values(VZ_CITY).forEach(sc => { if (sc.made && sc.camBox) sc.doors = vzDoorsIn(sc.camBox); });
+  vzPoints.memo = null;
+}
+function d3Place(id){ try { d3PlaceDoors(id); d3PlacePeople(id); vzPoints.memo = null; } catch (e){ console.error(e); } }
+{ const prev = vzUse; vzUse = (id, already) => { const r = prev(id, already); d3Place(id); return r; }; }
+if (VZ && VZ.areas && VZD.id !== 'sanmarco') d3Place(VZD.id);
+/* the named points: each door's (before it), each placeholder's */
+{ const prev = vzDistrictPoints; vzDistrictPoints = () => { const P = prev();
+    D3_DOORS.filter(o => o.vzd === VZD.id && o.at).forEach(o => { P[o.point || o.id] = VZ.snap(o.at.x, o.at.y + 1.4 * VZ_M, 14); });
+    D3_PLACEHOLDERS.filter(n => n.district === VZD.id && n.x > -900).forEach(n => { P['d3-' + n.id] = { x:n.x, y:n.y }; });
+    return P; }; }
+
+/* ===== units/venezia/tree/d3-a/places.js ===== */
+/* District 3 · branch A: the branch's places (world phase, after world/districts-data.js … xplaces.js, d3places.js: VZ_DPLACES.cannaregio /
+   VZ_DFURNISH.cannaregio can be added to here; rooms: VZ_ROOMS / vzRoomKind; doors on house fronts: as world/xplaces.js does, at the district's building
+   (vzUse)). Cannaregio's converter output must not change (no sketch edits); San Marco's fingerprint neither. Empty until the builder adds them. */
+
+/* ===== units/venezia/tree/d3-b/places.js ===== */
+/* District 3 · branch B: the branch's places (world phase, after world/districts-data.js … xplaces.js, d3places.js: VZ_DPLACES.cannaregio /
+   VZ_DFURNISH.cannaregio can be added to here; rooms: VZ_ROOMS / vzRoomKind; doors on house fronts: as world/xplaces.js does, at the district's building
+   (vzUse)). Cannaregio's converter output must not change (no sketch edits); San Marco's fingerprint neither. Empty until the builder adds them. */
+
+/* ===== units/venezia/tree/d3-c/places.js ===== */
+/* District 3 · branch C: the branch's places (world phase, after world/districts-data.js … xplaces.js, d3places.js: VZ_DPLACES.cannaregio /
+   VZ_DFURNISH.cannaregio can be added to here; rooms: VZ_ROOMS / vzRoomKind; doors on house fronts: as world/xplaces.js does, at the district's building
+   (vzUse)). Cannaregio's converter output must not change (no sketch edits); San Marco's fingerprint neither. Empty until the builder adds them. */
 
 /* ===== engine/render/helpers.js ===== */
 /* Canvas drawing helpers. */
@@ -52339,6 +53048,15 @@ Object.assign(VZ_PROP_ART, {
     g.fillStyle = '#fffdf8'; g.fillRect(x1 - vzM(0.5), y1 - hp - vzM(0.18), vzM(0.45), vzM(0.16)); vzText(g, 'S. MARTIN', x1 - vzM(0.275), y1 - hp - vzM(0.1), '700 3px "Titillium Web", sans-serif', '#8a2a2a', vzM(0.42));
   } },
 });
+
+/* ===== units/venezia/tree/d3-a/render.js ===== */
+/* District 3 · branch A: the branch's drawing (render phase: its places' art, a SCENE_ART for a new room's extras). Empty until the builder adds it. */
+
+/* ===== units/venezia/tree/d3-b/render.js ===== */
+/* District 3 · branch B: the branch's drawing (render phase: its places' art, a SCENE_ART for a new room's extras). Empty until the builder adds it. */
+
+/* ===== units/venezia/tree/d3-c/render.js ===== */
+/* District 3 · branch C: the branch's drawing (render phase: its places' art, a SCENE_ART for a new room's extras). Empty until the builder adds it. */
 
 /* ===== engine/boot.js ===== */
 /* Boot: build the unit's backgrounds, restore or show the intro. */

@@ -44,7 +44,8 @@
  "quests": [],
  "districts": [
   1,
-  2
+  2,
+  3
  ],
  "nodes": [
   {
@@ -56,6 +57,7 @@
    "lesson": 3,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
   },
   {
@@ -67,6 +69,7 @@
    "lesson": null,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
   },
   {
@@ -78,6 +81,7 @@
    "lesson": null,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
   },
   {
@@ -89,6 +93,7 @@
    "lesson": null,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
   },
   {
@@ -100,6 +105,7 @@
    "lesson": null,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
   },
   {
@@ -111,6 +117,7 @@
    "lesson": null,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
   },
   {
@@ -122,6 +129,7 @@
    "lesson": null,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
   },
   {
@@ -133,6 +141,7 @@
    "lesson": null,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
   },
   {
@@ -144,6 +153,7 @@
    "lesson": null,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
   },
   {
@@ -155,6 +165,7 @@
    "lesson": null,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
   },
   {
@@ -166,6 +177,7 @@
    "lesson": null,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
   },
   {
@@ -177,6 +189,7 @@
    "lesson": null,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
   },
   {
@@ -188,6 +201,7 @@
    "lesson": null,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
   },
   {
@@ -199,6 +213,7 @@
    "lesson": 4,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
   },
   {
@@ -210,6 +225,7 @@
    "lesson": 5,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
   },
   {
@@ -221,6 +237,7 @@
    "lesson": null,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
   },
   {
@@ -232,6 +249,7 @@
    "lesson": null,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
   },
   {
@@ -243,6 +261,7 @@
    "lesson": null,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
   },
   {
@@ -254,6 +273,7 @@
    "lesson": null,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
   },
   {
@@ -265,6 +285,7 @@
    "lesson": null,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
   },
   {
@@ -276,6 +297,7 @@
    "lesson": null,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
   },
   {
@@ -287,6 +309,7 @@
    "lesson": null,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
   },
   {
@@ -298,6 +321,7 @@
    "lesson": null,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
   },
   {
@@ -309,6 +333,7 @@
    "lesson": null,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
   },
   {
@@ -320,6 +345,7 @@
    "lesson": null,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
   },
   {
@@ -331,6 +357,7 @@
    "lesson": null,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
   },
   {
@@ -342,6 +369,7 @@
    "lesson": null,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
   },
   {
@@ -353,6 +381,7 @@
    "lesson": null,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
   },
   {
@@ -364,7 +393,188 @@
    "lesson": null,
    "quest": null,
    "continues": null,
+   "lessonNo": null,
    "soon": false
+  },
+  {
+   "id": "v6",
+   "title": "Che ne pensa?",
+   "parent": null,
+   "depth": 1,
+   "district": 3,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "lessonNo": 6,
+   "soon": true
+  },
+  {
+   "id": "d3-a2",
+   "title": "La squadra",
+   "parent": "v6",
+   "depth": 2,
+   "district": 3,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "lessonNo": null,
+   "soon": true
+  },
+  {
+   "id": "d3-a3",
+   "title": "Il prete rosso",
+   "parent": "d3-a2",
+   "depth": 3,
+   "district": 3,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "lessonNo": null,
+   "soon": true
+  },
+  {
+   "id": "d3-a4",
+   "title": "Il ghetto e il Tintoretto",
+   "parent": "d3-a3",
+   "depth": 4,
+   "district": 3,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "lessonNo": null,
+   "soon": true
+  },
+  {
+   "id": "d3-b2",
+   "title": "Il negozio di souvenir",
+   "parent": "v6",
+   "depth": 2,
+   "district": 3,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "lessonNo": null,
+   "soon": true
+  },
+  {
+   "id": "d3-b3a",
+   "title": "Cari Bruno ed Enzo",
+   "parent": "d3-b2",
+   "depth": 3,
+   "district": 3,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "lessonNo": null,
+   "soon": true
+  },
+  {
+   "id": "d3-b4a",
+   "title": "I biscotti",
+   "parent": "d3-b3a",
+   "depth": 4,
+   "district": 3,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "lessonNo": null,
+   "soon": true
+  },
+  {
+   "id": "d3-b3b",
+   "title": "Cara Rosa",
+   "parent": "d3-b2",
+   "depth": 3,
+   "district": 3,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "lessonNo": null,
+   "soon": true
+  },
+  {
+   "id": "d3-b4b",
+   "title": "Il vetro di Murano",
+   "parent": "d3-b3b",
+   "depth": 4,
+   "district": 3,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "lessonNo": null,
+   "soon": true
+  },
+  {
+   "id": "d3-b3c",
+   "title": "Cara Lucia",
+   "parent": "d3-b2",
+   "depth": 3,
+   "district": 3,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "lessonNo": null,
+   "soon": true
+  },
+  {
+   "id": "d3-b4c",
+   "title": "Il libro",
+   "parent": "d3-b3c",
+   "depth": 4,
+   "district": 3,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "lessonNo": null,
+   "soon": true
+  },
+  {
+   "id": "d3-c2",
+   "title": "Davide",
+   "parent": "v6",
+   "depth": 2,
+   "district": 3,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "lessonNo": null,
+   "soon": true
+  },
+  {
+   "id": "d3-c3a",
+   "title": "Le amiche",
+   "parent": "d3-c2",
+   "depth": 3,
+   "district": 3,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "lessonNo": null,
+   "soon": true
+  },
+  {
+   "id": "d3-c4a",
+   "title": "Il coraggio",
+   "parent": "d3-c3a",
+   "depth": 4,
+   "district": 3,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "lessonNo": null,
+   "soon": true
+  },
+  {
+   "id": "d3-c3b",
+   "title": "Il biglietto",
+   "parent": "d3-c2",
+   "depth": 3,
+   "district": 3,
+   "lesson": null,
+   "quest": null,
+   "continues": null,
+   "lessonNo": null,
+   "soon": true
   }
  ],
  "side": [
@@ -383,7 +593,8 @@
      }
     ]
    },
-   "drive": true
+   "drive": true,
+   "soon": false
   },
   {
    "id": "pozzo",
@@ -392,7 +603,8 @@
    "done": {
     "path": "pozzo.outfit"
    },
-   "drive": true
+   "drive": true,
+   "soon": false
   },
   {
    "id": "gatti",
@@ -401,7 +613,8 @@
    "done": {
     "path": "gatti.given"
    },
-   "drive": true
+   "drive": true,
+   "soon": false
   },
   {
    "id": "roulette",
@@ -410,7 +623,19 @@
    "done": {
     "path": "cplaces.casino.given"
    },
-   "drive": true
+   "drive": true,
+   "soon": false
+  },
+  {
+   "id": "cena",
+   "title": "La vera Venezia",
+   "en": "District 2’s closing scene",
+   "done": {
+    "path": "d2cena.step",
+    "eq": "fatto"
+   },
+   "drive": false,
+   "soon": true
   }
  ],
  "replayNodes": true,

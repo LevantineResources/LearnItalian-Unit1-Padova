@@ -299,7 +299,7 @@ ul.albero li.lv-2 > ul{padding-top:46px}
 ul.albero li.lv-2 > ul::before{height:46px}
 .al-wrap{position:relative}
 .al-gate-line{position:absolute;left:0;right:0;height:0;border-top:2px dashed var(--giallo);pointer-events:none}
-.al-gate-line span{position:absolute;left:4px;top:-11px;background:var(--carta);color:#8a6300;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border:1.5px solid var(--giallo);border-radius:999px;line-height:1.3}
+.al-gate-line span{position:absolute;left:4px;top:-11px;white-space:nowrap;background:var(--carta);color:#8a6300;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border:1.5px solid var(--giallo);border-radius:999px;line-height:1.3}
 .al-gate-line.met{border-top-color:var(--verde)}
 .al-gate-line.met span{color:var(--verde);border-color:var(--verde)}
 .tn{display:flex;flex-direction:column;gap:3px;width:200px;height:170px;overflow:hidden;text-align:left;background:#fffdf8;border:2px solid var(--cobalto);border-radius:12px;padding:8px 11px 9px;cursor:pointer;font:inherit;color:var(--inchiostro);box-shadow:0 3px 0 rgba(15,34,96,.35);transition:transform .12s}
@@ -6210,11 +6210,12 @@ function slotTouch(){
    only used by window.__progressCheck() (ui/home.js: the pure count beside the game's own lessonCompleted / treeState, for the tests).
 
    The manifest: { unit, unitNo, saveKey, finishedBy:<rule> | null, lessons:[{ n, title, done:[tut] }], quests:[{ id, n, title }],
-     nodes:[{ id, title, parent, depth, district, lesson, quest, continues, soon }], districts:[ids], side:[{ id, title, done:<rule> }] }.
+     nodes:[{ id, title, parent, depth, district, lesson, quest, continues, lessonNo, soon }], districts:[ids], side:[{ id, title, done:<rule>, soon }] }.
    A rule (side stories, finishedBy): { path:'a.b.c', eq? } (truthy, or equal), { lesson:n } (completed), { lessonAtLeast:n } (reached),
      { any:[rules] }, { all:[rules] }.
    What counts (one each: the weight): every lesson, every quest, every tree node that is not a lesson's or a quest's own node and not a
-   "coming soon" stub, every side story. A unit never opened (no save) counts 0. */
+   "coming soon" stub (a node or a side story with soon: Venezia's District 3 frame, its closing scene of District 2), every side story. A unit never opened
+   (no save) counts 0. */
 const PROGRESS = (() => {
   /* the save that counts: a unit's own replay keeps the real one aside (Padova's S.replay.home, lessons/15-venezia/unit.js) */
   const real = S0 => { if (!S0 || typeof S0 !== 'object') return null;
@@ -6264,7 +6265,7 @@ const PROGRESS = (() => {
       ...M.lessons.map(l => ({ kind:'lesson', id:'l' + l.n, n:l.n, title:l.title })),
       ...M.quests.map(q => ({ kind:'quest', id:'q:' + q.id, qid:q.id, title:q.title })),
       ...M.nodes.filter(n => !n.lesson && !n.quest && !n.soon).map(n => ({ kind:'node', id:'t:' + n.id, nid:n.id, title:n.title })),
-      ...(M.side || []).map(s => ({ kind:'side', id:'s:' + s.id, sid:s.id, title:s.title })),
+      ...(M.side || []).filter(s => !s.soon).map(s => ({ kind:'side', id:'s:' + s.id, sid:s.id, title:s.title })),
     ];
   }
   function isDone(M, S, it){
@@ -13519,7 +13520,8 @@ Object.assign(window.__debug, { boardTap:name => boardClick(name, 'tap'), boardT
      main lesson), depth (1–4: a core node is 1, its first branch nodes 2…), words? ([{ it, en, g?, note?, say? }], the Vocabolario's
      word format) or count? (a number, when the list is not written yet), person:{ name, npc? (an NPC id) }, place:{ name, … (the
      rest is the unit's: UNIT.treePlace(node) turns it into a point) }, where? (English: what to do there), lesson? (n: the node IS
-     main lesson n; its words are then the chapter's Vocabolario once it has one) | quest? (a quest id: done when the quest is),
+     main lesson n; its words are then the chapter's Vocabolario once it has one) | lessonNo? (n: a core node that will be lesson n, while the
+     lesson isn't built: drawn as Lezione n, done in the save like any node) | quest? (a quest id: done when the quest is),
      continues? (a node of an earlier district: part 2 opens only once part 1 is done), soon? (true or html: "Coming soon", its task
      is not written yet), placeholder? (true: a stand-in for the designer's later content) }.
    The rules (treeLint(), tests/venezia/tree.js): unique ids; a strict chain (every parent exists, in the same district, one level up);
@@ -13842,6 +13844,7 @@ function treeGateLine(){
   if (b <= a) return;
   const D = treeCurDistrict(), g = D ? treeGate(D.id) : null, el = document.createElement('div');
   el.className = 'al-gate-line' + (g && g.open ? ' met' : ''); el.style.top = Math.round(a + 21 - top) + 'px';
+  el.style.right = 'auto'; el.style.width = wrap.scrollWidth + 'px';      // (across the whole tree, not only the part in view: a tree wider than its box keeps its label whole)
   el.innerHTML = `<span>${g && g.open ? '✓ ' : '↑ '}Per il prossimo sestiere · ${g ? g.done + '/' + g.total : ''}</span>`;
   wrap.appendChild(el);
   /* the label in the widest gap between the connectors that cross the line (the level-2 cards' middles) */
@@ -13863,7 +13866,7 @@ function treeMeter(n, cls = ''){
 const treeWordsLabel = n => { const k = treeWordCount(n); return n.soon && !k ? 'Coming soon' : k ? `${k} parole` : 'Coming soon'; };
 function treeCard(n){
   const st = treeState(n), sel = TREEUI.sel === n.id;
-  const lv = n.lesson ? `Lezione ${n.lesson}` : `Livello ${n.depth}`;
+  const lv = n.lesson || n.lessonNo ? `Lezione ${n.lesson || n.lessonNo}` : `Livello ${n.depth}`;      // (lessonNo: a core node whose lesson isn't built yet)
   return `<button class="tn tn-${st}${sel ? ' sel' : ''}${n.depth <= TREE_GATE_DEPTH ? ' gate' : ''}" data-al-node="${esc(n.id)}" aria-label="${esc(n.title)}: ${TREE_STATE_IT[st]}">
       <span class="tn-top"><span class="tn-lv">${lv}</span><span class="tn-st">${st === 'done' ? '✓ ' : st === 'locked' ? TREE_LOCK : ''}${TREE_STATE_IT[st]}</span></span>
       <span class="tn-t">${esc(n.title)}</span>
@@ -13873,8 +13876,11 @@ function treeCard(n){
     </button>`;
 }
 
-/* the fork's mark (core/tree.js treeChoose): the lead taken, and the other one, open for later */
-const treeLeadTag = n => { const L = treeLeadOf(n); return !L ? '' : L === 'mine' ? '<span class="tn-lead mine">La tua pista</span>' : '<span class="tn-lead other">L\'altra pista</span>'; };
+/* the fork's mark (core/tree.js treeChoose): the lead taken, and the other one, open for later (a fork of three or more: each of the others is
+   "un'altra pista", one more lead) */
+const treeForkN = n => n && n.parent ? treeChildren(n.parent).length : 0;
+const treeOtherName = n => treeForkN(n) > 2 ? "Un'altra pista" : "L'altra pista";
+const treeLeadTag = n => { const L = treeLeadOf(n); return !L ? '' : L === 'mine' ? '<span class="tn-lead mine">La tua pista</span>' : `<span class="tn-lead other">${treeOtherName(n)}</span>`; };
 /* a node's handbook entry: its words (the Vocabolario) and how they are used (node.howto), folded */
 function treeHowtoHTML(n){
   const W = n.words || [], H = n.howto;
@@ -13895,7 +13901,7 @@ function renderTreePanel(){
   wrap.hidden = false;
   const st = treeState(n), k = treeWordCount(n), s = treeStrength(n);
   const head = `<button class="x tp-x" data-al-close aria-label="Close">×</button>
-    <p class="kicker">${n.lesson ? `Lezione ${n.lesson} · ` : ''}Livello ${n.depth} · ${TREE_STATE_IT[st]}${n.placeholder ? ' · placeholder' : ''}</p>
+    <p class="kicker">${n.lesson || n.lessonNo ? `Lezione ${n.lesson || n.lessonNo} · ` : ''}Livello ${n.depth} · ${TREE_STATE_IT[st]}${n.placeholder ? ' · placeholder' : ''}</p>
     <h3 class="tp-t">${esc(n.title)}</h3><p class="sub">${esc(n.en)}</p>`;
   const who = `<p class="tp-who">${TREE_PIN}<span><b>${esc(n.person.name)}</b> · ${esc(n.place.name)}</span></p>`;
   const fromLesson = n.lesson && LESSONS[n.lesson - 1] && hasVocabCheck(n.lesson);
@@ -13905,7 +13911,8 @@ function renderTreePanel(){
     body = `<h4>Dove andare · where to go</h4>${who}
       ${n.where ? `<p>${n.where}</p>` : ''}
       ${n.soon ? `<p class="tp-soon"><b>Coming soon.</b> ${n.soon === true ? 'This task is still being written: its person is not there yet.' : n.soon}</p>` : ''}
-      ${treeLeadOf(n) === 'other' ? '<p class="tp-lead"><b>L\'altra pista</b>: the lead you didn\'t take first. It stays open: play it whenever you like, it tells the rest of the story.</p>' : ''}
+      ${treeLeadOf(n) === 'other' ? (treeForkN(n) > 2 ? `<p class="tp-lead"><b>${treeOtherName(n)}</b>: one of the ${treeForkN(n)} leads, not the one you took first. It stays open: play it whenever you like, each tells its own part of the story.</p>`
+        : '<p class="tp-lead"><b>L\'altra pista</b>: the lead you didn\'t take first. It stays open: play it whenever you like, it tells the rest of the story.</p>') : ''}
       ${words}
       ${treeHowtoHTML(n)}
       ${treeStudyRow(n)}
@@ -14045,7 +14052,7 @@ Object.assign(window.__debug, {
   treeOpen(id){ openAlbero(id || null); return !!(modalOpen && hbTab === 'albero'); },
   treeAddDistrict(d, at){ TREE.push(d); if (at !== undefined && at >= 0 && at < TREE.length - 1) TREE.splice(at, 0, TREE.pop()); return treeLint(); },
   /* the Albero's tutorial: start it as the first time (true), or mark it seen (false: the HUD's line gone) */
-  treeTutor(on = true){ if (on){ const R = treeRec(); delete R.tutor; return treeTutorStart(); } document.querySelectorAll('.al-coach-hud').forEach(e => e.remove()); TREEUI.tutor = null; treeRec().tutor = { done:Date.now() }; save(); return true; },
+  treeTutor(on = true){ if (on){ const R = treeRec(); delete R.tutor; return treeTutorStart(); } return treeTutorSeen(); },
 });
 
 
@@ -14152,6 +14159,14 @@ function treeTutorAct(a){
   renderTree();
   const el = sheet.querySelector('.al-tutor'); if (el) el.scrollIntoView({ block:'nearest' });
 }
+/* the tutorial marked seen, nothing of it left on screen (the HUD's line, the handbook button's pulse, the card): a node picked on the home screen
+   (ui/home.js nodeDriveGo: a drive or a replay opens the Albero at its node, never behind the tutorial), __debug.treeTutor(false) */
+function treeTutorSeen(){
+  document.querySelectorAll('.al-coach-hud').forEach(e => e.remove()); const b = $('#btnBook'); if (b) b.classList.remove('pulse');
+  TREEUI.tutor = null; treeRec().tutor = { done:Date.now() }; save();
+  if (modalOpen && sheet.classList.contains('book') && hbTab === 'albero') renderTree();
+  return true;
+}
 /* the first time: the handbook's button pointed at (the HUD), the tutorial waiting in the Albero */
 function treeTutorStart(){
   const T = treeTutorSpec(), R = treeRec(); if (!T || (R.tutor && (R.tutor.done || R.tutor.started))) return false;
@@ -14185,13 +14200,13 @@ function treeComplete(id, o = {}){
   const kids = treeChildren(id), W = treeWords(n);
   const pills = (o.tiles || []).map((t, i) => `<span class="tc-tile" style="animation-delay:${0.35 + i * 0.18}s">${esc(t)}</span>`).join('');
   const words = W.map((w, i) => `<span class="tc-word" style="animation-delay:${0.1 + i * 0.05}s"><b>${esc(w.it)}</b> <i>${esc(w.en)}</i></span>`).join('');
-  const opened = kids.map(k => `<div class="tc-node${treeLeadOf(k) === 'mine' ? ' mine' : ''}"><p class="kicker">Livello ${k.depth} · ${treeLeadOf(k) === 'mine' ? 'la tua pista' : treeLeadOf(k) === 'other' ? "l'altra pista" : 'aperto'}</p>
+  const opened = kids.map(k => `<div class="tc-node${treeLeadOf(k) === 'mine' ? ' mine' : ''}"><p class="kicker">Livello ${k.depth} · ${treeLeadOf(k) === 'mine' ? 'la tua pista' : treeLeadOf(k) === 'other' ? treeOtherName(k).toLowerCase() : 'aperto'}</p>
       <b>${esc(k.title)}</b><span>${esc(k.en)}</span></div>`).join('');
   openLessonComplete({ kicker:'Albero · node done', title:`${n.title}: fatto!`, sub:n.en, story:o.story || '',
     sections:[...(pills ? [{ title:'New in your tile bank: the Frasi fatte', html:`<div class="tc-tiles">${pills}</div><p class="note">They are in every conversation's bank from now on.</p>` }] : []),
       { title:`Your words: ${W.length}`, html:`<div class="tc-words">${words}</div><p class="note">They are flashcards on the Albero now (tap the node), and in your dictionary.</p>` },
       ...(kids.length ? [{ title:'Now open on the Albero', html:`<div class="tc-nodes">${opened}</div>` }] : [])],
-    stats:o.stats, next:{ html:'<b>L\'Albero.</b> Choose your next node: the lead you picked, or the other one.', go:{ label:'Open the Albero', fn:() => { closeModal(); openAlbero(id); } } },
+    stats:o.stats, next:{ html:`<b>L'Albero.</b> Choose your next node: the lead you picked, or ${kids.length > 2 ? 'another one' : 'the other one'}.`, go:{ label:'Open the Albero', fn:() => { closeModal(); openAlbero(id); } } },
     onClose:o.onClose });
   CARD = { kind:'complete', title:`${n.title}: fatto!`, node:id };
   return true;
@@ -31717,8 +31732,8 @@ function startGame(){ introOpen = false; $('#intro').hidden = true; renderHUD();
      units), else the unit's own intro as before.
    - A replay (the home screen's Skip to…: SLOT.replay = { slot, unit, kind:'lesson' | 'node', n | id, name, fresh }) runs on the slot's replay
      key (core/slots.js), set up the way the intro's skip links and designer mode's Mark as complete do it: a lesson from its start, every lesson
-     before it skipped (Padova's #btnJump2…6, else jumpTo(n)); a node of the Albero open (its parents marked complete: core/designer.js replayOpenNode), its
-     panel shown. The badge says "Replay: progress here isn't kept"; going home throws the key away.
+     before it skipped (Padova's #btnJump2…6, else jumpTo(n)); a node of the Albero open (its parents marked complete: core/designer.js replayOpenNode), you at
+     its start in its own district, its panel shown, the Albero's tutorial marked seen (nodeDriveGo). The badge says "Replay: progress here isn't kept"; going home throws the key away.
    - The two test saves (SLOT.mode, core/slots.js; never a save file's keys, never counted): the Lesson test drive (mode 'drive': SLOT.drive =
      { unit, kind:'lesson' | 'quest' | 'node' | 'side', n | id, name, fresh }, set up by driveSetup on the unit's ':drive' key, wiped each time a new
      one is picked; the badge "Lesson test drive") and the Open world (mode 'world': the unit's UNIT.openWorld({ fresh, name }) on its ':world' key,
@@ -31783,7 +31798,7 @@ function slotReplay(R){
     newGame(); startGame();
     if (n && typeof replayOpenNode === 'function') replayOpenNode(n);       // (core/designer.js: not in a release build, where the home screen offers no node)
     save();
-    if (n) setTimeout(() => { if (!modalOpen && !dialogOpen) openAlbero(n.id); }, 900);
+    if (n) nodeDriveGo(n);
   } else {
     const k = +R.n || 1, b = document.getElementById('btnJump' + k);
     if (k > 1 && b) b.click();
@@ -31793,6 +31808,17 @@ function slotReplay(R){
   save();
   if (!R.quietToast) setTimeout(() => toast('<b>Replay</b> · progress here isn\'t kept: your save file is as you left it.'), 1200);
   return true;
+}
+
+/* a node picked (a replay, the Lesson test drive), once its parents are marked complete: the Albero's tutorial marked seen (its parents' being done
+   would bring it up behind the node's panel; a real save's first Albero still has it: ui/tree.js treeTutorSeen), you at the node's start in its
+   own part of the world (the unit's UNIT.treeGo(n), a promise: Venezia loads the node's city district and puts you at its pin), then the Albero
+   open at the node */
+function nodeDriveGo(n){
+  treeTutorSeen();
+  let go; try { go = unitHook('treeGo', n); } catch (e){ console.error(e); }
+  Promise.resolve(go).catch(e => console.error(e)).then(() => { treeTutorSeen(); save(); renderHUD();
+    setTimeout(() => { if (!modalOpen && !dialogOpen) openAlbero(n.id); }, 900); });
 }
 
 /* ---------- the two test saves ---------- */
@@ -31810,7 +31836,7 @@ function worldBoot(){
 /* the Lesson test drive: the item picked set up with everything before it done (designer mode's Mark as complete: core/designer.js, so not in a
    release build, whose home screen has no such card). A lesson: from its start, the lessons before it skipped (as slotReplay); a quest: every
    lesson done (core/designer.js replayAllLessons; the unit's free play: UNIT.freePlay()), the quest open, you at its place; a node: its parents
-   (and what it continues) marked complete (replayOpenNode), the Albero at it; a side story: its own set-up (SIDE_STORIES[i].drive(): the unit's, what comes before it done, you at its start). */
+   (and what it continues) marked complete (replayOpenNode), you at its start in its own district (nodeDriveGo), the Albero at it; a side story: its own set-up (SIDE_STORIES[i].drive(): the unit's, what comes before it done, you at its start). */
 function driveSetup(D){
   $('#nameInput').value = sanitizeName(D.name || '') || 'Alex';
   const done = what => { save(); setTimeout(() => toast(`<b>Lesson test drive</b> · ${what}: everything before it done. Apart from your save files; never counted.`), 1300); return true; };
@@ -31828,7 +31854,7 @@ function driveSetup(D){
     const n = treeNode(D.id);
     if (n && typeof replayOpenNode === 'function') replayOpenNode(n);
     save();
-    if (n) setTimeout(() => { if (!modalOpen && !dialogOpen) openAlbero(n.id); }, 900);
+    if (n) nodeDriveGo(n);
     return done(n ? `◆ ${esc(n.title)}` : 'a node');
   }
   if (D.kind === 'side'){
@@ -31848,8 +31874,8 @@ window.__gameManifest = () => ({
   quests:QUESTS.map(q => ({ id:q.id, n:q.n, title:q.title_it })),
   districts:TREE.map(D => D.id),
   nodes:treeNodes().map(n => ({ id:n.id, title:n.title, parent:n.parent || null, depth:n.depth, district:n.district, lesson:n.lesson || null,
-    quest:n.quest || null, continues:n.continues || null, soon:!!(n.soon || n.placeholder) })),
-  side:SIDE_STORIES.map(s => ({ id:s.id, title:s.title, en:s.en || '', done:s.done, drive:typeof s.drive === 'function' })),
+    quest:n.quest || null, continues:n.continues || null, lessonNo:n.lessonNo || null, soon:!!(n.soon || n.placeholder) })),      // (lessonNo: a core node that will be a lesson, not built yet)
+  side:SIDE_STORIES.map(s => ({ id:s.id, title:s.title, en:s.en || '', done:s.done, drive:typeof s.drive === 'function', soon:!!s.soon })),      // (soon: a stub, not counted)
   replayNodes:typeof replayOpenNode === 'function',
   /* the home screen's two test saves: the Lesson test drive needs designer mode's Mark as complete (not in a release build); the open world the
      unit's UNIT.openWorld (else a new game) */
