@@ -39,6 +39,13 @@
    "done": [
     "v5-done"
    ]
+  },
+  {
+   "n": 6,
+   "title": "Che ne pensa?",
+   "done": [
+    "v6-done"
+   ]
   }
  ],
  "quests": [],
@@ -402,11 +409,11 @@
    "parent": null,
    "depth": 1,
    "district": 3,
-   "lesson": null,
+   "lesson": 6,
    "quest": null,
    "continues": null,
-   "lessonNo": 6,
-   "soon": true
+   "lessonNo": null,
+   "soon": false
   },
   {
    "id": "d3-a2",
@@ -631,11 +638,18 @@
    "title": "La vera Venezia",
    "en": "District 2’s closing scene",
    "done": {
-    "path": "d2cena.step",
-    "eq": "fatto"
+    "any": [
+     {
+      "path": "d2cena.step",
+      "eq": "fatto"
+     },
+     {
+      "lessonAtLeast": 6
+     }
+    ]
    },
-   "drive": false,
-   "soon": true
+   "drive": true,
+   "soon": false
   }
  ],
  "replayNodes": true,
