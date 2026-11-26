@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900">
+  <!-- Alla Pescheria: Bortolo's fish counter under the Pescheria's loggia, from the front, flat like a diagram (the board's crates sit on the ice) -->
+  <defs>
+    <linearGradient id="ice" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f8fa"/><stop offset="1" stop-color="#d6e4ec"/></linearGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9edf0"/><stop offset="1" stop-color="#b9c2c8"/></linearGradient>
+    <pattern id="brick" width="60" height="30" patternUnits="userSpaceOnUse"><rect width="60" height="30" fill="#b5523e"/><path d="M0 15H60M0 30H60M30 0V15M0 15V30M60 15V30" stroke="#8e3b2c" stroke-width="2.5"/></pattern>
+    <pattern id="specks" width="40" height="26" patternUnits="userSpaceOnUse"><circle cx="6" cy="6" r="3" fill="#fff"/><circle cx="24" cy="15" r="2.4" fill="#ffffff" opacity=".9"/><circle cx="34" cy="5" r="1.8" fill="#c8dbe6"/><circle cx="15" cy="21" r="2" fill="#cfe0ea"/></pattern>
+  </defs>
+  <!-- the loggia's back wall: brick, three pointed stone arches, the shadow inside -->
+  <rect width="1200" height="380" fill="url(#brick)"/>
+  <g fill="#3a2a24">
+    <path d="M90 380V170Q90 70 220 40Q350 70 350 170V380Z"/><path d="M470 380V170Q470 70 600 40Q730 70 730 170V380Z"/><path d="M850 380V170Q850 70 980 40Q1110 70 1110 170V380Z"/>
+  </g>
+  <g fill="none" stroke="#efe6d4" stroke-width="18">
+    <path d="M90 380V170Q90 70 220 40Q350 70 350 170V380"/><path d="M470 380V170Q470 70 600 40Q730 70 730 170V380"/><path d="M850 380V170Q850 70 980 40Q1110 70 1110 170V380"/>
+  </g>
+  <!-- the Grand Canal glimpsed through the arches, a boat's bow -->
+  <g opacity=".85"><rect x="100" y="230" width="240" height="150" fill="#5f9ba6"/><rect x="480" y="230" width="240" height="150" fill="#5f9ba6"/><rect x="860" y="230" width="240" height="150" fill="#5f9ba6"/>
+    <path d="M100 300h240M480 312h240M860 296h240" stroke="#8cc3cb" stroke-width="5"/><path d="M520 350l120-12 26 12-26 14z" fill="#2f5a7a"/></g>
+  <rect x="100" y="170" width="240" height="60" fill="#e7d8b6" opacity=".55"/><rect x="480" y="170" width="240" height="60" fill="#e7d8b6" opacity=".55"/><rect x="860" y="170" width="240" height="60" fill="#e7d8b6" opacity=".55"/>
+  <!-- the red awning's valance across the top of the counter -->
+  <path d="M0 330H1200V378H0Z" fill="#b8262a"/>
+  <g fill="#8e1c20"><path d="M0 378q50 34 100 0q50 34 100 0q50 34 100 0q50 34 100 0q50 34 100 0q50 34 100 0q50 34 100 0q50 34 100 0q50 34 100 0q50 34 100 0q50 34 100 0q50 34 100 0z"/></g>
+  <rect x="470" y="338" width="260" height="34" rx="4" fill="#fbf8f0" stroke="#5a5a5a" stroke-width="2"/>
+  <text x="600" y="364" font-family="Georgia,'Bodoni Moda',serif" font-style="italic" font-weight="700" font-size="26" fill="#2a2a6a" text-anchor="middle">PESCE FRESCO</text>
+  <!-- the counter: a sloping steel trough heaped with crushed ice -->
+  <path d="M40 420H1160L1190 760H10Z" fill="url(#steel)" stroke="#8a949a" stroke-width="4"/>
+  <path d="M70 440H1130L1150 735H50Z" fill="url(#ice)"/>
+  <path d="M70 440H1130L1150 735H50Z" fill="url(#specks)" opacity=".85"/>
+  <path d="M60 438H1140" stroke="#5fa04a" stroke-width="7"/>
+  <!-- the price cards' holders along the front edge (blank: the board writes the names) -->
+  <g fill="#fffdf8" stroke="#8a8a8a" stroke-width="2"><rect x="160" y="742" width="90" height="36" rx="3"/><rect x="555" y="742" width="90" height="36" rx="3"/><rect x="950" y="742" width="90" height="36" rx="3"/></g>
+  <g stroke="#c23b2a" stroke-width="4"><path d="M178 760h54M573 760h54M968 760h54"/></g>
+  <!-- the red front of the counter, the name on it -->
+  <path d="M10 760H1190V860H10Z" fill="#c23b2a"/><path d="M10 760H1190V772H10Z" fill="#9e2a20"/>
+  <rect x="420" y="784" width="360" height="56" rx="6" fill="#fbf8f0" stroke="#7a1c16" stroke-width="3"/>
+  <text x="600" y="822" font-family="Georgia,'Bodoni Moda',serif" font-weight="800" font-size="30" fill="#7a1c16" text-anchor="middle" letter-spacing="3">DA BORTOLO</text>
+  <!-- the stone paving -->
+  <rect y="860" width="1200" height="40" fill="#b9b0a2"/><path d="M0 860H1200M150 860V900M420 860V900M690 860V900M960 860V900" stroke="#9a9284" stroke-width="3"/>
+  <!-- the plaque on the pillar: the minimum sizes (a few lines) -->
+  <g transform="translate(1125 205)"><rect x="-38" y="-46" width="76" height="92" rx="4" fill="#e9e1cf" stroke="#9a8e78" stroke-width="3"/>
+    <path d="M-26 -28h52M-26 -14h44M-26 0h52M-26 14h40M-26 28h48" stroke="#7a705e" stroke-width="3"/></g>
+</svg>

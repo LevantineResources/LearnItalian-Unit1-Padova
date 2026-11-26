@@ -650,6 +650,16 @@
    },
    "drive": true,
    "soon": false
+  },
+  {
+   "id": "pescheria",
+   "title": "Alla Pescheria",
+   "en": "Bortolo’s fish counter",
+   "done": {
+    "path": "pescheria.done"
+   },
+   "drive": true,
+   "soon": false
   }
  ],
  "replayNodes": true,

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 60 1200 720" width="1200" height="720">
+  <!-- Alla Pescheria · the culture card: le moeche, the lagoon's soft-shell crabs, in a fisherman's wicker basket (an original drawing) -->
+  <defs>
+    <radialGradient id="sky" cx=".5" cy=".2" r=".9"><stop offset="0" stop-color="#f7e9c8"/><stop offset="1" stop-color="#d9c39a"/></radialGradient>
+    <linearGradient id="lag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fa9a6"/><stop offset="1" stop-color="#4f7d80"/></linearGradient>
+    <g id="crab">
+    <g stroke="#3d5a2a" stroke-width="7" stroke-linecap="round" fill="none"><path d="M-34 0l-26-18M-34 10l-30 4M-30 20l-24 18M34 0l26-18M34 10l30 4M30 20l24 18"/>
+      <path d="M-24-18q-22-26-6-42q10 14 18 12M24-18q22-26 6-42q-10 14-18 12" stroke-width="9"/></g>
+    <ellipse cx="0" cy="6" rx="40" ry="27" fill="#7f9a46" stroke="#3d5a2a" stroke-width="5"/>
+    <path d="M-20-6q20-10 40 0" stroke="#d8e6a8" stroke-width="5" fill="none" opacity=".8"/>
+    <circle cx="-10" cy="-18" r="4" fill="#1a1a1a"/><circle cx="10" cy="-18" r="4" fill="#1a1a1a"/>
+  </g>
+  </defs>
+  <rect width="1200" height="800" fill="url(#sky)"/>
+  <!-- the lagoon behind, the bricole (mooring poles), a low island -->
+  <rect y="300" width="1200" height="500" fill="url(#lag)"/>
+  <path d="M0 300Q300 286 520 296T1200 292V310H0Z" fill="#6f8f6a"/>
+  <g fill="#6a4a32"><rect x="140" y="200" width="16" height="170"/><rect x="162" y="210" width="16" height="160"/><rect x="151" y="190" width="14" height="182"/>
+    <rect x="1010" y="215" width="14" height="150"/><rect x="1030" y="225" width="14" height="140"/></g>
+  <path d="M120 236h70M995 250h60" stroke="#3a2a1a" stroke-width="6"/>
+  <g stroke="#a8ccc8" stroke-width="5" opacity=".6"><path d="M60 420h180M380 470h260M760 430h220M200 560h160M880 600h200"/></g>
+  <!-- the basket (a vièro) half in the water, its wicker -->
+  <ellipse cx="600" cy="640" rx="430" ry="120" fill="#3e5e60" opacity=".55"/>
+  <path d="M190 470Q600 420 1010 470L950 680Q600 740 250 680Z" fill="#b7894e" stroke="#6e4a22" stroke-width="8"/>
+  <g stroke="#8a6232" stroke-width="5" fill="none"><path d="M205 520Q600 470 995 520M220 570Q600 520 980 570M235 620Q600 575 965 620"/>
+    <path d="M300 460L320 700M400 452L410 712M500 447L505 720M600 446V722M700 447L695 720M800 452L790 712M900 460L880 700"/></g>
+  <ellipse cx="600" cy="470" rx="410" ry="56" fill="#4f3a22"/>
+  <!-- the moeche: small green crabs, soft and shiny, heaped in the basket -->
+  <use href="#crab" transform="translate(330 470) rotate(-8)"/><use href="#crab" transform="translate(450 455) rotate(6) scale(.95)"/>
+  <use href="#crab" transform="translate(575 462) rotate(-3)"/><use href="#crab" transform="translate(700 452) rotate(10) scale(.9)"/>
+  <use href="#crab" transform="translate(820 468) rotate(-12)"/><use href="#crab" transform="translate(510 492) rotate(14) scale(.92)"/>
+  <use href="#crab" transform="translate(650 495) rotate(-6) scale(1.05)"/><use href="#crab" transform="translate(395 500) rotate(4) scale(.88)"/>
+  <use href="#crab" transform="translate(770 500) rotate(-2) scale(.9)"/>
+  <!-- an old shell, cast off, floating by the basket -->
+  <g transform="translate(1040 640) rotate(20)"><ellipse rx="34" ry="22" fill="none" stroke="#c9b48a" stroke-width="6"/><path d="M-20-8q20-10 40 0" stroke="#c9b48a" stroke-width="4" fill="none"/></g>
+  <text x="600" y="770" font-family="Georgia,serif" font-style="italic" font-size="34" fill="#f4eede" text-anchor="middle">le moeche</text>
+</svg>
