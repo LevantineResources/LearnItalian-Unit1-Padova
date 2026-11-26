@@ -13107,7 +13107,7 @@ Object.assign(window.__debug, { photo:(names, o) => photoHighlight(names, o || {
      with its label, a board's 'cut' state, things that appear and go).
    Tests: __dbg().board = { on, id, held, rule, things:[{ id, kind, fill, n, at, on, state, hidden, take, holds, box }], targets:[{ name, kind, box }],
      log }, (boxes in page px); __debug.boardTap(id | target), __debug.boardTry(thing, target), __debug.boardBox(id). */
-const BOARD_FILLS = {};      // fill key → { shape:'round' | 'pear' | 'grapes' | 'nut' | 'pumpkin' | 'leafy' | 'egg' | 'bottle' | 'loaf' | 'fish' | 'cuttle' | 'clam' | 'prawn' | 'mussel' | 'crab', color, color2?, kg?, name? }
+const BOARD_FILLS = {};      // fill key → { shape:'custom' (draw(x, y, r, c, c2) → SVG) | 'pear' | 'grapes' | 'nut' | 'pumpkin' | 'leafy' | 'egg' | 'bottle' | 'loaf' | 'fish' | 'cuttle' | 'clam' | 'prawn' | 'mussel' | 'crab', color, color2?, kg?, name? }
 let BOARD = null;
 const BOARD_KINDS = {        // width (a fraction of the picture's) and height / width in px
   'crate':{ w:0.125, a:0.62 }, basket:{ w:0.09, a:0.6 }, item:{ w:0.052, a:1 }, bin:{ w:0.075, a:1.25 }, bag:{ w:0.115, a:1.1 }, box:{ w:0.11, a:0.7 },
@@ -13149,6 +13149,7 @@ function boardFillSVG(f, x, y, r, o = {}){
   const F = boardFill(f), c = F.color || '#c9a24a', c2 = F.color2 || shade(c, -0.25), hl = 'rgba(255,255,255,.45)';
   let s = '';
   switch (F.shape){
+    case 'custom': s = F.draw ? F.draw(x, y, r, c, c2) : ''; break;      // the unit's own drawing (Venezia's biscuits: a ring, an S)
     case 'pear': s = `<path d="M${x} ${y - r * 1.15} C${x + r * 0.45} ${y - r * 1.1} ${x + r * 0.35} ${y - r * 0.35} ${x + r * 0.85} ${y + r * 0.2} C${x + r * 1.1} ${y + r * 0.85} ${x + r * 0.5} ${y + r * 1.05} ${x} ${y + r * 1.05} C${x - r * 0.5} ${y + r * 1.05} ${x - r * 1.1} ${y + r * 0.85} ${x - r * 0.85} ${y + r * 0.2} C${x - r * 0.35} ${y - r * 0.35} ${x - r * 0.45} ${y - r * 1.1} ${x} ${y - r * 1.15}Z" fill="${c}" stroke="${c2}" stroke-width="${r * 0.12}"/>
       <path d="M${x} ${y - r * 1.1} l${r * 0.12} ${-r * 0.4}" stroke="#5a3a1a" stroke-width="${r * 0.16}" stroke-linecap="round"/><ellipse cx="${x - r * 0.35}" cy="${y + r * 0.2}" rx="${r * 0.18}" ry="${r * 0.32}" fill="${hl}"/>`; break;
     case 'grapes': { const g = r * 0.36; [[0, -0.75], [-0.6, -0.45], [0.6, -0.45], [-0.3, 0], [0.3, 0], [-0.75, 0.1], [0.75, 0.1], [0, 0.45], [-0.4, 0.75], [0.4, 0.75], [0, 1.1]].forEach(([dx, dy]) => { s += `<circle cx="${x + dx * r}" cy="${y + dy * r}" r="${g}" fill="${c}" stroke="${c2}" stroke-width="${r * 0.06}"/>`; });

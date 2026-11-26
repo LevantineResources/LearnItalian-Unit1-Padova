@@ -425,7 +425,7 @@
    "quest": null,
    "continues": null,
    "lessonNo": null,
-   "soon": true
+   "soon": false
   },
   {
    "id": "d3-a3",
@@ -437,7 +437,7 @@
    "quest": null,
    "continues": null,
    "lessonNo": null,
-   "soon": true
+   "soon": false
   },
   {
    "id": "d3-a4",
@@ -449,7 +449,7 @@
    "quest": null,
    "continues": null,
    "lessonNo": null,
-   "soon": true
+   "soon": false
   },
   {
    "id": "d3-b2",
@@ -461,7 +461,7 @@
    "quest": null,
    "continues": null,
    "lessonNo": null,
-   "soon": true
+   "soon": false
   },
   {
    "id": "d3-b3a",
@@ -473,7 +473,7 @@
    "quest": null,
    "continues": null,
    "lessonNo": null,
-   "soon": true
+   "soon": false
   },
   {
    "id": "d3-b4a",
@@ -485,7 +485,7 @@
    "quest": null,
    "continues": null,
    "lessonNo": null,
-   "soon": true
+   "soon": false
   },
   {
    "id": "d3-b3b",
@@ -497,7 +497,7 @@
    "quest": null,
    "continues": null,
    "lessonNo": null,
-   "soon": true
+   "soon": false
   },
   {
    "id": "d3-b4b",
@@ -509,7 +509,7 @@
    "quest": null,
    "continues": null,
    "lessonNo": null,
-   "soon": true
+   "soon": false
   },
   {
    "id": "d3-b3c",
@@ -521,7 +521,7 @@
    "quest": null,
    "continues": null,
    "lessonNo": null,
-   "soon": true
+   "soon": false
   },
   {
    "id": "d3-b4c",
@@ -533,7 +533,7 @@
    "quest": null,
    "continues": null,
    "lessonNo": null,
-   "soon": true
+   "soon": false
   },
   {
    "id": "d3-c2",
@@ -545,7 +545,7 @@
    "quest": null,
    "continues": null,
    "lessonNo": null,
-   "soon": true
+   "soon": false
   },
   {
    "id": "d3-c3a",
@@ -557,7 +557,7 @@
    "quest": null,
    "continues": null,
    "lessonNo": null,
-   "soon": true
+   "soon": false
   },
   {
    "id": "d3-c4a",
@@ -569,7 +569,7 @@
    "quest": null,
    "continues": null,
    "lessonNo": null,
-   "soon": true
+   "soon": false
   },
   {
    "id": "d3-c3b",
@@ -581,7 +581,7 @@
    "quest": null,
    "continues": null,
    "lessonNo": null,
-   "soon": true
+   "soon": false
   }
  ],
  "side": [
