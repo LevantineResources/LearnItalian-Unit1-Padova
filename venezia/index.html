@@ -32038,7 +32038,7 @@ Object.assign(window.__debug, {
    Lei; Margaret speaks English, on your side. *Delle polpette*, *dei crostini* are SET PHRASES here (one tile each, as on the bacaro's board: the
    designer, 25 Nov); Lesson 6 explains delle and dei. The slip: due bicchiere → accepted, said back (Due bicchieri!), the note.
    The conversation (flow.js opens it as soon as you are in Da Ugo with Margaret): ugo (the order, the cicchetti, the table, Margaret's line about
-   the real Venice, telling her you'll go, Ugo: a Cannaregio!, a check, cin cin) → Scene 3, the traghetto (flow.js). */
+   the real Venice, telling her you'll go, asking Ugo where the Venetians live (abitano: District 2's B2), Ugo: a Cannaregio!, a check, cin cin) → Scene 3, the traghetto (flow.js). */
 const VVM = en => ({ who:'margaret', en, english:true });
 const VVU = (it, en, gloss) => ({ who:'vv-ugo', it, en, gloss });
 const VV_SCRIPT = convoScript({
@@ -32051,12 +32051,15 @@ const VV_SCRIPT = convoScript({
     divinobianco:{ label:'di vino bianco', en:'of white wine' }, divinorosso:{ label:'di vino rosso', en:'of red wine' }, dibianco:{ label:'di bianco', en:'of white' },
     perfavore:{ label:'per favore', en:'please' }, grazie:{ label:'grazie', en:'thank you' }, e:{ label:'e', en:'and' },
     /* set phrases here, one tile each, as on the board */
-    dellepolpette:{ label:'delle polpette', en:'some meatballs' }, deicrostini:{ label:'dei crostini', en:'some crostini (toast with toppings)' }, ilbaccala:{ label:'il baccalà', en:'the salt cod' },
+    dellepolpette:{ label:'delle polpette', en:'meatballs' }, deicrostini:{ label:'dei crostini', en:'crostini (toast with toppings)' }, ilbaccala:{ label:'il baccalà', en:'the salt cod' },
+    /* Margaret asks you to ask (the designer, 25 Nov): abitare, District 2's B2 (tree/d2-b2/content.js: its tile abitano) */
+    scusi:{ label:'Scusi', en:'excuse me (polite)', cl:true }, dove:{ label:'Dove', en:'where', q:true, cl:true }, abitano:{ label:'abitano', en:'(they) live' },
+    abita:{ label:'abita', en:'(he / she) lives; you live (Lei)' }, iveneziani:{ label:'i veneziani', en:'the Venetians' },
     cincin:{ label:'Cin cin!', en:'cheers!', ex:true }, salute:{ label:'Salute!', en:'cheers! (to your health)', ex:true }, arrivederci:{ label:'Arrivederci', en:'goodbye (polite)', ex:true },
   },
   convos:{
     ugo:{ npc:'vv-ugo', label:'Da Ugo', beats:[
-      { say:[{ sys:'🍷 A low room, warm and loud: barrels, bottles to the ceiling, the cicchetti under glass. Behind the counter, Ugo.' },
+      { say:[{ sys:'🍷 A low room under dark beams, warm and loud: barrels, bottles, the cicchetti under glass, the lamps lit. Behind the counter, Ugo.' },
         VVU('Buonasera, signora Margaret! Il solito?', 'Good evening, Mrs Margaret! The usual?', { 'Il solito':'the usual' }),
         VVM('He knows me. That’s how you know it’s a good bar. Order for us, {Me}: two glasses of white wine and some cicchetti.')] },
       { sayit:{ en:'Good evening! Two glasses of white wine, please.', answer:'buonasera , due bicchieri divinobianco , perfavore',
@@ -32069,20 +32072,25 @@ const VV_SCRIPT = convoScript({
         reply:[VVU('Due ombre di bianco, subito! E da mangiare?', 'Two glasses of white, right away! And to eat?', { 'Due ombre':'two small glasses of wine', subito:'right away', 'da mangiare':'to eat' })],
         hint:'Greet him for the evening, and order two glasses of white wine, politely.', strong:'<b>Buonasera</b> + two + glasses (more than one) + of white wine + <b>per favore</b>.' } },
       { say:[{ sys:'<span class="cs-note">✎ <b>un’ombra</b> = a small glass of wine, in Venice (“a shade”: the story goes that the wine sellers in the Piazza kept to the Campanile’s shade).</span>' }] },
-      { sayit:{ en:'Some meatballs and some crostini, please.', answer:'dellepolpette e deicrostini , perfavore', also:['dellepolpette e deicrostini', 'dellepolpette , deicrostini', 'deicrostini e dellepolpette , perfavore'],
+      { sayit:{ en:'Meatballs and crostini, please.', answer:'dellepolpette e deicrostini , perfavore', also:['dellepolpette e deicrostini', 'dellepolpette , deicrostini', 'deicrostini e dellepolpette , perfavore'],
         pieces:'dellepolpette deicrostini ilbaccala e perfavore grazie',
         wrong:[{ has:'ilbaccala', reply:VVU('Il baccalà è finito, mi dispiace!', 'The salt cod’s all gone, I’m sorry!', { 'è finito':'is all gone', 'mi dispiace':'I’m sorry' }), fb:'Margaret wants meatballs and crostini.' }],
         more:VVU('Sì… e poi?', 'Yes… and then?'),
         reply:[VVU('Ecco qua. Buon appetito!', 'Here you are. Enjoy!', { 'Ecco qua':'here you are', 'Buon appetito':'enjoy your meal' })],
-        hint:'Ask for some meatballs and some crostini: they are on the board.', strong:'<b>delle polpette</b> + and + <b>dei crostini</b> + please.' } },
+        hint:'Ask for meatballs and crostini: they are on the board.', strong:'<b>delle polpette</b> + and + <b>dei crostini</b> + please.' } },
       { do:() => vvToTable() },
       { say:[{ sys:'🕯 You stand at the counter for the first ombra, then take the little table by the door; Biscuit under it. Outside, the lamps come on along the calle.' }] },
       { wait:true, say:[VVM('I love this city, {Me}. Every morning I think: I’m so lucky.'), VVM('But do you know what? I’m a tourist. I see the bridges, the gondolas, the postcards…'),
         VVM('The real Venice is the people who live here. And I can’t ask them: I don’t speak Italian.'), VVM('You can. Will you go and ask them? What they think of their city. What they like, what they don’t.')] },
       { tell:{ to:'Margaret', prompt:'Margaret asks: will you go and ask them?', options:['I’ll go tomorrow.'], a:0 } },
-      { say:[VVM('Not here, though: San Polo is full of people like me. Ugo, where do the Venetians live?'),
-        VVU('I veneziani? A Cannaregio! Prenda il traghetto domani mattina: là c’è ancora la vera Venezia.', 'The Venetians? In Cannaregio! Take the traghetto tomorrow morning: the real Venice is still there.',
-          { 'I veneziani':'the Venetians', 'Prenda il traghetto':'take the traghetto (polite)', 'domani mattina':'tomorrow morning', 'la vera Venezia':'the real Venice' })] },
+      { say:[VVM('Not here, though: San Polo is full of people like me. I wonder where the real Venetians live… Can you ask the waiter?')] },
+      /* (abitano: District 2's B2; the slip abita, said back) */
+      { sayit:{ en:'Where do the Venetians live?', answer:'dove abitano iveneziani', also:['scusi , dove abitano iveneziani'],
+        pieces:'scusi dove abitano abita iveneziani grazie',
+        wrong:[{ has:'abita', near:true, echo:VVU('Dove abitano!', 'Where do they live!'), fb:'<i>I veneziani</i> are more than one: they <b>abitano</b> (<i>abita</i>: he or she lives).' }],
+        reply:[VVU('I veneziani? A Cannaregio! Prenda il traghetto domani mattina: là c’è ancora la vera Venezia.', 'The Venetians? In Cannaregio! Take the traghetto tomorrow morning: the real Venice is still there.',
+          { 'I veneziani':'the Venetians', 'Prenda il traghetto':'take the traghetto (polite)', 'domani mattina':'tomorrow morning', 'la vera Venezia':'the real Venice' })],
+        hint:'Ask Ugo where the Venetians live (a Scusi first is polite).', strong:'<b>Dove</b> + they live (<b>abitano</b>) + <b>i veneziani</b>?' } },
       { check:{ prompt:'Where does Ugo send you?', line:VVU('A Cannaregio! Prenda il traghetto domani mattina.', 'In Cannaregio! Take the traghetto tomorrow morning.'),
         options:['To Cannaregio, by the traghetto, in the morning.', 'To the station, by vaporetto.', 'To the Lido, tonight.'], a:0, why:'A Cannaregio! Prenda il traghetto domani mattina.', nudge:'Listen again: a Cannaregio… il traghetto… domani mattina.' } },
       { say:[VVM('Cannaregio. Tomorrow, then. Cin cin!')] },
@@ -32148,12 +32156,14 @@ function vvPlace(force){
     dogFollow('biscuit', null); Object.assign(B, { x:p.x + 0.9 * VZ_M, y:p.y - 0.1 * VZ_M, sit:true, face:{ x:-1, y:0 } });
   } else if (S.scene === VV_ROOM){
     const R = VZ_ROOMS[VV_ROOM], table = (vvPeek() || {}).table;
-    if (table){ Object.assign(M, { x:R.X(5.545), y:R.Y(3.475), seated:true, face:{ x:1, y:0 }, baseFace:{ x:1, y:0 } }); dogFollow('biscuit', null); Object.assign(B, { x:R.X(6.3), y:R.Y(4.15), sit:true }); }
-    else { Object.assign(M, { x:R.X(3.75), y:R.Y(3.0), seated:false, face:{ x:-0.4, y:-1 }, baseFace:{ x:-0.4, y:-1 } }); dogFollow('biscuit', null); Object.assign(B, { x:R.X(4.35), y:R.Y(3.45), sit:true, face:{ x:-1, y:0 } }); }
+    /* (world.js: the little table by the door, Margaret on its west chair facing the room, Biscuit at its foot; else at the counter beside you) */
+    if (table){ const T = R.byId.tavolino, cx = T.x + T.w / 2, cy = T.y + T.d / 2;
+      Object.assign(M, { x:R.X(cx - 0.78), y:R.Y(cy + 0.05), seated:true, face:{ x:1, y:0 }, baseFace:{ x:1, y:0 } }); dogFollow('biscuit', null); Object.assign(B, { x:R.X(cx + 0.05), y:R.Y(cy + 0.47), sit:true, face:{ x:-1, y:0 } }); }
+    else { Object.assign(M, { x:R.X(3.75), y:R.Y(2.95), seated:false, face:{ x:-0.4, y:-1 }, baseFace:{ x:-0.4, y:-1 } }); dogFollow('biscuit', null); Object.assign(B, { x:R.X(4.3), y:R.Y(3.45), sit:true, face:{ x:-1, y:0 } }); }
     M.home = { x:M.x, y:M.y, face:{ ...M.face } };
   }
 }
-function vvToTable(){ const R = vvRec(); R.table = true; save(); VV.placedAt = null; vvPlace(true); VV.log.push('table'); }
+function vvToTable(){ const R = vvRec(); R.table = true; VV.litAt = performance.now(); save(); VV.placedAt = null; vvPlace(true); VV.log.push('table'); }
 function vvSceneOf(n){
   if (!vvLive()) return undefined;
   const id = n.id, st = vvStep();
@@ -32329,7 +32339,7 @@ SIDE_STORIES.push({ id:'cena', title:'La vera Venezia', en:'District 2’s closi
 dbgField('d2cena', () => { const p = vvSpot(), R = vvPeek() || {}, M = NPC.margaret;
   return { due:vvDue(), live:vvLive(), step:vvStep(), soon:VV.soon, cannaregio:vzDistrictOpen('cannaregio'), spot:p ? { x:Math.round(p.x), y:Math.round(p.y) } : null, near:!!vvNear(), cards:VV.cards,
     busy:VV.busy, table:!!R.table, room:S.scene === VV_ROOM, door:vvDoor() ? { x:vvDoor().x, y:vvDoor().y } : null, light:typeof vzLightMode === 'function' ? vzLightMode() : null, arrived:VV.arrived, log:VV.log.slice(-20),
-    margaret:M ? { scene:sceneOf(M), x:Math.round(M.x), y:Math.round(M.y), seated:!!M.seated } : null, ugo:NPC['vv-ugo'] ? { scene:sceneOf(NPC['vv-ugo']) } : null }; });
+    margaret:M ? { scene:sceneOf(M), x:Math.round(M.x), y:Math.round(M.y), seated:!!M.seated } : null, biscuit:NPC.biscuit ? { x:Math.round(NPC.biscuit.x), y:Math.round(NPC.biscuit.y) } : null, lit:typeof vvLit === 'function' ? Math.round(vvLit() * 100) / 100 : null, ugo:NPC['vv-ugo'] ? { scene:sceneOf(NPC['vv-ugo']) } : null }; });
 Object.assign(window.__debug, {
   /* you at the spot (San Polo loaded first: a promise then) */
   vvGo(){ const go = () => { const p = vvSpot(); if (!p) return null; const k = vzAreaAt(p.x, p.y), sc = k >= 0 ? VZ.areas[k].key : S.scene;
@@ -32340,6 +32350,11 @@ Object.assign(window.__debug, {
   vvDrive:() => { vvDrivePrep(); return __debug.vvGo(); },
   vvTalk:() => { const n = NPC['vv-ugo']; if (!n || dialogOpen) return false; openConvo(n); return !document.querySelector('#dialog').hidden; },
   vvScene1:() => vvScene1(),
+  /* you in Da Ugo with Margaret and Biscuit, the dinner under way (the golden hour): { table } at the little table by the door; { at:'calle' | 'doorway' | a prop's id } where you stand */
+  vvRoom(o = {}){ const go = () => { const R = vvRec(); R.step = 'cena'; R.sc = R.sc || {}; if (o.table){ R.table = true; VV.litAt = performance.now() - 5000; } else delete R.table; save();
+      vzSetLight('sunset', { ms:0 }); const Rm = VZ_ROOMS[VV_ROOM], q = Rm.spots[o.at || 'vv-ugo'] || Rm.spots.spawn;
+      __debug.go(VV_ROOM, q.x, q.y); VV.placedAt = null; VV.want = null; setTimeout(() => { VV.placedAt = null; vvPlace(true); }, 400); return { x:Math.round(q.x), y:Math.round(q.y) }; };
+    return VZD.id === 'sanpolo' && !VZD.loading ? go() : vzGoDistrict('sanpolo', {}).then(go); },
 });
 
 /* ===== units/venezia/story/d2-cena/designer.js ===== */
@@ -44328,8 +44343,7 @@ if (VZ && VZ.areas && VZD.id !== 'sanmarco') d3Place(VZD.id);
    the door is put on at San Polo's building (vzUse), as world/xplaces.js and world/d3places.js do (San Marco's fingerprint untouched).
    - Da Ugo, Margaret's favourite bacaro, "in a calle behind San Giacometto" (the script's ❓1, answered: yes): the shop door of the house in the calle
      north-west of San Giacometto (the shop door nearest VV_AT, in the Rialto's area; its window dressed as a bacaro, DA UGO on its awning, no generic
-     shopkeeper in it); the room vz-vv-daugo (the bacaro kind: the counter, the cicchetti under glass, the bottles, the chalkboard with the
-     polpette and the crostini, the stools, the barrel, the two little tables); Ugo, the oste, behind the counter (Lei).
+     shopkeeper in it); the room vz-vv-daugo (its own: an evening osteria, below; not the bacaro kind of Ernesto's); Ugo, the oste, behind the counter (Lei).
    - The traghetto's gondolier (Scene 3): on the landing in San Polo at dawn, then on Cannaregio's (flow.js moves him: his district). */
 const VV_AT = { x:5481, y:768 };      // (San Polo px: a calle behind San Giacometto, whose front is at 5784–6120, 960; the shop door nearest this one)
 const VV_NPCS = [
@@ -44341,14 +44355,53 @@ const VV_NPCS = [
 ].map(o => Object.assign({ baseFace:{ x:0, y:1 }, answerHow:{ it:'Bene, grazie.', en:'Fine, thanks.' }, greet:{ it:'Buongiorno', en:'Good morning' }, agenda:[], revisitAgenda:[], promptOffset:{ x:0, y:26 }, x:-999, y:-999, vv:true }, o));
 VV_NPCS.forEach(n => { n.home = { x:n.x, y:n.y, face:{ ...n.baseFace } }; n.face = { ...n.baseFace }; NPCS.push(n); NPC[n.id] = n; });
 
-/* the room: the bacaro kind, its board with Ugo's cicchetti */
-VZ_ROOMS[VV_ROOM] = vzRoomKind('bacaro', { title:'Da Ugo', sub:'Ombre e cicheti · dietro San Giacometto', door:'vv-daugo', seed:1966, district:'sanpolo', sign:'Da Ugo',
-  set:{ lavagna:{ lines:['Ombra 1,50', 'Polpette 2,00', 'Crostini 2,00', 'Baccalà 2,50'], en:'the chalkboard: an ombra (a small glass of wine) 1.50, polpette (meatballs), crostini, salt cod' },
-    cicchetti:{ msg:'<b>I cicchetti</b> · polpette (meatballs), crostini with baccalà mantecato, sarde in saor, mozzarella in carrozza: Ugo’s little bites, under the glass.' } },
-  props:[{ id:'foto', kind:'painting', wall:true, x:7.3, w:1.1, z:1.55, h:0.8, scene:'regata', it:'la foto', en:'the photo: Ugo’s father behind this counter, long ago' }],
-  people:{ 'vv-ugo':{ x:2.6, y:0.85, approach:{ x:2.65, y:3.0 }, talk:{ x:2.05, y:2.25, w:1.3, d:1.0 }, post:true } } });
+/* the room: Da Ugo's own (the designer, 25 Nov: not the bacaro kind Ernesto's shares). An evening osteria in a low old room (11 m wide, the back wall
+   2.9 m under its dark beams): the cicchetti counter on the left with the cicchetti under glass and the bottles behind it, Ugo there; the chalkboard,
+   the old photos and two crossed oars on the plaster; the house wine in barrels on a rack; two barrels standing up as tables; three small tables with a
+   candle in a bottle each; pendant lamps; the front wall with its wide doorway open onto the calle (the calle seen beyond it, 6.65–8 m: walk out and
+   down it to leave), the lantern by the door; the little table by the door (Margaret and Biscuit, the script's "the lamps come on along the calle").
+   Drawn by render.js (its own shell, floors, walls and props, its own lamplight); world/interiors.js turns it into a scene, as every room. */
+const VV_DOOR_M = { x0:4.5, x1:6.3, wall:6.2, calle:6.65 };      // (the doorway in the front wall, and the front wall's band; the calle below it)
+VZ_ROOMS[VV_ROOM] = {
+  title:'Da Ugo', sub:'Osteria · ombre e cicheti · dietro San Giacometto', door:'vv-daugo', district:'sanpolo', seed:1966, osteria:true,
+  w:11, d:8, wall:2.9,
+  zones:[{ x0:0, x1:11, floor:'vvcotto', wall:'vvintonaco' }],
+  exit:{ id:'vv-daugo-exit', x:VV_DOOR_M.x0, w:VV_DOOR_M.x1 - VV_DOOR_M.x0, leave:'vv-daugo', it:'la porta', en:'the door, open onto the calle' },
+  spawn:{ x:5.4, y:5.3 },
+  props:[
+    { id:'insegna', kind:'vvinsegna', wall:true, x:1.0, w:3.4, z:2.3, h:0.36, text:'Da Ugo', look:false },
+    { id:'bottiglie', kind:'bottles', wall:true, from:'banco', x:0.45, w:4.5, z:1.2, h:1.0, it:'le bottiglie', en:'the bottles: wine from the Veneto and Friuli, and grappa' },
+    { id:'lavagna', kind:'chalkboard', wall:true, x:5.2, w:1.1, z:1.15, h:0.95, lines:['Ombra 1,50', 'Polpette 2,00', 'Crostini 2,00', 'Baccalà 2,50'],
+      it:'la lavagna', en:'the chalkboard: an ombra (a small glass of wine) 1.50, polpette (meatballs), crostini, salt cod' },
+    { id:'foto', kind:'vvfoto', wall:true, x:6.6, w:1.6, z:1.1, h:1.05, it:'le foto', en:'the old photos: Ugo’s father behind this counter, a regatta, the acqua granda of 1966' },
+    { id:'remi', kind:'vvremi', wall:true, x:8.55, w:2.1, z:1.2, h:1.55, it:'i remi', en:'the oars: two old gondola oars, crossed, and a forcola (the oarlock)' },
+    { id:'banco', kind:'vvbanco', x:0.4, y:1.3, w:4.8, d:0.8, h:1.15, glass:[0.25, 3.25], it:'il banco', en:'the counter' },
+    { id:'cicchetti', kind:'none', on:'banco', x:0.65, y:1.3, w:3.0, d:0.8, h:1.15, solid:false, it:'i cicchetti', en:'the cicchetti: little bites under the glass',
+      msg:'<b>I cicchetti</b> · polpette (meatballs), crostini with baccalà mantecato, sarde in saor, mozzarella in carrozza: Ugo’s little bites, under the glass.' },
+    { id:'sgabello', kind:'stool', x:0.95, y:2.45, w:0.4, d:0.4, h:0.75, round:true, solid:false, it:'lo sgabello', en:'the stool' },
+    { id:'sgabello2', word:'sgabello', kind:'stool', x:4.55, y:2.45, w:0.4, d:0.4, h:0.75, round:true, solid:false, look:false },
+    { id:'botti', kind:'vvbotti', x:9.6, y:0.05, w:1.25, d:0.95, h:1.3, it:'le botti', en:'the barrels on their rack: the house wine' },
+    { id:'botte', kind:'vvbotte', x:6.45, y:2.35, w:0.9, d:0.9, h:1.05, round:true, it:'la botte', en:'the barrel: a table to stand at' },
+    { id:'botte2', word:'botte', kind:'vvbotte', x:8.35, y:1.55, w:0.9, d:0.9, h:1.05, round:true, look:false },
+    { id:'tavolino', kind:'vvtavolo', x:6.9, y:5.0, w:0.85, d:0.85, h:0.76, chairs:[[-0.78, 0.05], [0.78, 0.05]], it:'il tavolino', en:'the little table by the door' },
+    { id:'tavolino2', word:'tavolino', kind:'vvtavolo', x:0.75, y:3.75, w:0.85, d:0.85, h:0.76, chairs:[[0.78, 0.05], [0, 0.72]], it:'il tavolino', en:'the little table' },
+    { id:'tavolino3', word:'tavolino', kind:'vvtavolo', x:8.85, y:3.7, w:0.85, d:0.85, h:0.76, chairs:[[-0.78, 0.05], [0.78, 0.05]], look:false },
+    { id:'lampada', kind:'vvlampada', x:1.25, y:1.75, w:0.4, d:0.2, h:2.2, solid:false, look:false },
+    { id:'lampada2', kind:'vvlampada', x:4.05, y:1.75, w:0.4, d:0.2, h:2.2, solid:false, look:false },
+    { id:'lampada3', kind:'vvlampada', x:7.12, y:5.3, w:0.4, d:0.2, h:2.05, solid:false, look:false },
+    { id:'lampada4', kind:'vvlampada', x:8.6, y:1.9, w:0.4, d:0.2, h:2.1, solid:false, look:false },
+    { id:'lanterna', kind:'vvlanterna', x:6.45, y:6.7, w:0.4, d:0.4, h:0.6, solid:false, it:'la lanterna', en:'the lantern by the door: lit at dusk' },
+    { id:'lanterna2', word:'lanterna', kind:'vvlanterna', x:1.4, y:6.7, w:0.4, d:0.4, h:0.6, solid:false, look:false },
+    { id:'lanterna3', word:'lanterna', kind:'vvlanterna', x:10.2, y:6.7, w:0.4, d:0.4, h:0.6, solid:false, look:false },
+  ],
+  people:{ 'vv-ugo':{ x:2.6, y:0.75, approach:{ x:2.65, y:2.95 }, talk:{ x:2.05, y:2.15, w:1.3, d:1.0 }, post:true } },
+};
 VZ_SCENE_D[VV_ROOM] = 'sanpolo';
 vzRoomScene(VV_ROOM);
+/* the front wall either side of the doorway (solid), and its doorway's jambs */
+{ const R = VZ_ROOMS[VV_ROOM], sc = SCENES[VV_ROOM], y0 = R.Y(VV_DOOR_M.wall), h = (VV_DOOR_M.calle - VV_DOOR_M.wall) * VZ_M;
+  sc.R.push({ x:R.X(0), y:y0, w:R.X(VV_DOOR_M.x0) - R.X(0), h }, { x:R.X(VV_DOOR_M.x1), y:y0, w:R.X(R.w) - R.X(VV_DOOR_M.x1), h });
+  R.spots.calle = { x:R.X((VV_DOOR_M.x0 + VV_DOOR_M.x1) / 2), y:R.Y(7.35) }; R.spots.doorway = { x:R.X((VV_DOOR_M.x0 + VV_DOOR_M.x1) / 2), y:R.Y(5.7) }; }
 
 /* ---------- San Polo: Da Ugo's door ---------- */
 function vvDoor(){ return VZD.id === 'sanpolo' && VZ.doors ? VZ.doors.find(d => d.id === 'vv-daugo') || null : null; }
@@ -54350,6 +54403,301 @@ Object.assign(VZ_PROP, {
     g.strokeStyle = ink; g.strokeRect(X(-1.3) + 0.5, at(3.85) + 0.5, 2.6 * M - 1, 0.4 * M - 1);
   } },
 });
+
+/* ===== units/venezia/story/d2-cena/render.js ===== */
+/* District 2's closing scene · La vera Venezia: Da Ugo drawn (its room: world.js; the designer, 25 Nov: "Da Ugo gets an interior of its own"). Not the
+   bacaro kind (Ernesto's on the Misericordia, Lesson 6, keeps it): a shell of its own (vvRoomBase: the ceiling's beams over a low back wall of old ochre
+   plaster with the brick showing, a dark timber frame, worn terracotta underfoot, the front wall with its wide doorway, and the calle beyond it, its
+   paving and its lanterns), its own furniture in the depth-sorted pass (VZ_PROP_ART vv…: the counter with a marble top and the cicchetti under glass,
+   barrels standing up as tables, the house wine on its rack, small tables under checked cloths with a candle in a bottle, pendant lamps), and its own
+   light (vvRoomLight, the scene's night pass: the evening's dim warmth inside, the dusk in the calle, the pools of the lamps, the candles and the
+   lanterns; the lanterns come on along the calle once Margaret has her table: VV.litAt). In render/interiors.js's manner: metres (VZ_M px a metre),
+   drawn once at the city's resolution (vzRes()), lit from the west. */
+function vvRoomBg(){
+  const R = VZ_ROOMS[VV_ROOM], res = vzRes(); let c = VZ_BG[VV_ROOM];
+  if (c && c.res === res) return c;
+  c = document.createElement('canvas'); c.width = Math.ceil(R.pxW * res); c.height = Math.ceil(R.pxH * res); c.res = res;
+  const g = c.getContext('2d'); g.scale(res, res);
+  vvRoomBase(g, R);
+  return VZ_BG[VV_ROOM] = c;
+}
+Object.assign(VZ_FLOORS, {
+  /* old terracotta, dark with age, worn paler along the way from the door to the counter */
+  vvcotto(g, R, x0, x1, y0, y1, r){
+    g.save(); g.beginPath(); g.rect(x0, y0, x1 - x0, y1 - y0); g.clip();
+    g.fillStyle = '#26150f'; g.fillRect(x0, y0, x1 - x0, y1 - y0);
+    const d = vzM(0.3);                                                       // (square tiles laid on the diagonal: their half-diagonal)
+    for (let y = y0 - d, j = 0; y < y1 + d; y += d, j++) for (let x = x0 - d + (j % 2) * d, i = 0; x < x1 + 2 * d; x += 2 * d, i++){
+      g.fillStyle = `hsl(${13 + r() * 7}, ${28 + r() * 9}%, ${22 + r() * 7}%)`;
+      g.beginPath(); g.moveTo(x, y - d + 0.8); g.lineTo(x + d - 0.8, y); g.lineTo(x, y + d - 0.8); g.lineTo(x - d + 0.8, y); g.closePath(); g.fill();
+      if (r() < 0.25){ g.fillStyle = 'rgba(255,220,180,.05)'; g.beginPath(); g.moveTo(x, y - d + 2); g.lineTo(x + d - 2, y); g.lineTo(x, y); g.closePath(); g.fill(); }
+      if (r() < 0.12){ g.fillStyle = 'rgba(10,4,2,.3)'; g.fillRect(x - 2 + r() * 4, y - 1 + r() * 2, 1.5 + r() * 2, 0.8); }
+    }
+    g.restore();
+    /* the path worn from the door to the counter */
+    const D = VV_DOOR_M, gr = g.createLinearGradient(0, R.Y(D.wall), 0, R.Y(2.2)); gr.addColorStop(0, 'rgba(255,210,170,.10)'); gr.addColorStop(1, 'rgba(255,210,170,.04)');
+    g.fillStyle = gr; g.beginPath(); g.moveTo(R.X(D.x0), R.Y(D.wall)); g.lineTo(R.X(D.x1), R.Y(D.wall)); g.lineTo(R.X(4.6), R.Y(2.2)); g.lineTo(R.X(1.6), R.Y(2.2)); g.closePath(); g.fill();
+  },
+});
+Object.assign(VZ_WALLS, {
+  /* old lime plaster, ochre, smoked under the beams, the brick showing where it has fallen away; a dark wooden dado */
+  vvintonaco(g, R, x0, x1, top, bot, r){
+    g.fillStyle = '#c29a64'; g.fillRect(x0, top, x1 - x0, bot - top);
+    for (let k = 0; k < 70; k++){ g.fillStyle = r() < 0.5 ? 'rgba(120,80,40,.10)' : 'rgba(255,235,190,.08)'; ell(g, x0 + r() * (x1 - x0), top + r() * (bot - top), 4 + r() * 14, 2 + r() * 6); g.fill(); }
+    /* the brick where the plaster has gone: ragged patches */
+    for (const [fx, fz, fw, fh] of [[0.47, 0.62, 0.05, 0.2], [0.79, 0.3, 0.06, 0.22], [0.08, 0.2, 0.05, 0.12], [0.96, 0.7, 0.035, 0.16]]){
+      const px = x0 + (x1 - x0) * fx, py = top + (bot - top) * fz, pw = (x1 - x0) * fw, ph = (bot - top) * fh;
+      g.save(); g.beginPath(); for (let a = 0; a < Math.PI * 2; a += 0.5){ const q = 0.75 + r() * 0.35; g[a ? 'lineTo' : 'moveTo'](px + Math.cos(a) * pw * q, py + Math.sin(a) * ph * q); } g.closePath();
+      g.fillStyle = 'rgba(90,60,30,.35)'; g.lineWidth = 1.6; g.strokeStyle = 'rgba(230,205,160,.5)'; g.stroke(); g.clip();
+      g.fillStyle = '#8e432c'; g.fillRect(px - pw, py - ph, 2 * pw, 2 * ph);
+      const cH = vzM(0.075), bw = vzM(0.25); for (let y = py - ph, k = 0; y < py + ph; y += cH, k++){ g.fillStyle = 'rgba(230,205,170,.45)'; g.fillRect(px - pw, y, 2 * pw, 0.6); for (let x = px - pw + (k % 2) * bw / 2; x < px + pw; x += bw){ g.fillRect(x, y, 0.6, cH); g.fillStyle = r() < 0.5 ? 'rgba(255,190,150,.12)' : 'rgba(50,15,5,.15)'; g.fillRect(x + 0.6, y + 0.6, bw - 1.2, cH - 0.8); g.fillStyle = 'rgba(230,205,170,.45)'; } }
+      g.restore();
+    }
+    /* the smoke of a century of lamps under the beams */
+    const sm = g.createLinearGradient(0, top, 0, top + vzM(1.0)); sm.addColorStop(0, 'rgba(40,22,10,.45)'); sm.addColorStop(1, 'rgba(40,22,10,0)'); g.fillStyle = sm; g.fillRect(x0, top, x1 - x0, vzM(1.0));
+    /* the dado */
+    const h = vzM(0.92); g.fillStyle = '#3a271a'; g.fillRect(x0, bot - h, x1 - x0, h); g.fillStyle = '#5a3c26'; g.fillRect(x0, bot - h, x1 - x0, 2.5);
+    g.strokeStyle = 'rgba(0,0,0,.3)'; g.lineWidth = 1; for (let x = x0 + vzM(0.1); x + vzM(0.16) < x1; x += vzM(0.16)) { g.beginPath(); g.moveTo(x, bot - h + 3); g.lineTo(x, bot - vzM(0.12)); g.stroke(); }
+    g.fillStyle = 'rgba(0,0,0,.28)'; g.fillRect(x0, bot - vzM(0.12), x1 - x0, vzM(0.12));
+  },
+});
+/* the calle beyond the front wall: trachyte slabs in rows, a drain, the step of the house across */
+function vvCalle(g, R, y0, y1, r){
+  g.fillStyle = '#6f685e'; g.fillRect(0, y0, R.pxW, y1 - y0);
+  const rowH = vzM(0.55);
+  for (let y = y0, j = 0; y < R.Y(R.d); y += rowH, j++){
+    for (let x = -((j * 17) % 30), k = 0; x < R.pxW; k++){ const w = vzM(0.8 + r() * 0.6); g.fillStyle = `hsl(${30 + r() * 12}, ${6 + r() * 6}%, ${44 + r() * 9}%)`; g.fillRect(x + 0.8, y + 0.8, w - 1.6, Math.min(rowH, R.Y(R.d) - y) - 1.6);
+      g.fillStyle = 'rgba(255,255,255,.05)'; g.fillRect(x + 1, y + 1, w - 2, 1); x += w; }
+  }
+  /* a drain grate in the middle of the calle */
+  const gx = R.X(2.6), gy = R.Y(7.35); g.fillStyle = '#3a3632'; g.fillRect(gx, gy, vzM(0.5), vzM(0.32)); g.fillStyle = '#5a5650'; for (let k = 1; k < 6; k++) g.fillRect(gx + k * vzM(0.5) / 6, gy + 1, 0.8, vzM(0.32) - 2);
+  /* the house across: its step (Istrian stone) and its dark base */
+  const ky = R.Y(R.d); g.fillStyle = '#d9d2c4'; g.fillRect(0, ky, R.pxW, vzM(0.12)); g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(0, ky + vzM(0.12), R.pxW, 1);
+  g.fillStyle = '#4a3c34'; g.fillRect(0, ky + vzM(0.13), R.pxW, y1 - ky); g.fillStyle = '#2c241f'; g.fillRect(R.X(8.2), ky + vzM(0.13), vzM(1.2), y1 - ky);     // (its door, shut)
+}
+/* ---------- the shell ---------- */
+function vvRoomBase(g, R){
+  const r = rng(R.seed || 7), wallTop = R.Y(0) - vzM(R.wall), D = VV_DOOR_M, fy = R.Y(D.wall), cy = R.Y(D.calle), x0 = R.ox, x1 = R.X(R.w);
+  g.fillStyle = '#1c1510'; g.fillRect(0, 0, R.pxW, R.pxH);
+  vvCalle(g, R, cy, R.pxH, r);
+  VZ_FLOORS.vvcotto(g, R, x0, x1, R.Y(0), fy, r);
+  VZ_WALLS.vvintonaco(g, R, x0, x1, wallTop, R.Y(0), r);
+  /* the timber frame on the back wall: two posts, the main beam along the top, the joists' ends over it (the ceiling, low) */
+  for (const px of [4.97, 8.3]){ const x = R.X(px); g.fillStyle = '#2e1e13'; g.fillRect(x, wallTop, vzM(0.18), R.Y(0) - wallTop); g.fillStyle = 'rgba(255,220,170,.10)'; g.fillRect(x, wallTop, 1.2, R.Y(0) - wallTop); g.fillStyle = 'rgba(0,0,0,.3)'; g.fillRect(x + vzM(0.18) - 1.2, wallTop, 1.2, R.Y(0) - wallTop); }
+  g.fillStyle = '#2a1b11'; g.fillRect(x0, wallTop, x1 - x0, vzM(0.36)); g.fillStyle = '#3e2a1a'; g.fillRect(x0, wallTop, x1 - x0, 2);
+  g.fillStyle = 'rgba(255,200,140,.10)'; g.fillRect(x0, wallTop + vzM(0.36) - 2, x1 - x0, 1.5); g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(x0, wallTop + vzM(0.36), x1 - x0, 2.5);
+  g.strokeStyle = 'rgba(0,0,0,.3)'; g.lineWidth = 0.6; { const rr2 = rng(19); for (let k = 0; k < 14; k++){ const bx = x0 + rr2() * (x1 - x0), by = wallTop + 3 + rr2() * vzM(0.26); g.beginPath(); g.moveTo(bx, by); g.lineTo(bx + 10 + rr2() * 20, by + (rr2() - 0.5)); g.stroke(); } }      // (the grain, the cracks)
+  /* the corbels under the beam at the posts */
+  for (const px of [4.97, 8.3]){ const x = R.X(px) + vzM(0.09), y = wallTop + vzM(0.36); g.fillStyle = '#2a1b11'; g.beginPath(); g.moveTo(x - vzM(0.38), y); g.lineTo(x + vzM(0.38), y); g.lineTo(x + vzM(0.09), y + vzM(0.3)); g.lineTo(x - vzM(0.09), y + vzM(0.3)); g.closePath(); g.fill(); }
+  for (let x = x0 + vzM(0.25); x < x1 - vzM(0.1); x += vzM(0.72)){ g.fillStyle = '#24170e'; g.fillRect(x, wallTop - vzM(0.42), vzM(0.2), vzM(0.42)); g.fillStyle = '#3a2716'; g.fillRect(x, wallTop - vzM(0.42), vzM(0.2), 1.5); g.fillStyle = 'rgba(0,0,0,.4)'; g.fillRect(x + vzM(0.2), wallTop - vzM(0.42), 1.5, vzM(0.42)); }
+  /* where the wall meets the floor */
+  g.fillStyle = 'rgba(0,0,0,.3)'; g.fillRect(x0, R.Y(0), x1 - x0, 3); g.fillStyle = 'rgba(0,0,0,.1)'; g.fillRect(x0, R.Y(0) + 3, x1 - x0, 6);
+  /* the floor darker into the corners and along the front wall */
+  { const gr = g.createLinearGradient(0, R.Y(0), 0, fy); gr.addColorStop(0, 'rgba(20,8,2,.18)'); gr.addColorStop(0.35, 'rgba(20,8,2,0)'); gr.addColorStop(1, 'rgba(20,8,2,.14)'); g.fillStyle = gr; g.fillRect(x0, R.Y(0), x1 - x0, fy - R.Y(0)); }
+  /* the fixed things (on the walls) */
+  for (const p of R.props){ const A = VZ_PROP_ART[p.kind]; if (A && A.bg) A.bg(g, p, R, r); }
+  /* the side walls (their thickness, from above) down to the front wall; above the back wall the dark of the ceiling */
+  const sideCol = '#30251c', edge = 'rgba(255,240,220,.14)';
+  g.fillStyle = '#17110c'; g.fillRect(0, 0, R.pxW, wallTop - vzM(0.42));
+  g.fillStyle = sideCol; g.fillRect(0, wallTop - vzM(0.42), x0, cy - wallTop + vzM(0.42)); g.fillRect(x1, wallTop - vzM(0.42), R.pxW - x1, cy - wallTop + vzM(0.42));
+  g.fillStyle = edge; g.fillRect(x0 - 1.5, wallTop, 1.5, fy - wallTop); g.fillRect(x1, wallTop, 1.5, fy - wallTop);
+  g.fillStyle = 'rgba(0,0,0,.2)'; g.fillRect(x0, R.Y(0), 4, fy - R.Y(0)); g.fillRect(x1 - 4, R.Y(0), 4, fy - R.Y(0));
+  /* the front wall (its top, seen from above) either side of the doorway, the doorway's stone sill and jambs, the leaves folded back inside */
+  const dx0 = R.X(D.x0), dx1 = R.X(D.x1);
+  g.fillStyle = sideCol; g.fillRect(0, fy, dx0, cy - fy); g.fillRect(dx1, fy, R.pxW - dx1, cy - fy);
+  g.fillStyle = edge; g.fillRect(0, fy, dx0, 1.5); g.fillRect(dx1, fy, R.pxW - dx1, 1.5); g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(0, cy - 1.5, dx0, 1.5); g.fillRect(dx1, cy - 1.5, R.pxW - dx1, 1.5);
+  g.fillStyle = '#e4ddcf'; g.fillRect(dx0, fy, dx1 - dx0, cy - fy); g.fillStyle = 'rgba(120,110,95,.4)'; g.fillRect(dx0, fy + (cy - fy) * 0.5, dx1 - dx0, 0.8);         // (the sill)
+  g.fillStyle = '#d2cab9'; g.fillRect(dx0 - 4, fy - 1, 4, cy - fy + 1); g.fillRect(dx1, fy - 1, 4, cy - fy + 1);                                                       // (the stone jambs)
+  for (const [lx, dir] of [[dx0 - 4, -1], [dx1 + 4, 1]]){ const L = vzM(0.86); g.fillStyle = '#1f3a2c'; g.fillRect(dir < 0 ? lx - L : lx, fy - vzM(0.1), L, vzM(0.1)); g.fillStyle = '#2e5240'; g.fillRect(dir < 0 ? lx - L : lx, fy - vzM(0.1), L, 1.2); }
+  /* the doormat */
+  g.fillStyle = '#4a3a2a'; g.fillRect(dx0 + 4, fy - vzM(0.7), dx1 - dx0 - 8, vzM(0.6)); g.fillStyle = '#6a5640'; for (let x = dx0 + 6; x < dx1 - 6; x += 3) g.fillRect(x, fy - vzM(0.67), 1.4, vzM(0.54));
+}
+/* ---------- the props ---------- */
+const VV_INK = 'rgba(25,14,8,.55)';
+Object.assign(VZ_PROP_ART, {
+  /* the sign on its board, hung from the beam on two chains */
+  vvinsegna:{ bg(g, p, R){ const b = vzWallBox(p, R), cx = (b.x0 + b.x1) / 2, w = b.x1 - b.x0, h = b.bot - b.top, top = R.Y(0) - vzM(R.wall) + vzM(0.3);
+    g.strokeStyle = '#6a6056'; g.lineWidth = 0.8; for (const fx of [0.18, 0.82]){ g.beginPath(); g.moveTo(b.x0 + w * fx, top); g.lineTo(b.x0 + w * fx, b.top); g.stroke(); }
+    g.fillStyle = 'rgba(0,0,0,.3)'; rr(g, b.x0 + 2, b.top + 2, w, h, 2); g.fill();
+    g.fillStyle = '#21402f'; rr(g, b.x0, b.top, w, h, 2); g.fill(); g.strokeStyle = '#c9a54a'; g.lineWidth = 1; rr(g, b.x0 + 1.5, b.top + 1.5, w - 3, h - 3, 1.5); g.stroke();
+    vzText(g, 'OSTERIA', b.x0 + w * 0.17, b.top + h / 2 + 0.5, '700 3.6px "Titillium Web", sans-serif', '#e8c35a');
+    vzText(g, p.text, cx + w * 0.06, b.top + h / 2 + 0.5, 'italic 700 9px "Bodoni Moda", Georgia, serif', '#f0cf6a', w * 0.6);
+    vzText(g, 'dal 1951', b.x1 - w * 0.13, b.top + h / 2 + 0.5, '600 3.4px "Titillium Web", sans-serif', '#e8c35a'); } },
+  /* old photographs in black frames, sepia: Ugo's father at the counter, a regatta, the acqua granda of 1966, a family */
+  vvfoto:{ bg(g, p, R){ const b = vzWallBox(p, R), W = b.x1 - b.x0, H = b.bot - b.top;
+    const F = [[0, 0.02, 0.42, 0.52, 'banco'], [0.5, 0, 0.5, 0.4, 'regata'], [0.06, 0.6, 0.34, 0.4, 'famiglia'], [0.48, 0.48, 0.46, 0.5, 'acqua']];
+    for (const [fx, fy, fw, fh, k] of F){
+      const x = b.x0 + W * fx, y = b.top + H * fy, w = W * fw, h = H * fh;
+      g.fillStyle = 'rgba(0,0,0,.3)'; g.fillRect(x + 1.5, y + 1.5, w, h); g.fillStyle = '#1e1510'; g.fillRect(x, y, w, h); g.fillStyle = '#efe6d2'; g.fillRect(x + 1.6, y + 1.6, w - 3.2, h - 3.2);
+      const ix = x + 2.6, iy = y + 2.6, iw = w - 5.2, ih = h - 5.2; g.fillStyle = '#b89a72'; g.fillRect(ix, iy, iw, ih);
+      g.fillStyle = 'rgba(60,40,22,.85)';
+      if (k === 'banco'){ g.fillRect(ix, iy + ih * 0.62, iw, ih * 0.38); circ(g, ix + iw * 0.5, iy + ih * 0.3, ih * 0.12); g.fill(); g.fillRect(ix + iw * 0.38, iy + ih * 0.4, iw * 0.24, ih * 0.24); g.fillStyle = 'rgba(240,225,200,.7)'; g.fillRect(ix + iw * 0.44, iy + ih * 0.42, iw * 0.12, ih * 0.2); g.fillStyle = 'rgba(60,40,22,.7)'; for (let q = 0; q < 4; q++) g.fillRect(ix + iw * (0.08 + q * 0.06), iy + ih * 0.1, 1, ih * 0.2); }
+      else if (k === 'regata'){ g.fillStyle = 'rgba(80,60,40,.6)'; g.fillRect(ix, iy, iw, ih * 0.4); g.fillStyle = 'rgba(60,40,22,.85)'; for (const fy2 of [0.55, 0.78]){ g.fillRect(ix + iw * 0.1, iy + ih * fy2, iw * 0.8, 1); for (let q = 0; q < 5; q++) g.fillRect(ix + iw * (0.18 + q * 0.13), iy + ih * fy2 - 2.4, 0.9, 2.4); } }
+      else if (k === 'famiglia'){ for (let q = 0; q < 3; q++){ circ(g, ix + iw * (0.25 + q * 0.25), iy + ih * (0.36 + (q === 1 ? -0.06 : 0)), ih * 0.13); g.fill(); g.fillRect(ix + iw * (0.15 + q * 0.25), iy + ih * 0.52, iw * 0.2, ih * 0.48); } }
+      else { g.fillStyle = 'rgba(70,50,30,.8)'; g.fillRect(ix + iw * 0.05, iy + ih * 0.08, iw * 0.4, ih * 0.6); g.fillRect(ix + iw * 0.55, iy + ih * 0.15, iw * 0.38, ih * 0.53); g.fillStyle = 'rgba(240,225,200,.55)'; for (let q = 0; q < 3; q++) g.fillRect(ix + iw * (0.1 + q * 0.3), iy + ih * 0.3, iw * 0.07, ih * 0.12);
+        g.fillStyle = 'rgba(140,120,96,.95)'; g.fillRect(ix, iy + ih * 0.66, iw, ih * 0.34); g.fillStyle = 'rgba(240,225,200,.5)'; for (let q = 0; q < 4; q++) g.fillRect(ix + iw * (0.05 + q * 0.24), iy + ih * (0.76 + (q % 2) * 0.1), iw * 0.12, 0.7); g.fillStyle = 'rgba(50,32,18,.9)'; circ(g, ix + iw * 0.7, iy + ih * 0.72, 1.4); g.fill(); g.fillRect(ix + iw * 0.7 - 0.6, iy + ih * 0.72, 1.2, ih * 0.1); }
+    }
+    vzText(g, '1966', b.x0 + W * 0.71, b.bot + 2.4, '600 3px "Titillium Web", sans-serif', 'rgba(60,40,20,.8)'); } },
+  /* two old gondola oars, crossed, and a forcola (the walnut oarlock) between them */
+  vvremi:{ bg(g, p, R){ const b = vzWallBox(p, R), W = b.x1 - b.x0, H = b.bot - b.top, cx = (b.x0 + b.x1) / 2, cy = (b.top + b.bot) / 2;
+    const oar = (ax, ay, bx2, by2) => { const ang = Math.atan2(by2 - ay, bx2 - ax), L = Math.hypot(bx2 - ax, by2 - ay);
+      g.save(); g.translate(ax, ay); g.rotate(ang);
+      g.fillStyle = 'rgba(0,0,0,.28)'; g.fillRect(2, 1.5, L, 2.4);
+      g.fillStyle = '#b08250'; g.fillRect(0, -1.1, L * 0.72, 2.2); g.fillStyle = '#8a5e34'; g.fillRect(0, 0.4, L * 0.72, 0.7);
+      g.fillStyle = '#b08250'; g.beginPath(); g.moveTo(L * 0.7, -1.1); g.lineTo(L, -2.4); g.lineTo(L, 2.4); g.lineTo(L * 0.7, 1.1); g.closePath(); g.fill();      // (the blade)
+      g.fillStyle = '#8a5e34'; g.fillRect(L * 0.74, -0.3, L * 0.25, 0.6); g.fillStyle = '#e8e0cc'; g.fillRect(L * 0.97, -2.4, L * 0.03, 4.8);
+      g.restore(); };
+    oar(b.x0 + 2, b.top + 3, b.x1 - 2, b.bot - 2); oar(b.x1 - 2, b.top + 3, b.x0 + 2, b.bot - 2);
+    /* the forcola, its curves, on a small board */
+    g.fillStyle = '#3a2618'; g.fillRect(cx - vzM(0.2), cy - vzM(0.36), vzM(0.4), vzM(0.72));
+    g.fillStyle = '#7a4a26'; g.beginPath(); g.moveTo(cx - 2, cy + vzM(0.3)); g.lineTo(cx + 2, cy + vzM(0.3)); g.quadraticCurveTo(cx + 4, cy + 2, cx + 1.5, cy - 1); g.quadraticCurveTo(cx + 5, cy - 5, cx + 2, cy - vzM(0.3)); g.lineTo(cx - 1, cy - vzM(0.3)); g.quadraticCurveTo(cx + 1, cy - 5, cx - 2.5, cy - 2.5); g.quadraticCurveTo(cx - 4.5, cy + 2, cx - 2, cy + vzM(0.3)); g.closePath(); g.fill();
+    g.fillStyle = 'rgba(255,220,170,.25)'; g.fillRect(cx - 1, cy - 4, 0.8, 7); } },
+  /* the counter: dark walnut panels, a white marble top, the glass case of cicchetti, the brass rail; on its plain end glasses, a bottle, crostini */
+  vvbanco:{ draw(g, p){
+    const { x0, x1, y0, y1, hp } = vzFloorBox(p), [ga, gb] = p.glass, gx0 = x0 + vzM(ga), gx1 = x0 + vzM(gb), base = vzM(0.95);
+    vzShadow(g, x0, x1, y1, 5);
+    g.fillStyle = '#3a2516'; g.fillRect(x0, y1 - base, x1 - x0, base);
+    for (let x = x0 + 3; x + vzM(0.6) < x1; x += vzM(0.68)){ g.fillStyle = '#4c3220'; g.fillRect(x, y1 - base + 4, vzM(0.6), base - 9); g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 0.8; g.strokeRect(x + 2, y1 - base + 6, vzM(0.6) - 4, base - 13); g.fillStyle = 'rgba(255,220,170,.08)'; g.fillRect(x, y1 - base + 4, vzM(0.6), 1); }
+    g.fillStyle = '#c9a54a'; g.fillRect(x0, y1 - vzM(0.14), x1 - x0, 1.6); g.fillStyle = '#7a6030'; for (let x = x0 + 8; x < x1 - 4; x += vzM(1.1)) g.fillRect(x, y1 - vzM(0.14), 1.4, vzM(0.14));
+    /* the marble top */
+    g.fillStyle = '#ece7dc'; g.fillRect(x0 - 3, y0 - base, x1 - x0 + 6, y1 - y0 + 2); g.fillStyle = '#cfc8ba'; g.fillRect(x0 - 3, y1 - base, x1 - x0 + 6, 2.4);
+    g.strokeStyle = 'rgba(120,110,100,.3)'; g.lineWidth = 0.6; { const r = rng(55); for (let k = 0; k < 9; k++){ const vx = x0 + r() * (x1 - x0), vy = y0 - base + r() * (y1 - y0); g.beginPath(); g.moveTo(vx, vy); g.quadraticCurveTo(vx + 8, vy + 3, vx + 16, vy - 1); g.stroke(); } }
+    /* the glass case: two rows of plates under the glass */
+    const top = y1 - hp, back = y0 - hp, r = rng(31), cb = y0 - base;
+    g.fillStyle = 'rgba(248,244,234,.95)'; g.fillRect(gx0, cb, gx1 - gx0, y1 - y0);
+    for (let row = 0; row < 2; row++) for (let x = gx0 + 6, k = row; x < gx1 - 5; x += 10, k++){
+      const yy = cb + 6 + row * 8; g.fillStyle = '#fffdf8'; ell(g, x, yy, 4.6, 2.5); g.fill(); g.strokeStyle = 'rgba(30,60,120,.35)'; g.lineWidth = 0.5; ell(g, x, yy, 4.6, 2.5); g.stroke();
+      const kind = (k + Math.floor(r() * 2)) % 5;
+      for (let q = 0; q < 3; q++){ const qx = x - 2.6 + q * 2.6, qy = yy - 0.4;
+        if (kind === 0){ g.fillStyle = '#d9a45a'; g.fillRect(qx - 1.1, qy - 0.9, 2.3, 1.7); g.fillStyle = '#f6efe0'; g.fillRect(qx - 0.9, qy - 1.9, 1.9, 1.1); }                // crostini, baccalà
+        else if (kind === 1){ g.fillStyle = '#9aa8b0'; ell(g, qx, qy, 1.5, 0.7); g.fill(); g.fillStyle = '#e8c35a'; g.fillRect(qx - 1, qy - 1.2, 2, 0.6); }                       // sarde in saor
+        else if (kind === 2){ g.fillStyle = '#7a3a1e'; circ(g, qx, qy - 0.4, 1.25); g.fill(); g.fillStyle = 'rgba(255,220,170,.4)'; circ(g, qx - 0.4, qy - 0.9, 0.4); g.fill(); }      // polpette
+        else if (kind === 3){ g.fillStyle = '#e8b45a'; g.fillRect(qx - 1.1, qy - 1.6, 2.2, 1.9); g.fillStyle = '#fffdf8'; g.fillRect(qx - 1.1, qy - 0.9, 2.2, 0.5); }               // mozzarella in carrozza
+        else { g.fillStyle = '#d9a45a'; g.fillRect(qx - 1.1, qy - 0.9, 2.3, 1.7); g.fillStyle = '#c23b2a'; g.fillRect(qx - 0.8, qy - 1.7, 1.6, 0.9); g.fillStyle = '#5a8a3a'; g.fillRect(qx - 0.3, qy - 2, 0.6, 0.4); } }
+    }
+    g.fillStyle = 'rgba(205,228,238,.38)'; g.fillRect(gx0, top, gx1 - gx0, hp - base); g.fillStyle = 'rgba(205,228,238,.22)'; g.fillRect(gx0, back, gx1 - gx0, y1 - y0);
+    g.strokeStyle = '#b8b4aa'; g.lineWidth = 1; g.strokeRect(gx0, back, gx1 - gx0, y1 - y0 + hp - base); g.beginPath(); g.moveTo(gx0, top); g.lineTo(gx1, top); g.stroke();
+    g.fillStyle = 'rgba(255,255,255,.45)'; g.fillRect(gx0 + 3, top + 1, gx1 - gx0 - 6, 1.2); g.fillRect(gx0 + 2, back + 2, 1, y1 - y0 - 3);
+    /* the plain end: a bottle of white, ombre, a board of crostini, the toothpicks */
+    const bx = gx1 + vzM(0.3), by = (y0 + y1) / 2 - base;
+    g.fillStyle = '#2e5a2e'; rr(g, bx - 1.6, by - 10, 3.2, 8, 1); g.fill(); g.fillRect(bx - 0.7, by - 13.5, 1.4, 4); g.fillStyle = '#f2ead8'; g.fillRect(bx - 1.5, by - 7, 3, 2.4);
+    [['#f0dc8a', 5], ['#f0dc8a', 9.5], ['#7a1a2a', 14]].forEach(([c, dx]) => { g.fillStyle = 'rgba(230,240,245,.75)'; g.fillRect(bx + dx - 1.4, by - 5, 2.8, 4.5); g.fillStyle = c; g.fillRect(bx + dx - 1.2, by - 3, 2.4, 2.4); });
+    g.fillStyle = '#8a5a33'; g.fillRect(bx + 18, by - 2, vzM(0.4), 3); g.fillStyle = '#d9a45a'; for (let q = 0; q < 3; q++) g.fillRect(bx + 19 + q * 3, by - 3, 2.2, 1.6);
+  } },
+  /* a barrel stood up as a table: oak, iron hoops, a round board on top; ombre and a little plate on it */
+  vvbotte:{ draw(g, p){
+    const { x0, x1, y0, y1, hp } = vzFloorBox(p), cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, rx = (x1 - x0) / 2, ry = rx * 0.55;
+    g.fillStyle = 'rgba(20,10,5,.3)'; ell(g, cx + 2, cy + 2, rx * 1.05, ry); g.fill();
+    g.fillStyle = '#6a3e22'; g.beginPath(); g.moveTo(cx - rx * 0.88, cy); g.quadraticCurveTo(cx - rx * 1.06, cy - hp / 2, cx - rx * 0.88, cy - hp); g.lineTo(cx + rx * 0.88, cy - hp); g.quadraticCurveTo(cx + rx * 1.06, cy - hp / 2, cx + rx * 0.88, cy); g.closePath(); g.fill();
+    g.fillStyle = 'rgba(30,12,4,.3)'; for (let k = -3; k <= 3; k++) g.fillRect(cx + k * rx * 0.27 - 0.4, cy - hp, 0.8, hp);
+    g.fillStyle = 'rgba(30,12,4,.28)'; g.fillRect(cx + rx * 0.35, cy - hp, rx * 0.6, hp); g.fillStyle = 'rgba(255,210,160,.12)'; g.fillRect(cx - rx * 0.7, cy - hp, rx * 0.25, hp);
+    g.fillStyle = '#2b2b2b'; for (const f of [0.12, 0.38, 0.68, 0.9]) g.fillRect(cx - rx * 1.0, cy - hp * f - 1.1, 2 * rx, 2.2);
+    /* the board, a bit wider than the barrel */
+    g.fillStyle = '#3e2616'; ell(g, cx, cy - hp + 1.6, rx * 1.12, ry * 1.05); g.fill(); g.fillStyle = '#7a4c2a'; ell(g, cx, cy - hp, rx * 1.12, ry * 1.05); g.fill();
+    g.strokeStyle = 'rgba(40,20,8,.35)'; g.lineWidth = 0.6; for (let k = -2; k <= 2; k++){ g.beginPath(); g.moveTo(cx - rx, cy - hp + k * ry * 0.35); g.lineTo(cx + rx, cy - hp + k * ry * 0.35); g.stroke(); }
+    g.fillStyle = 'rgba(230,240,245,.78)'; g.fillRect(cx - 5.5, cy - hp - 6, 2.6, 4.8); g.fillRect(cx + 3, cy - hp - 5, 2.6, 4.8); g.fillStyle = '#7a1a2a'; g.fillRect(cx - 5.3, cy - hp - 3.8, 2.2, 2.4); g.fillStyle = '#f0dc8a'; g.fillRect(cx + 3.2, cy - hp - 2.8, 2.2, 2.4);
+    g.fillStyle = '#fffdf8'; ell(g, cx - 0.5, cy - hp + 2.5, 3.8, 1.7); g.fill(); g.fillStyle = '#7a3a1e'; circ(g, cx - 1.8, cy - hp + 2.1, 1.1); g.fill(); circ(g, cx + 0.7, cy - hp + 2.5, 1.1); g.fill();
+  } },
+  /* the house wine: barrels lying on a rack, their ends to you, a tap in each; chalked */
+  vvbotti:{ draw(g, p){
+    const { x0, x1, y0, y1, hp } = vzFloorBox(p), w = x1 - x0, rad = w * 0.23, dep = (y1 - y0) * 0.75;
+    vzShadow(g, x0, x1, y1, 4);
+    /* the cradle: two beams on short legs */
+    g.fillStyle = '#24170e'; g.fillRect(x0 + 1, y1 - vzM(0.3), 2.5, vzM(0.3)); g.fillRect(x1 - 3.5, y1 - vzM(0.3), 2.5, vzM(0.3));
+    g.fillStyle = '#3a2616'; g.fillRect(x0, y1 - vzM(0.32), w, vzM(0.1)); g.fillStyle = '#4e3420'; g.fillRect(x0, y1 - vzM(0.32), w, 1.2);
+    const ends = [[0.26, 0, 'Raboso'], [0.74, 0, 'Merlot'], [0.5, 1, 'Bianco']];
+    for (const [fx, row, lab] of ends){
+      const ex = x0 + w * fx, ey = y1 - vzM(0.32) - rad - row * rad * 1.7;
+      /* the barrel's body going back (its top, seen from above), then its end */
+      g.fillStyle = '#7a4a28'; rr(g, ex - rad, ey - dep, 2 * rad, dep, rad * 0.5); g.fill();
+      g.fillStyle = 'rgba(255,210,160,.14)'; g.fillRect(ex - rad * 0.6, ey - dep + 1, rad * 0.35, dep - 2);
+      g.fillStyle = '#2b2b2b'; g.fillRect(ex - rad, ey - dep * 0.3, 2 * rad, 1.4); g.fillRect(ex - rad, ey - dep * 0.72, 2 * rad, 1.4);
+      g.fillStyle = '#5e3a20'; circ(g, ex, ey, rad); g.fill(); g.strokeStyle = '#242424'; g.lineWidth = 1.4; circ(g, ex, ey, rad - 0.7); g.stroke();
+      g.strokeStyle = 'rgba(30,12,4,.4)'; g.lineWidth = 0.5; for (let k = -2; k <= 2; k++){ const yy = ey + k * rad * 0.36, hw = Math.sqrt(Math.max(0, rad * rad - (yy - ey) ** 2)); g.beginPath(); g.moveTo(ex - hw + 1.2, yy); g.lineTo(ex + hw - 1.2, yy); g.stroke(); }
+      g.fillStyle = 'rgba(250,245,235,.85)'; g.font = '600 2.5px "Titillium Web", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(lab, ex, ey - rad * 0.32);
+      g.fillStyle = '#c9a54a'; g.fillRect(ex - 0.7, ey + rad * 0.3, 1.4, rad * 0.45); g.fillRect(ex - 1.7, ey + rad * 0.7, 3.4, 1.1);
+    }
+    g.textAlign = 'left'; g.textBaseline = 'alphabetic';
+  } },
+  /* a small table under a checked cloth, a candle in an old bottle, someone's ombre */
+  vvtavolo:{ draw(g, p, R, t){
+    const { x0, x1, y0, y1, hp } = vzFloorBox(p), cx = (x0 + x1) / 2, ty = (y0 + y1) / 2 - hp, drop = vzM(0.22);
+    vzShadow(g, x0, x1, y1, 3);
+    g.fillStyle = '#2e1d12'; for (const lx of [x0 + 2, x1 - 4]){ g.fillRect(lx, y1 - hp, 2, hp); }
+    /* the cloth: its top (a small red check on white), and its front hanging down in shade */
+    const sq = vzM(0.09);
+    g.save(); g.beginPath(); g.rect(x0 - 1.5, y0 - hp, x1 - x0 + 3, y1 - y0 + drop); g.clip();
+    g.fillStyle = '#f4eee2'; g.fillRect(x0 - 1.5, y0 - hp, x1 - x0 + 3, y1 - y0 + drop);
+    for (let y = y0 - hp, j = 0; y < y1 - hp + drop; y += sq, j++) for (let x = x0 - 1.5, i = 0; x < x1 + 1.5; x += sq, i++){ const c = (i % 2) + (j % 2); if (c){ g.fillStyle = c === 2 ? 'rgba(170,36,34,.85)' : 'rgba(190,60,56,.45)'; g.fillRect(x, y, sq, sq); } }
+    g.restore();
+    g.fillStyle = 'rgba(30,10,5,.38)'; g.fillRect(x0 - 1.5, y1 - hp, x1 - x0 + 3, drop); g.fillStyle = 'rgba(30,10,5,.25)'; g.fillRect(x0 - 1.5, y1 - hp + drop - 1, x1 - x0 + 3, 1);
+    g.fillStyle = 'rgba(255,255,255,.3)'; g.fillRect(x0 - 1.5, y0 - hp, x1 - x0 + 3, 1); g.fillStyle = 'rgba(0,0,0,.18)'; g.fillRect(x0 - 1.5, y1 - hp - 0.8, x1 - x0 + 3, 0.8);
+    /* the candle in its bottle (wax down its neck), the ombre, a plate */
+    const bx = cx + 0.5, by = ty - 1;
+    g.fillStyle = '#1f3a24'; rr(g, bx - 1.9, by - 7, 3.8, 7, 1.2); g.fill(); g.fillRect(bx - 0.8, by - 10, 1.6, 3.5);
+    g.fillStyle = '#efe4c8'; g.fillRect(bx - 0.9, by - 13, 1.8, 3.4); g.fillRect(bx - 1.3, by - 10.2, 2.6, 1.2); g.fillRect(bx + 0.6, by - 9.6, 0.8, 3); g.fillRect(bx - 1.4, by - 9.4, 0.7, 2.2);
+    const fl = RM ? 0 : Math.sin(t * 9 + p.x * 3) * 0.4; g.fillStyle = '#ffd46a'; ell(g, bx + fl * 0.3, by - 14.6, 0.9, 1.7 + fl * 0.3); g.fill(); g.fillStyle = '#fff6d8'; ell(g, bx + fl * 0.3, by - 14.2, 0.4, 0.8); g.fill();
+    g.fillStyle = 'rgba(230,240,245,.78)'; g.fillRect(x0 + 2.5, ty - 3, 2.6, 4.5); g.fillRect(x1 - 5.5, ty - 2, 2.6, 4.5); g.fillStyle = '#7a1a2a'; g.fillRect(x0 + 2.7, ty - 1.2, 2.2, 2.2); g.fillStyle = '#f0dc8a'; g.fillRect(x1 - 5.3, ty - 0.2, 2.2, 2.2);
+    g.fillStyle = '#fffdf8'; ell(g, cx - 3, ty + 3, 3.6, 1.7); g.fill(); g.fillStyle = '#d9a45a'; g.fillRect(cx - 5, ty + 2.2, 2, 1.3); g.fillRect(cx - 2.6, ty + 2.4, 2, 1.3);
+  } },
+  /* a pendant lamp hung from the beams: the flex, a green enamel shade, the bulb lit */
+  vvlampada:{ draw(g, p, R){
+    const cx = R.X(p.x + p.w / 2), fy = R.Y(p.y + p.d / 2), sb = fy - vzM(p.h), st = sb - vzM(0.2), ceil = fy - vzM(R.wall);
+    g.strokeStyle = '#141010'; g.lineWidth = 0.9; g.beginPath(); g.moveTo(cx, ceil); g.lineTo(cx, st); g.stroke();
+    g.fillStyle = '#1f3a2c'; g.beginPath(); g.moveTo(cx - 1.4, st); g.lineTo(cx + 1.4, st); g.lineTo(cx + 5.2, sb); g.lineTo(cx - 5.2, sb); g.closePath(); g.fill();
+    g.fillStyle = '#2f5a44'; g.fillRect(cx - 5.2, sb - 1, 10.4, 1);
+    g.fillStyle = '#fff2c8'; ell(g, cx, sb + 0.4, 3.2, 1.3); g.fill();
+  } },
+  /* a lantern on an iron arm over the calle, by the door */
+  vvlanterna:{ draw(g, p, R){
+    const cx = R.X(p.x + p.w / 2), wy = R.Y(VV_DOOR_M.wall + 0.2), ly = R.Y(VV_DOOR_M.calle + 0.22), on = vvLit();
+    g.strokeStyle = '#1a1816'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(cx, wy); g.lineTo(cx, ly - 4); g.stroke(); g.lineWidth = 0.7; g.beginPath(); g.moveTo(cx - 2.5, wy); g.quadraticCurveTo(cx - 3, ly - 7, cx, ly - 5); g.stroke();
+    g.fillStyle = 'rgba(0,0,0,.3)'; ell(g, cx + 1.5, ly + 5, 3.8, 1.4); g.fill();
+    g.fillStyle = '#1a1816'; g.beginPath(); g.moveTo(cx - 3.6, ly - 3); g.lineTo(cx + 3.6, ly - 3); g.lineTo(cx, ly - 6); g.closePath(); g.fill();
+    g.fillStyle = on > 0.05 ? `rgba(255,${200 + 30 * on},${110 + 60 * on},${0.45 + 0.5 * on})` : 'rgba(150,160,170,.6)'; g.fillRect(cx - 2.8, ly - 3, 5.6, 6.5);
+    g.strokeStyle = '#1a1816'; g.lineWidth = 0.8; g.strokeRect(cx - 2.8, ly - 3, 5.6, 6.5); g.beginPath(); g.moveTo(cx, ly - 3); g.lineTo(cx, ly + 3.5); g.stroke();
+    g.fillStyle = '#1a1816'; g.fillRect(cx - 3.4, ly + 3.5, 6.8, 1.2);
+  } },
+});
+/* the lanterns along the calle: lit once Margaret has her table ("Outside, the lamps come on along the calle"), eased over 2.5 s; lit on any later visit */
+function vvLit(){
+  const R = vvPeek() || {};
+  if (R.step === 'cena' && !R.table) return 0;
+  if (!VV.litAt) return 1;
+  const k = Math.min(1, (performance.now() - VV.litAt) / (RM ? 1 : 2500)); return k * k * (3 - 2 * k);
+}
+/* ---------- the light: the evening inside and in the calle, the lamps, the candles, the lanterns ---------- */
+function vvRoomLight(){
+  const R = VZ_ROOMS[VV_ROOM], g = ctx, a = vzSunAmount(), L = 0.6 + 0.4 * a, D = VV_DOOR_M, fy = R.Y(D.wall), cy = R.Y(D.calle), lit = vvLit();
+  g.save();
+  /* the evening: the room dimmer and warmer, the calle in the blue of the dusk */
+  g.globalCompositeOperation = 'multiply';
+  g.globalAlpha = 0.3 + 0.45 * a; g.fillStyle = '#a8784e'; g.fillRect(0, 0, R.pxW, cy);
+  g.globalAlpha = a * 0.8; g.fillStyle = '#5c6898'; g.fillRect(0, cy, R.pxW, R.pxH - cy);
+  g.globalCompositeOperation = 'source-over';
+  { const vg = g.createRadialGradient(R.X(R.w / 2), R.Y(2.8), vzM(2.5), R.X(R.w / 2), R.Y(2.8), vzM(8)); vg.addColorStop(0, 'rgba(18,8,2,0)'); vg.addColorStop(1, `rgba(18,8,2,${0.18 + 0.22 * a})`); g.globalAlpha = 1; g.fillStyle = vg; g.fillRect(0, 0, R.pxW, cy); }
+  /* the light: pools under the lamps, on the wall behind them; the candles; the doorway's spill into the calle; the lanterns */
+  g.globalCompositeOperation = 'lighter';
+  const pool = (x, y, r, col, sy = 1) => { g.save(); g.translate(x, y); g.scale(1, sy); const gr = g.createRadialGradient(0, 0, 0, 0, 0, r); gr.addColorStop(0, col); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(-r, -r, 2 * r, 2 * r); g.restore(); };
+  for (const p of R.props){
+    const cx = R.X(p.x + p.w / 2), py = R.Y(p.y + p.d / 2);
+    if (p.kind === 'vvlampada'){ pool(cx, py, vzM(2.4), `rgba(255,165,75,${0.26 * L})`, 0.7); pool(cx, py - vzM(p.h) + 1, vzM(0.9), `rgba(255,220,150,${0.45 * L})`); pool(cx, R.Y(0) - vzM(1.4), vzM(1.6), `rgba(255,180,100,${0.10 * L})`); }
+    if (p.kind === 'vvtavolo'){ pool(cx + 0.5, py - vzM(p.h) - 14, vzM(0.75), `rgba(255,190,90,${0.35 * L})`); pool(cx, py - vzM(p.h), vzM(1.1), `rgba(255,170,80,${0.12 * L})`, 0.6); }
+    if (p.kind === 'vvbanco'){ pool(R.X(p.x + 1.8), R.Y(p.y) - vzM(0.9), vzM(1.6), `rgba(255,236,200,${0.10 * L})`, 0.5); }
+    if (p.kind === 'vvlanterna' && lit > 0.01){ const ly = R.Y(D.calle + 0.22); pool(cx, ly, vzM(0.7), `rgba(255,215,140,${0.55 * lit})`); pool(cx, ly + vzM(0.55), vzM(2.1), `rgba(255,170,80,${0.42 * lit * (0.4 + 0.6 * a)})`, 0.55); }
+  }
+  /* the doorway's warm spill onto the calle */
+  { const dx0 = R.X(D.x0), dx1 = R.X(D.x1), gr = g.createLinearGradient(0, cy, 0, R.Y(R.d)); gr.addColorStop(0, `rgba(255,170,90,${0.28 * a})`); gr.addColorStop(1, 'rgba(255,170,90,0)');
+    g.fillStyle = gr; g.beginPath(); g.moveTo(dx0, fy); g.lineTo(dx1, fy); g.lineTo(dx1 + vzM(0.7), R.Y(R.d)); g.lineTo(dx0 - vzM(0.7), R.Y(R.d)); g.closePath(); g.fill(); }
+  g.restore();
+}
+function vvRoomBack(){
+  vzFrame();
+  const R = VZ_ROOMS[VV_ROOM];
+  ctx.fillStyle = '#14100c'; ctx.fillRect(cam.x - 4, cam.y - 4, viewW() + 8, viewH() + 8);
+  ctx.drawImage(vvRoomBg(), 0, 0, R.pxW, R.pxH);
+}
+SCENE_ART[VV_ROOM] = { back:vvRoomBack, ents:vzRoomEnts, base:() => vvRoomBg(), night:vvRoomLight };
 
 /* ===== units/venezia/tree/d3-a/render.js ===== */
 /* District 3 · branch A: the branch's drawing (render phase: its places' art, a SCENE_ART for a new room's extras). Empty until the builder adds it. */
