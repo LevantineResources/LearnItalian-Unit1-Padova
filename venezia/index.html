@@ -295,6 +295,8 @@ ul.albero li.lv-2 > ul{padding-top:46px}
 .al-lead{position:absolute;right:100%;top:0;bottom:0;display:flex;align-items:center}
 .al-lead-n{display:flex}
 .al-lead-link{display:block;width:26px;height:0;border-top:2px solid var(--cobalto)}
+.al-trail{position:absolute;left:100%;top:0;bottom:0;display:flex;align-items:center}
+.al-trail .al-lead-link.tl-locked{border-top-color:rgba(28,61,143,.3)}
 .al-lead-n.tl-locked + .al-lead-link{border-top-color:rgba(28,61,143,.3)}
 ul.albero li.lv-2 > ul::before{height:46px}
 .al-wrap{position:relative}
@@ -393,7 +395,7 @@ ul.albero li.lv-2 > ul::before{height:46px}
   ul.albero ul, ul.albero li.lv-2 > ul{padding:0 0 0 16px;margin-left:12px}
   ul.albero li{display:block;padding:10px 0 0}
   ul.albero > li{padding-top:0}
-  .al-core{display:block} .al-lead{position:static;display:block} .al-lead-n{display:block;margin-bottom:10px} .al-lead-link{display:none}
+  .al-core{display:block} .al-lead{position:static;display:block} .al-lead-n{display:block;margin-bottom:10px} .al-trail{position:static;display:block} .al-trail .al-lead-n{margin:10px 0 0} .al-lead-link{display:none}
   ul.albero li::before, ul.albero li::after, ul.albero ul::before{display:none}
   ul.albero ul > li::after{display:block;content:'';position:absolute;left:-16px;top:0;bottom:0;width:0;height:auto;border:0;border-left:2px solid var(--al-line);border-radius:0;margin:0}
   ul.albero ul > li:last-child::after{bottom:auto;height:34px}
@@ -13206,7 +13208,11 @@ Object.assign(window.__debug, { boardTap:name => boardClick(name, 'tap'), boardT
      main lesson n; its words are then the chapter's Vocabolario once it has one) | lessonNo? (n: a core node that will be lesson n, while the
      lesson isn't built: drawn as Lezione n, done in the save like any node) | quest? (a quest id: done when the quest is),
      continues? (a node of an earlier district: part 2 opens only once part 1 is done), soon? (true or html: "Coming soon", its task
-     is not written yet), placeholder? (true: a stand-in for the designer's later content) }.
+     is not written yet), placeholder? (true: a stand-in for the designer's later content), needs? (a function → an English line (html) while
+     the node must wait for something that is not a node, else falsy: a lock of its own, kind 'needs'; Venezia's Lesson 8 waits for the islands),
+     trail? (a core node without branches drawn in a row AFTER the core node with them: ui/tree.js; a district's last lesson) }.
+   A district may have gate? (a function (D) → { done, total, open, ids, pips?:[{ title, on }], note? (html) }: its own rule for the gate in
+     place of levels 1–2; Venezia's District 4: two nodes done on each island).
    The rules (treeLint(), tests/venezia/tree.js): unique ids; a strict chain (every parent exists, in the same district, one level up);
    depth ≤ TREE_MAX_DEPTH; continues names a node of an earlier district; sibling branches share no words.
 
@@ -13244,6 +13250,7 @@ function treeLockedBy(n){
   else if (!dz && !treeDistrictOpen(n.district)){ const i = TREE.findIndex(D => D.id === n.district); return { kind:'district', district:TREE[i - 1] || null }; }
   if (n.continues){ const c = treeNode(n.continues); if (!treeIsDone(c)) return { kind:'continues', node:c }; }
   if (!dz && n.lesson && S.lesson < n.lesson) return { kind:'lesson', n:n.lesson };
+  if (!dz && typeof n.needs === 'function'){ let w = null; try { w = n.needs(n); } catch (e){ w = null; } if (w) return { kind:'needs', line:String(w) }; }
   return null;
 }
 function treeState(id){ const n = typeof id === 'string' ? treeNode(id) : id; if (!n) return null; return treeIsDone(n) ? 'done' : treeLockedBy(n) ? 'locked' : 'open'; }
@@ -13253,6 +13260,7 @@ function treeDistrictOpen(id){ if (designerSkip('open')) return true; const i = 
 /* the gate: levels 1 and 2 of a district → { done, total, open, ids } */
 function treeGate(id){
   const D = treeDistrict(id); if (!D) return null;
+  if (typeof D.gate === 'function'){ const g = D.gate(D); if (g) return g; }      // (a district's own rule: core/tree.js above)
   const ns = D.nodes.filter(n => n.depth <= TREE_GATE_DEPTH), done = ns.filter(treeIsDone).length;
   return { done, total:ns.length, open:ns.length > 0 && done === ns.length, ids:ns.map(n => n.id) };
 }
@@ -13481,11 +13489,11 @@ function renderTree(){
   const g = treeGate(D.id), roots = D.nodes.filter(n => !n.parent);
   /* several core nodes (a district's lessons: Venezia's District 2, Lessons 4 and 5): those without branches are drawn in a row before the one
      with them, joined by a line (the branches hang under the last) */
-  const lead = roots.filter(n => !treeChildren(n.id).length), main = roots.filter(n => treeChildren(n.id).length);
-  const rootsHTML = lead.length && main.length === 1 ? treeLi(main[0], lead) : roots.map(n => treeLi(n)).join('');
+  const lead = roots.filter(n => !treeChildren(n.id).length && !n.trail), trail = roots.filter(n => !treeChildren(n.id).length && n.trail), main = roots.filter(n => treeChildren(n.id).length);
+  const rootsHTML = (lead.length || trail.length) && main.length === 1 ? treeLi(main[0], lead, trail) : roots.map(n => treeLi(n)).join('');
   const chips = TREE.length > 1 ? `<div class="al-districts" role="group" aria-label="Districts">${TREE.map((x, i) => { const on = treeDistrictOpen(x.id);
     return `<button data-al-district="${x.id}" aria-pressed="${x.id === D.id}" ${on ? '' : 'disabled title="Opens at the gate of the district before"'}>${i + 1} · ${esc(x.title)}${on ? '' : ' ' + TREE_LOCK}</button>`; }).join('')}</div>` : '';
-  const pips = g.ids.map(id => `<i class="${treeIsDone(treeNode(id)) ? 'on' : ''}" title="${esc(treeNode(id).title)}"></i>`).join('');
+  const pips = (g.pips || g.ids.map(id => ({ on:treeIsDone(treeNode(id)), title:treeNode(id).title }))).map(q => `<i class="${q.on ? 'on' : ''}" title="${esc(q.title)}"></i>`).join('');
   const nextName = D.next ? `<i>${esc(D.next)}</i>` : 'the next district';
   sheet.innerHTML = `
     ${hbHead({ title:`L'albero · <em>${esc(D.title)}</em>`, tabs:hbTabs() })}
@@ -13495,7 +13503,7 @@ function renderTree(){
       ${chips}
       <div class="al-gate${g.open ? ' met' : ''}">
         <div class="al-gate-row"><b class="al-gate-t">Per il prossimo sestiere: ${g.done}/${g.total}</b><span class="al-pips" aria-hidden="true">${pips}</span></div>
-        <p class="note">${g.open ? `<b>Gate met!</b> ${nextName} can open. The deeper nodes here stay open for you.`
+        <p class="note">${g.note ? g.note : g.open ? `<b>Gate met!</b> ${nextName} can open. The deeper nodes here stay open for you.`
           : `Finish levels 1 and 2 (the lesson at the top and the nodes right under it) to open ${nextName}. The deeper nodes stay open after that.`}</p>
         ${unitHook('treeGateNote', D, g) || ''}
       </div>
@@ -13536,10 +13544,12 @@ function treeGateLine(){
   let best = [0, 0]; for (let i = 1; i < edges.length; i++) if (edges[i] - edges[i - 1] > best[1] - best[0]) best = [edges[i - 1], edges[i]];
   const sp = el.firstChild; sp.style.left = Math.round((best[0] + best[1]) / 2 - sp.offsetWidth / 2) + 'px';
 }
-function treeLi(n, lead = []){
+/* lead: core nodes drawn in a row before n (District 2's Lesson 4); trail: after it (a district's last lesson, node.trail: Venezia's Lesson 8) */
+function treeLi(n, lead = [], trail = []){
   const kids = treeChildren(n.id), st = treeState(n);
-  const card = lead.length ? `<div class="al-core"><span class="al-lead">${lead.map(x => `<span class="al-lead-n tl-${treeState(x)}">${treeCard(x)}</span><i class="al-lead-link" aria-hidden="true"></i>`).join('')}</span>${treeCard(n)}</div>` : treeCard(n);
-  return `<li class="tl-${st} lv-${n.depth}">${card}${kids.length ? `<ul>${kids.map(treeLi).join('')}</ul>` : ''}</li>`;
+  const tr = trail.length ? `<span class="al-trail">${trail.map(x => `<i class="al-lead-link tl-${treeState(x)}" aria-hidden="true"></i><span class="al-lead-n tl-${treeState(x)}">${treeCard(x)}</span>`).join('')}</span>` : '';
+  const card = lead.length || trail.length ? `<div class="al-core">${lead.length ? `<span class="al-lead">${lead.map(x => `<span class="al-lead-n tl-${treeState(x)}">${treeCard(x)}</span><i class="al-lead-link" aria-hidden="true"></i>`).join('')}</span>` : ''}${treeCard(n)}${tr}</div>` : treeCard(n);
+  return `<li class="tl-${st} lv-${n.depth}">${card}${kids.length ? `<ul>${kids.map(k => treeLi(k)).join('')}</ul>` : ''}</li>`;
 }
 function treeMeter(n, cls = ''){
   const s = treeStrength(n); if (!s) return '';
@@ -13606,6 +13616,7 @@ function renderTreePanel(){
     const why = treeLockedBy(n);
     const line = why.kind === 'parent' ? `Opens when you finish <b><i>${esc(why.node.title)}</i></b>, the node above it (Livello ${why.node.depth}).`
       : why.kind === 'continues' ? `Part 2: opens once you have done <b><i>${esc(why.node.title)}</i></b>${treeDistrict(why.node.district) ? ` (${esc(treeDistrict(why.node.district).title)})` : ''}.`
+      : why.kind === 'needs' ? why.line
       : why.kind === 'lesson' ? `Opens with <b>Lezione ${why.n}${LESSONS[why.n - 1] ? ` · <i>${esc(LESSONS[why.n - 1].title)}</i>` : ''}</b>${why.n > 1 ? `, after Lezione ${why.n - 1}` : ''}.`
       : `Opens at the gate of ${why.district ? `<b>${esc(why.district.title)}</b>` : 'the district before'}: levels 1 and 2 done there.`;
     const go = why.node ? `<button class="btn primary" data-al-go="${esc(why.node.id)}">Go to <i>${esc(why.node.title)}</i></button>` : '';
@@ -31376,7 +31387,8 @@ d2cReg('fine', {
                                             (the tree's first three-way fork: every path playable, a new postcard for each)
      C · Il nipote timido (Ester, Davide)   d3-c2 Davide → d3-c3a Le amiche → d3-c4a Il coraggio
                                                          → d3-c3b Il biglietto                                                  ending d3-c-fine (la Festa della Salute)
-   The gate to District 4 (engine treeGate: levels 1–2): v6, d3-a2, d3-b2, d3-c2; the Albero's note says it as "the branches' first nodes: x of 3".
+   The gate to District 4 (engine treeGate: levels 1–2): v6, d3-a2, d3-b2, d3-c2; the Albero's note says it as "the branches' first nodes: x of 3"; met, it
+   leads to District 4's way in (tree-d4.js D4_STORY.via: Margaret by the hotel, then the Giudecca).
    Before it, District 2's closing scene, La vera Venezia (story/d2-cena/: a stub too), opens Cannaregio.
    A node not built yet has soon:true: its pin is on the map where it starts (node.start), and starting it (its person, its door, or E at its spot)
    says "Coming soon" (D3_SOON_HOOKS below). A builder sets soon:false and gives the node its own hooks, words, study, script.
@@ -31562,7 +31574,7 @@ function d3Bridges(){
     const x = D3_GATE_NODES.filter(d3Done).length, v6 = treeNode('v6'), L = d3Done('v6');
     const ns = D3_GATE_NODES.map(id => { const n = treeNode(id); return n ? `<i>${esc(n.title)}</i>${d3Done(id) ? ' ✓' : ''}` : ''; }).filter(Boolean).join(', ');
     return `<p class="note d3-gate"><b>Per il quarto sestiere</b> (District 4): Lesson 6${L ? ' ✓' : v6 && v6.soon ? ' (coming soon)' : ''}, and the first node of each branch:
-      <b class="d3-gate-x">${x} of 3</b> (${ns}).${g && g.open ? ' <b>Gate met.</b> District 4 is still to be sketched: <b>coming soon</b>.' : ''}</p>`;
+      <b class="d3-gate-x">${x} of 3</b> (${ns}).${g && g.open ? ` <b>Gate met.</b> District 4 opens: <i>La Giudecca e le isole</i>, by <i>La via per la Giudecca</i> (Margaret has an idea: see her by the hotel)${typeof D4_STORY === 'object' && D4_STORY.via.soon ? ': <b>coming soon</b>' : ''}.` : ''}</p>`;
   }; }
 
 /* ---------- tests and the builders: __dbg().d3, __debug.d3Go(id) (you beside a node's start, in its district), d3Start(id) (started, as the player would:
@@ -39676,6 +39688,625 @@ document.addEventListener('click', e => {
   toast('<b>Designer</b> · La vera Venezia marked complete: Cannaregio is open, Lezione 6 under way.'); if (typeof treeRefresh === 'function') treeRefresh();
 }, true);
 
+/* ===== units/venezia/tree-d4.js ===== */
+/* Unit 2 · Venezia: District 4's tree and story, the FRAME (La Giudecca e le isole · Domani). The design: docs/lessons/venezia/scripts/d4/ (00-overview.md
+   with the designer's answers of 26–27 Nov, rounds 1 and 2; one script per piece); the builders' guide: docs/lessons/venezia/scripts/d4/BUILD.md. This file is
+   shared and final: the builders never edit it (nor unit.json, world/d4places.js), as District 3's tree-d3.js.
+
+   The district's pieces, in story order:
+     a1 · La via per la Giudecca (story/d4-via/)       due with District 3's gate: Margaret at the hotel (a stub here: D4_STORY.via) → vzOpenDistrict('giudecca')
+     v7 · Lezione 7 · Domani (lessons/07-domani/)      the core: the yard at the Giudecca's west tip, Fosca (a stub node until LESSON_HOOKS[7] exists)
+        a2 · Il cantiere (story/d4-cantiere/)        the yard, its people, the fetch mission F1–F4 (Lesson 7's step `giro`): no stub of its own
+     a3 · Il giro in barca (story/d4-giro/)            due when v7 is done: the sailing game, then the Fortuna is yours (a stub here: D4_STORY.giro) → the islands open
+     the islands (tree/d4-sg…, d4-se…, d4-li…)        three branches under v7, twelve activities, all stubs; each island done with TWO done nodes (need:2)
+     v8 · Lezione 8 · Arrivederci, Venezia             the second core node, drawn after v7 (trail); opens when all three islands are done (needs)
+   The tree (TREE district 4):
+     v7 ──┬─ San Giorgio  d4-sg-labirinto · d4-sg-campanile · d4-sg-teatro · d4-sg-caffe            (level 2, siblings, any order)
+          ├─ Sant'Elena   d4-se-calcio · d4-se-campane · d4-se-osteria ── d4-se-partita (level 3)  (the match: the osteria's child)
+          └─ il Lido      d4-li-viale · d4-li-spiaggia · d4-li-gelateria · d4-li-cinema
+     v8 (trail: after v7 in the row; needs the three islands)
+   The gate (D4_TREE.gate: the engine's per-district rule, in place of levels 1–2): each island two of its nodes done, at any level (D4_ISLES[id].need).
+   The islands are reached only by the Fortuna (d4SailTo / d4SailBack: a fade and vzGoDistrict to the island's dock, Margaret and Biscuit with you); leaving
+   an island needs Margaret's Part B (d4CanLeave); from the islands the Giudecca only once all three are done (Fosca's rule: d4SailCheck).
+
+   API (BUILD.md has the details): d4Node(spec), d4Placeholder(spec), d4Door(spec), d4Done(id), d4Pending(id), d4Begin(id), d4Claims(npc), d4Wants(npc), d4Soon(id),
+   d4Isle(id), d4IsleNodes(id), d4IsleCount(id, done?), d4IsleDone(id, done?), d4IslesDone(done?), d4IslesCount(), d4Passed(piece), d4Set(piece, value), d4Follow(on),
+   d4Following(), d4Scarf(on?), d4SailTo(isle, o), d4SailBack(o), d4SailCheck(to), d4SailOptions(), d4SailSheet(), d4CanLeave(isle), d4DockSpot(vzd), d4LmSpot, d4PtSpot,
+   d4Rec(); __dbg().d4; __debug.d4Go(id), d4Start(id), d4Sail(to, o), d4Set(o), d4Isles(), d4Talk(id).
+   Saved: S.d4 = { via, cantiere, giro, l8 (each piece's state: the frame reads only 'soon' (a stub passed) and 'done'), isles:{ sangiorgio, santelena, lido }
+   (each { landed, visits, partA, partB }: the island builders'), scarf, follow, at (the city the Fortuna left you in), soon:{ id:n }, pointed, told }. */
+const D4_SCRIPTS = 'docs/lessons/venezia/scripts/d4/';
+const D4_TREE = {
+  id:4, title:'La Giudecca e le isole', sub:'Domani · plans for tomorrow: the future (andrò, farò, sarà), se + present → future, the conditional as polite chunks (potrei, mi piacerebbe)', next:'Roma',
+  nodes:[
+    /* the core: Lesson 7 (a stub until the lesson is built: lessonNo, drawn as Lezione 7, done in the save) */
+    { id:'v7', lessonNo:7, depth:1, parent:null, title:'Domani', en:'A boat for the islands: Fosca’s yard, the week ahead, the things the yard needs (the future)',
+      person:{ name:'La signora Fosca', npc:'d4-fosca' }, place:{ name:'il Cantiere Fortunato, Giudecca', vzd:'giudecca', point:'poi-p5', labelAt:[-40, -16] },
+      start:{ name:'the boatyard at the Giudecca’s west tip', who:'Fosca', npc:'d4-fosca', vzd:'giudecca',
+        line:{ it:'Buongiorno! Lei è l’amico di Alvise? Venga, venga!', en:'Good morning! Are you Alvise’s friend? Come in, come in!', gloss:{ venga:'come (polite)' } } },
+      where:'Lezione 7 starts at the <b>Cantiere Fortunato</b>, the boatyard at the Giudecca’s west tip, after <i>La via per la Giudecca</i> (line 2 to the Molino Stucky, then west along the fondamenta).',
+      soon:'Lezione 7 is still being written: the yard’s owner says so.' },
+    /* the second core node: Lesson 8 (drawn after Lesson 7 in a row: trail; it waits for the three islands: needs) */
+    { id:'v8', lessonNo:8, depth:1, parent:null, trail:true, title:'Arrivederci, Venezia', en:'The boat given back, the hotel, the Grand Canal one last time, the station: where next? (a review)',
+      person:{ name:'Margaret e Biscuit', npc:'margaret' }, place:{ name:'la stazione di Santa Lucia', vzd:'giudecca', point:'poi-p5', labelAt:[-50, -16] },
+      start:{ name:'the boatyard, back from the islands', who:'Fosca', npc:'d4-fosca', vzd:'giudecca',
+        line:{ it:'Bentornati! Allora, com’è andata?', en:'Welcome back! So, how did it go?', gloss:{ bentornati:'welcome back' } } },
+      needs:() => d4IslesDone() ? null : `Opens when you are back from <b>the three islands</b>: two things done on each (${d4IslesLine()}).`,
+      where:'Lezione 8 starts back at the <b>boatyard</b> on the Giudecca once the three islands are done: the boat given back, then the hotel, line 1 up the Grand Canal and the station.',
+      soon:'Lezione 8 is still being written.' },
+  ],
+};
+TREE.push(D4_TREE);
+VZ_TREE_VZD[4] = 'giudecca';
+/* Lessons 7 and 8 built (their hooks registered: lessons load before this file): the lesson's own node, as Lesson 6 is District 3's */
+if (LESSON_HOOKS[7] && LESSONS[6]){ const n = D4_TREE.nodes.find(x => x.id === 'v7'); n.lesson = 7; delete n.lessonNo; delete n.start; n.soon = false; }
+if (LESSON_HOOKS[8] && LESSONS[7]){ const n = D4_TREE.nodes.find(x => x.id === 'v8'); n.lesson = 8; delete n.lessonNo; delete n.start; n.soon = false; }
+
+/* the islands (the branches): their city district (VZ_DISTRICT), their short key (node ids d4-<key>-…), the rule (need: done nodes at any level), the dock */
+const D4_ISLES = {
+  sangiorgio:{ id:'sangiorgio', key:'sg', name:'San Giorgio', title:'San Giorgio Maggiore', need:2, save:'d4sg', doc:'i1-san-giorgio', dock:{ point:'poi-p4', name:'la darsena' } },
+  santelena:{ id:'santelena', key:'se', name:"Sant'Elena", title:"Sant'Elena", need:2, save:'d4se', doc:'i2-sant-elena', dock:{ stop:'santelena', name:'la riva' } },
+  lido:{ id:'lido', key:'li', name:'il Lido', title:'Il Lido', need:2, save:'d4li', doc:'i3-lido', dock:{ stop:'lido', name:'Santa Maria Elisabetta' } },
+};
+const D4_ISLE_IDS = Object.keys(D4_ISLES);
+/* the Giudecca's dock: the yard's, on the canal side of the west tip (the sketch's p5: the dock at cells 7–9, 10; the slip at the tip) */
+const D4_HOME_DOCK = { cell:[8.5, 11.2], name:'il cantiere' };
+const d4Isle = id => D4_ISLES[id] || Object.values(D4_ISLES).find(I => I.key === id) || null;
+const D4 = { last:null, log:[], cards:0, sail:null, sails:0, fade:null };
+
+/* ---------- registering (a node folder's node.js; the pieces' people and doors) ----------
+   d4Node({ id:'d4-<sg|se|li>-…', isle:'sangiorgio'|'santelena'|'lido', parent, depth, title, en, person:{ name, npc? }, place:{ name, vzd, point? | lm? | npc? | at?() },
+     start:{ name, who?, npc? | door? | point? | at?(), vzd?, label?, line?:{ it, en, gloss? }, card?:{ title, html } }, where, doc, soon? … })
+   The rest of a node's fields are the engine's (core/tree.js): words, extra, howto, study, studyFirst, script, hooks, rule3. */
+function d4Node(spec){
+  if (!spec || !/^d4-(sg|se|li)-/.test(spec.id || '')) throw new Error('d4Node: an id d4-sg-… / d4-se-… / d4-li-…');
+  if (treeNode(spec.id)) throw new Error('d4Node: ' + spec.id + ' twice');
+  const I = d4Isle(spec.isle); if (!I) throw new Error('d4Node: ' + spec.id + ': isle sangiorgio | santelena | lido');
+  const n = Object.assign({ soon:true, altra:[] }, spec, { isle:I.id });
+  n.place = Object.assign({ vzd:I.id }, n.place || {});
+  D4_TREE.nodes.push(n); treeAdopt(D4_TREE);
+  return n;
+}
+/* a placeholder person (as tree-d3.js d3Placeholder: one Italian line, glossed; the tag "placeholder"): { id, name, where, vzd, at:() → { x, y }, line:{ it, en, gloss },
+   node? (shown once it isn't locked) | shown?() (shown while it says so), look… }. A builder who makes the real person keeps the id */
+const D4_PLACEHOLDERS = [];
+function d4Placeholder(o){
+  const g = o.line.gloss ? ' (' + Object.entries(o.line.gloss).map(([w, e]) => `${w}: ${e}`).join('; ') + ')' : '';
+  const n = Object.assign({ formal:true, city:true, district:o.vzd, ambient:true, placeholder:true, d4ph:true, baseFace:{ x:0, y:1 }, answerHow:{ it:'Bene, grazie.', en:'Fine, thanks.' },
+    greet:{ it:'Buongiorno', en:'Good morning' }, agenda:[], revisitAgenda:[], promptOffset:{ x:0, y:26 }, pron:['They', 'their'], pitch:1, x:-999, y:-999,
+    place:o.placeName || o.where, says:{ it:o.line.it, en:o.line.en + g + ' (A placeholder: their story is to come.)' } }, o);
+  n.home = { x:n.x, y:n.y, face:{ ...n.baseFace } }; n.face = { ...n.baseFace };
+  NPCS.push(n); NPC[n.id] = n; D4_PLACEHOLDERS.push(n);
+  return n;
+}
+/* (not in the test drive / the Open world: the islands there are for walking round, no story people: tests/venezia/islands-world.js) */
+const d4PhShown = n => d4Live() && (typeof n.shown === 'function' ? !!n.shown() : !n.node || !treeNode(n.node) || treeState(n.node) !== 'locked');
+/* a placeholder door (as d3Door; placed by world/d4places.js): { id, vzd, name, label, near:() → { x, y }, area?, kind?, point } */
+const D4_DOORS = [];
+function d4Door(o){ D4_DOORS.push(Object.assign({ label:'Entra' }, o)); return o; }
+/* a spot by a landmark's look stand / a named point of the current district (dx, dy metres off it) */
+function d4LmSpot(id, dx = 0, dy = 0){ try { const l = vzDLandmarks().find(q => q.id === id); return l ? VZ.snap(l.stand.x + dx * VZ_M, l.stand.y + dy * VZ_M, 16) : null; } catch (e){ return null; } }
+function d4PtSpot(key, dx = 0, dy = 0){ const P = vzPoints()[key]; return P ? VZ.snap(P.x + dx * VZ_M, P.y + dy * VZ_M, 16) : null; }
+
+/* ---------- the save, the states ---------- */
+function d4Rec(){ const R = S.d4 && typeof S.d4 === 'object' ? S.d4 : (S.d4 = {}); R.soon = R.soon || {}; R.isles = R.isles || {}; D4_ISLE_IDS.forEach(id => { R.isles[id] = R.isles[id] || {}; }); return R; }
+const d4Peek = () => S && S.d4 && typeof S.d4 === 'object' ? S.d4 : {};
+const d4Live = () => !(typeof vzTestDrive === 'function' && vzTestDrive());
+const d4Done = id => { const n = treeNode(id); return !!n && treeIsDone(n); };
+const d4Pending = id => { const n = typeof id === 'string' ? treeNode(id) : id; return !!n && n.district === 4 && treeState(n) === 'open' && !treeBegun(n.id); };
+const d4Nodes = () => D4_TREE.nodes.filter(n => !n.lesson);
+function d4Begin(id){ treeBegin(id); save(); }
+/* the islands' rule: two done nodes (any level) of the island's branch; done: optional fake data (a list or a set of done ids) */
+const d4IsleNodes = id => { const I = d4Isle(id); return I ? D4_TREE.nodes.filter(n => n.isle === I.id) : []; };
+function d4IsleCount(id, done){ const has = done ? (Array.isArray(done) ? new Set(done) : done) : null; return d4IsleNodes(id).filter(n => has ? has.has(n.id) : treeIsDone(n)).length; }
+const d4IsleDone = (id, done) => { const I = d4Isle(id); return !!I && d4IsleCount(id, done) >= I.need; };
+const d4IslesCount = done => D4_ISLE_IDS.filter(id => d4IsleDone(id, done)).length;
+const d4IslesDone = done => d4IslesCount(done) === D4_ISLE_IDS.length;
+const d4IslesLine = () => D4_ISLE_IDS.map(id => `${D4_ISLES[id].name} ${Math.min(d4IsleCount(id), D4_ISLES[id].need)}/${D4_ISLES[id].need}`).join(' · ');
+/* the gate (engine core/tree.js: a district's own rule) */
+D4_TREE.gate = () => {
+  const ids = D4_TREE.nodes.filter(n => n.isle).map(n => n.id), done = d4IslesCount();
+  return { done, total:D4_ISLE_IDS.length, open:d4IslesDone(), ids, pips:D4_ISLE_IDS.map(id => ({ title:D4_ISLES[id].title, on:d4IsleDone(id) })),
+    note:d4IslesDone() ? '<b>All three islands done!</b> Back to the Giudecca: <i>Lezione 8 · Arrivederci, Venezia</i>. The other activities stay open.'
+      : 'Each island is done with <b>two</b> of its activities (any two: on Sant’Elena the match counts once the osteria opens it); all three islands, then back to the Giudecca for Lezione 8.' };
+};
+/* someone a District 4 node wants: its start's person while it is pending, or what its hooks claim while it is open (as d3Claims) */
+function d4Claims(npc){ if (!npc) return false; return d4Nodes().some(n => n.start && n.start.npc === npc.id && d4Pending(n)) || d4Wants(npc); }
+function d4Wants(npc){
+  if (!npc) return false;
+  return d4Nodes().some(n => { if (!n.hooks || !n.hooks.claims || treeState(n) === 'locked') return false; try { return !!n.hooks.claims(npc); } catch (e){ return false; } });
+}
+
+/* ---------- the story pieces that are not tree nodes: a1 (the way in) and a3 (the sailing game), stubs. A piece: { id, title, en, soon (the stub),
+   due(), vzd, spot() → { x, y } (in its city, while it is in use), label, card:{ kicker, html }, objective, pass() (what the stub does once E is pressed there) }.
+   Its state S.d4[id]: undefined → 'soon' (the stub passed: the story goes on) | 'done' (the piece's own end, d4Set(id, 'done')). The builder sets
+   D4_STORY[id].soon = false and plays the piece from hooks of their own (the frame's stub lets go); d4Passed(id) is then true only with 'done'. ---------- */
+const d4Passed = id => { const v = d4Peek()[id], P = D4_STORY[id]; return v === 'done' || (v === 'soon' && !!P && !!P.soon); };
+function d4Set(id, v){ const R = d4Rec(); R[id] = v; save(); renderHUD(); lastGuide = ''; return R[id]; }
+const D4_STORY = {
+  via:{ id:'via', title:'La via per la Giudecca', en:'District 3’s closing scene: Margaret’s idea, Alvise’s friend with a boat, line 2 to the Molino Stucky', soon:true, doc:'a1-la-via',
+    due:() => treeGateOpen(3) && !d4Passed('via'), vzd:'sanmarco', spot:() => d4PtSpot('campo', 2, 0), label:'Margaret · the Giudecca',
+    objective:'Margaret has an idea for tomorrow: see her by the hotel',
+    card:{ kicker:'District 3 · the way in', html:'<p>Margaret waves from the campo in front of the hotel: <i>“{Me}! I’ve had an idea. The islands, properly: a boat. Let’s ask Mr Alvise.”</i></p>' },
+    pass(){ vzOpenDistrict('giudecca'); d4Set('via', 'soon'); toast('<b>La Giudecca</b> · sestiere 4 of 4 is open: line 2 from San Marco to the <b>Molino Stucky</b>, then west to the boatyard.'); } },
+  giro:{ id:'giro', title:'Il giro in barca', en:'The sailing game: follow Fosca round the basin, then the Fortuna is yours until Sunday', soon:true, doc:'a3-il-giro-in-barca',
+    due:() => d4Passed('via') && d4Done('v7') && !d4Passed('giro'), vzd:'giudecca', spot:() => d4DockSpot('giudecca'), label:'La Fortuna · il giro',
+    objective:'The yard’s dock: Fosca’s sailing lesson (il giro in barca)',
+    card:{ kicker:'District 4 · il giro in barca', html:'<p>Nine in the morning at the yard’s dock. The <b>Fortuna</b> rocks at her mooring; Fosca is already in the <i>Nina</i>: <i>“Mi segua!”</i></p>' },
+    pass(){ d4Set('giro', 'soon'); toast('<b>La Fortuna</b> is yours until Sunday: <kbd>E</kbd> at the yard’s dock for the islands. Fosca’s rule: all three islands, then back here.'); } },
+};
+const d4StoryDue = id => { const P = D4_STORY[id]; return !!P && P.soon && d4Live() && P.due(); };
+function d4StorySpot(id){ const P = D4_STORY[id]; if (!P || VZD.id !== P.vzd || !VZ.areas) return null; try { return P.spot(); } catch (e){ return null; } }
+function d4StoryNear(){
+  if (!VZ_CITY[S.scene] || dialogOpen || modalOpen || introOpen) return null;
+  for (const id of Object.keys(D4_STORY)){ if (!d4StoryDue(id)) continue; const p = d4StorySpot(id); if (p && Math.hypot(player.x - p.x, player.y - p.y) < 2.2 * VZ_M) return { id, p }; }
+  return null;
+}
+function d4StoryCard(id){
+  const P = D4_STORY[id];
+  openInfoCard({ kicker:P.card.kicker, title:P.title, sub:P.en, cls:'d2-soon d4-soon', html:`${fill(P.card.html)}<p class="tp-soon"><b>${esc(P.title)}</b>: <b>coming soon</b>. This part of the story is still being written; the story goes on from here.</p>` });
+  D4.cards++; D4.last = 'story:' + id; D4.log.push(D4.last);
+  const R = d4Rec(); R.soon['story:' + id] = (R.soon['story:' + id] || 0) + 1;
+  P.pass();
+  return true;
+}
+
+/* ---------- Margaret and Biscuit with you (the Fortuna, the islands' landings: as Lesson 5's follower hook); Biscuit's scarf ---------- */
+const d4Following = () => d4Live() && !!d4Peek().follow && !!NPC.margaret;
+function d4Follow(on = true){ const R = d4Rec(); R.follow = !!on; save(); if (on) d4Crew(); return R.follow; }
+/* Margaret beside you (and Biscuit beside her, following her), when she is far or in another scene */
+function d4Crew(force){
+  const M = NPC.margaret, B = NPC.biscuit; if (!M || !VZ_CITY[S.scene] || M.cutWalk) return;
+  if (!force && sceneOf(M) === S.scene && Math.hypot(M.x - player.x, M.y - player.y) < 14 * VZ_M) return;
+  const p = VZ.snap(player.x - 1.2 * VZ_M, player.y + 0.6 * VZ_M, 16);
+  Object.assign(M, { x:p.x, y:p.y, seated:false, face:{ ...player.face } }); M.home = { x:p.x, y:p.y, face:{ ...M.face } };
+  if (B && !B.carriedBy){ const q = VZ.snap(p.x - 0.9 * VZ_M, p.y + 0.3 * VZ_M, 14); Object.assign(B, { x:q.x, y:q.y, sit:false }); dogFollow('biscuit', 'margaret'); }
+}
+/* the scarf Wilma knits on Sant'Elena (i2's Margaret Part B; worn for the rest of the unit, into Lesson 8): render/people.js vzDog draws p.scarf */
+const d4Scarf = on => { if (on !== undefined){ const R = d4Rec(); R.scarf = !!on; save(); } return !!d4Peek().scarf; };
+if (NPC.biscuit){ let own; Object.defineProperty(NPC.biscuit, 'scarf', { configurable:true, enumerable:true, get:() => own !== undefined ? own : (d4Peek().scarf ? true : undefined), set:v => { own = v; } }); }
+/* first of the story hooks, and only while they walk with you in District 4 (Lesson 5's, unshifted before it, would keep her at the Erberia) */
+STORY_HOOKS.unshift({ story:'d4-follow',
+  sceneOf:n => n && (n.id === 'margaret' || n.id === 'biscuit') && d4Following() ? (VZ_CITY[S.scene] || VZ_ROOMS[S.scene] ? S.scene : undefined) : undefined,
+  follower:() => d4Following() ? NPC.margaret : undefined,
+  isFollower:n => d4Following() && n === NPC.margaret ? true : undefined,
+  tick(){ if (d4Following() && !D4.sail && !VZD.loading && !cutsceneOn()) d4Crew(); } });
+
+/* ---------- the Fortuna: the only way to the islands and back (the designer, 27 Nov). The sailing game's builder (a3) replaces the transition
+   (D4_SAIL.ride: async (from, to) → while the screen is dark) and the sheet (D4_SAIL.sheet: its own chart); the rule stays here ---------- */
+const D4_SAIL = { ride:null, sheet:null, fadeMs:420 };
+/* where you step off: an island's dock (its darsena or the pontoon of its stop: the islands have no vaporetto in the story), the yard's on the Giudecca */
+function d4DockSpot(vzd = VZD.id){
+  if (VZD.id !== vzd || !VZ.areas) return null;
+  if (vzd === 'giudecca'){ const [cx, cy] = D4_HOME_DOCK.cell; return VZ.snap(cx * VZ_CPX, cy * VZ_CPX, 16); }
+  const I = D4_ISLES[vzd]; if (!I) return null;
+  if (I.dock.point){ const P = vzPoints()[I.dock.point]; if (P) return VZ.snap(P.x, P.y, 16); }
+  const s = VZ.stops.find(q => q.id === (I.dock.stop || vzd)) || VZ.stops[0];
+  return s ? VZ.snap(s.x + s.w / 2, s.y + s.h / 2, 16) : null;
+}
+/* may you leave this island? Margaret's Part B (i0: required, the designer 27 Nov). TODO (the island builders): set D4_ISLES[id].margaret = true once the island's
+   Margaret scene is built, and S.d4.isles[id].partB = true at its end: then the boat waits for it. Until then: true */
+function d4CanLeave(isle = VZD.id){
+  const I = d4Isle(isle); if (!I) return true;
+  if (!I.margaret) return true;      // TODO: Margaret's Part B not built on this island yet
+  return !!d4Rec().isles[I.id].partB;
+}
+/* the rule: { ok, why } for a sail from where you are to `to` (an island or 'giudecca') */
+function d4SailCheck(to){
+  const here = VZD.id, I = d4Isle(here);
+  if (to === here) return { ok:false, why:'You are here.' };
+  if (!d4Passed('giro') && d4Live()) return { ok:false, why:'The Fortuna isn’t yours yet: Fosca’s sailing lesson first.' };
+  if (I && !d4CanLeave(here)) return { ok:false, why:`Margaret isn’t ready yet: ${Math.min(d4IsleCount(here), I.need)} of ${I.need}.` };
+  if (to === 'giudecca') return d4IslesDone() || !d4Live() ? { ok:true } : { ok:false, why:'Prima tutte le isole! (All the islands first: two things on each.)' };
+  if (!d4Isle(to)) return { ok:false, why:'No such island.' };
+  return { ok:true };
+}
+/* the sheet's choices: the three islands, the Giudecca (greyed until all three are done), not where you are */
+function d4SailOptions(){
+  return [...D4_ISLE_IDS, 'giudecca'].filter(id => id !== VZD.id).map(id => { const c = d4SailCheck(id), I = D4_ISLES[id];
+    return { id, name:I ? I.title : 'La Giudecca', open:c.ok, why:c.why || '', done:I ? { n:d4IsleCount(id), need:I.need, island:d4IsleDone(id) } : null, visited:!!(I && d4Rec().isles[id].landed) }; });
+}
+/* the fade over the stage (the a3 builder's ride plays while it is dark) */
+function d4Fade(on){
+  let el = document.getElementById('d4Fade');
+  if (!el){ el = document.createElement('div'); el.id = 'd4Fade'; el.style.cssText = 'position:absolute;inset:0;background:#0f2242;opacity:0;pointer-events:none;transition:opacity .4s;z-index:60';
+    ($('#stage') || document.body).appendChild(el); }
+  D4.fade = on;
+  el.style.pointerEvents = on ? 'auto' : 'none'; el.style.opacity = on ? '1' : '0';
+  return new Promise(r => setTimeout(r, RM ? 0 : D4_SAIL.fadeMs));
+}
+/* sail: the fade, the ride (a3's, when built), the island behind the loading screen, you on its dock with Margaret and Biscuit, the fade back; the hooks' d4Landed(vzd, from) */
+async function d4SailTo(isle, o = {}){
+  const to = isle === 'giudecca' ? 'giudecca' : (d4Isle(isle) || {}).id;
+  if (!to || D4.sail || VZD.loading) return false;
+  const c = d4SailCheck(to);
+  if (!c.ok && !o.force){ toast(`<b>La Fortuna</b> · ${c.why}`); return false; }
+  const from = VZD.id, R = d4Rec();
+  D4.sail = { from, to, t0:performance.now() }; D4.sails++;
+  traveling = true; keys.clear(); target = null; route = []; goalPt = null;
+  if (dialogOpen) closeDialog(); if (modalOpen) closeModal();
+  if (o.crew !== false) R.follow = true;
+  await d4Fade(true);
+  try { if (D4_SAIL.ride) await D4_SAIL.ride(from, to); } catch (e){ console.error(e); }
+  if (S.vzLight && typeof vzSetLight === 'function') vzSetLight('day');      // (an island's evening ends with it: the next landing is by day)
+  await vzGoDistrict(to, { at:() => d4DockSpot(to) });
+  R.at = to; if (D4_ISLES[to]){ const Q = R.isles[to]; Q.landed = Q.landed || Date.now(); Q.visits = (Q.visits || 0) + 1; }
+  save();
+  if (R.follow) d4Crew(true);
+  traveling = false;
+  await d4Fade(false);
+  D4.sail = null; renderHUD(); lastGuide = '';
+  hooksEach('d4Landed', to, from);
+  return true;
+}
+const d4SailBack = (o = {}) => d4SailTo('giudecca', o);
+/* the islands' sheet (a stub until a3's chart: D4_SAIL.sheet) */
+function d4SailSheet(){
+  if (D4_SAIL.sheet) return D4_SAIL.sheet();
+  const opts = d4SailOptions();
+  openModal('wide vz-routes d4-sail');
+  sheet.innerHTML = `<div class="sheet-head"><div><p class="kicker">La Fortuna · le isole</p><h2>Dove andrà?</h2>
+      <p class="sub">The sailing game’s chart is coming soon: for now, pick an island. Fosca’s rule: all three islands, then back to the Giudecca.</p></div><button class="x" data-close aria-label="Close">×</button></div>
+    <div class="sheet-body"><div class="vz-rstops">${opts.map(q => `<button class="btn vz-rstop${q.open ? '' : ' closed'}" data-d4sail="${esc(q.id)}">${esc(q.name)}${q.done ? ` <i>(${Math.min(q.done.n, q.done.need)} of ${q.done.need})</i>` : ''}${q.open ? '' : ` <i>(${esc(q.why)})</i>`}</button>`).join('')}</div></div>`;
+  sheet.querySelectorAll('[data-d4sail]').forEach(b => b.onclick = () => d4SailTo(b.dataset.d4sail));
+  D4.sheet = { from:VZD.id, offer:opts };
+  modalAfter = () => { D4.sheet = null; };
+  return true;
+}
+/* E at the dock (the Fortuna moored there): once the boat is yours, in the story */
+function d4DockNear(){
+  if (!d4Live() || !d4Passed('giro') || !VZ_CITY[S.scene] || dialogOpen || modalOpen || introOpen || D4.sail) return null;
+  if (VZD.id !== 'giudecca' && !D4_ISLES[VZD.id]) return null;
+  const p = d4DockSpot(); return p && Math.hypot(player.x - p.x, player.y - p.y) < 2.4 * VZ_M ? p : null;
+}
+
+/* ---------- "Coming soon" (a node with soon set, started: as tree-d3.js) ---------- */
+const d4SoonNodes = () => d4Nodes().filter(n => n.soon && d4Pending(n));
+function d4SoonLog(ns){ const R = d4Rec(); ns.forEach(n => { R.soon[n.id] = (R.soon[n.id] || 0) + 1; }); D4.last = ns.map(n => n.id).join(','); D4.log.push(D4.last); save(); }
+const d4SoonLine = ns => ns.map(n => `<b>Albero · ${esc(n.title)}</b>`).join(ns.length > 2 ? ', ' : ' and ').replace(/, ([^,]*)$/, ' and $1')
+  + `: <b>coming soon</b>. ${ns.length > 1 ? 'These parts' : 'This part'} of the story ${ns.length > 1 ? 'are' : 'is'} still being written.`;
+function d4SoonTalk(npc, ns){
+  convo.mode = 'cutscene'; convo.known = true; S.known[npc.id] = true;
+  const L = ns[0].start.line || { it:'Buongiorno, {Me}!', en:'Good morning, {Me}!' };
+  npcLine(fill(L.it), fill(L.en || ''), { gloss:L.gloss });
+  sysLine(d4SoonLine(ns));
+  showChoices([{ label:'Leave', primary:true, fn:closeDialog }]);
+  d4SoonLog(ns);
+  return true;
+}
+function d4SoonCard(ns){
+  const n = ns[0], c = n.start.card || {};
+  openInfoCard({ kicker:`Albero · ${n.lessonNo ? 'Lezione ' + n.lessonNo : (d4Isle(n.isle) ? d4Isle(n.isle).name + ' · ' : '') + 'Livello ' + n.depth}`, title:c.title || n.title, sub:n.en, cls:'d2-soon d4-soon',
+    html:`${c.html || ''}<p class="tp-soon">${d4SoonLine(ns)}</p>` });
+  D4.cards++; d4SoonLog(ns);
+  return true;
+}
+function d4Soon(id){ const n = treeNode(id); if (!n || !n.soon) return false; return n.start && n.start.npc && NPC[n.start.npc] && dialogOpen ? d4SoonTalk(NPC[n.start.npc], [n]) : d4SoonCard([n]); }
+function d4SpotOf(n){ if (!n.start || n.start.npc || n.start.door) return null; const p = treePlaceOf(n); return p && p.scene === S.scene ? p : null; }
+function d4SpotNear(){
+  if (!VZ_CITY[S.scene] || dialogOpen || modalOpen || introOpen) return null;
+  let best = null, bd = 1.8 * VZ_M;
+  for (const n of d4SoonNodes()){ const p = d4SpotOf(n); if (!p) continue; const d = Math.hypot(player.x - p.x, player.y - p.y); if (d < bd){ bd = d; best = { n, p }; } }
+  return best;
+}
+/* the objective while no node is under way (unit.js vzNodeUnderWay): the piece due, the islands' count */
+function d4Objective(){
+  if (!d4Live() || (typeof vzNodeUnderWay === 'function' && vzNodeUnderWay())) return undefined;
+  for (const id of Object.keys(D4_STORY)) if (d4StoryDue(id)) return D4_STORY[id].objective;
+  if (!d4Passed('giro') || d4IslesDone()) return undefined;
+  const I = D4_ISLES[VZD.id];
+  if (I) return `${I.name}: do two things (${Math.min(d4IsleCount(I.id), I.need)} of ${I.need}) · Le isole · ${d4IslesCount()} of 3`;
+  return VZD.id === 'giudecca' ? `The Fortuna is yours: the islands (Le isole · ${d4IslesCount()} of 3). E at the yard’s dock` : undefined;
+}
+const D4_SOON_HOOKS = {
+  story:'d4-soon',
+  talk(npc){ if (!npc || !convo) return undefined; const ns = d4SoonNodes().filter(n => n.start && n.start.npc === npc.id); return ns.length ? d4SoonTalk(npc, ns) : undefined; },
+  visitorTalk:npc => (npc && d4SoonNodes().some(n => n.start && n.start.npc === npc.id)) || undefined,
+  door(d){ if (!d) return undefined; const ns = d4SoonNodes().filter(n => n.start && n.start.door && n.start.door === d.id); return ns.length ? d4SoonCard(ns) : undefined; },
+  objective:() => d4Objective(),
+  guide(){ const s = d4StoryNear(); if (s) return `<b>${esc(D4_STORY[s.id].title)}</b>: press <kbd>E</kbd>.`;
+    if (d4DockNear()) return '<b>La Fortuna</b> · press <kbd>E</kbd>: the islands.';
+    const t = d4SpotNear(); return t ? `<b>${esc(t.n.title)}</b> · ${esc(t.n.start.name || '')}: press <kbd>E</kbd>.` : undefined; },
+  ePrompt(){ const s = d4StoryNear(); if (s) return { x:s.p.x, y:s.p.y - 1.2 * VZ_M, label:D4_STORY[s.id].label };
+    const q = d4DockNear(); if (q) return { x:q.x, y:q.y - 1.2 * VZ_M, label:'La Fortuna' };
+    const t = d4SpotNear(); return t ? { x:t.p.x, y:t.p.y - 1.2 * VZ_M, label:t.n.start.label || t.n.title } : undefined; },
+  /* the pieces' pins on the map (their own city's) */
+  sideMarks(){ if (!d4Live()) return undefined; const out = [];
+    Object.keys(D4_STORY).forEach(id => { if (!d4StoryDue(id)) return; const p = d4StorySpot(id); if (p) out.push({ id:'d4-' + id, label:D4_STORY[id].label, x:p.x, y:p.y }); });
+    if (d4Passed('giro') && (VZD.id === 'giudecca' || D4_ISLES[VZD.id])){ const p = d4DockSpot(); if (p) out.push({ id:'d4-fortuna', label:'La Fortuna', x:p.x, y:p.y }); }
+    return out.length ? out : undefined; },
+  sceneOf(n){ if (!n || !n.d4ph) return undefined; return d4PhShown(n) ? undefined : 'away'; },
+  fastTravel(){ return D4.sail ? 'Not now: the Fortuna is sailing.' : undefined; },
+  onTreeDone(node){
+    if (!node || node.district !== 4) return;
+    const I = node.isle && D4_ISLES[node.isle];
+    if (I && d4Live()){ const k = d4IsleCount(I.id), all = d4IslesCount();
+      setTimeout(() => toast(k === I.need ? `<b>${esc(I.name)} · ${k} of ${I.need}</b>: the island is done. Le isole · ${all} of 3.${all === 3 ? ' <b>All three!</b> Back to the Giudecca.' : ''}`
+        : k < I.need ? `<b>${esc(I.name)} · ${k} of ${I.need}</b>` : `<b>${esc(I.name)}</b> · ${k} done.`), 1600); }
+    if (node.id === 'v7' && !d4Rec().pointed){ d4Rec().pointed = true; save(); handbookPointTo('albero', { line:'New on the <b>Albero</b>: <b>District 4</b>, three islands. Tap it!', quiet:true }); }
+  },
+  /* the way in due: the toast once */
+  tick(){ if (!d4Live() || !d4StoryDue('via') || d4Peek().told) return; const R = d4Rec(); R.told = Date.now(); save();
+    setTimeout(() => toast('<b>District 3 · gate met.</b> Margaret has an idea for tomorrow: see her by the <b>hotel</b>. Its pin is on the map (<kbd>M</kbd>).'), 2600); },
+};
+STORY_HOOKS.push(D4_SOON_HOOKS);
+/* E: a piece's spot (a stub), the dock (the Fortuna), a pending node's spot */
+{ const prev = UNIT.key; UNIT.key = (k, e) => {
+    if (k === 'e' && !frozen() && !cutsceneOn()){
+      const s = d4StoryNear(); if (s) return d4StoryCard(s.id);
+      if (d4DockNear()) return d4SailSheet();
+      const t = d4SpotNear(); if (t) return d4SoonCard(d4SoonNodes().filter(n => d4SpotOf(n) && Math.hypot(player.x - d4SpotOf(n).x, player.y - d4SpotOf(n).y) < 1.8 * VZ_M));
+    }
+    return prev ? prev(k, e) : false; }; }
+
+/* ---------- the Albero's gate notes: District 3's leads here (tree-d3.js's note says the gate is met), District 4's per island ---------- */
+{ const prev = UNIT.treeGateNote; UNIT.treeGateNote = (D, g) => {
+    if (!D || D.id !== 4) return prev ? prev(D, g) : '';
+    return `<p class="note d4-gate">Le isole: <b class="d4-gate-x">${esc(d4IslesLine())}</b>.${d4Passed('giro') || !d4Live() ? '' : ' The islands are reached by boat only: Lesson 7 at the boatyard, then the Fortuna.'}</p>`;
+  }; }
+
+/* ---------- tests and the builders: __dbg().d4, __debug.d4Go(id), d4Start(id), d4Sail(to, o), d4Set(o), d4Isles(), d4Talk(id) ---------- */
+const d4PinOf = n => (p => p ? { x:Math.round(p.x), y:Math.round(p.y), scene:p.scene } : null)(treePlaceOf(n));
+const d4VzdOf = n => { const P = n.start && !treeBegun(n.id) ? { ...(n.place || {}), ...n.start } : n.place || {}; return P.vzd || VZ_TREE_VZD[n.district] || 'giudecca'; };
+dbgField('d4', () => { const R = d4Peek();
+  return { nodes:Object.fromEntries(D4_TREE.nodes.map(n => [n.id, { state:treeState(n), soon:!!n.soon, pending:d4Pending(n), begun:treeBegun(n.id), isle:n.isle || null, depth:n.depth, parent:n.parent, lessonNo:n.lessonNo || null, lesson:n.lesson || null, trail:!!n.trail,
+      start:n.start ? (n.start.npc ? 'npc:' + n.start.npc : n.start.door ? 'door:' + n.start.door : 'spot') : null, vzd:d4VzdOf(n), pin:d4PinOf(n), lockedBy:(w => w ? w.kind : null)(treeLockedBy(n)) }])),
+    gate:{ ...treeGate(4) }, isles:Object.fromEntries(D4_ISLE_IDS.map(id => [id, { count:d4IsleCount(id), need:D4_ISLES[id].need, done:d4IsleDone(id), open:vzDistrictOpen(id), canLeave:d4CanLeave(id), rec:{ ...((R.isles || {})[id] || {}) } }])),
+    islesDone:d4IslesDone(), story:Object.fromEntries(Object.keys(D4_STORY).map(id => [id, { soon:!!D4_STORY[id].soon, due:d4StoryDue(id), passed:d4Passed(id), state:R[id] === undefined ? null : R[id] }])),
+    giudecca:vzDistrictOpen('giudecca'), follow:d4Following(), scarf:d4Scarf(), biscuitScarf:!!(NPC.biscuit && NPC.biscuit.scarf),
+    margaret:NPC.margaret ? { scene:sceneOf(NPC.margaret), at:[Math.round(NPC.margaret.x), Math.round(NPC.margaret.y)], follower:followerNpc() === NPC.margaret } : null, at:R.at || null, district:VZD.id,
+    sail:D4.sail ? { ...D4.sail } : null, sails:D4.sails, sheet:D4.sheet && modalOpen ? { from:D4.sheet.from, offer:D4.sheet.offer.map(q => ({ id:q.id, open:q.open, why:q.why })) } : null, fade:D4.fade,
+    dock:(p => p ? { x:Math.round(p.x), y:Math.round(p.y) } : null)(d4DockSpot()), dockNear:!!d4DockNear(),
+    stopsHere:{ looks:((SCENES[S.scene] || {}).doors || []).filter(q => q.stop).map(q => q.stop), drawn:(VZ.stops || []).filter(q => vzStopDrawn(q.id)).map(q => q.id), all:(VZ.stops || []).map(q => q.id) },
+    placeholders:Object.fromEntries(D4_PLACEHOLDERS.map(n => [n.id, { name:n.name, vzd:n.district, shown:d4PhShown(n), scene:sceneOf(n), at:n.x > -900 ? [Math.round(n.x), Math.round(n.y)] : null }])),
+    doors:D4_DOORS.map(o => ({ id:o.id, vzd:o.vzd, on:!!(VZD.id === o.vzd && VZ.doors.find(d => d.id === o.id)) })),
+    soon:{ last:D4.last, log:D4.log.slice(-10), cards:D4.cards, saved:{ ...(R.soon || {}) } }, spot:(s => s ? s.n.id : null)(d4SpotNear()), storyNear:(s => s ? s.id : null)(d4StoryNear()) }; });
+Object.assign(window.__debug, {
+  /* you beside a node's start (its person when out in the same scene, else its pin), or a piece's spot ('story:via'), in its own district (a promise when it loads) */
+  d4Go(id){
+    if (/^story:/.test(id)){ const P = D4_STORY[id.slice(6)]; if (!P) return null;
+      const go = () => { const p = d4StorySpot(P.id); if (!p) return null; const k = vzAreaAt(p.x, p.y), sc = k >= 0 ? VZ.areas[k].key : S.scene; if (S.scene !== sc) __debug.go(sc, p.x / VZ_TILE, p.y / VZ_TILE); __debug.place(p.x, p.y + 0.6 * VZ_M); player.face = { x:0, y:-1 }; return { x:Math.round(p.x), y:Math.round(p.y), scene:sc }; };
+      return VZD.id === P.vzd && !VZD.loading ? go() : vzGoDistrict(P.vzd, {}).then(go); }
+    if (id === 'dock'){ const go = () => { const p = d4DockSpot(); if (!p) return null; __debug.place(p.x, p.y); return { x:Math.round(p.x), y:Math.round(p.y) }; }; return go(); }
+    const n = treeNode(id); if (!n) return null;
+    const go = () => { const p = treePlaceOf(n); if (!p) return null;
+      const who = n.start && n.start.npc && NPC[n.start.npc], P = who && sceneOf(who) === p.scene && who.x > -900 ? VZ.snap(who.x, who.y + 1.6 * VZ_M, 16) : p;
+      if (S.scene !== p.scene) __debug.go(p.scene, P.x / VZ_TILE, P.y / VZ_TILE); __debug.place(P.x, P.y); player.face = { x:0, y:-1 }; return { x:Math.round(P.x), y:Math.round(P.y), scene:p.scene }; };
+    const vzd = d4VzdOf(n);
+    if (VZD.id === vzd && !VZD.loading) return go();
+    return vzGoDistrict(vzd, {}).then(() => go()); },
+  d4Start(id){
+    if (/^story:/.test(id)) return d4StoryDue(id.slice(6)) ? d4StoryCard(id.slice(6)) : false;
+    const n = treeNode(id); if (!n || !n.start) return false;
+    if (n.start.npc){ const who = NPC[n.start.npc]; if (!who) return false; openConvo(who); return true; }
+    if (n.start.door){ const d = VZ.doors.find(q => q.id === n.start.door); if (!d) return false; enterDoor(d); return true; }
+    return d4SoonCard([n]); },
+  /* the Fortuna: to an island or 'giudecca' ({ force }: past the rule); a promise of true / false */
+  d4Sail:(to, o = {}) => d4SailTo(to, o),
+  d4SailCheck:to => d4SailCheck(to),
+  /* the pieces' states set by hand: { via:'soon'|'done', giro:…, scarf:true, follow:true } (the Giudecca opened with via) */
+  d4Set(o = {}){ const R = d4Rec(); Object.entries(o).forEach(([k, v]) => { R[k] = v; }); if (o.via) vzOpenDistrict('giudecca'); save(); renderHUD(); return { ...R }; },
+  /* the islands' rule on fake data: { isle:{ count, done } } for a list of done ids (none: the save's) */
+  d4Isles:done => Object.fromEntries(D4_ISLE_IDS.map(id => [id, { count:d4IsleCount(id, done), done:d4IsleDone(id, done) }])),
+  d4IslesDone:done => d4IslesDone(done),
+  d4Talk(id){ const n = NPC[id]; if (!n || frozen()) return false; openConvo(n); return !document.querySelector('#dialog').hidden; },
+});
+
+/* ===== units/venezia/tree/d4-sg/branch.js ===== */
+/* District 4 · San Giorgio Maggiore (VZ district 'sangiorgio'), the island's shared logic: the frame's placeholders for its people (tree-d4.js d4Placeholder; placed by
+   world/d4places.js once the island is built). The island's builder owns this folder (BUILD.md): make each real person with the same id (placeholder:false, no
+   d4ph, or keep d4ph to keep them away while their node is locked), add the island's save (S.d4sg: d4SGRec()), its story hook (the landing, Margaret's Part A
+   and B, the history card), its people (npcs.js, content phase) and places (places.js, world phase). The script: docs/lessons/venezia/scripts/d4/i1-san-giorgio.md. */
+d4Placeholder({ id:"d4sg-matilde", name:"La signora Matilde", where:"an old lady with a stick at the maze’s gate", vzd:"sangiorgio", node:"d4-sg-labirinto",
+  at:() => d4PtSpot('poi-p8', -2, 2.5), pron:["She","her"], pitch:1.05, body:'#6a5a7a', legs:'#3a3440', hair:'#d8d8d8', skin:'#ecc4a2', stick:true,
+  line:{ it:"Teo! Teo, dove sei? Mi scusi: mio nipote è nel labirinto!", en:"Teo! Teo, where are you? Excuse me: my grandson is in the maze!", gloss:{"mio nipote":"my grandson"} } });
+d4Placeholder({ id:"d4sg-ornella", name:"Ornella", where:"the director, a script under her arm, at the Teatro Verde", vzd:"sangiorgio", node:"d4-sg-teatro",
+  at:() => d4PtSpot('poi-p9', 0, 2), pron:["She","her"], pitch:1.1, body:'#2b2b33', legs:'#2b2b33', hair:'#8a3a2a', longHair:true, skin:'#ecc4a2',
+  line:{ it:"Buongiorno! Domani c’è lo spettacolo e oggi… oggi è un disastro!", en:"Good morning! The show is tomorrow and today… today is a disaster!", gloss:{"lo spettacolo":"the show","un disastro":"a disaster"} } });
+d4Placeholder({ id:"d4sg-sergio", name:"Il cameriere", where:"the waiter of the café on the quay, a tray under his arm", vzd:"sangiorgio", node:"d4-sg-caffe",
+  at:() => d4PtSpot('poi-p6', 1.5, 1.5), pron:["He","his"], pitch:0.92, body:'#fffdf8', legs:'#1b1b1b', hair:'#3a2318', skin:'#d8a27a', apron:'#1b1b1b',
+  line:{ it:"Buongiorno! Si accomodi pure: un tavolo al sole?", en:"Good morning! Do sit down: a table in the sun?", gloss:{"si accomodi":"sit down (polite)","al sole":"in the sun"} } });
+
+/* ===== units/venezia/tree/d4-sg-labirinto/node.js ===== */
+/* District 4 · San Giorgio Maggiore · Il Labirinto (the script: docs/lessons/venezia/scripts/d4/i1-san-giorgio.md; the frame of the islands: i0-isole.md; README.md here).
+   Registered with the frame's d4Node() (units/venezia/tree-d4.js; docs/lessons/venezia/scripts/d4/BUILD.md). soon:true until it is built: its pin points at
+   start, and starting it says "Coming soon". The builder: set soon:false and add words, extra, howto, study, studyFirst:true, script, hooks, rule3 (here or in
+   this folder's other files). */
+d4Node({ id:"d4-sg-labirinto", isle:"sangiorgio", parent:"v7", depth:2, doc:"i1-san-giorgio",
+  title:"Il Labirinto", en:"Teo is lost in the Labirinto Borges: guide him out from the steps, then he guides you to the middle",
+  person:{ name:"Teo e la signora Matilde", npc:"d4sg-matilde" },
+  place:{ name:"il Labirinto Borges", vzd:"sangiorgio", point:"poi-p8" },
+  start:{ name:"the maze’s gate", npc:"d4sg-matilde" },
+  where:"On <b>San Giorgio Maggiore</b> (by the Fortuna, Fosca’s boat): il Labirinto Borges. Any two of the island’s activities and the island is done.",
+  soon:true });
+
+/* ===== units/venezia/tree/d4-sg-campanile/node.js ===== */
+/* District 4 · San Giorgio Maggiore · Il campanile (the script: docs/lessons/venezia/scripts/d4/i1-san-giorgio.md; the frame of the islands: i0-isole.md; README.md here).
+   Registered with the frame's d4Node() (units/venezia/tree-d4.js; docs/lessons/venezia/scripts/d4/BUILD.md). soon:true until it is built: its pin points at
+   start, and starting it says "Coming soon". The builder: set soon:false and add words, extra, howto, study, studyFirst:true, script, hooks, rule3 (here or in
+   this folder's other files). */
+d4Node({ id:"d4-sg-campanile", isle:"sangiorgio", parent:"v7", depth:2, doc:"i1-san-giorgio",
+  title:"Il campanile", en:"The lift to the top of the bell tower: name what you can see (il Lido sarà là in fondo)",
+  person:{ name:"il signor Livio" },
+  place:{ name:"il campanile di San Giorgio", vzd:"sangiorgio", point:"poi-p2" },
+  start:{ name:"the campanile’s door", door:"sg-campanile", card:{ title:"Il campanile di San Giorgio", html:"<p>A small ticket desk inside the campanile’s door, a lift behind it: <b>il signor Livio</b>, the lift man, a newspaper folded on the counter.</p>" } },
+  where:"On <b>San Giorgio Maggiore</b> (by the Fortuna, Fosca’s boat): il campanile di San Giorgio. Any two of the island’s activities and the island is done.",
+  soon:true });
+
+/* ===== units/venezia/tree/d4-sg-teatro/node.js ===== */
+/* District 4 · San Giorgio Maggiore · Le prove (the script: docs/lessons/venezia/scripts/d4/i1-san-giorgio.md; the frame of the islands: i0-isole.md; README.md here).
+   Registered with the frame's d4Node() (units/venezia/tree-d4.js; docs/lessons/venezia/scripts/d4/BUILD.md). soon:true until it is built: its pin points at
+   start, and starting it says "Coming soon". The builder: set soon:false and add words, extra, howto, study, studyFirst:true, script, hooks, rule3 (here or in
+   this folder's other files). */
+d4Node({ id:"d4-sg-teatro", isle:"sangiorgio", parent:"v7", depth:2, doc:"i1-san-giorgio",
+  title:"Le prove", en:"The Teatro Verde: the rehearsal for tomorrow’s comedy, who will do what, the actors on their marks",
+  person:{ name:"Ornella e i suoi attori", npc:"d4sg-ornella" },
+  place:{ name:"il Teatro Verde", vzd:"sangiorgio", point:"poi-p9" },
+  start:{ name:"the Teatro Verde", npc:"d4sg-ornella" },
+  where:"On <b>San Giorgio Maggiore</b> (by the Fortuna, Fosca’s boat): il Teatro Verde. Any two of the island’s activities and the island is done.",
+  soon:true });
+
+/* ===== units/venezia/tree/d4-sg-caffe/node.js ===== */
+/* District 4 · San Giorgio Maggiore · Il caffè (the script: docs/lessons/venezia/scripts/d4/i1-san-giorgio.md; the frame of the islands: i0-isole.md; README.md here).
+   Registered with the frame's d4Node() (units/venezia/tree-d4.js; docs/lessons/venezia/scripts/d4/BUILD.md). soon:true until it is built: its pin points at
+   start, and starting it says "Coming soon". The builder: set soon:false and add words, extra, howto, study, studyFirst:true, script, hooks, rule3 (here or in
+   this folder's other files). */
+d4Node({ id:"d4-sg-caffe", isle:"sangiorgio", parent:"v7", depth:2, doc:"i1-san-giorgio",
+  title:"Il caffè", en:"The café on the quay: a hot chocolate, a storm on the way, a plan for the afternoon (se piove…)",
+  person:{ name:"il signor Sergio", npc:"d4sg-sergio" },
+  place:{ name:"il San Giorgio Café", vzd:"sangiorgio", point:"poi-p6" },
+  start:{ name:"the café’s tables on the quay", npc:"d4sg-sergio" },
+  where:"On <b>San Giorgio Maggiore</b> (by the Fortuna, Fosca’s boat): il San Giorgio Café. Any two of the island’s activities and the island is done.",
+  soon:true });
+
+/* ===== units/venezia/tree/d4-se/branch.js ===== */
+/* District 4 · Sant'Elena (VZ district 'santelena'), the island's shared logic: the frame's placeholders for its people (tree-d4.js d4Placeholder; placed by
+   world/d4places.js once the island is built). The island's builder owns this folder (BUILD.md): make each real person with the same id (placeholder:false, no
+   d4ph, or keep d4ph to keep them away while their node is locked), add the island's save (S.d4se: d4SERec()), its story hook (the landing, Margaret's Part A
+   and B, the history card), its people (npcs.js, content phase) and places (places.js, world phase). The script: docs/lessons/venezia/scripts/d4/i2-sant-elena.md. */
+d4Placeholder({ id:"d4se-samuele", name:"Samuele", where:"a boy of ten with a football under his arm", vzd:"santelena", node:"d4-se-calcio", formal:false, kid:true,
+  at:() => d4PtSpot('poi-p5', 1.5, 0), pron:["He","his"], pitch:1.35, body:'#c23b2a', legs:'#2b2b33', hair:'#3a2318', skin:'#ecc4a2',
+  line:{ it:"Ciao! Giochi con noi? Ci manca uno!", en:"Hi! Will you play with us? We’re one short!", gloss:{"ci manca uno":"we’re one short"} } });
+d4Placeholder({ id:"d4se-ferruccio", name:"Il sagrestano", where:"the sacristan at the campanile’s door, a big key in his hand", vzd:"santelena", node:"d4-se-campane",
+  at:() => d4PtSpot('poi-p2', 0, 2), pron:["He","his"], pitch:0.85, body:'#2b2b33', legs:'#2b2b33', hair:'#d8d8d8', skin:'#d8a27a', collar:true,
+  line:{ it:"Buonasera! Ha visto un ragazzo alto? Il mio aiutante non è venuto…", en:"Good evening! Have you seen a tall boy? My helper hasn’t come…", gloss:{"il mio aiutante":"my helper"} } });
+
+/* ===== units/venezia/tree/d4-se-calcio/node.js ===== */
+/* District 4 · Sant'Elena · La partitella (the script: docs/lessons/venezia/scripts/d4/i2-sant-elena.md; the frame of the islands: i0-isole.md; README.md here).
+   Registered with the frame's d4Node() (units/venezia/tree-d4.js; docs/lessons/venezia/scripts/d4/BUILD.md). soon:true until it is built: its pin points at
+   start, and starting it says "Coming soon". The builder: set soon:false and add words, extra, howto, study, studyFirst:true, script, hooks, rule3 (here or in
+   this folder's other files). */
+d4Node({ id:"d4-se-calcio", isle:"santelena", parent:"v7", depth:2, doc:"i2-sant-elena",
+  title:"La partitella", en:"Football with the kids in the park: three a side, passing on spoken calls (Vinceremo noi!)",
+  person:{ name:"Samuele, Giada ed Elio", npc:"d4se-samuele" },
+  place:{ name:"il campetto nel parco", vzd:"santelena", point:"poi-p5" },
+  start:{ name:"the campetto in the park", npc:"d4se-samuele" },
+  where:"On <b>Sant'Elena</b> (by the Fortuna, Fosca’s boat): il campetto nel parco. Any two of the island’s activities and the island is done.",
+  soon:true });
+
+/* ===== units/venezia/tree/d4-se-campane/node.js ===== */
+/* District 4 · Sant'Elena · Le campane (the script: docs/lessons/venezia/scripts/d4/i2-sant-elena.md; the frame of the islands: i0-isole.md; README.md here).
+   Registered with the frame's d4Node() (units/venezia/tree-d4.js; docs/lessons/venezia/scripts/d4/BUILD.md). soon:true until it is built: its pin points at
+   start, and starting it says "Coming soon". The builder: set soon:false and add words, extra, howto, study, studyFirst:true, script, hooks, rule3 (here or in
+   this folder's other files). */
+d4Node({ id:"d4-se-campane", isle:"santelena", parent:"v7", depth:2, doc:"i2-sant-elena",
+  title:"Le campane", en:"The sacristan’s helper hasn’t come: ring the bells for the evening Mass on his count",
+  person:{ name:"il signor Ferruccio", npc:"d4se-ferruccio" },
+  place:{ name:"il campanile di Sant’Elena", vzd:"santelena", point:"poi-p2" },
+  start:{ name:"the campanile’s door", npc:"d4se-ferruccio" },
+  where:"On <b>Sant'Elena</b> (by the Fortuna, Fosca’s boat): il campanile di Sant’Elena. Any two of the island’s activities and the island is done.",
+  soon:true });
+
+/* ===== units/venezia/tree/d4-se-osteria/node.js ===== */
+/* District 4 · Sant'Elena · L’osteria (the script: docs/lessons/venezia/scripts/d4/i2-sant-elena.md; the frame of the islands: i0-isole.md; README.md here).
+   Registered with the frame's d4Node() (units/venezia/tree-d4.js; docs/lessons/venezia/scripts/d4/BUILD.md). soon:true until it is built: its pin points at
+   start, and starting it says "Coming soon". The builder: set soon:false and add words, extra, howto, study, studyFirst:true, script, hooks, rule3 (here or in
+   this folder's other files). */
+d4Node({ id:"d4-se-osteria", isle:"santelena", parent:"v7", depth:2, doc:"i2-sant-elena",
+  title:"L’osteria", en:"Dinner at Da Licia before the match: the dish of the day, who’ll win, a spare ticket",
+  person:{ name:"la signora Licia" },
+  place:{ name:"l’osteria Da Licia", vzd:"santelena", point:"poi-p8" },
+  start:{ name:"the osteria’s door", door:"se-osteria", card:{ title:"L’osteria Da Licia", html:"<p>A low door, a menu chalked on a board: <i>piatto del giorno: fegato alla veneziana</i>. Inside, two men in orange-green-black scarves argue about tonight’s match.</p>" } },
+  where:"On <b>Sant'Elena</b> (by the Fortuna, Fosca’s boat): l’osteria Da Licia. Any two of the island’s activities and the island is done.",
+  soon:true });
+
+/* ===== units/venezia/tree/d4-se-partita/node.js ===== */
+/* District 4 · Sant'Elena · La partita (the script: docs/lessons/venezia/scripts/d4/i2-sant-elena.md; the frame of the islands: i0-isole.md; README.md here).
+   Registered with the frame's d4Node() (units/venezia/tree-d4.js; docs/lessons/venezia/scripts/d4/BUILD.md). soon:true until it is built: its pin points at
+   start, and starting it says "Coming soon". The builder: set soon:false and add words, extra, howto, study, studyFirst:true, script, hooks, rule3 (here or in
+   this folder's other files). */
+d4Node({ id:"d4-se-partita", isle:"santelena", parent:"d4-se-osteria", depth:3, doc:"i2-sant-elena",
+  title:"La partita", en:"The match at the Penzo: numbers not names, the chants, the score, chi vincerà?",
+  person:{ name:"Gastone e Mirco" },
+  place:{ name:"lo Stadio Penzo", vzd:"santelena", point:"poi-p3" },
+  start:{ name:"the stadium’s turnstiles", door:"se-stadio", card:{ title:"Lo Stadio Pier Luigi Penzo", html:"<p>The floodlights are on; the turnstiles click; somewhere inside a drum starts up. A steward checks tickets.</p>" } },
+  where:"On <b>Sant'Elena</b> (by the Fortuna, Fosca’s boat): lo Stadio Penzo. It opens once the osteria is done (the osteria’s follow-on).",
+  soon:true });
+
+/* ===== units/venezia/tree/d4-li/branch.js ===== */
+/* District 4 · Il Lido (VZ district 'lido'), the island's shared logic: the frame's placeholders for its people (tree-d4.js d4Placeholder; placed by
+   world/d4places.js once the island is built). The island's builder owns this folder (BUILD.md): make each real person with the same id (placeholder:false, no
+   d4ph, or keep d4ph to keep them away while their node is locked), add the island's save (S.d4li: d4LIRec()), its story hook (the landing, Margaret's Part A
+   and B, the history card), its people (npcs.js, content phase) and places (places.js, world phase). The script: docs/lessons/venezia/scripts/d4/i3-lido.md. */
+d4Placeholder({ id:"d4li-denis", name:"Il bagnino", where:"the lifeguard of the stabilimento, in a red vest, a whistle round his neck", vzd:"lido", node:"d4-li-spiaggia",
+  at:() => d4PtSpot('poi-p10', -1.5, 1), pron:["He","his"], pitch:0.95, body:'#c23b2a', legs:'#f4f0e6', hair:'#3a2318', skin:'#c98d62',
+  line:{ it:"Buongiorno! Oggi c’è tanta gente: un lettino?", en:"Good morning! There are lots of people today: a sunbed?", gloss:{"un lettino":"a sunbed","tanta gente":"lots of people"} } });
+d4Placeholder({ id:"d4li-ada", name:"Ada", where:"a young woman of the Biennale with a lanyard and a roll of posters", vzd:"lido", node:"d4-li-cinema",
+  at:() => d4PtSpot('poi-p13', 1.5, 1.5), pron:["She","her"], pitch:1.12, body:'#1c3d8f', legs:'#2b2b33', hair:'#1b1b1b', longHair:true, skin:'#d8a27a',
+  line:{ it:"Buongiorno! Le piacciono i film? Guardi questi manifesti!", en:"Good morning! Do you like films? Look at these posters!", gloss:{"i manifesti":"the posters"} } });
+
+/* ===== units/venezia/tree/d4-li-viale/node.js ===== */
+/* District 4 · Il Lido · In bici (the script: docs/lessons/venezia/scripts/d4/i3-lido.md; the frame of the islands: i0-isole.md; README.md here).
+   Registered with the frame's d4Node() (units/venezia/tree-d4.js; docs/lessons/venezia/scripts/d4/BUILD.md). soon:true until it is built: its pin points at
+   start, and starting it says "Coming soon". The builder: set soon:false and add words, extra, howto, study, studyFirst:true, script, hooks, rule3 (here or in
+   this folder's other files). */
+d4Node({ id:"d4-li-viale", isle:"lido", parent:"v7", depth:2, doc:"i3-lido",
+  title:"In bici", en:"Quanto costa per un’ora? A bike from the rental, down the Gran Viale to the sea",
+  person:{ name:"il signor Loris" },
+  place:{ name:"il noleggio bici, Gran Viale", vzd:"lido", point:"poi-p5" },
+  start:{ name:"the bike rental", door:"li-bici", card:{ title:"Il noleggio bici", html:"<p>A row of bikes outside a little shop, baskets on the front, a board with the prices by the hour. <b>Il signor Loris</b> pumps up a tyre.</p>" } },
+  where:"On <b>Il Lido</b> (by the Fortuna, Fosca’s boat): il noleggio bici, Gran Viale. Any two of the island’s activities and the island is done.",
+  soon:true });
+
+/* ===== units/venezia/tree/d4-li-spiaggia/node.js ===== */
+/* District 4 · Il Lido · La spiaggia (the script: docs/lessons/venezia/scripts/d4/i3-lido.md; the frame of the islands: i0-isole.md; README.md here).
+   Registered with the frame's d4Node() (units/venezia/tree-d4.js; docs/lessons/venezia/scripts/d4/BUILD.md). soon:true until it is built: its pin points at
+   start, and starting it says "Coming soon". The builder: set soon:false and add words, extra, howto, study, studyFirst:true, script, hooks, rule3 (here or in
+   this folder's other files). */
+d4Node({ id:"d4-li-spiaggia", isle:"lido", parent:"v7", depth:2, doc:"i3-lido",
+  title:"La spiaggia", en:"A busy beach day: a sunbed, an umbrella in the front row, a hut for tomorrow, a swim",
+  person:{ name:"Denis, il bagnino", npc:"d4li-denis" },
+  place:{ name:"uno stabilimento sulla spiaggia", vzd:"lido", point:"poi-p10" },
+  start:{ name:"the stabilimento’s desk", npc:"d4li-denis" },
+  where:"On <b>Il Lido</b> (by the Fortuna, Fosca’s boat): uno stabilimento sulla spiaggia. Any two of the island’s activities and the island is done.",
+  soon:true });
+
+/* ===== units/venezia/tree/d4-li-gelateria/node.js ===== */
+/* District 4 · Il Lido · La gelateria (the script: docs/lessons/venezia/scripts/d4/i3-lido.md; the frame of the islands: i0-isole.md; README.md here).
+   Registered with the frame's d4Node() (units/venezia/tree-d4.js; docs/lessons/venezia/scripts/d4/BUILD.md). soon:true until it is built: its pin points at
+   start, and starting it says "Coming soon". The builder: set soon:false and add words, extra, howto, study, studyFirst:true, script, hooks, rule3 (here or in
+   this folder's other files). */
+d4Node({ id:"d4-li-gelateria", isle:"lido", parent:"v7", depth:2, doc:"i3-lido",
+  title:"La gelateria", en:"Three new flavours to taste: which will be the flavour of the week?",
+  person:{ name:"Ilaria, la gelataia" },
+  place:{ name:"la gelateria sul Gran Viale", vzd:"lido", point:"poi-p6" },
+  start:{ name:"the gelateria’s door", door:"li-gelateria", card:{ title:"La gelateria", html:"<p>A long glass counter of tubs, a chalkboard: <i>il gusto della settimana?</i> Behind it, <b>Ilaria</b> with a row of little spoons.</p>" } },
+  where:"On <b>Il Lido</b> (by the Fortuna, Fosca’s boat): la gelateria sul Gran Viale. Any two of the island’s activities and the island is done.",
+  soon:true });
+
+/* ===== units/venezia/tree/d4-li-cinema/node.js ===== */
+/* District 4 · Il Lido · Il Festival (the script: docs/lessons/venezia/scripts/d4/i3-lido.md; the frame of the islands: i0-isole.md; README.md here).
+   Registered with the frame's d4Node() (units/venezia/tree-d4.js; docs/lessons/venezia/scripts/d4/BUILD.md). soon:true until it is built: its pin points at
+   start, and starting it says "Coming soon". The builder: set soon:false and add words, extra, howto, study, studyFirst:true, script, hooks, rule3 (here or in
+   this folder's other files). */
+d4Node({ id:"d4-li-cinema", isle:"lido", parent:"v7", depth:2, doc:"i3-lido",
+  title:"Il Festival", en:"The Palazzo del Cinema: the posters, next year I’ll come to the Mostra, an autograph, a photo on the steps",
+  person:{ name:"Ada, della Biennale", npc:"d4li-ada" },
+  place:{ name:"il Palazzo del Cinema", vzd:"lido", point:"poi-p13" },
+  start:{ name:"the Palazzo del Cinema’s steps", npc:"d4li-ada" },
+  where:"On <b>Il Lido</b> (by the Fortuna, Fosca’s boat): il Palazzo del Cinema. Any two of the island’s activities and the island is done.",
+  soon:true });
+
+/* ===== units/venezia/story/d4-cantiere/people.js ===== */
+/* District 4 · the boatyard's people: the frame's placeholders (tree-d4.js d4Placeholder; placed by world/d4places.js in the Giudecca), shared by
+   Lesson 7, a2 (this folder's builder: make them real, same ids), a3 and Lesson 8; and Lele's workshop door (d4Door). The script: a2-il-cantiere.md.
+   The yard: the sketch's p5 at the Giudecca's west tip (its workshop lm 'cantiere', the yard south of it, the dock on the canal). */
+const d4YardOpen = () => vzDistrictOpen('giudecca');
+d4Placeholder({ id:'d4-fosca', name:'La signora Fosca', where:'the owner of the boatyard, in blue overalls, a pencil behind her ear', placeName:'Il Cantiere Fortunato, Giudecca', vzd:'giudecca', shown:d4YardOpen,
+  at:() => d4PtSpot('poi-p5', 0.5, -0.5), pron:['She', 'her'], pitch:1.02, body:'#2e4a7a', legs:'#2e4a7a', hair:'#c8c8c8', skin:'#e2b48e',
+  line:{ it:'Buongiorno! Questo è il Cantiere Fortunato: dal 1926!', en:'Good morning! This is the Fortunato boatyard: since 1926!', gloss:{ 'il cantiere':'the boatyard' } } });
+d4Placeholder({ id:'d4-momi', name:'Momi', where:'Fosca’s grandson, sixteen, sawdust in his hair', placeName:'Il Cantiere Fortunato, Giudecca', vzd:'giudecca', shown:d4YardOpen, formal:false,
+  at:() => d4PtSpot('poi-p5', -1.5, 0.8), pron:['He', 'his'], pitch:1.18, body:'#7a8a5a', legs:'#3a3440', hair:'#5a3a22', skin:'#ecc4a2',
+  line:{ it:'Ciao! Mia nonna è lì, alla barca.', en:'Hi! My gran is over there, by the boat.', gloss:{ 'mia nonna':'my gran' } } });
+d4Placeholder({ id:'d4-gigio', name:'Il signor Gigio', where:'the old caulker, tapping oakum into a seam', placeName:'Il Cantiere Fortunato, Giudecca', vzd:'giudecca', shown:d4YardOpen,
+  at:() => d4PtSpot('poi-p5', 1.8, 1.2), pron:['He', 'his'], pitch:0.8, body:'#6a5a4a', legs:'#2b2b2b', hair:'#e8e8e8', skin:'#c98d62', flatcap:'#2b2b2b',
+  line:{ it:'Mm. Buongiorno.', en:'Mm. Good morning.' } });
+d4Placeholder({ id:'d4-lele', name:'Il signor Lele', where:'the remèr, the oar-maker, at his workshop door near the Zitelle', placeName:'La bottega del remèr, Giudecca', vzd:'giudecca', shown:d4YardOpen,
+  at:() => d4PtSpot('d4c-remer', 1.1, 0.2), pron:['He', 'his'], pitch:0.9, body:'#8a6a4a', legs:'#3a3440', hair:'#8a8a8a', skin:'#d8a27a', apron:'#5a3a22',
+  line:{ it:'Buongiorno! Remi e forcole, tutto a mano.', en:'Good morning! Oars and oarlocks, all by hand.', gloss:{ 'i remi':'the oars', 'le forcole':'the oarlocks', 'a mano':'by hand' } } });
+/* Lele's workshop: a new door on the Fondamenta near the Zitelle (a2: the designer, 27 Nov), "Coming soon" until this folder's door hook takes it */
+d4Door({ id:'d4c-remer', vzd:'giudecca', name:'Remèr · remi e forcole', area:'vz-gd-redentore', near:() => vzPoints()['poi-p17'], point:'d4c-remer' });
+
 /* ===== units/venezia/designer.js ===== */
 /* Venezia's part of designer mode (engine core/designer.js; docs/unit-2-venezia.md, "Designer mode"). A release build replaces this file
    (scripts/build.js). Mark as complete, a lesson: the player is left where the tests' end-of-lesson saves put them (__debug.v1At('v1-done'):
@@ -42525,9 +43156,12 @@ const VZ_DFURNISH = {
     dests:{
       redentore:{ label:'AL REDENTOR', poi:'p13' }, palanca:{ label:'A LA PALANCA', poi:'p7' }, zitelle:{ label:'A LE ZITELLE', poi:'p17' }, eufemia:{ label:'A S. EUFEMIA', poi:'p3' },
       stucky:{ label:'MULINO STUCKY', poi:'p1' },
+      /* the boatyard at the west tip (27 Nov: the designer, "adding a signpost when the shipyard is built would be good"; District 4's frame): always
+         shown, the yard stands on the sketch (p5) whether or not its story has begun */
+      cantiere:{ label:'AL CANTIERE', poi:'p5' },
     },
     dirSigns:[
-      { at:[44, 12.5], to:['redentore', 'eufemia'] }, { at:[54, 12.4], to:['redentore', 'palanca'] }, { at:[63, 12.4], to:['zitelle', 'palanca'] }, { at:[24, 12.4], to:['palanca', 'stucky'] },
+      { at:[44, 12.5], to:['redentore', 'eufemia', 'cantiere'] }, { at:[54, 12.4], to:['redentore', 'palanca'] }, { at:[63, 12.4], to:['zitelle', 'palanca'] }, { at:[24, 12.4], to:['palanca', 'stucky', 'cantiere'] },
       { at:[85, 12.4], to:['redentore', 'palanca'] },
     ],
     main:['FONDAMENTA DEL MULINO', 'FONDAMENTA S. EUFEMIA', 'FONDAMENTA DE LA PALANCA', 'FONDAMENTA S. GIACOMO', 'FONDAMENTA DE LE ZITELLE'],
@@ -44914,7 +45548,7 @@ function vzDoorsIn(B){
   VZ.doors.forEach(d => { if (inB(d.x, d.y)) out.push({ id:d.id, x:d.x, y:d.y + 16, to:d.to, label:d.label, reach:40, name:d.name, pill:{ x:d.x, y:d.y - 3 * VZ_M }, msg:d.soon ? vzSoonMsg(d) : undefined }); });
   VZ.landmarks.forEach(l => { const a = { x:l.x, y:l.y, w:l.w, h:l.h }; if (l.rise) return;      // (another district's, drawn from its sketch: their looks open their cards, world/districts.js)
     if (inB(l.x + l.w / 2, l.y + l.h / 2)) out.push({ id:'lm:' + l.id, look:true, area:a, x:l.x + l.w / 2, y:l.base, name:l.name, lookAt:l.name }); });
-  VZ.stops.forEach(s => { if (inB(s.x, s.y)) out.push({ id:'stop:' + s.id, look:true, label:'Vaporetto', area:{ x:s.x, y:s.y, w:s.w, h:s.h }, x:s.x + s.w / 2, y:s.y, name:'Vaporetto · ' + s.name, stop:s.id }); });
+  VZ.stops.forEach(s => { if (inB(s.x, s.y) && vzStopDrawn(s.id)) out.push({ id:'stop:' + s.id, look:true, label:'Vaporetto', area:{ x:s.x, y:s.y, w:s.w, h:s.h }, x:s.x + s.w / 2, y:s.y, name:'Vaporetto · ' + s.name, stop:s.id }); });
   /* the Bridge of Sighs, seen from the Ponte della Paglia: a look from the bridge's north half */
   { const pg = VZ.sospiri && vzPaglia(); if (pg && inB(pg.x + pg.w / 2, pg.y)) out.push({ id:'lm:sospiri', look:true, area:{ x:pg.x, y:pg.y, w:pg.w, h:Math.round(pg.h * 0.45) }, x:pg.x + pg.w / 2, y:pg.y, name:'Il Ponte dei Sospiri', lookAt:'the Bridge of Sighs', pill:{ x:VZ.sospiri.x + VZ.sospiri.w / 2, y:VZ.sospiri.y - 3 * VZ_M } }); }
   /* Caffè Florian (Unit 2's Lesson 2): a look at the arcade beside its bar; and every gondola landing's bridge: E · Guarda le gondole
@@ -46428,7 +47062,7 @@ function vzDrawMap(c){
     const bx = badge(x, y, open ? '#2e6a4e' : '#c23b2a', open ? '→' : '×', '#fffdf8', 'gate:' + gt.poi);
     lab(open ? '→ ' + VZ_DISTRICT[L.to.d].name : gt.sign + (smMap ? ' · prossimamente' : ' · non ancora'), bx, y, { font:F(700, 10.5), size:10.5, col:open ? '#2e6a4e' : '#c23b2a', prio:60, r:7.5, own:'gate:' + gt.poi }); });
   /* the stops, the doors (the hotel, the bakery, the doors to come) */
-  VZ.stops.forEach(st => { const x = (st.x + st.w / 2) / VZ_CPX * k, y = (st.y + st.h / 2) / VZ_CPX * k; const bx = badge(x, y, '#f2c230', 'V', '#1b1b1b', 'stop:' + st.id); lab(st.name, bx, y, { font:F(700, 10.5), size:10.5, col:'#1b1b1b', prio:50, r:7.5, own:'stop:' + st.id }); });
+  VZ.stops.forEach(st => { if (!vzStopDrawn(st.id)) return; const x = (st.x + st.w / 2) / VZ_CPX * k, y = (st.y + st.h / 2) / VZ_CPX * k; const bx = badge(x, y, '#f2c230', 'V', '#1b1b1b', 'stop:' + st.id); lab(st.name, bx, y, { font:F(700, 10.5), size:10.5, col:'#1b1b1b', prio:50, r:7.5, own:'stop:' + st.id }); });
   VZ.doors.forEach(d => { const x = d.x / VZ_CPX * k, y = d.y / VZ_CPX * k; badge(x, y, d.id === 'hotel' ? '#1c3d8f' : '#b5763a', d.id === 'hotel' ? 'H' : d.id === 'forno' ? 'F' : 'D'); });
   /* north, the scale (corners kept clear of labels) */
   { const nx = w - 20, ny = 14; g.fillStyle = '#1c3d8f'; g.beginPath(); g.moveTo(nx, ny); g.lineTo(nx - 6, ny + 15); g.lineTo(nx, ny + 11); g.lineTo(nx + 6, ny + 15); g.closePath(); g.fill();
@@ -47002,7 +47636,7 @@ dbgField('district', () => ({ id:VZD.id, name:VZ_DISTRICT[VZD.id].name, loading:
   bump:{ last:VZ_BUMP.last, n:VZ_BUMP.n } }));
 Object.assign(window.__debug, {
   district:() => ({ id:VZD.id, areas:VZ.areas.map(a => a.key), stops:VZ.stops.map(s => s.id), gates:VZ.gates.map(g => g.poi), vgates:vzVGates().map(g => g.poi), landings:VZ.landings.length,
-    pois:SKETCH_OF().pois.map(p => ({ id:p.id, type:p.type, name:p.name })), placeholders:NPCS.filter(n => n.placeholder && !n.d3ph && vzNpcHere(n)).map(n => ({ id:n.id, name:n.name, x:n.x, y:n.y })),      // (the sketch's: District 3's tree's own placeholders are __dbg().d3.placeholders)
+    pois:SKETCH_OF().pois.map(p => ({ id:p.id, type:p.type, name:p.name })), placeholders:NPCS.filter(n => n.placeholder && !n.d3ph && !n.d4ph && vzNpcHere(n)).map(n => ({ id:n.id, name:n.name, x:n.x, y:n.y })),      // (the sketch's: Districts 3's and 4's frames' own placeholders are __dbg().d3.placeholders, __dbg().d4.placeholders)
     gondoliers:NPCS.filter(n => n.gondola && vzNpcHere(n)).map(n => ({ id:n.id, x:Math.round(n.x), y:Math.round(n.y) })) }),
   goDistrict:(id, to, o) => vzGoDistrict(id, to || {}, o || {}),
   links:() => VZ_LINKS.map(L => ({ id:L.id, a:L.a, b:L.b, walk:!!L.walk, open:{ ab:vzLinkOpen({ ...L, from:L.a, to:L.b }), ba:vzLinkOpen({ ...L, from:L.b, to:L.a }) } })),
@@ -47071,6 +47705,10 @@ VZ_STOP_DS.forEach(d => (vzDPlaces(d).stops || []).forEach(s => { VZ_ALL_STOPS[s
 /* a stop of the Open world only (its places' `world`: San Michele's Cimitero, District 4's islands): no ride to or from it in the normal game
    (San Michele is the story's, by the boatman; the islands' story is to come); in the test drive, the Open world, every one */
 const vzStopShown = id => !!VZ_ALL_STOPS[id] && (!VZ_ALL_STOPS[id].world || vzTestDrive());
+/* a stop drawn and usable at all (its shelter, its boat, its look, its map badge): District 4's islands have no vaporetto in the story (the designer, 27 Nov:
+   the Fortuna is the only way there, tree-d4.js d4SailTo), so their stops are there only in the Open world; the pontoon stays (the Fortuna's dock).
+   San Michele's Cimitero, the Open world's too for the ride, is drawn as before */
+const vzStopDrawn = id => vzStopShown(id) || !VZ_ISLES.includes((VZ_ALL_STOPS[id] || {}).d);
 /* the stops you can sail to from a stop: those a line from it calls at, each with its lines, in order of the districts (a closed
    district's stops left out: world/districts.js vzDistrictOpen; Cannaregio's Ca' d'Oro and Fondamente Nove in the normal game) */
 function vzRoutes(from){
@@ -47382,6 +48020,7 @@ function vzVapEnts(t){
   const out = [], W = viewW(), H = viewH();
   if (VZ_VAP.hide) return out;                       // (__debug.vapHide: the frame without them, to measure)
   for (const s of VZ.stops){
+    if (!vzStopDrawn(s.id)) continue;                  // (District 4's islands in the story: no boat calls there)
     const b = vzVapBoat(s.id), P = vzVapPlace(s, b);
     if (P.mode === 'away'){ b.shown = false; continue; }
     const box = vzVapBox(P);
@@ -52786,6 +53425,57 @@ Object.assign(window.__debug, {
     const q = vzPoints()['sg-' + where] || vzPoints()[where]; if (!q) return null; const a = vzAreaAt(q.x, q.y); __debug.go(a >= 0 ? VZ.areas[a].key : VZ.areas[0].key, q.x / VZ_TILE, q.y / VZ_TILE); return { x:q.x, y:q.y, scene:S.scene }; },
 });
 
+/* ===== units/venezia/world/d4places.js ===== */
+/* District 4's frame, its world part (world phase, after world/islands.js and world/sangiorgio.js; the frame: tree-d4.js; docs/lessons/venezia/scripts/d4/BUILD.md).
+   Shared and final, as world/d3places.js: the builders never edit it.
+   - The Giudecca closed to the story until the way in (a1) opens it: vzOpenDistrict('giudecca') (its five line-2 stops leave the route sheets until then; a save
+     left there continues at San Marco: world/districts.js UNIT.restore). The test drive and the Open world: open, as before.
+   - The three islands open to the story once the Fortuna is yours (S.d4.giro passed: tree-d4.js d4Passed('giro')): reached only by her (d4SailTo); their
+     vaporetto stops are still the Open world's only (world/vaporetto.js vzStopShown, vzStopDrawn: no shelter, boat, look or map badge in the story).
+   - The placeholder people (d4Placeholder: D4_PLACEHOLDERS) each at its at() in its own city once it is built (and every time it is used again), the
+     placeholder doors (d4Door: D4_DOORS) on a house front of their area, and their named points (vzPoints): 'd4-<id>' before each placeholder, each door's
+     point before the door, and 'd4-dock' (the Fortuna's dock: tree-d4.js d4DockSpot) in the Giudecca and on each island.
+   No sketch changes (San Marco's fingerprint: nothing here runs in San Marco). */
+VZ_DISTRICT.giudecca.open = () => vzDistrictFlag('giudecca');
+VZ_DISTRICT.giudecca.shut = { it:'La Giudecca: non ancora.', en:'the Giudecca comes later in the story (District 3’s gate, then Margaret’s idea)' };
+VZ_ISLES.forEach(id => { const D = VZ_DISTRICT[id]; D.open = () => typeof d4Passed === 'function' && d4Passed('giro');
+  D.shut = { it:D.name + ': non ancora.', en:'the islands are reached by the Fortuna, Fosca’s boat (Lesson 7, then the sailing game)' }; });
+
+function d4PlacePeople(id){
+  if (!VZ || !VZ.areas) return;
+  D4_PLACEHOLDERS.filter(n => n.district === id && !n.cutWalk).forEach(n => {
+    let p = null; try { p = n.at ? n.at() : null; } catch (e){ p = null; }
+    if (!p) return;
+    n.x = p.x; n.y = p.y; n.face = { ...(n.baseFace || { x:0, y:1 }) }; n.home = { x:p.x, y:p.y, face:{ ...n.face } };
+  });
+}
+function d4PlaceDoors(id){
+  if (!VZ || !VZ.areas || !VZ.doors) return;
+  const T = VZ_TILE;
+  D4_DOORS.filter(o => o.vzd === id && !VZ.doors.some(d => d.id === o.id)).forEach(o => {
+    let q = null; try { q = o.near(); } catch (e){ q = null; } if (!q) return;
+    const inArea = s => !o.area || (vzAreaAt(s.x, s.y + T) >= 0 && VZ.areas[vzAreaAt(s.x, s.y + T)].key === o.area);
+    const near = L => L.filter(x => !x.covered && inArea(x)).sort((a, b) => Math.hypot(a.x - q.x, a.y - q.y) - Math.hypot(b.x - q.x, b.y - q.y))[0];
+    /* a shop door of the area, else (a quiet district with no shop windows: the Giudecca) any house door of the area's fronts */
+    const s = near(VZ.shopDoors || []) || near((VZ.houses || []).flatMap(h => (h.doors || []).map(dd => ({ h, d:dd, x:dd.x, y:h.yb * T + (h.k || 0) * (dd.x - h.x0 * T) }))));
+    if (!s) return;
+    s.covered = true;
+    if (o.kind){ const k = VZ_SHOP_KINDS.find(x => x.key === o.kind); if (k) s.h.shopKind = k; }
+    VZ.doors.push({ id:o.id, name:o.name, label:o.label, x:Math.round(s.x), y:Math.round(s.y), poi:null, soon:true, d4:true });
+    o.at = { x:Math.round(s.x), y:Math.round(s.y) };
+  });
+  Object.values(VZ_CITY).forEach(sc => { if (sc.made && sc.camBox) sc.doors = vzDoorsIn(sc.camBox); });
+  vzPoints.memo = null;
+}
+function d4Place(id){ try { d4PlaceDoors(id); d4PlacePeople(id); vzPoints.memo = null; } catch (e){ console.error(e); } }
+{ const prev = vzUse; vzUse = (id, already) => { const r = prev(id, already); d4Place(id); return r; }; }
+if (VZ && VZ.areas && VZD.id !== 'sanmarco') d4Place(VZD.id);
+{ const prev = vzDistrictPoints; vzDistrictPoints = () => { const P = prev();
+    D4_DOORS.filter(o => o.vzd === VZD.id && o.at).forEach(o => { P[o.point || o.id] = VZ.snap(o.at.x, o.at.y + 1.4 * VZ_M, 14); });
+    D4_PLACEHOLDERS.filter(n => n.district === VZD.id && n.x > -900).forEach(n => { P['d4-' + n.id] = { x:n.x, y:n.y }; });
+    if (VZD.id === 'giudecca' || VZ_ISLES.includes(VZD.id)){ vzPoints.memo = P; const d = d4DockSpot(VZD.id); vzPoints.memo = null; if (d) P['d4-dock'] = d; }
+    return P; }; }
+
 /* ===== units/venezia/story/d2-cena/world.js ===== */
 /* District 2's closing scene · La vera Venezia: its places and people (the world phase, after world/xplaces.js; the flow: flow.js). No sketch changes:
    the door is put on at San Polo's building (vzUse), as world/xplaces.js and world/d3places.js do (San Marco's fingerprint untouched).
@@ -54269,6 +54959,7 @@ function vzDog(g, p, t, dir){
     g.fillStyle = shade(coat, 0.2); ell(g, 0, -18, 3.4, 2.6); g.fill();
     g.fillStyle = '#1b1210'; circ(g, 0, -19, 1.4); g.fill(); circ(g, -2.5, -22.5, 0.9); g.fill(); circ(g, 2.5, -22.5, 0.9); g.fill();
     if (p.collar){ g.strokeStyle = p.collar; g.lineWidth = 2; g.beginPath(); g.arc(0, -17, 5.6, 0.25 * Math.PI, 0.75 * Math.PI); g.stroke(); }
+    if (p.scarf) vzDogScarf(g, p.scarf, 0, -15.5, true);
     g.strokeStyle = coat; g.lineWidth = 3; g.lineCap = 'round'; g.beginPath(); g.moveTo(6, -4); g.quadraticCurveTo(13, -6 + wag * 4, 12, -12 + wag * 3); g.stroke(); g.lineCap = 'butt';
     return;
   }
@@ -54288,6 +54979,16 @@ function vzDog(g, p, t, dir){
   g.fillStyle = ears; ell(g, hx - 2, hy - 1, 2.4, 4.4, 0.4); g.fill();
   g.fillStyle = '#1b1210'; circ(g, hx + 8.4, hy + 1, 1.3); g.fill(); circ(g, hx + 2.6, hy - 1.6, 0.9); g.fill();
   if (p.collar){ g.fillStyle = p.collar; g.fillRect(hx - 4, hy + 3.5, 5, 2); g.fillStyle = '#f4c430'; circ(g, hx - 1.5, hy + 6, 1.3); g.fill(); }
+  if (p.scarf) vzDogScarf(g, p.scarf, hx - 2, hy + 4.5, false);
+}
+/* a knitted scarf round a dog's neck (Biscuit's, District 4: Wilma's on Sant'Elena, the Venezia colours: tree-d4.js d4Scarf; p.scarf: true or [colours]):
+   stripes of orange, green and black, the knot and an end hanging down */
+const VZ_DOG_SCARF = ['#e8742a', '#2f7a3a', '#1b1b1b'];
+function vzDogScarf(g, sc, x, y, front){
+  const C = Array.isArray(sc) ? sc : VZ_DOG_SCARF;
+  for (let i = 0; i < 6; i++){ g.fillStyle = C[i % C.length]; g.fillRect(x - 5 + i * 1.7, y - 1.4, 1.8, 3); }
+  /* the end hanging down (the front: in the middle; the side: behind the head) */
+  for (let i = 0; i < 3; i++){ g.fillStyle = C[i % C.length]; g.fillRect(front ? x - 1 + i * 0.2 : x - 4, y + 1.4 + i * 1.6, 2.4, 1.7); }
 }
 
 /* ===== units/venezia/render/city.js ===== */
@@ -55057,7 +55758,7 @@ function vzRisers(B){
   vzRailRuns().forEach(r => add({ y:r.y, box:{ x:r.x0, y:r.y - M, w:r.x1 - r.x0, h:M + 4 }, draw:() => vzRailFront(r) }));
   VZ.gates.forEach(g => vzGateParts(g).forEach(add));
   /* (two entries: the back wall, the roof and the sign behind whoever stands on the deck; only the front posts, and a front wall, before them) */
-  VZ.stops.forEach(s => { add({ y:s.y + 12, box:{ x:s.x, y:s.y - 70, w:s.w, h:s.h + 70 }, fade:1, draw:() => vzShelter(s, 'back') }); add({ y:s.y + s.h - 8, box:{ x:s.x, y:s.y - 70, w:s.w, h:s.h + 70 }, fade:0.5, draw:() => vzShelter(s, 'front') }); });
+  VZ.stops.forEach(s => { if (!vzStopDrawn(s.id)) return; add({ y:s.y + 12, box:{ x:s.x, y:s.y - 70, w:s.w, h:s.h + 70 }, fade:1, draw:() => vzShelter(s, 'back') }); add({ y:s.y + s.h - 8, box:{ x:s.x, y:s.y - 70, w:s.w, h:s.h + 70 }, fade:0.5, draw:() => vzShelter(s, 'front') }); });
   /* the props: each look drawn once into a sprite shared by every prop that looks the same (render/props.js vzPropSprite) */
   VZ.props.forEach(p => {
     const f = VZ_PROP[p.kind]; if (!f) return;
