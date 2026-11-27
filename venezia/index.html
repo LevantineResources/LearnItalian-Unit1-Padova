@@ -2068,7 +2068,7 @@ body.phonecam .tpad .tp-act,body.phonecam .tpad .tp-phone,body.phonecam .tpad .t
 .vzk.pin{background:#1c3d8f;border-radius:50% 50% 50% 0;transform:rotate(-45deg);width:12px;height:12px}
 @media (max-width:640px){ .vzmap-wrap{flex-direction:column;gap:10px} .vzmap-scroll{flex:none;width:100%;max-width:100%;max-height:58vh} .vzmap-side{width:100%;min-width:0} .vz-inset-svg{max-width:100%} }
 .vz-inset .fl-head{margin:0 0 4px}
-.vz-inset-svg{width:100%;max-width:280px;display:block}
+.vz-inset-svg{width:100%;max-width:320px;display:block}
 .vz-inset-list{margin:6px 0 0;padding-left:0;list-style:none;font-size:13px}
 .vz-inset-list li{margin:1px 0;color:#5a3a22}
 .vz-inset-list li.here{color:#0f2260;font-weight:700}
@@ -46890,19 +46890,31 @@ const VZ_INSET = {
 /* (the Arsenale stretch, San Marco & Castello's east end along the Riva: its own small city since 14 Nov, drawn inside San Marco's shape) */
 VZ_INSET.arsenale = 'M872,478 L948,470 L992,500 L986,548 L952,566 L912,532 Z';
 const VZ_INSET_LAB = { cannaregio:[310, 140], sanpolo:[330, 292], sanmarco:[720, 368], giudecca:[340, 675], arsenale:[940, 516] };
+/* the islands round the four (the designer, 27 Nov: the map zoomed out to show them): San Michele to the north-east of Cannaregio, San Giorgio
+   across the basin, Sant'Elena at Castello's east tip, the Lido's long strip off to the east; each its shape, its dot and its name (greyed while
+   not open: vzDistrictOpen), the one you are on gold with Tu sei qui. at: the name's anchor, its text-anchor; dot: Tu sei qui's centre */
+const VZ_INSET_ISLES = [
+  { id:'sanmichele', name:'San Michele', d:'M592,-96 L652,-104 L660,-44 L600,-36 Z', at:[626, -122, 'middle'], dot:[626, -70] },
+  { id:'sangiorgio', name:'S. Giorgio', d:'M650,540 L700,525 L715,562 L700,578 L726,586 L702,630 L670,632 L646,582 Z', at:[688, 672, 'middle'], dot:[684, 585] },
+  { id:'santelena', name:"Sant'Elena", d:'M1012,566 L1060,552 L1092,580 L1084,628 L1036,640 L1010,606 Z', at:[1052, 684, 'middle'], dot:[1050, 596] },
+  { id:'lido', name:'Lido', d:'M1262,318 L1284,326 L1200,640 L1172,860 L1148,856 L1168,636 Z', at:[1232, 560, 'start'], dot:[1196, 600] },
+];
 function vzOverviewHTML(){
   const here = VZ_DISTRICT[VZD.id].part || VZD.id, inStretch = VZD.id === 'arsenale', L = inStretch ? VZ_INSET_LAB.arsenale : VZ_INSET_LAB[here];      // (the Arsenale stretch: part of San Marco & Castello)
-  VZM.inset = { here, stretch:inStretch, districts:VZ_DISTRICT_IDS.slice(), parts:['arsenale'], closed:VZ_DISTRICT_IDS.filter(id => !vzDistrictOpen(id)) };
+  const isle = VZ_INSET_ISLES.find(I => I.id === VZD.id) || null, isleOpen = I => !!VZ_DISTRICT[I.id] && vzDistrictOpen(I.id);      // (on an island: it is gold and has the dot; its district stays `here`)
+  VZM.inset = { here, isle:isle ? isle.id : null, stretch:inStretch, districts:VZ_DISTRICT_IDS.slice(), parts:['arsenale'], closed:VZ_DISTRICT_IDS.filter(id => !vzDistrictOpen(id)),
+    isles:VZ_INSET_ISLES.map(I => ({ id:I.id, open:isleOpen(I) })) };
+  const lit = id => id === here && !isle;      // (the district drawn gold: not while you are on one of its islands)
   const shut = id => id !== here && !vzDistrictOpen(id);      // (a district not open yet, world/districts.js vzDistrictOpen: greyed, hatched, "non ancora")
   const canal = 'M92,232 C130,280 160,290 210,240 C260,190 380,180 450,220 C500,250 520,280 515,300 C470,340 380,340 350,380 C330,420 360,470 420,495 L480,520';
-  return `<div class="vz-inset"><p class="fl-head"><b>Venezia</b> · the four districts</p>
-    <svg viewBox="0 -6 1060 760" class="vz-inset-svg" aria-label="Venezia: the four districts" stroke-linejoin="round">
-      <rect x="0" y="-6" width="1060" height="760" rx="44" fill="#a9d0e2"/>
+  return `<div class="vz-inset"><p class="fl-head"><b>Venezia</b> · the four districts and the islands</p>
+    <svg viewBox="-10 -160 1340 1050" class="vz-inset-svg" aria-label="Venezia: the four districts and the islands" stroke-linejoin="round">
+      <rect x="-10" y="-160" width="1340" height="1050" rx="54" fill="#a9d0e2"/>
       <path d="M0,88 L76,165 L80,240 M80,240 L150,312" fill="none" stroke="#c9b48e" stroke-width="8" stroke-linecap="butt" stroke-linejoin="miter"/>
       <path d="M8,250 L80,238 L82,330 L14,300 Z" fill="#e9dcc3" stroke="#ad9068" stroke-width="3"/>
-      <path d="M650,540 L700,525 L715,562 L700,578 L726,586 L702,630 L670,632 L646,582 Z" fill="#e9dcc3" stroke="#ad9068" stroke-width="3"/>
       <defs><pattern id="vzInsetShut" width="22" height="22" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="22" height="22" fill="#e4ddd0"/><rect width="5" height="22" fill="#d2c9b9"/></pattern></defs>
-      ${VZ_DISTRICT_IDS.map(id => `<path d="${VZ_INSET[id]}" fill="${id === here ? (inStretch ? '#f6e3a8' : '#f4b928') : shut(id) ? 'url(#vzInsetShut)' : '#e2d1b1'}" stroke="${id === here ? '#8f6d36' : '#ad9068'}" stroke-width="${id === here ? 5 : 3}"${shut(id) ? ' data-shut="1"' : ''}/>`).join('')}
+      ${VZ_INSET_ISLES.map(I => `<path d="${I.d}" fill="${isle === I ? '#f4b928' : isleOpen(I) ? '#e2d1b1' : 'url(#vzInsetShut)'}" stroke="${isle === I ? '#8f6d36' : '#ad9068'}" stroke-width="${isle === I ? 5 : 3}" data-isle="${I.id}"/>`).join('')}
+      ${VZ_DISTRICT_IDS.map(id => `<path d="${VZ_INSET[id]}" fill="${lit(id) ? (inStretch ? '#f6e3a8' : '#f4b928') : shut(id) ? 'url(#vzInsetShut)' : '#e2d1b1'}" stroke="${lit(id) ? '#8f6d36' : '#ad9068'}" stroke-width="${lit(id) ? 5 : 3}"${shut(id) ? ' data-shut="1"' : ''}/>`).join('')}
       <path d="M262,212 L255,300 L290,372 L345,402 M80,350 L125,352 L128,405 L182,356 L272,394 L338,398 M620,420 L575,340 L555,296" fill="none" stroke="#ad9068" stroke-width="3" stroke-dasharray="8 8" opacity=".8"/>
       <path d="${canal}" fill="none" stroke="#6fa3bf" stroke-width="30" stroke-linecap="butt"/>
       <path d="${canal}" fill="none" stroke="#a9d0e2" stroke-width="26" stroke-linecap="butt"/>
@@ -46911,11 +46923,12 @@ function vzOverviewHTML(){
         <text x="880" y="440">Castello</text></g>
       <path d="${VZ_INSET.arsenale}" fill="${inStretch ? '#f4b928' : '#e8cf8a'}" stroke="#8f6d36" stroke-width="${inStretch ? 5 : 3}" stroke-dasharray="${inStretch ? '' : '10 7'}"/>
       <text x="${VZ_INSET_LAB.arsenale[0]}" y="${VZ_INSET_LAB.arsenale[1] - 30}" text-anchor="middle" font-size="30" font-weight="700" fill="#5a3a22" font-family="'Titillium Web', sans-serif" stroke="#fffdf8" stroke-width="6" paint-order="stroke" stroke-linejoin="round">Arsenale</text>
-      ${VZ_DISTRICT_IDS.map(id => `<text x="${VZ_INSET_LAB[id][0]}" y="${VZ_INSET_LAB[id][1]}" text-anchor="middle" font-size="${id === here ? 64 : 54}" font-weight="${id === here ? 800 : 700}" fill="${shut(id) ? '#8a8174' : '#0f2260'}" font-family="'Titillium Web', sans-serif" stroke="#fffdf8" stroke-width="9" paint-order="stroke" stroke-linejoin="round">${esc(VZ_DISTRICT[id].name.replace(' & Dorsoduro', ''))}</text>${shut(id) ? `<text x="${VZ_INSET_LAB[id][0]}" y="${VZ_INSET_LAB[id][1] + 46}" text-anchor="middle" font-size="34" font-weight="700" fill="#c23b2a" font-family="'Titillium Web', sans-serif" stroke="#fffdf8" stroke-width="6" paint-order="stroke" stroke-linejoin="round">non ancora</text>` : ''}`).join('')}
-      <circle cx="${L[0]}" cy="${L[1] + 34}" r="26" fill="rgba(194,59,42,.22)"/><circle cx="${L[0]}" cy="${L[1] + 34}" r="13" fill="#c23b2a" stroke="#fffdf8" stroke-width="5"/>
-      <g transform="translate(985,70)" fill="#0f2260" font-family="'Titillium Web', sans-serif" font-size="30" font-weight="700" text-anchor="middle"><path d="M0,-34 L11,8 L0,0 L-11,8 Z"/><text y="40">N</text></g>
+      ${VZ_DISTRICT_IDS.map(id => `<text x="${VZ_INSET_LAB[id][0]}" y="${VZ_INSET_LAB[id][1]}" text-anchor="middle" font-size="${lit(id) ? 64 : 54}" font-weight="${lit(id) ? 800 : 700}" fill="${shut(id) ? '#8a8174' : '#0f2260'}" font-family="'Titillium Web', sans-serif" stroke="#fffdf8" stroke-width="9" paint-order="stroke" stroke-linejoin="round">${esc(VZ_DISTRICT[id].name.replace(' & Dorsoduro', ''))}</text>${shut(id) ? `<text x="${VZ_INSET_LAB[id][0]}" y="${VZ_INSET_LAB[id][1] + 46}" text-anchor="middle" font-size="34" font-weight="700" fill="#c23b2a" font-family="'Titillium Web', sans-serif" stroke="#fffdf8" stroke-width="6" paint-order="stroke" stroke-linejoin="round">non ancora</text>` : ''}`).join('')}
+      ${VZ_INSET_ISLES.map(I => `<text x="${I.at[0]}" y="${I.at[1]}" text-anchor="${I.at[2]}" font-size="${isle === I ? 42 : 36}" font-weight="${isle === I ? 800 : 700}" fill="${isle === I || isleOpen(I) ? '#0f2260' : '#8a8174'}" font-family="'Titillium Web', sans-serif" stroke="#fffdf8" stroke-width="8" paint-order="stroke" stroke-linejoin="round">${esc(I.name)}</text>`).join('')}
+      ${(D => `<circle cx="${D[0]}" cy="${D[1]}" r="26" fill="rgba(194,59,42,.22)"/><circle cx="${D[0]}" cy="${D[1]}" r="13" fill="#c23b2a" stroke="#fffdf8" stroke-width="5"/>`)(isle ? isle.dot : [L[0], L[1] + 34])}
+      <g transform="translate(70,-90)" fill="#0f2260" font-family="'Titillium Web', sans-serif" font-size="30" font-weight="700" text-anchor="middle"><path d="M0,-34 L11,8 L0,0 L-11,8 Z"/><text y="40">N</text></g>
     </svg>
-    <ol class="vz-inset-list">${VZ_DISTRICT_IDS.map(id => `<li class="${id === here ? 'here' : shut(id) ? 'shut' : ''}" data-vzdistrict="${id}">${VZ_DISTRICT[id].n}. ${esc(VZ_DISTRICT[id].name)}${id === here && !inStretch ? ' <b>· tu sei qui</b>' : ''}${shut(id) ? ' <i class="vz-inset-shut">· non ancora</i>' : ''}${id === 'sanmarco' ? ` <span class="vz-inset-part${inStretch ? ' here' : ''}">· e l'Arsenale${inStretch ? ' <b>· tu sei qui</b>' : ''}</span>` : ''}</li>`).join('')}</ol></div>`;
+    <ol class="vz-inset-list">${VZ_DISTRICT_IDS.map(id => `<li class="${id === here ? 'here' : shut(id) ? 'shut' : ''}" data-vzdistrict="${id}">${VZ_DISTRICT[id].n}. ${esc(VZ_DISTRICT[id].name)}${lit(id) && !inStretch ? ' <b>· tu sei qui</b>' : ''}${shut(id) ? ' <i class="vz-inset-shut">· non ancora</i>' : ''}${isle && id === here ? ` <span class="vz-inset-part here">· ${esc(VZ_DISTRICT[isle.id].name)} <b>· tu sei qui</b></span>` : ''}${id === 'sanmarco' ? ` <span class="vz-inset-part${inStretch ? ' here' : ''}">· e l'Arsenale${inStretch ? ' <b>· tu sei qui</b>' : ''}</span>` : ''}</li>`).join('')}</ol></div>`;
 }
 /* ---------- the map drawn (the designer, 21 Nov: "redrawn to look more consistent rather than the paintbrush strokes") ----------
    A clean flat map from the tile grid, a tile a metre: every tile one class (VZ_MAP_CLS) in one flat colour, drawn without smoothing,
