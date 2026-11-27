@@ -42296,7 +42296,7 @@ const VZ_DPLACES = {
      the sketch's people the story's own (placeholders:false). The houses' looks: the loculi galleries, the chapels of the family tombs (VZ_LOOKS
      below; drawn by render/sanmichele.js). */
   sanmichele:{
-    mouths:false, lawns:true, lowWalls:true, campoProps:false, placeholders:false,
+    cell:3, mouths:false, lawns:true, lowWalls:true, campoProps:false, placeholders:false,
     campi:[[0, 0, 57, 46]],
     areas:{
       "L'approdo, la chiesa e il chiostro":{ key:'vz-sanmichele-approdo', title:"San Michele · l'approdo e il chiostro", look:'loculi', prio:1, crowd:'quiet' },
@@ -42317,8 +42317,13 @@ const VZ_DPLACES = {
      (San Michele's chiesa, Cannaregio's teatro and casino). The look points, the woods, the maze, the beach: world/islands.js; drawn by render/islands.js.
      No placeholder people (placeholders:false: their scenes are District 4's, not written yet). */
   sangiorgio:{
-    wideBanks:true, mouths:false, placeholders:false,
-    campi:[[7, 1, 54, 7], [38, 11, 53, 16]],      // (the quay on the basin, the jetty, and the court east of the church: open, not lanes narrowed to a calle's width)
+    cell:2, flip:true, wideBanks:true, mouths:false, placeholders:false,
+    campi:[[7, 38, 54, 44], [38, 29, 53, 34]],      // (the quay on the basin, the jetty, and the court east of the church: open, not lanes narrowed to a calle's width; the turned sketch's cells)
+    /* the campanile's door on its south side, the garden's (the sketch's door was on its north side once turned) */
+    edits:[{ rect:[10, 20, 10, 20], to:'#' }, { rect:[10, 24, 10, 24], to:'D' },
+      /* the Manica Lunga (the library's wing) three cells deep, the maze's garden at its foot the deeper (world/sangiorgio.js: the maze) */
+      { rect:[19, 23, 31, 25], to:'"' }],
+    lmSet:{ 'sg-palladio':[15, 20, 31, 22], 'sg-labirinto':[19, 23, 31, 31] },
     areas:{
       'San Giorgio Maggiore':{ key:'vz-sangiorgio-campo', title:"San Giorgio · il campo e l'abbazia", look:'stone', prio:1, crowd:'riva' },
       'Green Area':{ key:'vz-sangiorgio-bosco', title:'San Giorgio · il bosco e il Teatro Verde', look:'stone', prio:0, crowd:'quiet' },
@@ -42327,12 +42332,12 @@ const VZ_DPLACES = {
     gates:{},
     doors:{ p2:{ id:'sg-campanile', name:'Il campanile di San Giorgio', label:'Entra', soon:true } },
     lm:{
-      'sg-chiesa':{ name:'San Giorgio Maggiore', rise:30, wide:1.2, fade:0.3 }, 'sg-campanile':{ name:'Il campanile di San Giorgio', rise:44, wide:0.8, fade:0.2 },
-      'sg-cipressi':{ name:'Il Chiostro dei Cipressi', rise:13, fade:0.35 }, 'sg-palladio':{ name:'Il Chiostro del Palladio', rise:13, fade:0.35 },
+      'sg-chiesa':{ name:'San Giorgio Maggiore', rise:30.5, wide:2.3, fade:0.08 }, 'sg-campanile':{ name:'Il campanile di San Giorgio', rise:44, wide:0.8, fade:0.2 },
+      'sg-cipressi':{ name:'Il Chiostro dei Cipressi', rise:11, fade:0.35 }, 'sg-palladio':{ name:'La Manica Lunga', rise:10.5, fade:0.35 },
     },
   },
   santelena:{
-    wideBanks:true, mouths:false, placeholders:false,
+    cell:2, wideBanks:true, mouths:false, placeholders:false,
     areas:{
       'Il Parco e la riva':{ key:'vz-santelena-parco', title:"Sant'Elena · il parco e la riva", look:'housing', prio:1, crowd:'riva' },
       'Il quartiere':{ key:'vz-santelena-quartiere', title:"Sant'Elena · il quartiere", look:'housing', prio:1, crowd:'quiet' },
@@ -42350,7 +42355,7 @@ const VZ_DPLACES = {
     },
   },
   lido:{
-    wideBanks:true, mouths:false, placeholders:false,
+    cell:2, wideBanks:true, mouths:false, placeholders:false,
     areas:{
       'Santa Maria Elisabetta':{ key:'vz-lido-sme', title:'Il Lido · Santa Maria Elisabetta', look:'housing', prio:1, crowd:'riva' },
       'Il Gran Viale':{ key:'vz-lido-viale', title:'Il Lido · il Gran Viale', look:'shops', prio:1 },
@@ -42388,6 +42393,19 @@ if (typeof VZ_SKETCHES !== 'undefined' && VZ_SKETCHES.sanmichele && !VZ_SKETCHES
 const VZ_ISLE_LM = { sangiorgio:'sg-', santelena:'se-', lido:'li-' };
 if (typeof VZ_SKETCHES !== 'undefined') Object.entries(VZ_ISLE_LM).forEach(([id, pre]) => { const K = VZ_SKETCHES[id]; if (!K || K.lmPrefixed) return;
   VZ_SKETCHES[id] = { ...K, lmPrefixed:pre, pois:K.pois.map(p => p.lm ? { ...p, lm:p.lm.map(l => ({ ...l, id:pre + l.id })) } : p) }; });
+/* an island turned north–south at load (VZ_DPLACES[id].flip; San Giorgio, 27 Nov): its rows read bottom to top, every poi, footprint (its front's
+   side too) and zone with them; the sketch in the map-sketch tool stays as drawn (north up). Why: the game draws every front on its building's south
+   side, so Palladio's façade, which faces the basin, is only seen with the basin to the south (the arrival as in the designer's view from the basin,
+   docs/refs/venezia/d4/sangiorgio/isola-dal-bacino.png). Every coordinate of that island's code (VZ_DPLACES, VZ_DFURNISH, world/sangiorgio.js) is the
+   turned sketch's: y' = h − 1 − y */
+function vzFlipSketch(K){
+  const H = K.h, fl = l => ({ ...l, cells:[l.cells[0], H - 1 - l.cells[3], l.cells[2], H - 1 - l.cells[1]], front:l.front === 'N' ? 'S' : l.front === 'S' ? 'N' : l.front });
+  return { ...K, flipped:true, rows:K.rows.slice().reverse(), pois:K.pois.map(p => ({ ...p, y:H - 1 - p.y, ...(p.lm ? { lm:p.lm.map(fl) } : {}) })), zones:(K.zones || []).map(z => ({ ...z, y:H - z.y - z.h })) };
+}
+/* footprints set here (VZ_DPLACES[id].lmSet: { lmId:[x0, y0, x1, y1] }, the turned sketch's cells: the lm field is not the map-sketch tool's to edit) */
+function vzLmSet(K, set){ return { ...K, lmSet:true, pois:K.pois.map(p => p.lm ? { ...p, lm:p.lm.map(l => set[l.id] ? { ...l, cells:set[l.id].slice() } : l) } : p) }; }
+if (typeof VZ_SKETCHES !== 'undefined') Object.keys(VZ_DPLACES).forEach(id => { let K = VZ_SKETCHES[id]; if (!K) return; const P = VZ_DPLACES[id];
+  if (P.flip && !K.flipped) K = vzFlipSketch(K); if (P.lmSet && !K.lmSet) K = vzLmSet(K, P.lmSet); VZ_SKETCHES[id] = K; });
 
 const VZ_DFURNISH = {
   sanpolo:{
@@ -42521,7 +42539,7 @@ const VZ_DFURNISH = {
      is placed, world/props.js) */
   sanmichele:{ streets:{ lanes:[], signs:[], spare:{ '':['VIALE'] }, busy:[], busiest:[] }, after:() => { if (typeof vzSmDress === 'function') vzSmDress(); } },
   /* District 4's islands (VZ_DPLACES.sangiorgio, .santelena, .lido): a few street names; their dressing is world/islands.js's (after) */
-  sangiorgio:{ streets:{ lanes:[], signs:[{ at:[20, 7.4], name:'CAMPO S. GIORGIO' }], spare:{ '':['FONDAMENTA S. GIORGIO'] }, busy:[], busiest:[] }, after:() => { if (typeof vzIsleDress === 'function') vzIsleDress('sangiorgio'); } },
+  sangiorgio:{ streets:{ lanes:[], signs:[{ at:[20, 38.6], name:'CAMPO S. GIORGIO' }], spare:{ '':['FONDAMENTA S. GIORGIO'] }, busy:[], busiest:[] }, after:() => { if (typeof vzIsleDress === 'function') vzIsleDress('sangiorgio'); } },
   santelena:{ streets:{ lanes:[{ at:[46, 12], name:'VIALE IV NOVEMBRE' }, { at:[30, 18.5], name:'CALLE OSLAVIA' }, { at:[30, 46.5], name:'RIVA DEI 7 MARTIRI' }],
     signs:[{ at:[35, 20.4], name:'CAMPO MONTE GRAPPA' }, { at:[60, 28.4], name:"CAMPO S. ELENA" }], spare:{ '':['VIALE GIORGIO PIANO', 'CALLE BUCCARI', 'VIALE S. ELENA', 'CALLE CADORE'] }, busy:[], busiest:[] },
     after:() => { if (typeof vzIsleDress === 'function') vzIsleDress('santelena'); } },
@@ -42584,9 +42602,14 @@ const VZ_DFURNISH = {
      houses' fronts (wall, doors, bays), VZ.rails (the guardrails along the rii). Nothing is placed on them yet. */
 const VZ_M = 24;                   // px per metre: THE scale (people 1.7 m ≈ 41 px; render/people.js)
 const VZ_TILE = VZ_M;              // px per tile: a tile is a metre
-const VZ_CELL = 4;                 // tiles per sketch cell, each way: the plan scale (a sketch cell is 4 m: 0.4 of the sketch's 10 m)
+const VZ_CELL0 = 4;                // tiles per sketch cell, each way: the plan scale (a sketch cell is 4 m: 0.4 of the sketch's 10 m)
+/* (the city in use's cell: VZ_CELL0 but where its places say otherwise, VZ_PLACES.cell: District 4's islands and San Michele, 2 m a cell since
+   27 Nov, the designer's "too spread out": every walk half as long, the sketch as drawn. vzConvert reads it; vzCellUse() sets these two from the
+   city in use (world/districts.js: once it is made, and on every swap); San Marco's stays 4) */
+let VZ_CELL = VZ_CELL0;
 const VZ_PAD = 4;                  // rows of lagoon below the sketch (the Bacino, San Giorgio across it)
-const VZ_CPX = VZ_CELL * VZ_TILE;  // a cell, px
+let VZ_CPX = VZ_CELL * VZ_TILE;    // a cell, px (the city in use's)
+function vzCellUse(V){ VZ_CELL = V.N; VZ_CPX = V.CP; }
 /* the fronts, in metres: ground floor, upper storeys, the cornice on top; doors; shop windows; windows */
 const VZ_H = { ground:4, storey:3.2, cornice:0.6, door:2.4, doorW:1.2, shop:2.7, win:[0.9, 1.7], bay:2.7 };
 const VZ_LANE_W = [0, [2, 3], [3, 4], [4, 5]];      // a calle's width in tiles (metres), by its width in sketch cells (seeded)
@@ -42614,7 +42637,7 @@ const VZ_LANEGEO = { rii:[] };       // (the rii's centrelines, for the edge che
    yields its progress (0–1) between its steps, so a district can be built behind the loading screen (world/districts.js);
    vzRun() runs one to the end at once (San Marco, when the game loads). */
 function* vzConvert(SKETCH, VZ_PLACES){
-  const t0 = performance.now(), N = VZ_CELL, TS = VZ_TILE, CP = VZ_CPX;
+  const t0 = performance.now(), N = VZ_PLACES.cell || VZ_CELL0, TS = VZ_TILE, CP = N * TS;
   const CW = SKETCH.w, SH = SKETCH.h, CH = SH + VZ_PAD, cols = CW * N, rows = CH * N;
   const POI = Object.fromEntries(SKETCH.pois.map(p => [p.id, p]));
   /* the cells, with the edits (world/places.js) */
@@ -42648,7 +42671,7 @@ function* vzConvert(SKETCH, VZ_PLACES){
     else C[y][x] = '#';
     const p = SKETCH.pois.filter(q => Math.abs(q.x - x) <= 2 && Math.abs(q.y - y) <= 2 && (VZ_PLACES.doors || {})[q.id]).sort((a, b) => Math.hypot(a.x - x, a.y - y) - Math.hypot(b.x - x, b.y - y))[0];
     const spec = p ? (VZ_PLACES.doors || {})[p.id] : { id:`door${x}-${y}`, name:'Una porta', label:'Bussa' };
-    doors.push({ ...spec, poi:p && p.id, cx:x, cy, nook:nook ? [x, y] : null, tx:x * N + N / 2, x:(x + 0.5) * CP, y:(cy + 1) * CP });
+    doors.push({ ...spec, poi:p && p.id, cx:x, cy, nook:nook ? [x, y] : null, tx:x * N + (N >> 1), x:(x + 0.5) * CP, y:(cy + 1) * CP });
   }
   const solidCell = (x, y) => cell(x, y) === '#' || lmAt(x, y) >= 0;
   /* (VZ_PLACES.lowWalls: San Michele's enclosure walls, 26 Nov) a '#' one cell thick (in no 2 × 2 block of '#') is a low wall, not a house:
@@ -42666,14 +42689,14 @@ function* vzConvert(SKETCH, VZ_PLACES){
       const wet = (dx, dy) => { const ch = cell(w.x + dx, w.y + dy); return ch === '~'; };
       w.n = arm(0, -1); w.s = arm(0, 1); w.w = arm(-1, 0); w.e = arm(1, 0);
       if (!w.n && !w.s && !w.w && !w.e){ w.w = w.e = true; }
-      w.cx = wet(-1, 0) ? 0 : wet(1, 0) ? N - 1 : N / 2; w.cy = wet(0, -1) ? 0 : wet(0, 1) ? N - 1 : N / 2;
+      w.cx = wet(-1, 0) ? 0 : wet(1, 0) ? N - 1 : (N >> 1); w.cy = wet(0, -1) ? 0 : wet(0, 1) ? N - 1 : (N >> 1);      // (N >> 1: the cell's middle; N / 2 when N is even)
     });
     /* one line along a run: a straight run of wall that meets the water anywhere keeps to that edge all along (no step where it leaves the quay) */
     const byXY = new Map(lowWalls.map(w => [w.x + ',' + w.y, w]));
     for (const [ax, dx, dy] of [['cx', 0, 1], ['cy', 1, 0]]) lowWalls.forEach(w => {
-      if (w[ax] !== N / 2) return; const vert = ax === 'cx';
+      if (w[ax] !== (N >> 1)) return; const vert = ax === 'cx';
       if (vert ? !(w.n || w.s) : !(w.w || w.e)) return;
-      for (const s of [-1, 1]) for (let k = 1; k < 60; k++){ const o = byXY.get((w.x + s * k * dx) + ',' + (w.y + s * k * dy)); if (!o) break; if (o[ax] !== N / 2 && (vert ? (o.n || o.s) : (o.w || o.e))){ w[ax] = o[ax]; return; } }
+      for (const s of [-1, 1]) for (let k = 1; k < 60; k++){ const o = byXY.get((w.x + s * k * dx) + ',' + (w.y + s * k * dy)); if (!o) break; if (o[ax] !== (N >> 1) && (vert ? (o.n || o.s) : (o.w || o.e))){ w[ax] = o[ax]; return; } }
     });
     lowWalls.C0 = C.map(r => r.slice()); lowWalls.isW = isW;
     lowWalls.forEach(w => { C[w.y][w.x] = '.'; });
@@ -42847,7 +42870,7 @@ function* vzConvert(SKETCH, VZ_PLACES){
   /* the low walls' bands (VZ_PLACES.lowWalls, above): the rest of the cell takes the ground beside it (a lawn's grass) */
   const WALLT = new Uint8Array(lowWalls.length ? cols * rows : 0);
   lowWalls.forEach(w => {
-    const ex = w.cx === N / 2 ? N / 2 - 1 : w.cx, ey = w.cy === N / 2 ? N / 2 - 1 : w.cy;      // (the band's tile across the cell)
+    const mid = N % 2 ? (N >> 1) : (N >> 1) - 1, ex = w.cx === (N >> 1) ? mid : w.cx, ey = w.cy === (N >> 1) ? mid : w.cy;      // (the band's tile across the cell)
     for (let jj = 0; jj < N; jj++) for (let ii = 0; ii < N; ii++){
       const i = w.x * N + ii, j = w.y * N + jj;
       const onH = jj === ey && ((w.w && ii <= ex) || (w.e && ii >= ex)), onV = ii === ex && ((w.n && jj <= ey) || (w.s && jj >= ey));
@@ -46675,7 +46698,7 @@ function vzWorldReset(){
 /* the city kept for a district, in use at once (its scenes, its people the first time, its places to go straight to) */
 function vzUse(id, already){
   if (!already) vzWorldReset();
-  VZ = VZD.cache[id]; VZD.id = id; S.vzDistrict = id;
+  VZ = VZD.cache[id]; vzCellUse(VZ); VZD.id = id; S.vzDistrict = id;
   vzPoints.memo = null; VZ_NAV.grid = null;      // (anything asked during the swap was the last district's: the named points and the walking grid made again from this one)
   vzCityScenes(true);
   if (!VZD.made[id]){ vzDistrictPeople(id); vzD1People(id); vzRialtoPeople(id); vzL4People(id); vzGiacPlace(id); VZD.made[id] = true; }      // (Lesson 4's people and San Giacometto: world/l4-rialto.js)
@@ -46700,7 +46723,7 @@ async function vzGoDistrict(id, to = {}, o = {}){
     await vzNextFrame();
     const tb = performance.now(), gen = vzConvert(VZ_SKETCHES[id], vzDPlaces(id)); let r, vz;
     for (;;){ const t1 = performance.now(); do { r = gen.next(); } while (!r.done && performance.now() - t1 < 40); if (r.done){ vz = r.value; break; } vzLoadCard(D, 0.04 + r.value * 0.56, ['Reading the sketch…', 'The calli…', 'The bridges…', 'The houses…', 'The roofs…', 'The campi…'][Math.min(5, Math.floor(r.value * 6.6))]); await vzNextFrame(); }
-    VZ = vz; stat.convert = Math.round(performance.now() - tb);
+    VZ = vz; vzCellUse(VZ); stat.convert = Math.round(performance.now() - tb);
     vzLoadCard(D, 0.62, 'Lamps, wells and street signs…'); await vzNextFrame();
     const tf = performance.now(); vzFurnish(vzDFurnish(id)); stat.furnish = Math.round(performance.now() - tf);
     VZD.cache[id] = VZ;
@@ -52131,7 +52154,7 @@ if (VZD.id === 'cannaregio' || VZD.id === 'arsenale') xpPlace(VZD.id);
 const XP_FIG = s => ({ x:s.x - 2.7 * VZ_M, y:s.y - 10.1 * VZ_M, w:4.9 * VZ_M, h:6.0 * VZ_M });     // (the horse and rider, over the base: render/xplaces.js xpRider at 1.25)
 { const prev = vzGuideKeep; vzGuideKeep = a => { const s = VZD.id === 'arsenale' && VZ.xp && VZ.xp.statua; return s ? [XP_FIG(s)] : prev(a); }; }
 function xpFrameTick(dt){
-  const s = VZD.id === 'arsenale' && VZ_CITY[S.scene] && VZ.xp && VZ.xp.statua, M = VZ_M; let want = 0;
+  const s = VZD.id === 'arsenale' && VZ_CITY[S.scene] && VZ.xp && VZ.xp.statua, M = VZ_M; let want = typeof vzSgCamWant === 'function' ? vzSgCamWant() : 0;      // (San Giorgio's façade: world/sangiorgio.js)
   if (s && Math.abs(player.x - s.x) < 8.5 * M && player.y > s.y - s.r && player.y < s.y + 7.5 * M){
     const H = viewH(), top = s.y - 10.1 * M;     // (the sword's tip, and a little over it)
     want = Math.max(0, Math.min(H * 0.26, player.y - top + 8 - H * (phoneCamOn() ? 0.5 : VZ_ANCHOR)));
@@ -52405,8 +52428,8 @@ Object.assign(window.__debug, {
    - The look points: every poi of the sketch but its gates, stops and the interiors with a door (those are "Coming soon" doors: VZ_DPLACES[id].doors),
      E · Guarda: a line in a toast (VZ_ISLE_LOOKS: the sketch's notes, short). Where a poi sits on a building (the designer's San Giorgio: the church,
      the café, the campanile on their blocks) it is looked at from the nearest walkable cell. Named points (vzPoints): poi-<id> (those spots).
-   - San Giorgio: the Labirinto Borges' hedges in its garden (the lm 'labirinto': low box hedges, solid, rings with gaps: the middle reached), the
-     Teatro Verde's stone tiers in the woods (the lm 'teatro', walked over), the lighthouses on the jetty and the quay's corner.
+   - San Giorgio (since 27 Nov from the designer's pictures: world/sangiorgio.js): the Labirinto Borges, the cloister, the Teatro Verde, the woods,
+     the basilica's and the library's doors; here the lighthouses on the jetty and the quay's corner.
    - Sant'Elena: the stadium's floodlights (drawn with it), pines in the park.
    - The Lido: the beach is sand (east of the Lungomare's houses: x ≥ 88), the stabilimenti's capanne and umbrellas on it, the sea's foam.
    Tests: tests/venezia/islands-world.js; __debug.isle(), __debug.isleReach(), __debug.isleGo(id, k). */
@@ -52485,39 +52508,10 @@ function vzIsleDress(id){
     I.pts['poi-' + p.id] = q;
   });
   if (id === 'sangiorgio'){
-    /* the Labirinto Borges: rings of low box hedge in its garden (tiles, solid), each with one gap of 2 m, on the north and the south side by
-       turns, so every ring opens into the next: the way in from the path that arrives from the campo (north), the middle its look */
-    const c = lmOf(pre + 'labirinto');
-    if (c){ const i0 = c[0] * N + 1, j0 = c[1] * N + 1, i1 = (c[2] + 1) * N - 1, j1 = (c[3] + 1) * N - 1;
-      /* the garden under it gravel, its trees and beds gone */
-      VZ.props = VZ.props.filter(p => !(p.x > (i0 - 1) * T && p.x < (i1 + 1) * T && p.y > (j0 - 1) * T && p.y < (j1 + 1) * T));
-      for (let j = j0 - 1; j <= j1; j++) for (let i = i0 - 1; i <= i1; i++){ const k = VZ.getT(i, j); if (k === VZT.GARDEN || k === VZT.PATH || k === VZT.PAVE){ VZ.t[j * cols + i] = VZT.PATH; VZ.solid[j * cols + i] = 0; } }
-      /* (the entrance: where the path from the campo comes in at the garden's north edge) */
-      let ent = i0 + 2; for (let i = i0; i < i1; i++) if (VZ.getT(i, j0 - 2) === VZT.PATH || VZ.getT(i, j0 - 2) === VZT.PAVE){ ent = i; break; }
-      for (let r = 0; ; r++){
-        const a0 = i0 + r * 3, b0 = j0 + r * 3, a1 = i1 - r * 3, b1 = j1 - r * 3; if (a1 - a0 < 6 || b1 - b0 < 5) break;
-        const north = r % 2 === 0, gapX = r === 0 ? Math.max(a0 + 1, Math.min(a1 - 3, ent)) : (r % 4 === 1 ? a1 - 4 : r % 4 === 2 ? a0 + 2 : a0 + Math.floor((a1 - a0) / 2));
-        for (let i = a0; i < a1; i++){ if (!(north && i >= gapX && i < gapX + 2)) I.hedges.push([i, b0]); if (!(!north && i >= gapX && i < gapX + 2)) I.hedges.push([i, b1 - 1]); }
-        for (let j = b0 + 1; j < b1 - 1; j++){ I.hedges.push([a0, j]); I.hedges.push([a1 - 1, j]); }
-      }
-      I.hedges = I.hedges.filter(([i, j]) => VZ.getT(i, j) === VZT.PATH);
-      I.hedges.forEach(([i, j]) => block(i, j, i + 1, j + 1));
-      I.maze = { x:i0 * T, y:j0 * T, w:(i1 - i0) * T, h:(j1 - j0) * T };
-      const look = I.looks.find(l => l.poi === 'p8'); if (look){ const q = VZ.snap((i0 + i1) / 2 * T, (j0 + j1) / 2 * T, 10); Object.assign(look, { x:q.x, y:q.y, area:{ x:q.x - 1.8 * M, y:q.y - 2.2 * M, w:3.6 * M, h:3.6 * M }, pill:{ x:q.x, y:q.y - 3 * M } }); I.pts['poi-p8'] = q; }
-    }
-    /* the Teatro Verde: its tiers in a half circle (north), the stage (south), in the woods; walked over (paving under them) */
-    const tc = lmOf(pre + 'teatro');
-    if (tc){ const x0 = tc[0] * CP, y0 = tc[1] * CP, w = (tc[2] - tc[0] + 1) * CP, h = (tc[3] - tc[1] + 1) * CP;
-      I.tiers = { cx:x0 + w / 2, cy:y0 + h * 0.62, r0:h * 0.18, r1:Math.min(w / 2, h * 0.6), x0, y0, w, h };
-      for (let j = Math.floor(y0 / T); j < Math.ceil((y0 + h) / T); j++) for (let i = Math.floor(x0 / T); i < Math.ceil((x0 + w) / T); i++){
-        const dx = (i + 0.5) * T - I.tiers.cx, dy = (j + 0.5) * T - I.tiers.cy, d = Math.hypot(dx, dy * 1.15);
-        if (d < I.tiers.r1 + T && VZ.getT(i, j) === VZT.GARDEN){ VZ.t[j * cols + i] = VZT.PATH; VZ.LOT && (VZ.LOT[j * cols + i] = -1); }
-      }
-      VZ.props = VZ.props.filter(p => Math.hypot(p.x - I.tiers.cx, (p.y - I.tiers.cy) * 1.15) > I.tiers.r1 + 2 * T);      // (no garden tree on the tiers)
-      const look = I.looks.find(l => l.poi === 'p9'); if (look){ const q = VZ.snap(I.tiers.cx, I.tiers.cy + I.tiers.r0 * 0.5, 12); Object.assign(look, { x:q.x, y:q.y, area:{ x:q.x - 1.8 * M, y:q.y - 2.2 * M, w:3.6 * M, h:3.6 * M }, pill:{ x:q.x, y:q.y - 3 * M } }); I.pts['poi-p9'] = q; }
-    }
+    /* (the maze, the cloister, the Teatro Verde, the woods, the café, the doors: world/sangiorgio.js) */
+    vzSgDress(I, K, { block, solidAt, lmOf });
     /* the lighthouses: at the jetty's head (the poi Faro) and on the quay's corner across the darsena's mouth */
-    [K.pois.find(p => p.id === 'psm6nr6'), { x:12, y:5 }].filter(Boolean).forEach((p, k) => {
+    [K.pois.find(p => p.id === 'psm6nr6'), { x:12, y:40 }].filter(Boolean).forEach((p, k) => {
       const [cx, cy] = vzIsleCell(K, p), x = Math.round((cx + 0.5) * CP - (k ? 0 : 0.6 * CP)), y = Math.round((cy + 0.2) * CP + (k ? 0 : 0.25 * CP));
       VZ.props.push({ kind:'islefaro', x, y, r:0, tone:k }); block(Math.floor(x / T) - 1, Math.floor(y / T) - 1, Math.floor(x / T) + 1, Math.floor(y / T) + 1); I.props++;
     });
@@ -52583,6 +52577,215 @@ Object.assign(window.__debug, {
   doorsHere:() => ({ scene:S.scene, me:[player.x, player.y], p3:(scene().doors || []).filter(d => /p3/.test(d.id)).map(d => ({ x:d.x, y:d.y, area:d.area, when:!!d.when })), ids:(scene().doors || []).map(d => d.id), near:(nearestDoor() || {}).id || null, npc:(nearestNpc() || {}).id || null }),
   async isleGo(id, k){ if (VZD.id !== id || VZD.loading) await vzGoDistrict(id, {}); const q = vzPoints()[k]; if (!q) return null;
     const a = vzAreaAt(q.x, q.y); __debug.go(a >= 0 ? VZ.areas[a].key : VZ.areas[0].key, q.x / VZ_TILE, q.y / VZ_TILE); return { x:q.x, y:q.y, scene:S.scene }; },
+});
+
+/* ===== units/venezia/world/sangiorgio.js ===== */
+/* San Giorgio Maggiore rebuilt from the designer's reference pictures (27 Nov; docs/refs/venezia/d4/sangiorgio/; docs/venezia-world.md "San Giorgio from
+   the pictures"). The island is the designer's sketch at 2 m a cell (VZ_DPLACES.sangiorgio.cell), turned north–south at load (.flip: the basin to the
+   south, so Palladio's façade, its piazza and its steps face the arrival as in isola-dal-bacino.png), dressed here once its furniture is placed
+   (world/islands.js vzIsleDress → vzSgDress), drawn by render/sangiorgio.js. Everything here is in metres of the turned island (a sketch cell = 2 m).
+   - The quay: no trees on it (the designer's shot: crowns half see-through over the quay and the water), the market stalls gone; the café's tables
+     before its wing; the piazza before the church paved in Istrian stone and grey in a pattern of cubes, the church's steps, the steps into the water.
+   - The monastery's wings (every converter house of the island): grey Istrian plaster, rows of small windows, orange roofs (h.isle 'cini').
+   - Il Labirinto Borges in its garden at the Manica Lunga's foot: a maze of box hedge (2 m paths, 1 m hedges, the corners rounded), its round
+     clearing in the middle, its ways in from the east path, the gravel walk along the wing and the cloister; a row of cypresses on its west side.
+   - Il Chiostro del Palladio: the court west of the church, its central walk and box parterres either side, the two-storey arcade on its north side.
+   - Il Teatro Verde in the woods: six tiers of stone benches with a hedge strip behind each, three stairways, the flagstone orchestra and stage, the
+     stone wall round the top, cypresses round it; the woods of cypresses, pines and planes, none over the water.
+   - Two interiors (the Open world only, as the island): the basilica (vz-sg-chiesa: its door in the portal) and the library of the Manica Lunga
+     (vz-sg-biblioteca: its door in the wing's middle arch, on the maze's gravel walk); look points inside, a line each.
+   Tests: tests/venezia/islands-world.js; __debug.sgGo(where, { inside }), __debug.sg(). */
+const SG_ROOMS = { chiesa:'vz-sg-chiesa', biblioteca:'vz-sg-biblioteca' };
+const SG_DOORS = { chiesa:'sg-chiesa-porta', biblioteca:'sg-biblioteca-porta' };
+/* the places, metres (the turned sketch: x = cell × 2, y = cell × 2) */
+const SGM = {
+  church:{ x0:52, x1:64, base:76, door:58 },
+  piazza:{ x0:44, x1:72, y0:76, y1:82 },
+  steps:{ x0:53, x1:63, y0:82, y1:83.6 },                 // (into the water, before the church)
+  maze:{ x0:39, y0:48, nx:8, ny:5, walk:[38, 46, 64, 48] },  // (its cells 3 m apart: a 2 m path, a 1 m hedge; the gravel walk along the wing over it)
+  court:{ x0:42, x1:52, y0:64, y1:76, walk:[46, 48], cross:[70, 72] },
+  loggia:{ x0:41.6, x1:52.4, y:65.4, h:8.6 },
+  teatro:{ cx:89, cy:24, r0:3.6, r1:9, tiers:6, aisles:[0.2, 0.5, 0.8] },
+  cafe:{ x0:28, x1:40, y:79 },
+};
+VZ_LOOKS.cini = { walls:['#dcd9d2', '#e2ded6', '#d6d2c9'], storeys:[2, 3], w:[12, 22], wins:'rect' };
+
+function vzSgDress(I, K, o){
+  const T = VZ_TILE, M = VZ_M, cols = VZ.cols, rows = VZ.rows, { block } = o;
+  const tAt = (x, y) => VZ.getT(Math.floor(x), Math.floor(y));            // (x, y in metres = tiles)
+  const setT = (i, j, k, solid) => { if (i < 0 || j < 0 || i >= cols || j >= rows) return; VZ.t[j * cols + i] = k; VZ.solid[j * cols + i] = solid ? 1 : 0; if (VZ.LOT) VZ.LOT[j * cols + i] = -1; };
+  const wetNear = (x, y, r) => { for (let j = Math.floor(y - r); j <= Math.floor(y + r); j++) for (let i = Math.floor(x - r); i <= Math.floor(x + r); i++) if (VZ.getT(i, j) === VZT.WATER) return true; return false; };
+  const SG = I.sg = { maze:null, court:null, teatro:null, trees:0, doors:[] };
+  /* a look point moved to where it is seen from (metres; o: its name, line) */
+  const moveLook = (poi, x, y, o = {}) => { const L = I.looks.find(l => l.poi === poi); if (!L) return; const q = VZ.snap(x * T, y * T, 12);
+    Object.assign(L, { x:q.x, y:q.y, area:{ x:q.x - 1.8 * M, y:q.y - 2.2 * M, w:3.6 * M, h:3.6 * M }, pill:{ x:q.x, y:q.y - 3 * M } }, o); I.pts['poi-' + poi] = q; };
+  /* the darsena from the jetty, Margaret's place at the piazza's east end, the café before its tables (not at the church's door) */
+  moveLook('p4', 40, 89); moveLook('p11', 70, 79.5); moveLook('p6', 34, 80.6);
+  /* 0. the monastery's wings: every house of the island; no shops, laundry, flowers, chimneys or roof terraces */
+  VZ.houses.forEach(h => { h.isle = 'cini'; h.look = 'cini'; h.chimneys = []; h.altana = false; h.laundry = false; h.flowers = false; h.shopWin = null; h.shopKind = null; h.shop = false;
+    h.wallProps = (h.wallProps || []).filter(p => p.kind === 'nizioleto'); h.doors = (h.doors || []).filter(d => d.kind === 'door').slice(0, 1); });
+  VZ.lots.forEach(L => { L.chim = []; L.altana = false; L.h = 9; });      // (one height: no lot's wall standing over its neighbour's roof)
+  /* the converter's trees, stalls and tables off the island (its own are placed below); no railing before the piazza */
+  VZ.props = VZ.props.filter(p => !['tree', 'stall', 'table', 'well'].includes(p.kind));
+  if (VZ.rails && VZ.rails.length === cols * rows) for (let j = SGM.piazza.y1 - 2; j <= SGM.piazza.y1 + 2; j++) for (let i = SGM.piazza.x0; i < SGM.piazza.x1; i++) if (i >= 0 && j >= 0 && j < rows) VZ.rails[j * cols + i] = 0;
+  /* 1. the piazza: paving (no garden tiles in it) */
+  for (let j = SGM.piazza.y0; j < SGM.piazza.y1; j++) for (let i = SGM.piazza.x0; i < SGM.piazza.x1; i++) if (VZ.getT(i, j) === VZT.GARDEN || VZ.getT(i, j) === VZT.PATH) setT(i, j, VZT.PAVE, false);
+  /* 2. the maze: a perfect maze on its cells (seeded), six walls more taken out (loops), the round clearing in the middle */
+  { const Z = SGM.maze, nx = Z.nx, ny = Z.ny, r = rng(1999), open = new Set(), key = (a, b) => a < b ? a + ':' + b : b + ':' + a, id = (cx, cy) => cy * nx + cx;
+    const ox = Z.x0, oy = Z.y0, W = nx * 3 + 1, H = ny * 3 + 1, C = (cx, cy) => [ox + cx * 3 + 2, oy + cy * 3 + 2];
+    const clear = [[3, 2], [4, 2]];               // (the clearing's two cells: joined)
+    const seen = new Set([id(0, 0)]), st = [[0, 0]];
+    while (st.length){ const [cx, cy] = st[st.length - 1], nb = [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([a, b]) => [cx + a, cy + b]).filter(([a, b]) => a >= 0 && b >= 0 && a < nx && b < ny && !seen.has(id(a, b)));
+      if (!nb.length){ st.pop(); continue; } const [a, b] = nb[Math.floor(r() * nb.length)]; open.add(key(id(cx, cy), id(a, b))); seen.add(id(a, b)); st.push([a, b]); }
+    open.add(key(id(3, 2), id(4, 2)));
+    for (let k = 0, n = 0; k < 60 && n < 6; k++){ const cx = Math.floor(r() * (nx - 1)), cy = Math.floor(r() * ny), hz = r() < 0.5; const a = id(cx, cy), b = hz ? id(cx + 1, cy) : (cy + 1 < ny ? id(cx, cy + 1) : -1); if (b < 0 || open.has(key(a, b))) continue; open.add(key(a, b)); n++; }
+    /* the paths as lines: from each cell's middle to the middle of each open side; where a path only turns (two open sides at a right angle) a
+       quarter circle round the cell's corner instead, so the hedges between curve as the Labirinto's letters do */
+    const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]], edges = [];
+    for (let cy = 0; cy < ny; cy++) for (let cx = 0; cx < nx; cx++){
+      if (clear.some(([a, b]) => a === cx && b === cy)) continue;
+      const [mx, my] = C(cx, cy), od = dirs.filter(([a, b]) => { const u = cx + a, v = cy + b; return u >= 0 && v >= 0 && u < nx && v < ny && open.has(key(id(cx, cy), id(u, v))); });
+      if (od.length === 2 && od[0][0] * od[1][0] + od[0][1] * od[1][1] === 0){
+        const [A, B] = od, kx = mx + (A[0] + B[0]) * 1.5, ky = my + (A[1] + B[1]) * 1.5, a0 = Math.atan2(my + A[1] * 1.5 - ky, mx + A[0] * 1.5 - kx), a1 = Math.atan2(my + B[1] * 1.5 - ky, mx + B[0] * 1.5 - kx);
+        let da = a1 - a0; while (da > Math.PI) da -= 2 * Math.PI; while (da < -Math.PI) da += 2 * Math.PI;
+        for (let k = 0; k < 6; k++){ const t0 = a0 + da * k / 6, t1 = a0 + da * (k + 1) / 6; edges.push([[kx + Math.cos(t0) * 1.5, ky + Math.sin(t0) * 1.5], [kx + Math.cos(t1) * 1.5, ky + Math.sin(t1) * 1.5]]); }
+      } else od.forEach(([a, b]) => edges.push([[mx, my], [mx + a * 1.5, my + b * 1.5]]));
+    }
+    /* (the clearing's cells: their open sides run into the round clearing) */
+    clear.forEach(([cx, cy]) => { const [mx, my] = C(cx, cy); dirs.forEach(([a, b]) => { const u = cx + a, v = cy + b; if (u >= 0 && v >= 0 && u < nx && v < ny && !clear.some(([p, q]) => p === u && q === v) && open.has(key(id(cx, cy), id(u, v)))) edges.push([[mx, my], [mx + a * 1.5, my + b * 1.5]]); }); });
+    /* the ways in: east (from the path beside the church), north (the gravel walk along the wing), south (the cloister) */
+    const ins = [[C(nx - 1, 2), [ox + W + 0.6, C(nx - 1, 2)[1]]], [C(1, 0), [C(1, 0)[0], oy - 0.6]], [C(2, ny - 1), [C(2, ny - 1)[0], oy + H + 0.6]]];
+    /* (an entrance's cell is no longer a plain turn: its other paths straight to its middle) */
+    ins.forEach(([[mx, my]]) => { for (let k = edges.length - 1; k >= 0; k--){ const [[ax, ay], [bx, by]] = edges[k]; if (Math.hypot(ax - mx, ay - my) < 1.6 && Math.hypot(bx - mx, by - my) < 1.6 && !(ax === mx && ay === my)) edges.splice(k, 1); }
+      const cx = Math.round((mx - ox - 2) / 3), cy = Math.round((my - oy - 2) / 3); dirs.forEach(([a, b]) => { const u = cx + a, v = cy + b; if (u >= 0 && v >= 0 && u < nx && v < ny && open.has(key(id(cx, cy), id(u, v)))) edges.push([[mx, my], [mx + a * 1.5, my + b * 1.5]]); }); });
+    const cc = [(C(3, 2)[0] + C(4, 2)[0]) / 2, C(3, 2)[1]], cr = 2.55;
+    SG.maze = { x:ox, y:oy, w:W, h:H, edges:[...edges, ...ins], clearing:{ x:cc[0], y:cc[1], r:cr }, hw:1, solid:[] };
+    /* the tiles: gravel where a path or the clearing is (within 1 m of a path's line), hedge (solid) elsewhere in the maze's square */
+    const onPath = (x, y) => { if (Math.hypot(x - cc[0], y - cc[1]) < cr) return true;
+      for (const [[ax, ay], [bx, by]] of SG.maze.edges){ const dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy || 1, t = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / L2)); if (Math.hypot(x - ax - t * dx, y - ay - t * dy) < 1) return true; } return false; };
+    for (let j = oy; j < oy + H; j++) for (let i = ox; i < ox + W; i++){ const p = onPath(i + 0.5, j + 0.5); setT(i, j, VZT.PATH, !p); if (!p) SG.maze.solid.push([i, j]); }
+    /* the gravel round it: the walk along the wing (north), the strip of cypresses (west) */
+    const [wx0, wy0, wx1, wy1] = Z.walk; for (let j = wy0; j < wy1; j++) for (let i = wx0; i < wx1; i++) if ([VZT.GARDEN, VZT.PAVE, VZT.PATH].includes(VZ.getT(i, j))) setT(i, j, VZT.PATH, false);
+    for (let j = oy; j < oy + H; j++) for (let i = wx0; i < ox; i++) if ([VZT.GARDEN, VZT.PAVE, VZT.PATH].includes(VZ.getT(i, j))) setT(i, j, VZT.PATH, true);
+    VZ.props = VZ.props.filter(p => !(p.x > (wx0 - 1) * T && p.x < (ox + W + 1) * T && p.y > (wy0 - 1) * T && p.y < (oy + H + 1) * T));
+    (VZ.baked || []).push([wx0, oy, ox + W, oy + H, 'isle-maze']);
+    for (let y = oy + 1.2; y < oy + H; y += 1.6) VZ.props.push({ kind:'islecipresso', x:Math.round((wx0 + 0.5) * T), y:Math.round(y * T), r:0, h:7.5 + ((y * 7) % 3) * 0.6 });
+    const look = I.looks.find(l => l.poi === 'p8'); if (look){ const q = VZ.snap(cc[0] * T, (cc[1] + 0.6) * T, 10); Object.assign(look, { x:q.x, y:q.y, area:{ x:q.x - 1.8 * M, y:q.y - 2.2 * M, w:3.6 * M, h:3.6 * M }, pill:{ x:q.x, y:q.y - 3 * M } }); I.pts['poi-p8'] = q; }
+  }
+  /* 3. the cloister: its court paved, the four parterres of box (low, solid), the walk and the cross walk; the arcade's piers solid */
+  { const Q = SGM.court; SG.court = { ...Q, beds:[] };
+    for (let j = Q.y0; j < Q.y1; j++) for (let i = Q.x0; i < Q.x1; i++){ const k = VZ.getT(i, j); if (![VZT.GARDEN, VZT.PAVE, VZT.PATH].includes(k)) continue;
+      const walk = (i >= Q.walk[0] && i < Q.walk[1]) || (j >= Q.cross[0] && j < Q.cross[1]) || j < Q.y0 + 2;      // (the arcade's walk along the north side too)
+      setT(i, j, VZT.PAVE, !walk); }
+    for (const [x0, x1] of [[Q.x0, Q.walk[0]], [Q.walk[1], Q.x1]]) for (const [y0, y1] of [[Q.y0 + 2, Q.cross[0]], [Q.cross[1], Q.y1]]) SG.court.beds.push({ x0, x1, y0, y1 });
+    VZ.props = VZ.props.filter(p => !(p.x > Q.x0 * T && p.x < Q.x1 * T && p.y > Q.y0 * T && p.y < Q.y1 * T));
+    const L = SGM.loggia; VZ.props.push({ kind:'sgloggia', x:Math.round((L.x0 + L.x1) / 2 * T), y:Math.round(L.y * T), w:Math.round((L.x1 - L.x0) * T), r:0 });
+    block(Math.floor(L.x0), Math.floor(L.y) - 1, Math.floor(L.x0) + 1, Math.floor(L.y)); block(Math.floor(L.x1) - 1, Math.floor(L.y) - 1, Math.floor(L.x1), Math.floor(L.y));
+    const look = I.looks.find(l => l.poi === 'p7'); if (look){ const q = VZ.snap((Q.walk[0] + 1) * T, (Q.cross[0] + 1) * T, 10); Object.assign(look, { x:q.x, y:q.y, area:{ x:q.x - 1.8 * M, y:q.y - 2.2 * M, w:3.6 * M, h:3.6 * M }, pill:{ x:q.x, y:q.y - 3 * M },
+      name:'Il Chiostro del Palladio', lookAt:'Il Chiostro del Palladio', msg:'<b>Il Chiostro del Palladio</b> · Palladio’s cloister (begun 1579): two storeys of arches round the court, box parterres either side of the walk. The monastery is the Fondazione Giorgio Cini’s since 1951.' }); I.pts['poi-p7'] = q; }
+  }
+  /* 4. the Teatro Verde: the tiers solid but for the stairways; the orchestra and the stage flagstones; the walk round the top inside its wall */
+  { const P = SGM.teatro, step = (P.r1 - 0.8 - P.r0) / P.tiers; SG.teatro = { ...P, step };
+    const aisle = (x, y) => { const a = Math.atan2(P.cy - y, x - P.cx) / Math.PI, d = Math.hypot(x - P.cx, y - P.cy); return P.aisles.some(f => Math.abs(a - f) * Math.PI * d < 0.85); };
+    for (let j = Math.floor(P.cy - P.r1 - 1.5); j < Math.ceil(P.cy + 5); j++) for (let i = Math.floor(P.cx - P.r1 - 1.5); i < Math.ceil(P.cx + P.r1 + 1.5); i++){
+      const x = i + 0.5, y = j + 0.5, d = Math.hypot(x - P.cx, y - P.cy), k = VZ.getT(i, j); if (![VZT.GARDEN, VZT.PAVE, VZT.PATH].includes(k)) continue;
+      if (y < P.cy){ if (d < P.r0) setT(i, j, VZT.PAVE, false); else if (d < P.r1 - 0.8) setT(i, j, VZT.PAVE, !aisle(x, y)); else if (d < P.r1) setT(i, j, VZT.PATH, false); else if (d < P.r1 + 0.7) setT(i, j, VZT.PAVE, true); }
+      else if (y < P.cy + 4 && Math.abs(x - P.cx) < P.r0 + 2) setT(i, j, VZT.PAVE, false);
+    }
+    VZ.props = VZ.props.filter(p => Math.hypot(p.x / T - P.cx, p.y / T - P.cy) > P.r1 + 2);
+    /* the cypresses round the cavea's top, and either side of the stage */
+    for (let a = 0.06; a <= 0.95; a += 0.11){ const x = P.cx + Math.cos(a * Math.PI) * (P.r1 + 1.6), y = P.cy - Math.sin(a * Math.PI) * (P.r1 + 1.6); if (tAt(x, y) !== VZT.GARDEN || wetNear(x, y, 1.2)) continue; VZ.props.push({ kind:'islecipresso', x:Math.round(x * T), y:Math.round(y * T), r:0, h:8 + ((a * 37) % 2) }); block(Math.floor(x), Math.floor(y), Math.floor(x) + 1, Math.floor(y) + 1); }
+    const look = I.looks.find(l => l.poi === 'p9'); if (look){ const q = VZ.snap(P.cx * T, (P.cy + 1.2) * T, 12); Object.assign(look, { x:q.x, y:q.y, area:{ x:q.x - 1.8 * M, y:q.y - 2.2 * M, w:3.6 * M, h:3.6 * M }, pill:{ x:q.x, y:q.y - 3 * M } }); I.pts['poi-p9'] = q; }
+  }
+  /* 5. the woods: cypresses, pines and planes on the garden's ground, a step apart, none whose crown would reach the water or a path's middle */
+  { const r = rng(1951), taken = VZ.props.filter(p => ['islecipresso', 'islepino', 'tree'].includes(p.kind)).map(p => [p.x / T, p.y / T]);
+    for (let y = 3; y < 46; y += 3.4) for (let x = 14; x < 110; x += 3.4){
+      const px = x + (r() - 0.5) * 2.2, py = y + (r() - 0.5) * 2.2, i = Math.floor(px), j = Math.floor(py);
+      if (VZ.getT(i, j) !== VZT.GARDEN || VZ.solid[j * cols + i]) continue;
+      if (Math.hypot(px - SGM.teatro.cx, py - SGM.teatro.cy) < SGM.teatro.r1 + 3) continue;
+      const v = r(), kind = v < 0.45 ? 'islecipresso' : v < 0.75 ? 'islepino' : 'tree', R = kind === 'islecipresso' ? 1.2 : kind === 'islepino' ? 3.4 : 2.6;
+      if (wetNear(px, py - (kind === 'islecipresso' ? 0 : 1), R)) continue;
+      let pathy = 0; for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++){ const k = VZ.getT(i + di, j + dj); if (k === VZT.PAVE || k === VZT.PATH) pathy++; } if (pathy > 1) continue;
+      if (taken.some(([a, b]) => Math.hypot(a - px, b - py) < (kind === 'islecipresso' ? 2.2 : 3.6))) continue;
+      const p = { kind, x:Math.round(px * T), y:Math.round(py * T), r:0 };
+      if (kind === 'islecipresso') p.h = 7 + r() * 3; else if (kind === 'islepino') p.size = 0.85 + r() * 0.3; else { p.size = 0.9 + r() * 0.25; p.tone = Math.floor(r() * 3); }
+      VZ.props.push(p); block(i, j, i + 1, j + 1); taken.push([px, py]); SG.trees++;
+    }
+  }
+  /* 6. the café's tables before its wing, on the quay */
+  { const C = SGM.cafe, r = rng(1610); for (let x = C.x0 + 1.5; x < C.x1; x += 3){ const px = Math.round(x * T), py = Math.round(C.y * T), i = Math.floor(x), j = Math.floor(C.y); if (VZ.solid[j * cols + i] || wetNear(x, C.y, 1.4)) continue; VZ.props.push({ kind:'table', x:px, y:py, r:13, chairs:r() < 0.5 ? 2 : 3, cup:r() < 0.5 }); } }
+  /* 7. the doors: the basilica's portal, the library's in the Manica Lunga's middle arch */
+  { const ch = VZ.landmarks.find(l => l.id === 'sg-chiesa'), ml = VZ.landmarks.find(l => l.id === 'sg-palladio');
+    if (ch){ const d = { id:SG_DOORS.chiesa, to:SG_ROOMS.chiesa, name:'San Giorgio Maggiore', label:'Entra', x:Math.round(ch.x + ch.w / 2), y:Math.round(ch.base), poi:null, sg:'chiesa' }; VZ.doors.push(d); SG.doors.push(d); }
+    if (ml){ const d = { id:SG_DOORS.biblioteca, to:SG_ROOMS.biblioteca, name:'La Biblioteca della Manica Lunga', label:'Entra', x:Math.round(ml.x + ml.w / 2), y:Math.round(ml.base), poi:null, sg:'biblioteca' }; VZ.doors.push(d); SG.doors.push(d); }
+    /* the church's look: from the piazza's water steps (its door is the portal: E there goes in) */
+    const look = I.looks.find(l => l.poi === 'p1'); if (look && ch){ const q = VZ.snap(ch.x + ch.w / 2, (SGM.piazza.y1 - 1.0) * T, 10); Object.assign(look, { x:q.x, y:q.y, area:{ x:q.x - 1.8 * M, y:q.y - 2.2 * M, w:3.6 * M, h:3.6 * M }, pill:{ x:q.x, y:q.y - 3 * M } }); I.pts['poi-p1'] = q; }
+    SG.doors.forEach(d => { I.pts['sg-' + d.sg] = VZ.snap(d.x, d.y + 1.3 * M, 12); });
+  }
+}
+
+/* the façade framed from its piazza (as the Riva's statue is: world/xplaces.js xpFrameTick eases VZ_CAM.lift to this): on the piazza before the church the
+   camera eases up until the pediment is in view, at most a quarter of the view, the player kept on screen */
+function vzSgCamWant(){
+  if (VZD.id !== 'sangiorgio' || !VZ_CITY[S.scene] || !VZ.isle || !VZ.isle.sg) return 0;
+  const M = VZ_M, C = SGM.church, P = SGM.piazza;
+  if (player.x < (C.x0 - 4) * M || player.x > (C.x1 + 4) * M || player.y < C.base * M || player.y > (P.y1 + 0.5) * M) return 0;
+  const H = viewH(), top = (C.base - 20) * M;
+  return Math.max(0, Math.min(H * 0.26, player.y - top + 8 - H * (phoneCamOn() ? 0.5 : VZ_ANCHOR)));
+}
+/* ---------- the two rooms (in metres, as every room: world/interiors.js) ---------- */
+/* the basilica: the white nave of columns under its vault, the red and white floor, the pews, the high altar behind its balustrade, Aliense's
+   and Tintoretto's canvases (the Last Supper and the Gathering of the Manna, either side of the presbytery), the monks' choir and the organ behind */
+VZ_ROOM_KINDS.sgchiesa = o => ({ w:18, d:15, wall:12, zones:[{ x0:0, x1:18, floor:'sgscacchi', wall:'sgchiesa' }], exit:{ id:'sgchiesa-exit', x:8.25, w:1.5 }, spawn:{ x:9.0, y:14.1 },
+  props:[
+    { id:'organo', kind:'sgorgan', wall:true, x:6.6, w:4.8, z:3.4, h:5.6, it:'l’organo', en:'the organ, behind the high altar, over the monks’ choir' },
+    { id:'coro', kind:'none', wall:true, x:6.0, w:6.0, z:0.6, h:2.6, it:'il coro', en:'the monks’ choir behind the altar: its carved wooden stalls (1594–98)' },
+    { id:'altare', kind:'sgaltar', x:6.2, y:0.15, w:5.6, d:1.5, h:2.4, it:'l’altare maggiore', en:'the high altar: the four Evangelists carrying the world in bronze, God the Father on top' },
+    { id:'balaustra', kind:'sgbalustrade', x:4.6, y:2.1, w:8.8, d:0.45, h:1.0, it:'la balaustra', en:'the balustrade of white and red marble before the altar' },
+    { id:'cena', kind:'sgcanvas', scene:'cena', wall:true, x:1.0, w:3.6, z:1.6, h:2.6, it:'il quadro', en:'Tintoretto’s Last Supper (1592–94), on the presbytery’s wall' },
+    { id:'manna', word:'quadro', kind:'sgcanvas', scene:'manna', wall:true, x:13.4, w:3.6, z:1.6, h:2.6, it:'il quadro', en:'Tintoretto’s Gathering of the Manna, facing the Last Supper' },
+    ...[[2.0, 3.6], [15.2, 3.6], [2.0, 8.4], [15.2, 8.4]].map(([x, y], k) => ({ id:k ? 'colonna' + (k + 1) : 'colonna', word:'colonna', kind:'sgcolumn', x, y, w:0.9, d:0.9, h:11.2, round:true, look:!k,
+      it:'la colonna', en:'a column of Palladio’s nave: white stone, its Composite capital, the vault above' })),
+    { id:'banchi', kind:'sgpews', x:4.2, y:4.4, w:4.2, d:7.0, h:0.95, rows:7, it:'i banchi', en:'the pews, warm wood' },
+    { id:'banchi2', word:'banchi', kind:'sgpews', x:9.6, y:4.4, w:4.2, d:7.0, h:0.95, rows:7, look:false },
+    { id:'candele', kind:'candles', x:5.1, y:2.0, w:0.5, d:0.5, h:1.6, round:true, it:'le candele', en:'the tall candlesticks before the altar' },
+    { id:'candele2', word:'candele', kind:'candles', x:12.4, y:2.0, w:0.5, d:0.5, h:1.6, round:true, look:false },
+    { id:'acquasantiera', kind:'sgstoup', x:6.4, y:13.6, w:0.6, d:0.6, h:1.0, round:true, it:'l’acquasantiera', en:'the holy-water stoup by the door' },
+  ],
+  people:{} });
+/* the library of the Manica Lunga: the long white hall under its cross vaults (the monks' dormitory, 128 m long, a library since 2009), the wooden
+   bookcases in bays down both sides under the black iron gallery, its stairs, the long tables down the middle with their lamps */
+VZ_ROOM_KINDS.sgbiblioteca = o => {
+  const props = [
+    { id:'volta', kind:'sgvaultend', wall:true, x:2.6, w:6.8, z:2.6, h:6.0, look:false },
+    { id:'finestra', kind:'none', wall:true, x:4.9, w:2.2, z:5.4, h:1.8, it:'la finestra', en:'the window at the hall’s far end: the lagoon’s light' },
+    { id:'scala', kind:'sgstair', x:0.15, y:22.0, w:1.5, d:2.6, h:3.2, it:'la scala', en:'the iron stair up to the gallery' },
+  ];
+  for (let k = 0, y = 1.2; y < 21; y += 2.5, k++) for (const [x, s] of [[0, 'L'], [10.6, 'R']]) props.push({ id:k || s === 'R' ? `scaffale${s}${k}` : 'scaffale', word:'scaffale', kind:'sgbookcase', side:s, x, y, w:1.4, d:0.5, h:2.7, seed:k * 7 + (s === 'R' ? 3 : 0), look:!k && s === 'L',
+    it:'lo scaffale', en:'the bookcases: some 150,000 books on art, Venice, theatre and music' });
+  /* the black iron gallery along both sides over the bookcases (drawn at its height: nothing under it to walk) */
+  props.push({ id:'ballatoio', kind:'sggallery', x:0, y:0.6, w:1.5, d:20.9, h:2.75, solid:false, side:'L', it:'il ballatoio', en:'the gallery of black iron over the bookcases, the second row of books up there' });
+  props.push({ id:'ballatoio2', word:'ballatoio', kind:'sggallery', x:10.5, y:0.6, w:1.5, d:20.9, h:2.75, solid:false, side:'R', look:false });
+  [[2.6, 'tavolo'], [8.6, 'tavolo2'], [14.6, 'tavolo3']].forEach(([y, id], k) => props.push({ id, word:'tavolo', kind:'sgtable', x:5.0, y, w:2.0, d:4.2, h:0.76, look:!k, it:'il tavolo', en:'a long reading table of oak, its green lamps, the chairs' }));
+  props.push({ id:'lampada', kind:'none', on:'tavolo', x:5.6, y:3.4, w:0.8, d:0.8, h:1.2, solid:false, it:'la lampada', en:'a reading lamp' });
+  return { w:12, d:25, wall:8, zones:[{ x0:0, x1:12, floor:'sgparquet', wall:'sgbiblio' }], exit:{ id:'sgbiblio-exit', x:5.25, w:1.5 }, spawn:{ x:6.0, y:24.1 }, props, people:{} };
+};
+VZ_ROOMS[SG_ROOMS.chiesa] = vzRoomKind('sgchiesa', { title:'San Giorgio Maggiore', sub:'La basilica di Palladio · l’isola di San Giorgio', door:SG_DOORS.chiesa, seed:1566, district:'sangiorgio',
+  welcome:'<b>San Giorgio Maggiore</b> · Palladio’s nave: white stone, the light from the high windows, the red and white floor.' });
+VZ_ROOMS[SG_ROOMS.biblioteca] = vzRoomKind('sgbiblioteca', { title:'La Biblioteca della Manica Lunga', sub:'La Fondazione Giorgio Cini · l’isola di San Giorgio', door:SG_DOORS.biblioteca, seed:1494, district:'sangiorgio',
+  welcome:'<b>La Manica Lunga</b> · the monks’ long dormitory, a library since 2009: the bookcases under the gallery, the long tables.' });
+Object.values(SG_ROOMS).forEach(k => { vzRoomScene(k); VZ_SCENE_D[k] = 'sangiorgio'; });
+/* a look inside: its line in a toast (the room's look props: their it and en), as the island's looks outside */
+Object.values(SG_ROOMS).forEach(k => VZ_ROOMS[k].props.forEach(p => { if (p.look !== false && p.it && !p.msg) p.msg = `<b>${esc(p.it.replace(/^./, c => c.toUpperCase()))}</b> · ${esc(p.en)}`; }));
+
+dbgField('sg', () => VZD.id !== 'sangiorgio' || !VZ.isle || !VZ.isle.sg ? null : { maze:VZ.isle.sg.maze && { x:VZ.isle.sg.maze.x, y:VZ.isle.sg.maze.y, w:VZ.isle.sg.maze.w, h:VZ.isle.sg.maze.h, hedges:VZ.isle.sg.maze.solid.length, clearing:VZ.isle.sg.maze.clearing },
+  trees:VZ.isle.sg.trees, doors:VZ.isle.sg.doors.map(d => ({ id:d.id, to:d.to, x:d.x, y:d.y })), room:VZ_ROOMS[S.scene] && Object.values(SG_ROOMS).includes(S.scene) ? S.scene : null });
+Object.assign(window.__debug, {
+  sg:() => __dbg().sg,
+  /* where: 'chiesa' | 'biblioteca' (before its door; o.inside: in the room at its spawn), or a named point */
+  async sgGo(where, o = {}){ if (VZD.id !== 'sangiorgio' || VZD.loading) await vzGoDistrict('sangiorgio', {});
+    if (o.inside && SG_ROOMS[where]){ const R = VZ_ROOMS[SG_ROOMS[where]]; const q = (R.spots && R.spots.spawn) || { x:R.X(R.spawn.x), y:R.Y(R.spawn.y) }; travelTo(SG_ROOMS[where], { x:q.x, y:q.y }, R.title, R.sub, { face:{ x:0, y:-1 } }); return { scene:SG_ROOMS[where] }; }
+    const q = vzPoints()['sg-' + where] || vzPoints()[where]; if (!q) return null; const a = vzAreaAt(q.x, q.y); __debug.go(a >= 0 ? VZ.areas[a].key : VZ.areas[0].key, q.x / VZ_TILE, q.y / VZ_TILE); return { x:q.x, y:q.y, scene:S.scene }; },
 });
 
 /* ===== units/venezia/story/d2-cena/world.js ===== */
@@ -63134,58 +63337,7 @@ function vzIsleTower(g, l, cx, w, h, o = {}){
   const tip = o.dome ? top - w * 0.55 * M - 2.5 * M : top - ch;
   if (o.angel){ vzStatueFig(g, cx, tip, 1.6, '#e8c35a', false); } else { g.fillStyle = '#e8c35a'; g.fillRect(cx - 1, tip - 14, 2, 14); g.fillRect(cx - 5, tip - 10, 10, 2); }
 }
-/* ---------- San Giorgio Maggiore: Palladio's white front (the great order of four columns on pedestals, the pediment, the half pediments of the
-   aisles), the dome and its lantern behind; (the campanile is its own: sg-campanile) ---------- */
-VZ_DLM['sg-chiesa'] = { draw(g, l){
-  const M = VZ_M, at = vzAtOf(l), cx = l.x + l.w / 2, fw = Math.min(l.w + 0.8 * M, 26 * M), x0 = cx - fw / 2, x1 = cx + fw / 2, nw = fw * 0.46;
-  /* the dome on its drum, the nave's roof, behind */
-  g.fillStyle = ISC.istD; g.fillRect(cx - 4.2 * M, at(24), 8.4 * M, 4 * M); for (let k = -3; k <= 3; k++){ g.fillStyle = ISC.glass; vzArchPath(g, cx + k * 1.15 * M - 0.3 * M, at(23.2), 0.6 * M, 2.2 * M, 'arch'); g.fill(); }
-  vzDome(g, cx, at(24), 4.6 * M, 4.4 * M, ISC.lead); g.fillStyle = ISC.ist; g.fillRect(cx - 0.6 * M, at(30), 1.2 * M, 1.8 * M); vzDome(g, cx, at(30), 0.9 * M, 1.1 * M, ISC.lead);
-  g.fillStyle = '#e8c35a'; g.fillRect(cx - 1, at(32.2), 2, 0.9 * M);
-  g.fillStyle = ISC.roof; g.fillRect(cx - nw / 2 + 0.5 * M, at(21.5), nw - M, 3 * M);
-  /* the aisles' wings: lower, a half pediment each, a pair of small columns */
-  [[x0, cx - nw / 2], [cx + nw / 2, x1]].forEach(([a, b], s) => {
-    vzWallFill(g, a, at(11.5), b - a, 11.5 * M, ISC.ist);
-    [0.25, 0.75].forEach(f => vzCol(g, a + (b - a) * f, at(0.6), at(10.6), 0.75 * M, '#f4f0e6', 'cor'));
-    g.fillStyle = ISC.istD; g.beginPath(); if (s === 0){ g.moveTo(a - 4, at(11.5)); g.lineTo(b, at(14.5)); g.lineTo(b, at(11.5)); } else { g.moveTo(a, at(11.5)); g.lineTo(a, at(14.5)); g.lineTo(b + 4, at(11.5)); } g.closePath(); g.fill();
-    vzCornice(g, a, at(11.6), b - a, 0.5 * M);
-    g.fillStyle = 'rgba(60,40,20,.18)'; vzArchPath(g, (a + b) / 2 - 0.6 * M, at(7.5), 1.2 * M, 3 * M, 'arch'); g.fill();
-  });
-  /* the nave's front: four tall columns on pedestals, the portal, the niches, the entablature, the pediment */
-  vzWallFill(g, cx - nw / 2, at(19), nw, 19 * M, '#f3efe6');
-  const cols = [0.08, 0.32, 0.68, 0.92].map(f => cx - nw / 2 + nw * f);
-  cols.forEach(px => { g.fillStyle = ISC.istD; g.fillRect(px - 0.9 * M, at(3), 1.8 * M, 3 * M); vzCol(g, px, at(3), at(17.2), 1.3 * M, '#f6f2ea', 'cor'); });
-  g.fillStyle = '#ece6da'; g.fillRect(cx - 2 * M, at(8.6), 4 * M, 8.6 * M); vzPediment(g, cx, at(8.6), 4.8 * M, 1.4 * M, '#f4f0e6');
-  g.fillStyle = '#5a4030'; vzArchPath(g, cx - 1.3 * M, at(6.8), 2.6 * M, 6.8 * M, 'arch'); g.fill();
-  [(cols[0] + cols[1]) / 2, (cols[2] + cols[3]) / 2].forEach(nx => { g.fillStyle = 'rgba(60,40,20,.16)'; vzArchPath(g, nx - 0.7 * M, at(12), 1.4 * M, 3.4 * M, 'arch'); g.fill(); vzStatueFig(g, nx, at(8.7), 2.4, '#f2ede3'); });
-  g.fillStyle = '#efe9dc'; g.fillRect(cx - nw / 2 - 0.3 * M, at(19), nw + 0.6 * M, 1.8 * M); g.fillStyle = 'rgba(60,40,20,.18)'; g.fillRect(cx - nw / 2 - 0.3 * M, at(17.4), nw + 0.6 * M, 3);
-  vzText(g, 'DEO · DIVO GEORGIO', cx, at(18.1), '700 9px "Titillium Web", sans-serif', '#8a7a62', nw * 0.8);
-  vzPediment(g, cx, at(19), nw + 0.9 * M, 4.2 * M, '#f2ede3', 'oculus');
-  [cx - nw / 2, cx, cx + nw / 2].forEach((sx, k) => vzStatueFig(g, sx, at(19) - (k === 1 ? 4.4 * M : 0), 1.5, '#f2ede3', false));
-  /* the steps */
-  g.fillStyle = '#e4ddcf'; g.fillRect(x0 - 0.4 * M, at(0.6), fw + 0.8 * M, 0.6 * M); g.fillStyle = 'rgba(30,20,10,.25)'; g.fillRect(x0, l.base - 4, fw, 4);
-} };
-/* the campanile (1791): brick with white stone quoins, the belfry, the cone and the angel; its door in the base below */
-VZ_DLM['sg-campanile'] = { draw(g, l){
-  const M = VZ_M, at = vzAtOf(l), cx = l.x + l.w / 2;
-  vzWallFill(g, l.x + 1.5 * M, at(5), l.w - 3 * M, 5 * M, '#e9dcc0'); vzCornice(g, l.x + 1.5 * M, at(5.2), l.w - 3 * M, 0.4 * M);
-  vzIsleTower(g, l, cx, 6.4, 36, { belfry:5, cone:7, angel:true, seed:21 });
-  g.fillStyle = ISC.ist; [cx - 3.2 * M, cx + 3.2 * M - 6].forEach(x => { for (let y = 5; y < 30; y += 1.6) g.fillRect(x, at(y + 0.8), 6, 0.8 * M); });
-  g.fillStyle = '#4a3a2a'; vzArchPath(g, cx - 0.8 * M, at(2.6), 1.6 * M, 2.6 * M, 'arch'); g.fill();
-} };
-/* the cloisters' wings (the Fondazione Cini): two storeys of stone, arched windows over an arcade on the ground floor */
-function vzIsleCloister(g, l, o = {}){
-  const M = VZ_M, at = vzAtOf(l), x0 = l.x, w = l.w, n = Math.max(3, Math.round(w / (3.6 * M)));
-  g.fillStyle = ISC.roof; g.fillRect(x0, at(12.6), w, 1.6 * M); g.fillStyle = 'rgba(0,0,0,.15)'; for (let x = x0; x < x0 + w; x += 9) g.fillRect(x, at(12.6), 2, 1.6 * M);
-  vzWallFill(g, x0, at(11), w, 11 * M, o.col || '#ece3d0');
-  vzCornice(g, x0, at(11), w, 0.5 * M); vzCornice(g, x0, at(5.6), w, 0.35 * M);
-  const bw = w / n; for (let k = 0; k < n; k++){ const bx = x0 + bw * (k + 0.5);
-    g.fillStyle = '#4a4440'; vzArchPath(g, bx - bw * 0.36, at(4.6), bw * 0.72, 4.2 * M, 'arch'); g.fill(); g.fillStyle = 'rgba(255,255,255,.2)'; g.fillRect(bx - bw * 0.5, at(5.2), 4, 5.2 * M);
-    vzWin(g, bx, at(9.8), 1.1 * M, 2.4 * M, { kind:'arch', shut:'closed', sc:'#5d6b5a' }); }
-  if (o.sign) vzText(g, o.sign, x0 + w / 2, at(5.95), '700 9px "Titillium Web", sans-serif', '#6a5a44', w * 0.8);
-}
-VZ_DLM['sg-cipressi'] = { draw(g, l){ vzIsleCloister(g, l, { col:'#eee5d2' }); } };
-VZ_DLM['sg-palladio'] = { draw(g, l){ vzIsleCloister(g, l, { col:'#ebe0ca', sign:'FONDAZIONE GIORGIO CINI' }); } };
+/* (San Giorgio Maggiore's buildings, ground and props: render/sangiorgio.js, since 27 Nov) */
 /* ---------- Sant'Elena: the brick Gothic front (the gable, the round window, the white portal with Vittore Capello kneeling), its campanile,
    and the stadium ---------- */
 VZ_DLM['se-chiesa'] = { draw(g, l){
@@ -63287,11 +63439,12 @@ VZ_DLM['li-excelsior'] = { draw(g, l){
 } };
 /* a rationalist front (the 1930s: the Casinò, the Palazzo del Cinema): white, flat, long bands of windows, the name in big letters */
 function vzIsleModern(g, l, o){
-  const M = VZ_M, at = vzAtOf(l), x0 = l.x, w = l.w, cx = x0 + w / 2;
-  vzWallFill(g, x0, at(14), w, 14 * M, o.col || '#f2efe8');
-  g.fillStyle = 'rgba(60,60,60,.12)'; g.fillRect(x0, at(14), w, 0.6 * M);
-  [4.2, 8.4].forEach(y => { g.fillStyle = ISC.glass; g.fillRect(x0 + M, at(y + 2.4), w - 2 * M, 2.4 * M); g.fillStyle = 'rgba(240,240,240,.85)'; for (let x = x0 + M; x < x0 + w - M; x += 1.6 * M) g.fillRect(x, at(y + 2.4), 0.25 * M, 2.4 * M); });
-  vzText(g, o.name, cx, at(12.2), '800 17px "Titillium Web", sans-serif', o.ink || '#2b2b2b', w * 0.8);
+  /* (its height from its footprint's depth since the islands' plan is at 2 m a cell, 27 Nov: two stacked fronts would overlap) */
+  const M = VZ_M, at = vzAtOf(l), x0 = l.x, w = l.w, cx = x0 + w / 2, H = Math.max(8, Math.min(14, l.h / M));
+  vzWallFill(g, x0, at(H), w, H * M, o.col || '#f2efe8');
+  g.fillStyle = 'rgba(60,60,60,.12)'; g.fillRect(x0, at(H), w, 0.6 * M);
+  (H >= 12 ? [4.2, 8.4] : [4.0]).forEach(y => { g.fillStyle = ISC.glass; g.fillRect(x0 + M, at(y + 2.4), w - 2 * M, 2.4 * M); g.fillStyle = 'rgba(240,240,240,.85)'; for (let x = x0 + M; x < x0 + w - M; x += 1.6 * M) g.fillRect(x, at(y + 2.4), 0.25 * M, 2.4 * M); });
+  vzText(g, o.name, cx, at(H - 1.8), '800 17px "Titillium Web", sans-serif', o.ink || '#2b2b2b', w * 0.8);
   /* the entrance: a deep porch of square pillars */
   const pw = Math.min(w * 0.5, 16 * M); g.fillStyle = '#4a4440'; g.fillRect(cx - pw / 2, at(3.6), pw, 3.6 * M); g.fillStyle = o.col || '#f2efe8'; for (let k = 0; k <= 5; k++) g.fillRect(cx - pw / 2 + k * (pw / 5) - 0.3 * M, at(3.6), 0.6 * M, 3.6 * M);
   if (o.carpet){ g.fillStyle = '#b0202a'; g.fillRect(cx - 2 * M, at(0.05), 4 * M, 2.4 * M); g.fillStyle = 'rgba(0,0,0,.18)'; g.fillRect(cx - 2 * M, l.base + 0.4 * M, 4 * M, 3); }
@@ -63373,6 +63526,416 @@ Object.assign(VZ_PROP, {
   const M = VZ_M, r = rng(L.seed + 5); for (let y = L.y0 * T + 0.6 * M; y < L.y1 * T - 1.6 * M; y += 2.6 * M) for (let x = L.x0 * T + 0.3 * M; x < L.x1 * T - 1.4 * M; x += 1.7 * M){
     const c = ['#2f6fa8', '#e07a2a', '#2e8b57', '#c23b2a'][Math.floor(r() * 4)]; g.fillStyle = 'rgba(120,90,40,.22)'; g.fillRect(x + 3, y + 3, 1.6 * M, 1.4 * M); g.fillStyle = c; g.fillRect(x, y, 1.6 * M, 0.7 * M); g.fillStyle = shade(c, -0.2); g.fillRect(x, y + 0.7 * M, 1.6 * M, 0.7 * M); }
   g.restore(); }; }
+
+/* ===== units/venezia/render/sangiorgio.js ===== */
+/* San Giorgio Maggiore drawn from the designer's reference pictures (27 Nov; docs/refs/venezia/d4/sangiorgio/; world/sangiorgio.js has the places):
+   Palladio's façade (basilica-facciata.png: the great order of four columns on tall pedestals, the pediment and its statues, the aisles' half
+   pediments, the niches, the dark bronze door) with the brick drum, the lead dome and the side walls behind (isola-dal-bacino.png); the campanile
+   (brick, the white belfry, the green cone, the angel); the Manica Lunga's front on the cloister's model (chiostro-palladio.png: pink plaster, white
+   Ionic arcade, pedimented windows); the monastery's grey wings (the converter's houses, h.isle 'cini'); on the ground: the piazza's cubes of white
+   and grey stone, the church's steps and the steps into the water, the maze's box hedges (labirinto-borges.jpg), the cloister's parterres, the Teatro
+   Verde (teatro-verde-1/2.jpg: stone benches, a hedge strip behind each, the stairways, the crazy paving); the props: cypresses, the cloister's
+   arcade; the two rooms (basilica-interno.png, biblioteca-manica-lunga.png). Flat colours, lit from the west, in metres. */
+const SGC = { ist:'#f3f0e9', istS:'#e2ddd2', istD:'#c9c2b4', brick:'#b8674a', brickD:'#9a523a', lead:'#9aa3a8', pink:'#e8b8a0', pinkD:'#d9a68e', roof:'#c4683f', green:'#5f9a86',
+  hedge:'#3f6e33', hedgeT:'#5d8f45', hedgeL:'#7aa95a', gravel:'#e7dcc2', gravelD:'#d6c8a8', grey:'#a9a7a1', cini:'#dedad2' };
+
+/* ---------- the basilica's front ---------- */
+VZ_DLM['sg-chiesa'] = { draw(g, l){
+  const M = VZ_M, at = vzAtOf(l), cx = l.x + l.w / 2, fw = l.w + 4 * M, x0 = cx - fw / 2, x1 = cx + fw / 2, nw = fw * 0.48, nx0 = cx - nw / 2, nx1 = cx + nw / 2;
+  const PED = 3.0, COL = 14.2, ENT = 15.7, PEDI = 3.3, WING = 9.6, HALF = 12.4;
+  /* behind: the nave's brick clerestory and lead roof, the transept's bell turrets, the drum and the dome, the lantern */
+  vzBrickFill(g, cx - 4.8 * M, at(19.4), 9.6 * M, 5 * M, SGC.brick, 1566);
+  g.fillStyle = SGC.lead; g.beginPath(); g.moveTo(cx - 5.4 * M, at(19.4)); g.lineTo(cx, at(21.6)); g.lineTo(cx + 5.4 * M, at(19.4)); g.closePath(); g.fill();
+  [-1, 1].forEach(s => { const tx = cx + s * 6.4 * M; vzBrickFill(g, tx - 1.1 * M, at(16.6), 2.2 * M, 4 * M, SGC.brickD, 7 + s); g.fillStyle = SGC.istS; g.fillRect(tx - 1.3 * M, at(16.8), 2.6 * M, 0.3 * M);
+    g.fillStyle = SGC.ist; g.fillRect(tx - 0.5 * M, at(18.8), 1.0 * M, 2.0 * M); g.fillStyle = '#4a4440'; vzArchPath(g, tx - 0.28 * M, at(18.5), 0.56 * M, 1.3 * M, 'arch'); g.fill(); vzDome(g, tx, at(18.8), 0.65 * M, 0.85 * M, SGC.lead); g.fillStyle = '#e8c35a'; g.fillRect(tx - 1, at(20.2), 2, 0.5 * M); });
+  vzBrickFill(g, cx - 3.8 * M, at(23.6), 7.6 * M, 3.4 * M, SGC.brick, 1610);
+  g.fillStyle = SGC.istS; g.fillRect(cx - 4.0 * M, at(23.7), 8.0 * M, 0.35 * M); g.fillRect(cx - 4.0 * M, at(20.4), 8.0 * M, 0.3 * M);
+  for (let k = -2; k <= 2; k++){ g.fillStyle = SGC.ist; vzArchPath(g, cx + k * 1.45 * M - 0.4 * M, at(23.0), 0.8 * M, 1.9 * M, 'arch'); g.fill(); g.fillStyle = '#3a3f46'; vzArchPath(g, cx + k * 1.45 * M - 0.28 * M, at(22.9), 0.56 * M, 1.7 * M, 'arch'); g.fill(); }
+  vzDome(g, cx, at(23.9), 4.3 * M, 3.8 * M, SGC.lead);
+  g.strokeStyle = 'rgba(70,80,90,.25)'; g.lineWidth = 1; for (let y = 24.6; y < 27.4; y += 0.7){ const w = Math.sqrt(Math.max(0, 1 - ((y - 23.9) / 3.8) ** 2)) * 4.3 * M; g.beginPath(); g.moveTo(cx - w, at(y)); g.lineTo(cx + w, at(y)); g.stroke(); }
+  g.fillStyle = SGC.ist; g.fillRect(cx - 0.6 * M, at(28.9), 1.2 * M, 1.3 * M); g.fillStyle = '#4a4440'; g.fillRect(cx - 0.2 * M, at(28.7), 0.4 * M, 0.8 * M); vzDome(g, cx, at(28.9), 0.8 * M, 0.9 * M, SGC.lead);
+  vzStatueFig(g, cx, at(29.7), 1.3, '#9aa0a2', false);
+  /* the aisles' fronts: a lower order of pilasters on the plinth, the half pediments, a niche in each with a bust over an urn, a statue at each outer end */
+  [[x0, nx0, 0], [nx1, x1, 1]].forEach(([a, b, s]) => {
+    vzWallFill(g, a, at(WING), b - a, WING * M, SGC.ist);
+    g.fillStyle = SGC.istS; g.fillRect(a, at(PED), b - a, PED * M); g.fillStyle = 'rgba(80,70,55,.14)'; g.fillRect(a, at(PED), b - a, 2);
+    [0.12, 0.88].forEach(f => vzCol(g, a + (b - a) * f, at(PED), at(WING - 0.8), 0.66 * M, '#f6f3ec', 'cor', true));
+    const mx = (a + b) / 2;
+    g.fillStyle = SGC.istS; g.fillRect(mx - 1.1 * M, at(7.6), 2.2 * M, 3.4 * M); vzPediment(g, mx, at(7.6), 2.6 * M, 0.8 * M, '#f4f1ea');
+    g.fillStyle = 'rgba(70,60,45,.22)'; vzArchPath(g, mx - 0.65 * M, at(7.2), 1.3 * M, 2.5 * M, 'arch'); g.fill();
+    g.fillStyle = '#ebe6dc'; g.fillRect(mx - 0.45 * M, at(5.0), 0.9 * M, 0.35 * M); g.beginPath(); g.ellipse(mx, at(5.4), 0.35 * M, 0.3 * M, 0, 0, Math.PI * 2); g.fill(); circ(g, mx, at(6.2), 0.24 * M); g.fill();
+    g.fillStyle = SGC.istD; g.beginPath(); if (!s){ g.moveTo(a - 4, at(WING)); g.lineTo(b, at(HALF)); g.lineTo(b, at(WING)); } else { g.moveTo(a, at(WING)); g.lineTo(a, at(HALF)); g.lineTo(b + 4, at(WING)); } g.closePath(); g.fill();
+    g.strokeStyle = SGC.ist; g.lineWidth = 4; g.beginPath(); if (!s){ g.moveTo(a - 5, at(WING + 0.1)); g.lineTo(b, at(HALF + 0.2)); } else { g.moveTo(a, at(HALF + 0.2)); g.lineTo(b + 5, at(WING + 0.1)); } g.stroke();
+    vzCornice(g, a, at(WING + 0.2), b - a, 0.45 * M, SGC.ist);
+    vzStatueFig(g, s ? b - 0.4 * M : a + 0.4 * M, at(WING + 0.2), 1.5, '#ece8de', false);
+  });
+  /* the nave's front: four giant columns on their tall pedestals, the door, the niches with their saints, the entablature, the pediment */
+  vzWallFill(g, nx0, at(ENT), nw, ENT * M, '#f5f2eb');
+  const cols = [0.07, 0.31, 0.69, 0.93].map(f => nx0 + nw * f);
+  cols.forEach(px => { g.fillStyle = SGC.istS; g.fillRect(px - 0.85 * M, at(PED), 1.7 * M, PED * M); g.fillStyle = 'rgba(80,70,55,.18)'; g.fillRect(px + 0.42 * M, at(PED), 0.43 * M, PED * M);
+    g.fillStyle = SGC.ist; g.fillRect(px - 0.95 * M, at(PED + 0.2), 1.9 * M, 0.3 * M); vzCol(g, px, at(PED + 0.2), at(COL), 1.15 * M, '#f7f5ef', 'cor'); });
+  const dw = 2.4 * M;
+  g.fillStyle = SGC.istS; g.fillRect(cx - dw / 2 - 0.35 * M, at(6.2), dw + 0.7 * M, 6.2 * M);
+  g.fillStyle = '#2c3330'; g.fillRect(cx - dw / 2, at(5.4), dw, 5.4 * M); g.fillStyle = 'rgba(120,140,120,.18)'; for (let k = 1; k < 4; k++) g.fillRect(cx - dw / 2 + k * dw / 4 - 0.5, at(5.4), 1, 5.4 * M); for (let k = 1; k < 4; k++) g.fillRect(cx - dw / 2, at(k * 1.35), dw, 1);
+  g.fillStyle = '#15191a'; g.fillRect(cx - 0.55 * M, at(2.6), 1.1 * M, 2.6 * M);
+  g.fillStyle = SGC.ist; vzArchPath(g, cx - 1.6 * M, at(9.0), 3.2 * M, 2.8 * M, 'arch'); g.fill(); g.fillStyle = SGC.istS; vzArchPath(g, cx - 1.25 * M, at(8.7), 2.5 * M, 2.4 * M, 'arch'); g.fill();
+  g.fillStyle = '#c9a54a'; g.beginPath(); g.ellipse(cx, at(7.4), 0.42 * M, 0.55 * M, 0, 0, Math.PI * 2); g.fill(); g.fillStyle = '#8a3a2a'; g.fillRect(cx - 0.06 * M, at(7.8), 0.12 * M, 0.8 * M); g.fillRect(cx - 0.28 * M, at(7.5), 0.56 * M, 0.12 * M);
+  [(cols[0] + cols[1]) / 2, (cols[2] + cols[3]) / 2].forEach(nx => { g.fillStyle = SGC.istS; g.fillRect(nx - 0.9 * M, at(9.8), 1.8 * M, 4.8 * M);
+    g.fillStyle = 'rgba(70,60,45,.24)'; vzArchPath(g, nx - 0.6 * M, at(9.5), 1.2 * M, 3.4 * M, 'arch'); g.fill(); vzStatueFig(g, nx, at(6.3), 2.5, '#f0ece3');
+    g.fillStyle = SGC.istS; g.fillRect(nx - 0.8 * M, at(12.8), 1.6 * M, 1.7 * M); g.strokeStyle = 'rgba(90,80,60,.35)'; g.lineWidth = 1; g.strokeRect(nx - 0.7 * M, at(12.7), 1.4 * M, 1.5 * M); });
+  g.fillStyle = SGC.istS; g.fillRect(cx - 1.4 * M, at(13.6), 2.8 * M, 2.2 * M); g.strokeStyle = 'rgba(90,80,60,.3)'; g.lineWidth = 1.2; g.strokeRect(cx - 1.25 * M, at(13.45), 2.5 * M, 1.9 * M);
+  g.fillStyle = '#efebe2'; g.fillRect(nx0 - 0.4 * M, at(ENT), nw + 0.8 * M, (ENT - COL) * M); g.fillStyle = 'rgba(80,70,55,.2)'; g.fillRect(nx0 - 0.4 * M, at(COL), nw + 0.8 * M, 3);
+  for (let x = nx0 - 0.3 * M; x < nx1 + 0.3 * M; x += 0.34 * M){ g.fillStyle = 'rgba(90,80,60,.22)'; g.fillRect(x, at(ENT - 0.05), 0.16 * M, 0.22 * M); }
+  vzText(g, 'DEO · OPT · MAX · DIVO GEORGIO', cx, at(COL + 0.7), '700 8px "Titillium Web", sans-serif', '#8a7a62', nw * 0.82);
+  vzPediment(g, cx, at(ENT + 0.1), nw + 1.1 * M, PEDI * M, '#f3efe7', 'oculus');
+  vzStatueFig(g, nx0 - 0.2 * M, at(ENT + 0.3), 1.6, '#ece8de'); vzStatueFig(g, nx1 + 0.2 * M, at(ENT + 0.3), 1.6, '#ece8de'); vzStatueFig(g, cx, at(ENT + PEDI + 0.2), 1.9, '#ece8de');
+  g.fillStyle = 'rgba(80,70,55,.25)'; g.fillRect(x0, l.base - 3, fw, 3);
+} };
+/* ---------- the campanile: brick with white quoins, the belfry's arches and balustrade, the green cone with its four pinnacles, the angel ---------- */
+VZ_DLM['sg-campanile'] = { draw(g, l){
+  const M = VZ_M, at = vzAtOf(l), cx = l.x + l.w / 2, w = 6.2, x = cx - w / 2 * M, H = 32;
+  vzWallFill(g, l.x + 1.2 * M, at(4.6), l.w - 2.4 * M, 4.6 * M, SGC.cini); vzCornice(g, l.x + 1.2 * M, at(4.8), l.w - 2.4 * M, 0.35 * M);
+  vzBrickFill(g, x, at(H), w * M, H * M, SGC.brick, 1791); g.fillStyle = 'rgba(40,15,5,.18)'; g.fillRect(x + w * M * 0.64, at(H), w * M * 0.36, H * M);
+  g.fillStyle = SGC.ist; for (const qx of [x, x + w * M - 0.45 * M]) for (let y = 4.6; y < H; y += 1.2) g.fillRect(qx, at(y + 0.6), 0.45 * M, 0.6 * M);
+  for (let y = 9; y < H - 2; y += 5.5){ g.fillStyle = '#5a3a2c'; g.fillRect(cx - 0.18 * M, at(y + 1.2), 0.36 * M, 1.2 * M); }
+  /* the belfry */
+  const B0 = H, B1 = H + 5.2; vzCornice(g, x - 0.3 * M, at(B0 + 0.1), w * M + 0.6 * M, 0.45 * M, SGC.ist);
+  g.fillStyle = SGC.ist; g.fillRect(x, at(B1), w * M, (B1 - B0) * M); g.fillStyle = 'rgba(60,50,40,.12)'; g.fillRect(x + w * M * 0.7, at(B1), w * M * 0.3, (B1 - B0) * M);
+  for (let k = 0; k < 3; k++){ const ax = x + w * M * (k + 0.5) / 3; g.fillStyle = '#2b2522'; vzArchPath(g, ax - 0.75 * M, at(B1 - 0.7), 1.5 * M, 3.6 * M, 'arch'); g.fill(); vzCol(g, ax - 0.95 * M, at(B0 + 0.6), at(B1 - 1.6), 0.28 * M, '#f6f3ec', 'ion', true); }
+  vzBalust(g, x - 0.2 * M, at(B0 + 1.4), w * M + 0.4 * M, 0.9 * M, SGC.ist);
+  vzCornice(g, x - 0.35 * M, at(B1 + 0.2), w * M + 0.7 * M, 0.5 * M, SGC.ist);
+  /* the octagonal drum, the green cone, the pinnacles at the corners, the angel on top */
+  g.fillStyle = SGC.istS; g.fillRect(cx - 2.3 * M, at(B1 + 2.0), 4.6 * M, 1.8 * M); g.fillStyle = SGC.ist; for (let k = 0; k < 4; k++){ const px = cx - 1.7 * M + k * 1.13 * M; vzArchPath(g, px - 0.2 * M, at(B1 + 1.7), 0.4 * M, 1.0 * M, 'arch'); g.fillStyle = '#3a3634'; g.fill(); g.fillStyle = SGC.ist; }
+  [x + 0.3 * M, x + w * M - 0.3 * M].forEach(px => { g.fillStyle = SGC.ist; g.fillRect(px - 0.25 * M, at(B1 + 1.6), 0.5 * M, 1.4 * M); g.beginPath(); g.moveTo(px - 0.3 * M, at(B1 + 1.6)); g.lineTo(px, at(B1 + 2.7)); g.lineTo(px + 0.3 * M, at(B1 + 1.6)); g.fill(); });
+  const c0 = at(B1 + 2.0), ch = 7.2 * M;
+  g.fillStyle = SGC.green; g.beginPath(); g.moveTo(cx - 2.35 * M, c0); g.lineTo(cx, c0 - ch); g.lineTo(cx + 2.35 * M, c0); g.closePath(); g.fill();
+  g.fillStyle = 'rgba(20,50,40,.28)'; g.beginPath(); g.moveTo(cx, c0 - ch); g.lineTo(cx + 2.35 * M, c0); g.lineTo(cx + 0.5 * M, c0); g.closePath(); g.fill();
+  g.fillStyle = 'rgba(220,255,240,.25)'; g.beginPath(); g.moveTo(cx, c0 - ch); g.lineTo(cx - 1.2 * M, c0); g.lineTo(cx - 0.8 * M, c0); g.closePath(); g.fill();
+  g.strokeStyle = 'rgba(30,60,50,.3)'; g.lineWidth = 1; for (let k = 1; k < 7; k++){ const y = c0 - ch * k / 7, hw = 2.35 * M * (1 - k / 7); g.beginPath(); g.moveTo(cx - hw, y); g.lineTo(cx + hw, y); g.stroke(); }
+  g.fillStyle = SGC.ist; circ(g, cx, c0 - ch - 2, 3); g.fill();
+  vzStatueFig(g, cx, c0 - ch - 3, 1.7, '#c9b27a', false);
+  /* the door at its foot (the lift is in the church: "Coming soon") */
+  g.fillStyle = '#4a3a2a'; vzArchPath(g, cx - 0.8 * M, at(2.8), 1.6 * M, 2.8 * M, 'arch'); g.fill(); g.fillStyle = SGC.ist; g.fillRect(cx - 1.0 * M, at(2.9), 2.0 * M, 0.2 * M);
+} };
+/* ---------- the Manica Lunga's front on the cloister's model: pink plaster, a white Ionic arcade, the pedimented windows above, the roof ---------- */
+function vzSgArcadeFront(g, x0, x1, base, o = {}){
+  const M = VZ_M, at = m => base - m * M, w = x1 - x0, G = o.ground || 4.4, U = o.upper || 4.4, H = G + U + 0.8, n = o.bays || Math.max(3, Math.round(w / (2.4 * M))), bw = w / n;
+  if (o.roof !== false){ g.fillStyle = SGC.roof; g.fillRect(x0 - 0.3 * M, at(H + 1.3), w + 0.6 * M, 1.3 * M); g.fillStyle = 'rgba(80,30,10,.2)'; for (let x = x0; x < x1; x += 7) g.fillRect(x, at(H + 1.3), 1.5, 1.3 * M); }
+  vzWallFill(g, x0, at(H), w, H * M, o.col || SGC.pink);
+  vzCornice(g, x0, at(H), w, 0.45 * M, SGC.ist); vzCornice(g, x0, at(G + 0.35), w, 0.32 * M, SGC.ist);
+  for (let k = 0; k < n; k++){ const bx = x0 + bw * (k + 0.5), mid = o.door !== undefined && Math.abs(bx - o.door) < bw / 2;
+    g.fillStyle = mid ? '#3a302a' : '#d9c7b4'; vzArchPath(g, bx - bw * 0.38, at(G - 0.2), bw * 0.76, (G - 0.2) * M, 'arch'); g.fill();
+    if (!mid){ g.fillStyle = 'rgba(90,60,40,.18)'; vzArchPath(g, bx - bw * 0.38, at(G - 0.2), bw * 0.76, 1.2 * M, 'arch'); g.fill(); }
+    else { g.fillStyle = '#6a5040'; for (let s = 0; s < 6; s++) g.fillRect(bx - bw * 0.3 + s * 2, at(0.3 + s * 0.42), bw * 0.6 - s * 4, 0.42 * M - 1); g.fillStyle = 'rgba(255,230,180,.25)'; g.fillRect(bx - bw * 0.2, at(G - 1.2), bw * 0.4, 0.8 * M); }
+    g.strokeStyle = SGC.ist; g.lineWidth = 3; vzArchPath(g, bx - bw * 0.38, at(G - 0.2), bw * 0.76, (G - 0.2) * M, 'arch'); g.stroke();
+    const wy = at(G + 0.7 + U * 0.75); vzWin(g, bx, wy, 1.0 * M, U * 0.56 * M, { frame:'#f4f0e8', glass:'#3a3f46', grid:true });
+    if (k % 2) { g.fillStyle = '#f4f0e8'; g.beginPath(); g.ellipse(bx, wy - 3, 0.75 * M, 0.35 * M, 0, Math.PI, 0); g.fill(); } else vzPediment(g, bx, wy - 3, 1.6 * M, 0.5 * M, '#f4f0e8');
+  }
+  for (let k = 0; k <= n; k++){ const px = x0 + bw * k; vzCol(g, Math.max(x0 + 0.25 * M, Math.min(x1 - 0.25 * M, px)), at(0), at(G - 0.25), 0.44 * M, '#f7f4ee', 'ion'); }
+  g.fillStyle = 'rgba(60,40,20,.25)'; g.fillRect(x0, base - 3, w, 3);
+}
+VZ_DLM['sg-palladio'] = { draw(g, l){ vzSgArcadeFront(g, l.x, l.x + l.w, l.base, { ground:4.2, upper:4.2, door:l.x + l.w / 2 }); vzText(g, 'BIBLIOTECA', l.x + l.w / 2, l.base - 4.55 * VZ_M, '700 8px "Titillium Web", sans-serif', '#7a5a44', 5 * VZ_M); } };
+/* a grey wing of the monastery (the Chiostro dei Cipressi's block): two storeys of small windows, an arched portal, the orange roof */
+function vzSgWing(g, x0, x1, base, H, seed, o = {}){
+  const M = VZ_M, at = m => base - m * M, w = x1 - x0, r = rng(seed), n = Math.max(2, Math.round(w / (2.6 * M)));
+  vzWallFill(g, x0, at(H), w, H * M, o.col || SGC.cini);
+  for (let k = 0; k < 6; k++){ g.fillStyle = r() < 0.5 ? 'rgba(120,115,105,.10)' : 'rgba(255,255,255,.10)'; ell(g, x0 + r() * w, at(1 + r() * (H - 2)), 14 + r() * 30, 10 + r() * 20); g.fill(); }
+  g.fillStyle = 'rgba(120,115,100,.22)'; g.fillRect(x0, at(0.9), w, 0.9 * M);
+  vzCornice(g, x0, at(H), w, 0.4 * M, '#efebe3'); if (H > 7) vzCornice(g, x0, at(H * 0.48), w, 0.22 * M, '#ebe6dc');
+  const portal = o.portal === undefined ? Math.floor(r() * n) : o.portal;
+  for (let k = 0; k < n; k++){ const bx = x0 + w * (k + 0.5) / n;
+    if (k === portal){ g.fillStyle = '#efebe3'; vzArchPath(g, bx - 0.85 * M, at(3.1), 1.7 * M, 3.1 * M, 'arch'); g.fill(); g.fillStyle = '#4a3f36'; vzArchPath(g, bx - 0.62 * M, at(2.8), 1.24 * M, 2.8 * M, 'arch'); g.fill(); }
+    else { vzWin(g, bx, at(2.6), 0.7 * M, 1.1 * M, { frame:'#efebe3', glass:'#3e434a' }); g.strokeStyle = 'rgba(30,30,30,.55)'; g.lineWidth = 1; for (let s = 1; s < 4; s++){ g.beginPath(); g.moveTo(bx - 0.35 * M + s * 0.175 * M, at(2.6)); g.lineTo(bx - 0.35 * M + s * 0.175 * M, at(1.5)); g.stroke(); } }
+    for (let y = H > 7 ? H * 0.48 + 1.0 : 4.2; y < H - 1.4; y += 3.1) vzWin(g, bx, at(y + 1.6), 0.75 * M, 1.5 * M, { frame:'#efebe3', glass:'#3e434a' });
+  }
+  g.fillStyle = 'rgba(60,40,20,.22)'; g.fillRect(x0, base - 3, w, 3);
+}
+VZ_DLM['sg-cipressi'] = { draw(g, l){ g.fillStyle = SGC.roof; g.fillRect(l.x, l.base - 11.6 * VZ_M, l.w, 1.4 * VZ_M); vzSgWing(g, l.x, l.x + l.w, l.base, 10.2, 1516, { portal:1 }); } };
+/* the converter's houses on the island: the monastery's grey wings (world/sangiorgio.js marks them) */
+{ const prev = vzHouse; vzHouse = function* (g, h){
+    if (h.isle !== 'cini'){ yield* prev(g, h); return; }
+    const T = VZ_TILE, M = VZ_M, x0 = h.x0 * T, x1 = h.x1 * T, yb = h.yb * T, wh = Math.round(h.wallH * M), ry = Math.round(h.roofTop * T);
+    if (yb - wh - ry > 6) vzRoof(g, x0, ry, x1 - x0, yb - wh - ry, SGC.roof, h.seed);
+    vzSgWing(g, x0, x1, yb, h.wallH, h.seed, { portal:(x1 - x0) > 8 * M ? undefined : -1 });
+  }; }
+
+/* ---------- the ground ---------- */
+/* the piazza's cubes (basilica-facciata.png): rows of rhombi, white Istrian stone and grey, in the pattern that reads as cubes in perspective */
+function vzSgPiazza(g, x0, y0, x1, y1){
+  const M = VZ_M; g.save(); g.beginPath(); g.rect(x0, y0, x1 - x0, y1 - y0); g.clip();
+  g.fillStyle = '#d9d5cc'; g.fillRect(x0, y0, x1 - x0, y1 - y0);
+  const s = 1.1 * M, h = s * 0.62;
+  for (let j = -1, row = 0; y0 + j * h < y1 + h; j++, row++) for (let i = -1; x0 + i * s < x1 + s; i++){
+    const cx = x0 + i * s + (row % 2 ? s / 2 : 0), cy = y0 + j * h;
+    g.fillStyle = '#f3f0e9'; g.beginPath(); g.moveTo(cx, cy - h / 2); g.lineTo(cx + s / 2, cy); g.lineTo(cx, cy + h / 2); g.lineTo(cx - s / 2, cy); g.closePath(); g.fill();
+    g.fillStyle = (i + row) % 3 === 0 ? '#9c9a94' : '#b3b0a9'; g.beginPath(); g.moveTo(cx - s / 2, cy); g.lineTo(cx, cy + h / 2); g.lineTo(cx, cy + h / 2 + h * 0.5); g.lineTo(cx - s / 2, cy + h * 0.5); g.closePath(); g.fill();
+  }
+  g.strokeStyle = 'rgba(110,105,95,.25)'; g.lineWidth = 0.8; for (let y = y0; y < y1; y += h){ g.beginPath(); g.moveTo(x0, y); g.lineTo(x1, y); g.stroke(); }
+  g.restore();
+  g.fillStyle = '#ece8df'; g.fillRect(x0, y0, x1 - x0, 3); g.fillRect(x0, y0, 3, y1 - y0); g.fillRect(x1 - 3, y0, 3, y1 - y0);
+}
+/* steps: n bands of white stone from y0 down (south) to y1, each lit on its tread, its riser shaded */
+function vzSgSteps(g, x0, x1, y0, y1, n, wet){
+  const d = (y1 - y0) / n;
+  for (let k = 0; k < n; k++){ const y = y0 + k * d, inset = (wet ? -1 : 1) * k * 1.2, a = wet ? Math.max(0, 1 - k / n * 0.8) : 1;
+    g.globalAlpha = a; g.fillStyle = k % 2 ? '#e9e4da' : '#f1ede5'; g.fillRect(x0 - inset, y, x1 - x0 + 2 * inset, d); g.fillStyle = wet ? 'rgba(60,90,80,.35)' : 'rgba(90,80,65,.3)'; g.fillRect(x0 - inset, y + d - 2.5, x1 - x0 + 2 * inset, 2.5); }
+  g.globalAlpha = 1; if (wet){ g.fillStyle = 'rgba(40,80,60,.4)'; g.fillRect(x0 + 2, y1 - 3, x1 - x0 - 4, 3); }
+}
+/* the maze's hedges: the hedge is everything in its square that is not a path (each path a line 2 m wide, its corners round); drawn once into a
+   canvas of its own (the side in shade, the top lit, a little texture), then into the ground's tiles */
+function vzSgMazeArt(Z){
+  if (Z.art) return Z.art;
+  const M = VZ_M, S = 3, W = Z.w * M, H = Z.h * M, pad = M, cw = Math.ceil((W + 2 * pad) * S), chh = Math.ceil((H + 2 * pad) * S);
+  const mask = document.createElement('canvas'); mask.width = cw; mask.height = chh; const m = mask.getContext('2d'); m.scale(S, S); m.translate(pad - Z.x * M, pad - Z.y * M);
+  const rr2 = 0.9 * M; m.fillStyle = '#000'; m.beginPath(); m.roundRect ? m.roundRect(Z.x * M, Z.y * M, W, H, rr2) : m.rect(Z.x * M, Z.y * M, W, H); m.fill();
+  m.globalCompositeOperation = 'destination-out'; m.strokeStyle = '#000'; m.lineWidth = 2 * Z.hw * M; m.lineCap = 'round'; m.lineJoin = 'round';
+  for (const [[ax, ay], [bx, by]] of Z.edges){ m.beginPath(); m.moveTo(ax * M, ay * M); m.lineTo(bx * M, by * M); m.stroke(); }
+  m.beginPath(); m.arc(Z.clearing.x * M, Z.clearing.y * M, Z.clearing.r * M, 0, Math.PI * 2); m.fill();
+  const tint = (col, tex) => { const c = document.createElement('canvas'); c.width = cw; c.height = chh; const q = c.getContext('2d'); q.fillStyle = col; q.fillRect(0, 0, cw, chh);
+    if (tex){ const r = rng(1984); for (let k = 0; k < cw * chh / 90; k++){ q.fillStyle = r() < 0.5 ? 'rgba(150,200,110,.35)' : 'rgba(30,60,25,.30)'; q.fillRect(r() * cw, r() * chh, 2 + r() * 3, 2 + r() * 3); } }
+    q.globalCompositeOperation = 'destination-in'; q.drawImage(mask, 0, 0); return c; };
+  return Z.art = { side:tint(SGC.hedge), top:tint(SGC.hedgeT, true), x:Z.x * M - pad, y:Z.y * M - pad, w:cw / S, h:chh / S };
+}
+function vzSgMaze(g, Z){
+  const M = VZ_M, A = vzSgMazeArt(Z), hh = 0.85 * M;
+  g.fillStyle = SGC.gravel; g.fillRect(Z.x * M, Z.y * M, Z.w * M, Z.h * M);
+  g.fillStyle = 'rgba(160,140,100,.22)'; const r = rng(77); for (let k = 0; k < Z.w * Z.h * 1.6; k++) g.fillRect((Z.x + r() * Z.w) * M, (Z.y + r() * Z.h) * M, 2, 2);
+  /* the clearing: a ring of paler gravel, a bench */
+  g.fillStyle = '#efe6cf'; circ(g, Z.clearing.x * M, Z.clearing.y * M, Z.clearing.r * M * 0.8); g.fill();
+  g.fillStyle = 'rgba(40,50,30,.28)'; g.drawImage(A.side, A.x + 3, A.y + 2, A.w, A.h);
+  for (let k = 0; k <= 4; k++) g.drawImage(A.side, A.x, A.y - hh * k / 4, A.w, A.h);
+  g.drawImage(A.top, A.x, A.y - hh, A.w, A.h);
+}
+/* the cloister's parterres: low box in a border and a pattern of curls, gravel between */
+function vzSgParterre(g, b){
+  const M = VZ_M, x0 = b.x0 * M + 4, y0 = b.y0 * M + 4, w = (b.x1 - b.x0) * M - 8, h = (b.y1 - b.y0) * M - 8;
+  g.fillStyle = SGC.gravel; g.fillRect(x0, y0, w, h);
+  g.strokeStyle = SGC.hedge; g.lineWidth = 0.42 * M; g.lineJoin = 'round'; g.strokeRect(x0 + 0.25 * M, y0 + 0.25 * M, w - 0.5 * M, h - 0.5 * M);
+  g.strokeStyle = SGC.hedgeT; g.lineWidth = 0.3 * M; g.strokeRect(x0 + 0.25 * M, y0 + 0.15 * M, w - 0.5 * M, h - 0.5 * M);
+  const cx = x0 + w / 2, cy = y0 + h / 2; g.strokeStyle = SGC.hedge; g.lineWidth = 0.3 * M;
+  g.beginPath(); g.ellipse(cx, cy, w * 0.28, h * 0.22, 0, 0, Math.PI * 2); g.stroke();
+  for (const [a, b2] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]){ g.beginPath(); g.moveTo(cx + a * w * 0.42, cy + b2 * h * 0.42); g.quadraticCurveTo(cx + a * w * 0.42, cy + b2 * h * 0.12, cx + a * w * 0.24, cy + b2 * h * 0.18); g.stroke(); }
+  g.strokeStyle = SGC.hedgeL; g.lineWidth = 0.14 * M; g.beginPath(); g.ellipse(cx, cy - 2, w * 0.28, h * 0.22, 0, Math.PI, Math.PI * 2); g.stroke();
+  g.fillStyle = SGC.hedgeT; circ(g, cx, cy - 2, 0.45 * M); g.fill();
+}
+/* flagstones (the Teatro Verde's crazy paving): a jittered net of stones, each its own grey, the joints pale */
+function vzSgFlags(g, x0, y0, w, h, seed){
+  const M = VZ_M, r = rng(seed), s = 0.9 * M, nx = Math.ceil(w / s) + 1, ny = Math.ceil(h / s) + 1, P = [];
+  for (let j = 0; j <= ny; j++) for (let i = 0; i <= nx; i++) P.push([x0 + i * s + (i && i < nx ? (r() - 0.5) * s * 0.7 : 0), y0 + j * s + (j && j < ny ? (r() - 0.5) * s * 0.7 : 0)]);
+  g.fillStyle = '#e4e2dc'; g.fillRect(x0, y0, w, h);
+  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++){ const a = P[j * (nx + 1) + i], b = P[j * (nx + 1) + i + 1], c = P[(j + 1) * (nx + 1) + i + 1], d = P[(j + 1) * (nx + 1) + i];
+    const v = r(); g.fillStyle = v < 0.3 ? '#a8a49a' : v < 0.65 ? '#b8b4aa' : v < 0.9 ? '#9a978f' : '#c4bfb2';
+    const k = 1.6, mx = (a[0] + c[0]) / 2, my = (a[1] + c[1]) / 2, sh = q => [q[0] + (mx - q[0]) * k / s * 2, q[1] + (my - q[1]) * k / s * 2];
+    g.beginPath(); [a, b, c, d].map(sh).forEach((q, n) => n ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1])); g.closePath(); g.fill(); }
+}
+function vzSgTeatro(g, P){
+  const M = VZ_M, X = P.cx * M, Y = P.cy * M, R0 = P.r0 * M, R1 = P.r1 * M, st = P.step * M;
+  /* the stone wall round the top (its face to the cavea) and the walk inside it */
+  g.fillStyle = '#cfcabe'; g.beginPath(); g.arc(X, Y, R1 + 0.7 * M, Math.PI, 0); g.arc(X, Y, R1, 0, Math.PI, true); g.closePath(); g.fill();
+  g.fillStyle = '#ddd8cc'; g.beginPath(); g.arc(X, Y, R1 + 0.7 * M, Math.PI, 0); g.arc(X, Y, R1 + 0.45 * M, 0, Math.PI, true); g.closePath(); g.fill();
+  g.fillStyle = '#b4ad9e'; g.beginPath(); g.arc(X, Y, R1, Math.PI, 0); g.arc(X, Y, R1 - 0.8 * M, 0, Math.PI, true); g.closePath(); g.fill();
+  /* the tiers, the top first: each a strip of hedge (behind, outward), then its stone bench, its riser shaded */
+  for (let k = P.tiers - 1; k >= 0; k--){
+    const ra = P.r0 * M + (k + 1) * st, rb = P.r0 * M + k * st, rh = rb + st * 0.46;
+    g.fillStyle = '#3f7434'; g.beginPath(); g.arc(X, Y, ra, Math.PI, 0); g.arc(X, Y, rh, 0, Math.PI, true); g.closePath(); g.fill();
+    const r = rng(500 + k); for (let a = 0; a < 1; a += 0.006){ const t = Math.PI * (1 + a), rr = rh + (ra - rh) * (0.25 + r() * 0.6); g.fillStyle = r() < 0.5 ? '#6aa64a' : r() < 0.6 ? '#8cc063' : '#5a9440'; circ(g, X + Math.cos(t) * rr, Y + Math.sin(t) * rr - 3, 2.2 + r() * 2.6); g.fill(); }
+    g.fillStyle = '#efece5'; g.beginPath(); g.arc(X, Y, rh, Math.PI, 0); g.arc(X, Y, rb + 0.16 * M, 0, Math.PI, true); g.closePath(); g.fill();
+    g.fillStyle = '#c3bdb0'; g.beginPath(); g.arc(X, Y, rb + 0.16 * M, Math.PI, 0); g.arc(X, Y, rb, 0, Math.PI, true); g.closePath(); g.fill();
+    g.strokeStyle = 'rgba(80,70,55,.35)'; g.lineWidth = 1.2; g.beginPath(); g.arc(X, Y, rh, Math.PI, 0); g.stroke();
+  }
+  /* the stairways: radial flights of stone steps through the tiers, their cheeks */
+  for (const f of P.aisles){ const t = Math.PI * (1 + (1 - f)), ux = Math.cos(t), uy = Math.sin(t), px = -uy, py = ux, hw = 0.75 * M;
+    g.fillStyle = '#d6d1c5'; g.beginPath(); g.moveTo(X + ux * R0 + px * hw, Y + uy * R0 + py * hw); g.lineTo(X + ux * R1 + px * hw, Y + uy * R1 + py * hw); g.lineTo(X + ux * R1 - px * hw, Y + uy * R1 - py * hw); g.lineTo(X + ux * R0 - px * hw, Y + uy * R0 - py * hw); g.closePath(); g.fill();
+    g.strokeStyle = 'rgba(90,80,65,.45)'; g.lineWidth = 1.3; for (let d = R0 + 0.3 * M; d < R1; d += 0.34 * M){ g.beginPath(); g.moveTo(X + ux * d + px * hw, Y + uy * d + py * hw); g.lineTo(X + ux * d - px * hw, Y + uy * d - py * hw); g.stroke(); }
+    g.fillStyle = '#e2ddd2'; for (const s of [-1, 1]){ g.beginPath(); g.moveTo(X + ux * R0 + s * px * hw, Y + uy * R0 + s * py * hw); g.lineTo(X + ux * R1 + s * px * hw, Y + uy * R1 + s * py * hw); g.lineTo(X + ux * R1 + s * px * (hw + 4), Y + uy * R1 + s * py * (hw + 4)); g.lineTo(X + ux * R0 + s * px * (hw + 4), Y + uy * R0 + s * py * (hw + 4)); g.closePath(); g.fill(); }
+  }
+  /* the orchestra and the stage: crazy paving; the stage's front edge */
+  g.save(); g.beginPath(); g.arc(X, Y, R0, Math.PI, 0); g.rect(X - R0 - 2 * M, Y, 2 * R0 + 4 * M, 4 * M); g.clip(); vzSgFlags(g, X - R0 - 2 * M, Y - R0, 2 * R0 + 4 * M, R0 + 4 * M, 1954); g.restore();
+  g.fillStyle = 'rgba(70,60,45,.35)'; g.fillRect(X - R0 - 2 * M, Y + 4 * M - 3, 2 * R0 + 4 * M, 3);
+  g.strokeStyle = 'rgba(240,236,228,.9)'; g.lineWidth = 3; g.beginPath(); g.arc(X, Y, R0, Math.PI, 0); g.stroke();
+}
+{ const prev = vzGroundProps; vzGroundProps = (g, X, Y, w, h) => { prev(g, X, Y, w, h); const I = VZ.isle; if (!I || I.id !== 'sangiorgio' || VZD.id !== 'sangiorgio' || !I.sg) return;
+    const M = VZ_M, inV = (x0, y0, x1, y1) => x1 * M > X - 60 && x0 * M < X + w + 60 && y1 * M > Y - 60 && y0 * M < Y + h + 60, S = I.sg;
+    const Pz = SGM.piazza; if (inV(Pz.x0, Pz.y0, Pz.x1, Pz.y1 + 2)){ vzSgPiazza(g, Pz.x0 * M, Pz.y0 * M, Pz.x1 * M, Pz.y1 * M);
+      const C = SGM.church; vzSgSteps(g, (C.x0 - 1.6) * M, (C.x1 + 1.6) * M, C.base * M, (C.base + 1.5) * M, 4, false);
+      const St = SGM.steps; vzSgSteps(g, St.x0 * M, St.x1 * M, (St.y0 - 0.6) * M, St.y1 * M, 5, true); }
+    if (S.maze){ const Z = S.maze; if (inV(Z.x - 2, Z.y - 3, Z.x + Z.w + 1, Z.y + Z.h + 1)){ const [a, b, c, d] = SGM.maze.walk; g.fillStyle = SGC.gravel; g.fillRect(a * M, b * M, (c - a) * M, (d - b) * M); g.fillRect(a * M, Z.y * M, (Z.x - a) * M, Z.h * M); vzSgMaze(g, Z); } }
+    if (S.court){ const Q = S.court; if (inV(Q.x0, Q.y0, Q.x1, Q.y1)){ g.fillStyle = '#e9e3d6'; g.fillRect(Q.x0 * M, Q.y0 * M, (Q.x1 - Q.x0) * M, (Q.y1 - Q.y0) * M);
+      g.fillStyle = '#ddd5c4'; for (let y = Q.y0; y < Q.y1; y += 0.5) g.fillRect(Q.walk[0] * M, y * M, (Q.walk[1] - Q.walk[0]) * M, 1); for (let x = Q.x0; x < Q.x1; x += 0.6) g.fillRect(x * M, Q.cross[0] * M, 1, (Q.cross[1] - Q.cross[0]) * M);
+      Q.beds.forEach(b => vzSgParterre(g, b)); } }
+    if (S.teatro){ const P = S.teatro; if (inV(P.cx - P.r1 - 2, P.cy - P.r1 - 2, P.cx + P.r1 + 2, P.cy + 5)) vzSgTeatro(g, P); }
+  }; }
+
+/* ---------- the props ---------- */
+Object.assign(VZ_PROP, {
+  /* a cypress: a tall dark flame of foliage on a short trunk */
+  islecipresso:{ fade:0.45, box:p => ({ x:p.x - 1.0 * VZ_M, y:p.y - (p.h + 0.4) * VZ_M, w:2.0 * VZ_M, h:(p.h + 0.8) * VZ_M }), draw:(g, p) => {
+    const M = VZ_M, x = p.x, y = p.y, H = p.h * M, r = rng(Math.round(p.x * 3 + p.y));
+    g.fillStyle = 'rgba(20,30,15,.28)'; ell(g, x + 0.5 * M, y + 1, 0.9 * M, 0.28 * M); g.fill();
+    g.fillStyle = '#5a4030'; g.fillRect(x - 2, y - 0.8 * M, 4, 0.8 * M);
+    const fl = (col, w, dx) => { g.fillStyle = col; g.beginPath(); g.moveTo(x + dx, y - H); g.bezierCurveTo(x + dx + w * 0.55, y - H * 0.8, x + dx + w * 0.62, y - H * 0.3, x + dx + w * 0.34, y - 0.5 * M); g.lineTo(x + dx - w * 0.34, y - 0.5 * M); g.bezierCurveTo(x + dx - w * 0.62, y - H * 0.3, x + dx - w * 0.55, y - H * 0.8, x + dx, y - H); g.closePath(); g.fill(); };
+    fl('#2c4a2c', 1.5 * M, 0); fl('#3a5e36', 1.1 * M, -0.12 * M);
+    g.fillStyle = 'rgba(120,160,90,.35)'; for (let k = 0; k < 9; k++){ const t = 0.15 + r() * 0.75; ell(g, x - 0.25 * M + (r() - 0.5) * 0.3 * M, y - H * t, 0.12 * M, 0.3 * M); g.fill(); }
+  } },
+  /* the cloister's arcade on the court's north side (chiostro-palladio.png): five white Ionic arches, the pink storey with its pedimented windows */
+  sgloggia:{ fade:0.1, box:p => ({ x:p.x - p.w / 2 - 6, y:p.y - (SGM.loggia.h + 1.6) * VZ_M, w:p.w + 12, h:(SGM.loggia.h + 1.7) * VZ_M }), draw:(g, p) => {
+    vzSgArcadeFront(g, p.x - p.w / 2, p.x + p.w / 2, p.y, { ground:4.0, upper:3.6, bays:5, door:-1e9 }); } },
+});
+
+/* ---------- the rooms ---------- */
+Object.assign(VZ_FLOORS, {
+  /* the basilica: red and white marble squares set on the diagonal */
+  sgscacchi(g, R, x0, x1, y0, y1, r){
+    g.fillStyle = '#efe8dc'; g.fillRect(x0, y0, x1 - x0, y1 - y0); const s = vzM(1.1);
+    g.save(); g.beginPath(); g.rect(x0, y0, x1 - x0, y1 - y0); g.clip();
+    for (let j = -1; j * s / 2 < y1 - y0 + s; j++) for (let i = -1; i * s < x1 - x0 + s; i++){ const cx = x0 + i * s + (j % 2 ? s / 2 : 0), cy = y0 + j * s / 2;
+      g.fillStyle = (j % 2) ? `hsl(6, ${44 + r() * 8}%, ${58 + r() * 5}%)` : `hsl(40, ${20 + r() * 8}%, ${90 + r() * 4}%)`;
+      g.beginPath(); g.moveTo(cx, cy - s / 2 + 0.5); g.lineTo(cx + s / 2 - 0.5, cy); g.lineTo(cx, cy + s / 2 - 0.5); g.lineTo(cx - s / 2 + 0.5, cy); g.closePath(); g.fill(); }
+    g.restore(); const gr = g.createLinearGradient(0, y0, 0, y1); gr.addColorStop(0, 'rgba(255,250,235,.18)'); gr.addColorStop(1, 'rgba(255,250,235,0)'); g.fillStyle = gr; g.fillRect(x0, y0, x1 - x0, y1 - y0);
+  },
+  /* the library: long oak boards down the hall */
+  sgparquet(g, R, x0, x1, y0, y1, r){
+    g.fillStyle = '#b9824e'; g.fillRect(x0, y0, x1 - x0, y1 - y0);
+    for (let x = x0; x < x1; x += vzM(0.18)){ g.fillStyle = `hsl(28, ${42 + r() * 10}%, ${44 + r() * 10}%)`; g.fillRect(x, y0, vzM(0.18) - 1, y1 - y0); g.fillStyle = 'rgba(60,30,10,.25)'; for (let y = y0 + r() * vzM(2); y < y1; y += vzM(1.6 + r())) g.fillRect(x, y, vzM(0.18) - 1, 1); }
+    const gr = g.createLinearGradient(x0, 0, x1, 0); gr.addColorStop(0, 'rgba(30,15,5,.18)'); gr.addColorStop(0.2, 'rgba(255,240,210,.06)'); gr.addColorStop(0.8, 'rgba(255,240,210,.06)'); gr.addColorStop(1, 'rgba(30,15,5,.18)'); g.fillStyle = gr; g.fillRect(x0, y0, x1 - x0, y1 - y0);
+  },
+});
+Object.assign(VZ_WALLS, {
+  /* the basilica's east end: the white presbytery arch on its columns, the coffered vault in it, the half-domed apse of the choir behind, the
+     cornice with its dentils along the nave, pilasters */
+  sgchiesa(g, R, x0, x1, top, bot){
+    const X = R.X, Z = m => bot - vzM(m), w = x1 - x0;
+    g.fillStyle = '#f4f1ea'; g.fillRect(x0, top, w, bot - top);
+    const ax0 = X(4.4), aw = vzM(9.2);
+    g.fillStyle = '#e4ded2'; vzArchPath(g, ax0, Z(11.2), aw, vzM(11.2), 'arch'); g.fill();
+    g.save(); vzArchPath(g, ax0, Z(11.2), aw, vzM(11.2), 'arch'); g.clip();
+    const gr = g.createLinearGradient(0, Z(11.2), 0, bot); gr.addColorStop(0, '#dcd5c8'); gr.addColorStop(0.6, '#ebe6dc'); gr.addColorStop(1, '#f2eee6'); g.fillStyle = gr; g.fillRect(ax0, Z(11.2), aw, vzM(11.2));
+    g.strokeStyle = 'rgba(150,140,120,.35)'; g.lineWidth = 1; for (let k = 1; k < 6; k++){ g.beginPath(); g.ellipse(ax0 + aw / 2, Z(11.2) + aw / 2, aw / 2 * k / 6, aw / 2 * k / 6 * 0.8, 0, Math.PI, 0); g.stroke(); }
+    /* the choir's windows behind, light */
+    for (const f of [0.25, 0.5, 0.75]){ g.fillStyle = '#fffaf0'; vzArchPath(g, ax0 + aw * f - vzM(0.35), Z(9.6), vzM(0.7), vzM(1.8), 'arch'); g.fill(); }
+    g.restore();
+    g.strokeStyle = '#fbf9f4'; g.lineWidth = vzM(0.35); vzArchPath(g, ax0 - vzM(0.2), Z(11.4), aw + vzM(0.4), vzM(11.4), 'arch'); g.stroke();
+    /* the great columns either side of the arch (on the wall), their capitals at the cornice */
+    [3.6, 14.4].forEach(m => { const px = X(m); g.fillStyle = '#faf8f3'; g.fillRect(px - vzM(0.45), Z(9.2), vzM(0.9), vzM(9.2)); g.fillStyle = 'rgba(120,110,90,.12)'; g.fillRect(px + vzM(0.2), Z(9.2), vzM(0.25), vzM(9.2));
+      g.fillStyle = '#ece6da'; g.fillRect(px - vzM(0.65), Z(9.8), vzM(1.3), vzM(0.6)); g.fillStyle = 'rgba(120,110,90,.3)'; circ(g, px - vzM(0.5), Z(9.5), 2.6); g.fill(); circ(g, px + vzM(0.5), Z(9.5), 2.6); g.fill(); });
+    /* the cornice with its dentils across the whole wall */
+    g.fillStyle = '#ece6da'; g.fillRect(x0, Z(10.3), w, vzM(0.5)); g.fillStyle = 'rgba(120,110,90,.3)'; for (let x = x0 + 3; x < x1; x += vzM(0.32)) g.fillRect(x, Z(9.95), vzM(0.14), vzM(0.18));
+    g.fillStyle = 'rgba(0,0,0,.08)'; g.fillRect(x0, Z(9.8), w, 2);
+    /* the side bays: an altar's arch each */
+    [[0.4, 3.0], [15.0, 17.6]].forEach(([a, b]) => { g.fillStyle = '#ebe5d9'; vzArchPath(g, X(a), Z(7.4), vzM(b - a), vzM(7.4), 'arch'); g.fill(); g.strokeStyle = '#fbf9f4'; g.lineWidth = vzM(0.18); vzArchPath(g, X(a), Z(7.4), vzM(b - a), vzM(7.4), 'arch'); g.stroke(); });
+    g.fillStyle = '#e8e2d6'; g.fillRect(x0, Z(0.7), w, vzM(0.7)); g.fillStyle = 'rgba(0,0,0,.1)'; g.fillRect(x0, Z(0.7), w, 1.5);
+  },
+  /* the library's far end: the white barrel vault's section, the cross vaults' ribs, the round-headed window full of light */
+  sgbiblio(g, R, x0, x1, top, bot){
+    const X = R.X, Z = m => bot - vzM(m), w = x1 - x0;
+    g.fillStyle = '#eeeae2'; g.fillRect(x0, top, w, bot - top);
+    g.fillStyle = '#f8f6f1'; vzArchPath(g, x0 + vzM(0.4), Z(8), w - vzM(0.8), vzM(5.6), 'arch'); g.fill();
+    g.strokeStyle = 'rgba(150,140,125,.35)'; g.lineWidth = 1.5; vzArchPath(g, x0 + vzM(0.4), Z(8), w - vzM(0.8), vzM(5.6), 'arch'); g.stroke();
+    g.fillStyle = 'rgba(200,190,170,.25)'; g.fillRect(x0, Z(2.6), w, vzM(0.15));
+  },
+});
+Object.assign(VZ_PROP_ART, {
+  /* the organ over the choir: its gilded case, three towers of pipes, red curtains in the side arches */
+  sgorgan:{ bg(g, p, R){ const b = vzWallBox(p, R), w = b.x1 - b.x0, h = b.bot - b.top, x = b.x0, M = VZ_M;
+    g.fillStyle = 'rgba(0,0,0,.16)'; g.fillRect(x + 3, b.top + 3, w, h);
+    g.fillStyle = '#f2eee6'; g.fillRect(x, b.top + h * 0.12, w, h * 0.88); vzPediment(g, x + w / 2, b.top + h * 0.14, w * 0.55, h * 0.12, '#f6f3ec');
+    [[0.06, 0.26, '#7a2030'], [0.37, 0.63, null], [0.74, 0.94, '#7a2030']].forEach(([a, c, cur]) => { const px = x + w * a, pw = w * (c - a);
+      g.fillStyle = cur || '#3a3634'; vzArchPath(g, px, b.top + h * 0.22, pw, h * 0.6, 'arch'); g.fill();
+      const n = Math.round(pw / 4); for (let k = 0; k < n; k++){ const ph = h * (0.3 + 0.22 * Math.sin(k / (n - 1 || 1) * Math.PI)); g.fillStyle = k % 2 ? '#c8ccd0' : '#e2e5e8'; g.fillRect(px + k * pw / n + 0.6, b.top + h * 0.82 - ph, pw / n - 1.2, ph); g.fillStyle = 'rgba(80,80,80,.4)'; g.fillRect(px + k * pw / n + 0.6, b.top + h * 0.82 - ph * 0.12, pw / n - 1.2, 1.2); }
+      g.strokeStyle = '#c9a54a'; g.lineWidth = 2; vzArchPath(g, px, b.top + h * 0.22, pw, h * 0.6, 'arch'); g.stroke(); });
+    g.fillStyle = '#c9a54a'; g.fillRect(x + w * 0.36, b.top + h * 0.18, w * 0.28, 3);
+    vzStatueFig(g, x + w * 0.4, b.top + h * 0.06, 0.8, '#f4f1ea', false); vzStatueFig(g, x + w * 0.6, b.top + h * 0.06, 0.8, '#f4f1ea', false);
+  } },
+  /* a painting in a dark frame (the Last Supper: the long table on the diagonal, the light; the Manna: figures gathering under a pale sky) */
+  sgcanvas:{ bg(g, p, R){ const b = vzWallBox(p, R), w = b.x1 - b.x0, h = b.bot - b.top, x = b.x0, y = b.top;
+    g.fillStyle = 'rgba(0,0,0,.2)'; g.fillRect(x + 3, y + 3, w, h); g.fillStyle = '#6a4a26'; g.fillRect(x - 3, y - 3, w + 6, h + 6);
+    const gr = g.createLinearGradient(0, y, 0, y + h); if (p.scene === 'cena'){ gr.addColorStop(0, '#3a2a20'); gr.addColorStop(1, '#1a1410'); } else { gr.addColorStop(0, '#c9c2a0'); gr.addColorStop(0.4, '#6a6248'); gr.addColorStop(1, '#2a2620'); }
+    g.fillStyle = gr; g.fillRect(x, y, w, h);
+    if (p.scene === 'cena'){ g.fillStyle = '#e8dcc0'; g.beginPath(); g.moveTo(x + w * 0.1, y + h * 0.9); g.lineTo(x + w * 0.85, y + h * 0.45); g.lineTo(x + w * 0.9, y + h * 0.52); g.lineTo(x + w * 0.2, y + h * 0.95); g.closePath(); g.fill();
+      g.fillStyle = 'rgba(255,230,160,.8)'; circ(g, x + w * 0.62, y + h * 0.3, h * 0.08); g.fill(); xpFigures(g, x + 4, y + h * 0.35, w - 8, h * 0.4, 16, 1594, ['#c23b2a', '#e8d8b0', '#3a5a8a', '#8a6a2a']); }
+    else xpFigures(g, x + 3, y + h * 0.45, w - 6, h * 0.45, 22, 1593, ['#c9a07a', '#e8d8b0', '#5a6a8a', '#8a4a2a', '#6a8a5a']);
+  } },
+  /* a column of Palladio's nave: white, round, its capital, seen through when you are behind it */
+  sgcolumn:{ draw(g, p){ const { x0, x1, y0, y1, hp } = vzFloorBox(p), cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, sr = (x1 - x0) * 0.4, top = cy - hp;
+    g.globalAlpha = seeThrough({ x:x0 - vzM(1.2), y:top - 6, w:x1 - x0 + vzM(2.4), h:hp + 6 }, y1, 0.3);
+    g.fillStyle = 'rgba(30,20,10,.2)'; ell(g, cx + 5, cy + 2, sr + 8, 5); g.fill();
+    g.fillStyle = '#e8e3d8'; g.fillRect(x0 - 3, cy - vzM(1.4), x1 - x0 + 6, vzM(1.4)); g.fillStyle = '#f2eee6'; g.fillRect(x0 - 5, cy - vzM(1.5), x1 - x0 + 10, 4);
+    const gr = g.createLinearGradient(cx - sr, 0, cx + sr, 0); gr.addColorStop(0, '#fbfaf7'); gr.addColorStop(0.55, '#ebe7de'); gr.addColorStop(1, '#cfc9bc'); g.fillStyle = gr; g.fillRect(cx - sr, top + vzM(1.1), 2 * sr, hp - vzM(2.5));
+    g.fillStyle = 'rgba(140,130,110,.18)'; for (let k = 1; k < 5; k++) g.fillRect(cx - sr + k * sr * 0.4, top + vzM(1.1), 1, hp - vzM(2.5));
+    g.fillStyle = '#efeae0'; g.beginPath(); g.moveTo(cx - sr - 8, top + vzM(0.4)); g.lineTo(cx + sr + 8, top + vzM(0.4)); g.lineTo(cx + sr, top + vzM(1.15)); g.lineTo(cx - sr, top + vzM(1.15)); g.closePath(); g.fill();
+    g.fillStyle = 'rgba(150,140,115,.45)'; circ(g, cx - sr - 3, top + vzM(0.6), 3.5); g.fill(); circ(g, cx + sr + 3, top + vzM(0.6), 3.5); g.fill(); for (let k = 0; k < 3; k++){ ell(g, cx - sr + (k + 0.5) * 2 * sr / 3, top + vzM(0.85), 3, 4); g.fill(); }
+    g.fillStyle = '#f4f0e8'; g.fillRect(cx - sr - 10, top, 2 * sr + 20, vzM(0.42));
+    g.globalAlpha = 1;
+  } },
+  /* the pews: warm brown benches in rows */
+  sgpews:{ draw(g, p){ const { x0, x1, y0, y1 } = vzFloorBox(p), n = p.rows || 6, rowD = (y1 - y0) / n;
+    for (let k = 0; k < n; k++){ const ry = y0 + (k + 1) * rowD - 3;
+      g.fillStyle = 'rgba(30,10,5,.2)'; g.fillRect(x0 + 2, ry + 1, x1 - x0, 3);
+      g.fillStyle = '#8a5432'; g.fillRect(x0, ry - vzM(0.5) - rowD * 0.32, x1 - x0, rowD * 0.32);
+      g.fillStyle = '#7a4628'; g.fillRect(x0, ry - vzM(0.95), x1 - x0, vzM(0.48)); g.fillStyle = '#a86a42'; g.fillRect(x0, ry - vzM(0.97), x1 - x0, 2.5);
+      g.fillStyle = '#5a321c'; g.fillRect(x0, ry - vzM(1.0), 4, vzM(1.0)); g.fillRect(x1 - 4, ry - vzM(1.0), 4, vzM(1.0)); } } },
+  /* the high altar: the bronze group (the Evangelists bearing the globe, God the Father on it), its marble table and steps */
+  sgaltar:{ draw(g, p){ const { x0, x1, y0, y1, hp } = vzFloorBox(p), w = x1 - x0, cx = (x0 + x1) / 2, M = VZ_M;
+    g.fillStyle = '#e8e2d6'; g.fillRect(x0, y0 - vzM(0.25), w, y1 - y0); g.fillStyle = '#d8d0c2'; g.fillRect(x0 - 4, y1 - vzM(0.3), w + 8, vzM(0.3));
+    g.fillStyle = '#f2ede4'; g.fillRect(cx - vzM(1.6), y1 - vzM(1.4), vzM(3.2), vzM(1.1)); g.fillStyle = '#a8483a'; g.fillRect(cx - vzM(1.2), y1 - vzM(1.2), vzM(2.4), vzM(0.6));
+    const gy = y1 - vzM(1.4); g.fillStyle = '#3a3a34'; for (const d of [-0.9, -0.3, 0.3, 0.9]){ g.fillRect(cx + vzM(d) - 3, gy - vzM(1.1), 6, vzM(1.1)); circ(g, cx + vzM(d), gy - vzM(1.2), 3.4); g.fill(); }
+    g.fillStyle = '#5a5a50'; circ(g, cx, gy - vzM(1.7), vzM(0.62)); g.fill(); g.fillStyle = 'rgba(220,200,140,.5)'; circ(g, cx - vzM(0.2), gy - vzM(1.9), vzM(0.2)); g.fill();
+    g.fillStyle = '#3a3a34'; g.fillRect(cx - 3, gy - vzM(2.9), 6, vzM(0.7)); circ(g, cx, gy - vzM(3.0), 3.5); g.fill(); g.fillStyle = '#e8c35a'; g.fillRect(cx - 1, gy - vzM(3.4), 2, vzM(0.3)); } },
+  /* the balustrade before the altar: white balusters, a red marble rail, its gate in the middle */
+  sgbalustrade:{ draw(g, p){ const { x0, x1, y0, y1, hp } = vzFloorBox(p), cx = (x0 + x1) / 2;
+    vzShadow(g, x0, x1, y1, 4); g.fillStyle = '#efe9de'; g.fillRect(x0, y1 - hp, x1 - x0, hp);
+    g.fillStyle = 'rgba(60,40,30,.28)'; for (let x = x0 + 5; x < x1 - 4; x += 8){ if (Math.abs(x - cx) < vzM(0.5)) continue; g.fillRect(x, y1 - hp + 6, 3.5, hp - 10); }
+    g.fillStyle = '#b5584a'; g.fillRect(x0 - 2, y1 - hp - 3, x1 - x0 + 4, 5); g.fillStyle = '#efe9de'; g.fillRect(x0 - 2, y0 - hp, x1 - x0 + 4, y1 - y0 - 3);
+    g.fillStyle = '#c9b27a'; g.fillRect(cx - vzM(0.5), y1 - hp + 4, vzM(1.0), hp - 6); } },
+  /* the holy-water stoup: a marble shell on its baluster */
+  sgstoup:{ draw(g, p){ const { x0, x1, y0, y1, hp } = vzFloorBox(p), cx = (x0 + x1) / 2; g.fillStyle = 'rgba(30,20,10,.2)'; ell(g, cx + 3, y1 - 2, (x1 - x0) / 2, 4); g.fill();
+    g.fillStyle = '#ddd6c8'; g.fillRect(cx - 4, y1 - hp, 8, hp); g.fillStyle = '#efe9de'; ell(g, cx, y1 - hp, (x1 - x0) * 0.45, 6); g.fill(); g.fillStyle = '#a8bcc4'; ell(g, cx, y1 - hp - 1, (x1 - x0) * 0.3, 3); g.fill(); } },
+  /* the library's vault seen down its length: the cross vaults' ribs on the back wall, the lamps hanging */
+  sgvaultend:{ bg(g, p, R){ const b = vzWallBox(p, R), w = b.x1 - b.x0, h = b.bot - b.top, cx = (b.x0 + b.x1) / 2;
+    for (let k = 0; k < 5; k++){ const f = 1 - k * 0.17; g.strokeStyle = `rgba(160,150,135,${0.35 - k * 0.05})`; g.lineWidth = 2; vzArchPath(g, cx - w * f / 2, b.top + h * (1 - f) * 0.5, w * f, h * f, 'arch'); g.stroke(); }
+    g.fillStyle = '#fffcf2'; vzArchPath(g, cx - vzM(1.1), b.bot - vzM(3.0), vzM(2.2), vzM(2.4), 'arch'); g.fill();
+    g.fillStyle = 'rgba(190,215,225,.6)'; vzArchPath(g, cx - vzM(0.95), b.bot - vzM(2.9), vzM(1.9), vzM(2.2), 'arch'); g.fill(); g.fillStyle = 'rgba(255,255,255,.7)'; g.fillRect(cx - 1, b.bot - vzM(2.6), 2, vzM(2.0)); g.fillRect(cx - vzM(0.95), b.bot - vzM(1.6), vzM(1.9), 2);
+    for (const d of [-0.25, 0.25]){ g.strokeStyle = 'rgba(60,60,60,.5)'; g.lineWidth = 1; g.beginPath(); g.moveTo(cx + w * d, b.top + h * 0.1); g.lineTo(cx + w * d, b.top + h * 0.45); g.stroke(); g.fillStyle = '#d8d2c4'; ell(g, cx + w * d, b.top + h * 0.47, 4, 3); g.fill(); } } },
+  /* a bay of bookcases: oak, its shelves of books (seeded colours), the black iron gallery's rail over it */
+  sgbookcase:{ draw(g, p){ const { x0, x1, y0, y1, hp } = vzFloorBox(p), w = x1 - x0, r = rng(1494 + (p.seed || 0)), top = y1 - hp, M = VZ_M;
+    vzShadow(g, x0, x1, y1, 5);
+    g.fillStyle = '#8a5a32'; g.fillRect(x0, top, w, hp); g.fillStyle = '#6a4224'; g.fillRect(x0, top - (y1 - y0), w, y1 - y0);
+    const n = 6, sh = (hp - vzM(0.3)) / n;
+    for (let k = 0; k < n; k++){ const sy = top + vzM(0.15) + k * sh; g.fillStyle = '#3a2414'; g.fillRect(x0 + 4, sy, w - 8, sh - 2);
+      for (let x = x0 + 5; x < x1 - 6;){ const bw = 2 + r() * 3, bh = sh * (0.65 + r() * 0.3); g.fillStyle = ['#8a2a22', '#2e4a6a', '#e8dcc0', '#5a6a3a', '#c9a54a', '#4a3a5a', '#d8cdb6', '#a85a32'][Math.floor(r() * 8)]; g.fillRect(x, sy + sh - 2 - bh, bw, bh); x += bw + 0.6; } }
+    g.fillStyle = '#a8703e'; g.fillRect(x0, top, 4, hp); g.fillRect(x1 - 4, top, 4, hp); g.fillRect(x0, top, w, vzM(0.12));
+    /* the gallery's rail over it (black iron), the upper books behind */
+    g.fillStyle = '#2a2a2c'; g.fillRect(x0 - 2, top - vzM(1.0) - (y1 - y0), w + 4, 3); for (let x = x0; x <= x1; x += vzM(0.22)) g.fillRect(x, top - vzM(1.0) - (y1 - y0), 1.5, vzM(1.0));
+    g.fillStyle = '#2a2a2c'; g.fillRect(x0 - 2, top - (y1 - y0) - 2, w + 4, 4); } },
+  /* a long oak reading table, its chairs both sides, green reading lamps */
+  sgtable:{ draw(g, p){ const { x0, x1, y0, y1, hp } = vzFloorBox(p), w = x1 - x0, cx = (x0 + x1) / 2, d = y1 - y0;
+    const chair = (x, y) => { g.fillStyle = '#9a6a3e'; g.fillRect(x - 6, y - vzM(0.45), 12, vzM(0.45)); g.fillStyle = '#7a4e2a'; g.fillRect(x - 6, y - vzM(0.95), 12, vzM(0.4)); g.fillStyle = 'rgba(30,15,5,.2)'; g.fillRect(x - 6, y + 1, 12, 2); };
+    for (let k = 0; k < 4; k++){ const cy = y0 + d * (k + 0.5) / 4 + vzM(0.3); chair(x0 - vzM(0.3), cy); }
+    vzShadow(g, x0, x1, y1, 4);
+    g.fillStyle = '#7a4e2a'; g.fillRect(x0 + 3, y1 - hp, 5, hp); g.fillRect(x1 - 8, y1 - hp, 5, hp);
+    g.fillStyle = '#c89a62'; g.fillRect(x0, y0 - hp, w, d); g.fillStyle = 'rgba(90,55,25,.25)'; g.fillRect(cx - 0.5, y0 - hp, 1, d); g.fillStyle = '#a87a48'; g.fillRect(x0, y1 - hp, w, vzM(0.08));
+    for (let k = 0; k < 3; k++){ const ly = y0 - hp + d * (k + 0.5) / 3; g.fillStyle = '#3a3a3a'; g.fillRect(cx - 1, ly - vzM(0.45), 2, vzM(0.45)); g.fillStyle = '#2e6a4a'; ell(g, cx, ly - vzM(0.45), 6, 3); g.fill(); g.fillStyle = 'rgba(255,240,180,.45)'; ell(g, cx, ly, 9, 4); g.fill(); }
+    for (let k = 0; k < 4; k++){ const cy = y0 + d * (k + 0.5) / 4 + vzM(0.3); chair(x1 + vzM(0.3), cy); } } },
+  /* the gallery: a walkway of black iron at its height along the bookcases' tops, its railing on the hall's side, the upper books on the wall behind */
+  sggallery:{ y:(p, R) => p.box.y, draw(g, p){ const { x0, x1, y0, y1, hp } = vzFloorBox(p), M = VZ_M, inner = p.side === 'L' ? x1 : x0, outer = p.side === 'L' ? x0 : x1, r = rng(p.side === 'L' ? 11 : 12);
+    const t0 = y0 - hp, t1 = y1 - hp;
+    /* the upper shelves along the wall (seen from above: the books' tops) */
+    g.fillStyle = '#5a3a20'; g.fillRect(Math.min(outer, outer + (p.side === 'L' ? 0.55 * M : -0.55 * M)), t0 - 1.6 * M, 0.55 * M, t1 - t0);
+    for (let y = t0 - 1.6 * M; y < t1 - 1.6 * M; y += 3){ g.fillStyle = ['#8a2a22', '#2e4a6a', '#e8dcc0', '#5a6a3a', '#c9a54a', '#d8cdb6'][Math.floor(r() * 6)]; g.fillRect(Math.min(outer, outer + (p.side === 'L' ? 0.55 * M : -0.55 * M)) + 2, y, 0.55 * M - 4, 2.4); }
+    /* the walkway's floor (dark planks) and its iron edge, the railing posts and rail, a shadow on the hall below */
+    const wx0 = Math.min(inner, outer), ww = Math.abs(inner - outer);
+    g.fillStyle = 'rgba(20,10,5,.22)'; g.fillRect(p.side === 'L' ? inner : inner - 0.5 * M, y0, 0.5 * M, y1 - y0);
+    g.fillStyle = 'rgba(40,30,24,.55)'; g.fillRect(wx0, t0, ww, t1 - t0); g.fillStyle = 'rgba(20,20,20,.5)'; for (let y = t0; y < t1; y += 5) g.fillRect(wx0, y, ww, 1);
+    g.fillStyle = '#1e1e20'; g.fillRect(inner - 2, t0, 4, t1 - t0);
+    for (let y = t0; y <= t1; y += 0.5 * M){ g.fillRect(inner - 1, y - 1.0 * M, 2, 1.0 * M); }
+    g.fillRect(inner - 2, t0 - 1.0 * M, 4, t1 - t0); g.fillRect(wx0, t1 - 3, ww, 3);
+  } },
+  /* the black iron stair up to the gallery */
+  sgstair:{ draw(g, p){ const { x0, x1, y0, y1, hp } = vzFloorBox(p), w = x1 - x0, n = 10;
+    vzShadow(g, x0, x1, y1, 4);
+    for (let k = 0; k < n; k++){ const f = k / n, y = y1 - f * (y1 - y0) - f * hp; g.fillStyle = '#9a6a3e'; g.fillRect(x0 + 3, y - 3, w - 6, 3); g.fillStyle = '#2a2a2c'; g.fillRect(x0 + 3, y, w - 6, 1.5); }
+    g.strokeStyle = '#2a2a2c'; g.lineWidth = 2.5; for (const x of [x0 + 2, x1 - 2]){ g.beginPath(); g.moveTo(x, y1); g.lineTo(x, y0 - hp); g.stroke(); g.beginPath(); g.moveTo(x, y1 - vzM(0.9)); g.lineTo(x, y0 - hp - vzM(0.9)); g.stroke(); } } },
+});
 
 /* ===== units/venezia/render/l6-che-ne-pensa.js ===== */
 /* Lesson 6 · Che ne pensa?: its places drawn (world/l6-che-ne-pensa.js). In the city's manner: flat colours, crisp lines, in metres (VZ_M px a
