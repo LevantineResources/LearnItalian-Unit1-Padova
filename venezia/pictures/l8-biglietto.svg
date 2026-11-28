@@ -1,0 +1,15 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 460' width='1000' height='460'>
+<!-- Lesson 8 · Arrivederci, Venezia. Made by scripts/l8-pictures.py. -->
+<rect width='1000' height='460' fill='#e9e4da'/><rect x='30' y='30' width='940' height='400' rx='16' fill='#fffdf8' stroke='#c4161c' stroke-width='5'/>
+<rect x='30' y='30' width='940' height='70' rx='16' fill='#c4161c'/><rect x='30' y='80' width='940' height='20' fill='#c4161c'/>
+<text x='60' y='78' font-size='32' font-weight='700' fill='#fff' font-family='Titillium Web, Helvetica, Arial, sans-serif'>Frecciarossa · BIGLIETTO</text><text x='940' y='78' text-anchor='end' font-size='22' fill='#fff' font-family='Titillium Web, Helvetica, Arial, sans-serif'>Solo andata · 2ª classe</text>
+<text x='60' y='170' font-size='22' fill='#5a5a6a' font-family='Titillium Web, Helvetica, Arial, sans-serif'>Partenza</text><text x='60' y='215' font-size='40' font-weight='700' fill='#16161a' font-family='Titillium Web, Helvetica, Arial, sans-serif'>Venezia S. Lucia</text><text x='60' y='258' font-size='34' fill='#16161a' font-family='Titillium Web, Helvetica, Arial, sans-serif'>17:00</text>
+<text x='540' y='170' font-size='22' fill='#5a5a6a' font-family='Titillium Web, Helvetica, Arial, sans-serif'>Arrivo</text><text x='540' y='215' font-size='40' font-weight='700' fill='#16161a' font-family='Titillium Web, Helvetica, Arial, sans-serif'>Roma Termini</text><text x='540' y='258' font-size='34' fill='#16161a' font-family='Titillium Web, Helvetica, Arial, sans-serif'>21:00</text>
+<path d='M460 200 h50 l-12 -10 m12 10 l-12 10' stroke='#c4161c' stroke-width='4' fill='none'/>
+<line x1='60' y1='290' x2='940' y2='290' stroke='#c9c2b4' stroke-width='2' stroke-dasharray='8 6'/>
+<text x='60' y='335' font-size='20' fill='#5a5a6a' font-family='Titillium Web, Helvetica, Arial, sans-serif'>Carrozza</text><text x='60' y='380' font-size='36' font-weight='700' fill='#16161a' font-family='Titillium Web, Helvetica, Arial, sans-serif'>6</text>
+<text x='250' y='335' font-size='20' fill='#5a5a6a' font-family='Titillium Web, Helvetica, Arial, sans-serif'>Posto</text><text x='250' y='380' font-size='36' font-weight='700' fill='#16161a' font-family='Titillium Web, Helvetica, Arial, sans-serif'>7D</text>
+<text x='440' y='335' font-size='20' fill='#5a5a6a' font-family='Titillium Web, Helvetica, Arial, sans-serif'>Binario</text><text x='440' y='380' font-size='36' font-weight='700' fill='#16161a' font-family='Titillium Web, Helvetica, Arial, sans-serif'>5</text>
+<text x='630' y='335' font-size='20' fill='#5a5a6a' font-family='Titillium Web, Helvetica, Arial, sans-serif'>Prezzo</text><text x='630' y='380' font-size='36' font-weight='700' fill='#16161a' font-family='Titillium Web, Helvetica, Arial, sans-serif'>€ 70,00</text>
+<text x='940' y='405' text-anchor='end' font-size='16' font-style='italic' fill='#5a5a6a' font-family='Titillium Web, Helvetica, Arial, sans-serif'>Non deve convalidarlo: il posto è già sul biglietto.</text>
+</svg>

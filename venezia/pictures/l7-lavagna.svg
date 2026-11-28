@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900">
+<!-- Lesson 7 (l7-domani.md, the handbook and Scene 3): the yard’s chalkboard, one row a day. Made by scripts/d4c-pictures.js. -->
+<rect width="1200" height="900" fill="#e9e0cc"/>
+<rect x="70" y="40" width="1060" height="820" rx="10" fill="#8a6a48"/><rect x="96" y="66" width="1008" height="768" fill="#2c3a30"/>
+<rect x="96" y="66" width="1008" height="768" fill="url(#smudge)" opacity=".35"/>
+<defs><radialGradient id="smudge" cx="0.4" cy="0.35" r="0.8"><stop offset="0" stop-color="#5a6e60"/><stop offset="1" stop-color="#2c3a30"/></radialGradient></defs>
+<text x="600" y="118" font-family="Georgia, serif" font-size="40" font-style="italic" fill="#f2f0e6" text-anchor="middle">Questa settimana</text><line x1="130" y1="232" x2="1070" y2="232" stroke="#f2f0e6" stroke-opacity=".25" stroke-width="2"/>
+<text x="150" y="204" font-family="Georgia, serif" font-weight="700" font-size="44" fill="#f2f0e6">LUNEDÌ · MARTEDÌ</text>
+<text x="640" y="204" font-family="Georgia, serif" font-style="italic" font-size="42" fill="#f2f0e6">vernice</text><rect x="966" y="182" width="46" height="16" rx="3" fill="none" stroke="#f2f0e6" stroke-width="4"/><path d="M1012 180 l26 -6 v32 l-26 -6 z" fill="none" stroke="#f2f0e6" stroke-width="4"/><line x1="130" y1="344" x2="1070" y2="344" stroke="#f2f0e6" stroke-opacity=".25" stroke-width="2"/>
+<text x="150" y="316" font-family="Georgia, serif" font-weight="700" font-size="44" fill="#f2f0e6">MERCOLEDÌ</text>
+<text x="640" y="316" font-family="Georgia, serif" font-style="italic" font-size="42" fill="#f2f0e6">Chioggia, legno</text><rect x="960" y="282" width="80" height="10" fill="none" stroke="#f2f0e6" stroke-width="3.5"/><rect x="960" y="296" width="80" height="10" fill="none" stroke="#f2f0e6" stroke-width="3.5"/><rect x="960" y="310" width="80" height="10" fill="none" stroke="#f2f0e6" stroke-width="3.5"/><line x1="130" y1="456" x2="1070" y2="456" stroke="#f2f0e6" stroke-opacity=".25" stroke-width="2"/>
+<text x="150" y="428" font-family="Georgia, serif" font-weight="700" font-size="44" fill="#f2f0e6">GIOVEDÌ</text>
+<text x="640" y="428" font-family="Georgia, serif" font-style="italic" font-size="42" fill="#f2f0e6">Gigio: dottore</text><path d="M992 388 h16 v18 h18 v16 h-18 v18 h-16 v-18 h-18 v-16 h18 z" fill="none" stroke="#f2f0e6" stroke-width="4"/><line x1="130" y1="568" x2="1070" y2="568" stroke="#f2f0e6" stroke-opacity=".25" stroke-width="2"/>
+<text x="150" y="540" font-family="Georgia, serif" font-weight="700" font-size="44" fill="#f2f0e6">VENERDÌ</text>
+<text x="640" y="540" font-family="Georgia, serif" font-style="italic" font-size="42" fill="#f2f0e6">la barca</text><path d="M956 528 q44 26 88 0 z" fill="none" stroke="#f2f0e6" stroke-width="4"/><path d="M1000 526 v-34 l26 26 z" fill="none" stroke="#f2f0e6" stroke-width="3.5"/><line x1="130" y1="680" x2="1070" y2="680" stroke="#f2f0e6" stroke-opacity=".25" stroke-width="2"/>
+<text x="150" y="652" font-family="Georgia, serif" font-weight="700" font-size="44" fill="#f2f0e6">SABATO</text>
+<text x="640" y="652" font-family="Georgia, serif" font-style="italic" font-size="42" fill="#f2f0e6">REGATA!</text><path d="M980 664 v-54 l40 12 l-40 14" fill="none" stroke="#f2f0e6" stroke-width="4"/><line x1="130" y1="792" x2="1070" y2="792" stroke="#f2f0e6" stroke-opacity=".25" stroke-width="2"/>
+<text x="150" y="764" font-family="Georgia, serif" font-weight="700" font-size="44" fill="#f2f0e6">DOMENICA</text>
+<text x="640" y="764" font-family="Georgia, serif" font-style="italic" font-size="42" fill="#f2f0e6">💤</text><text x="1000" y="762" font-family="Georgia, serif" font-size="40" fill="#f2f0e6" text-anchor="middle">z z z</text><rect x="420" y="836" width="160" height="16" rx="4" fill="#f2f0e6"/><rect x="620" y="836" width="60" height="14" rx="3" fill="#e8c35a"/>
+</svg>

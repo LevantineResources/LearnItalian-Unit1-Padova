@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900">
+<!-- a2 · Il cantiere, F3 (a2-il-cantiere.md): Ottavio’s chart of the lagoon, 1890: Venice, the Giudecca, San Giorgio, Sant’Elena, the Lido; two small islands in a lighter hand, gone today. Made by scripts/d4c-pictures.js. -->
+<rect width="1200" height="900" fill="#c9b08a"/><rect x="40" y="40" width="1120" height="820" fill="#e8d8b0" stroke="#5a3a1e" stroke-width="6"/>
+<rect x="56" y="56" width="1088" height="788" fill="none" stroke="#5a3a1e" stroke-width="2"/>
+<path d="M90 70 q-20 400 10 760" fill="none" stroke="#5a3a1e" stroke-opacity=".08" stroke-width="2"/><path d="M180 70 q-20 400 10 760" fill="none" stroke="#5a3a1e" stroke-opacity=".08" stroke-width="2"/><path d="M270 70 q-20 400 10 760" fill="none" stroke="#5a3a1e" stroke-opacity=".08" stroke-width="2"/><path d="M360 70 q-20 400 10 760" fill="none" stroke="#5a3a1e" stroke-opacity=".08" stroke-width="2"/><path d="M450 70 q-20 400 10 760" fill="none" stroke="#5a3a1e" stroke-opacity=".08" stroke-width="2"/><path d="M540 70 q-20 400 10 760" fill="none" stroke="#5a3a1e" stroke-opacity=".08" stroke-width="2"/><path d="M630 70 q-20 400 10 760" fill="none" stroke="#5a3a1e" stroke-opacity=".08" stroke-width="2"/><path d="M720 70 q-20 400 10 760" fill="none" stroke="#5a3a1e" stroke-opacity=".08" stroke-width="2"/><path d="M810 70 q-20 400 10 760" fill="none" stroke="#5a3a1e" stroke-opacity=".08" stroke-width="2"/><path d="M900 70 q-20 400 10 760" fill="none" stroke="#5a3a1e" stroke-opacity=".08" stroke-width="2"/><path d="M990 70 q-20 400 10 760" fill="none" stroke="#5a3a1e" stroke-opacity=".08" stroke-width="2"/><path d="M1080 70 q-20 400 10 760" fill="none" stroke="#5a3a1e" stroke-opacity=".08" stroke-width="2"/>
+<text x="600" y="120" font-family="Georgia, serif" font-weight="700" font-size="52" letter-spacing="6" fill="#5a3a1e" text-anchor="middle">LAGUNA VENETA</text>
+<text x="600" y="162" font-family="Georgia, serif" font-style="italic" font-size="32" fill="#5a3a1e" text-anchor="middle">· 1890 ·</text>
+<!-- Venice: the fish -->
+<path d="M210 420 q60 -90 220 -80 q120 -30 230 20 q60 30 40 80 q-60 50 -180 50 q-160 20 -260 0 q-60 -20 -50 -70 z" fill="#d2b98a" stroke="#5a3a1e" stroke-width="3"/>
+<path d="M300 400 q80 40 140 0 q60 -40 120 10" fill="none" stroke="#5a3a1e" stroke-width="3" stroke-dasharray="6 6"/>
+<text x="430" y="420" font-family="Georgia, serif" font-size="30" fill="#5a3a1e" text-anchor="middle">VENEZIA</text>
+<!-- the Giudecca -->
+<path d="M260 520 q150 -10 280 10 q10 14 -10 20 q-140 6 -270 -6 z" fill="#d2b98a" stroke="#5a3a1e" stroke-width="3"/><text x="400" y="572" font-family="Georgia, serif" font-style="italic" font-size="24" fill="#5a3a1e" text-anchor="middle">Giudecca</text>
+<!-- San Giorgio -->
+<path d="M600 500 q40 -14 70 4 q4 20 -20 26 q-40 4 -50 -30 z" fill="#d2b98a" stroke="#5a3a1e" stroke-width="3"/><text x="640" y="560" font-family="Georgia, serif" font-size="24" fill="#5a3a1e" text-anchor="middle">S. Giorgio</text>
+<!-- Sant'Elena -->
+<path d="M760 470 q50 -20 90 0 q6 24 -30 34 q-50 6 -60 -34 z" fill="#d2b98a" stroke="#5a3a1e" stroke-width="3"/><text x="810" y="534" font-family="Georgia, serif" font-size="24" fill="#5a3a1e" text-anchor="middle">S. Elena</text>
+<!-- the Lido: the long strip -->
+<path d="M900 230 q90 220 140 560 l30 -4 q-40 -340 -140 -560 z" fill="#d2b98a" stroke="#5a3a1e" stroke-width="3"/><text x="1030" y="520" font-family="Georgia, serif" font-size="30" fill="#5a3a1e" transform="rotate(70 1030 520)" text-anchor="middle">LIDO</text>
+<!-- two small islands in a lighter hand: gone today -->
+<ellipse cx="700" cy="660" rx="40" ry="18" fill="#d2b98a" fill-opacity=".5" stroke="#5a3a1e" stroke-opacity=".45" stroke-width="2" stroke-dasharray="5 5"/>
+<ellipse cx="520" cy="700" rx="30" ry="14" fill="#d2b98a" fill-opacity=".5" stroke="#5a3a1e" stroke-opacity=".45" stroke-width="2" stroke-dasharray="5 5"/>
+<text x="700" y="710" font-family="Georgia, serif" font-style="italic" font-size="20" fill="#5a3a1e" fill-opacity=".6" text-anchor="middle">isola</text>
+<!-- the compass rose -->
+<g transform="translate(180 720)"><circle r="60" fill="none" stroke="#5a3a1e" stroke-width="2"/><path d="M0 -70 L12 0 L0 70 L-12 0 Z" fill="#5a3a1e"/><path d="M-70 0 L0 10 L70 0 L0 -10 Z" fill="#5a3a1e" fill-opacity=".5"/>
+<text y="-80" font-family="Georgia, serif" font-size="26" fill="#5a3a1e" text-anchor="middle">N</text></g>
+</svg>

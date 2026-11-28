@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 560" width="800" height="560">
+  <defs><pattern id="q" width="80" height="80" patternUnits="userSpaceOnUse"><rect width="80" height="80" fill="#f4efe4"/><rect width="40" height="40" fill="#c8443a" opacity=".85"/><rect x="40" y="40" width="40" height="40" fill="#c8443a" opacity=".85"/><rect width="80" height="80" fill="none" stroke="#e8dccb" stroke-width="2"/></pattern>
+    <radialGradient id="pl" cx=".5" cy=".45" r=".6"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e6e0d4"/></radialGradient></defs>
+  <rect width="800" height="560" fill="url(#q)"/>
+  <ellipse cx="400" cy="300" rx="270" ry="190" fill="#9a8f80" opacity=".35"/>
+  <ellipse cx="390" cy="286" rx="262" ry="182" fill="url(#pl)" stroke="#cfc6b6" stroke-width="4"/>
+  <ellipse cx="390" cy="286" rx="190" ry="128" fill="none" stroke="#d9d2c4" stroke-width="3"/>
+  <g fill="none" stroke-linecap="round">
+    <g stroke="#6e4c22" stroke-width="13">
+      <path d="M260 250 C320 190 420 330 520 240"/><path d="M270 300 C350 230 430 360 520 300"/><path d="M290 340 C360 280 450 380 500 330"/><path d="M300 220 C380 170 440 270 500 210"/>
+      <path d="M250 280 C300 330 380 230 470 320"/><path d="M320 360 C380 300 440 260 530 270"/></g>
+    <g stroke="#8a6230" stroke-width="7" opacity=".9">
+      <path d="M262 252 C320 194 420 334 518 244"/><path d="M272 302 C350 234 430 364 518 304"/><path d="M302 222 C380 174 440 274 498 214"/></g>
+  </g>
+  <g fill="#b48a4a" opacity=".85"><circle cx="350" cy="260" r="9"/><circle cx="430" cy="300" r="8"/><circle cx="390" cy="330" r="10"/><circle cx="460" cy="250" r="7"/><circle cx="320" cy="310" r="7"/></g>
+  <g fill="#3f7a3a"><circle cx="380" cy="240" r="4"/><circle cx="420" cy="270" r="3.5"/><circle cx="360" cy="300" r="3.5"/></g>
+  <path d="M640 130 l26 0 0 120 q0 40 -13 46 q-13 -6 -13 -46 z" fill="#7a1222" opacity=".92" transform="rotate(8 653 200)"/>
+  <path d="M640 120 h40 q0 70 -20 78 q-20 -8 -20 -78z" fill="#8a1a2a" stroke="#e8e0d0" stroke-width="3" transform="translate(-10 330)"/>
+  <rect x="648" y="528" width="4" height="0" fill="#999"/>
+  <path d="M120 420 l40 -260" stroke="#b9b9b9" stroke-width="10" stroke-linecap="round"/><path d="M150 168 l8 -60 M162 170 l8 -60 M174 172 l8 -60" stroke="#c9c9c9" stroke-width="5" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" width="960" height="600">
+<defs><filter id="wet" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="3" seed="7"/><feDisplacementMap in="SourceGraphic" scale="14"/><feGaussianBlur stdDeviation="1.2"/></filter>
+<linearGradient id="tr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6d6a8"/><stop offset=".55" stop-color="#f2b98a"/><stop offset="1" stop-color="#eaa27e"/></linearGradient>
+<linearGradient id="aq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9b48e"/><stop offset="1" stop-color="#8fb0bd"/></linearGradient></defs>
+<rect width="960" height="600" fill="#fbf6ea"/>
+<g filter="url(#wet)" opacity=".92">
+<rect x="40" y="40" width="880" height="300" fill="url(#tr)" opacity=".85"/>
+<rect x="40" y="330" width="880" height="230" fill="url(#aq)" opacity=".8"/>
+<rect x="140" y="250" width="240" height="70" fill="#f1cfc0" opacity=".9"/>
+<rect x="420" y="120" width="34" height="200" fill="#c97a5a" opacity=".9"/><polygon points="420,120 437,70 454,120" fill="#8aa88a" opacity=".85"/>
+<rect x="380" y="220" width="12" height="100" fill="#efe2cf"/><rect x="104" y="220" width="12" height="100" fill="#efe2cf"/>
+<rect x="500" y="260" width="400" height="60" fill="#e8c7a6" opacity=".8"/>
+<ellipse cx="760" cy="250" rx="60" ry="46" fill="#f6efe4" opacity=".85"/>
+<path d="M359 512 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M473 382 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M399 487 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M718 364 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M530 354 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M240 431 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M646 494 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M340 471 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M360 425 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M548 408 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M120 525 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M438 526 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M476 528 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M350 418 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M469 364 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M655 531 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M847 377 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M515 491 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M611 453 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M803 532 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M278 378 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M225 477 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M488 500 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M195 420 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M88 508 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M900 365 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M249 484 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M424 418 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M529 390 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M83 362 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M179 377 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M796 403 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M688 446 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M567 517 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M275 518 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M742 535 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M818 475 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M473 495 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M515 482 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<path d="M296 409 q14 -4 28 0" stroke="#fff3e4" stroke-width="3" fill="none" opacity=".5"/>
+<ellipse cx="480" cy="180" rx="90" ry="40" fill="#fff3d6" opacity=".55"/></g>
+<text x="900" y="580" text-anchor="end" font-family="Georgia, serif" font-style="italic" font-size="18" fill="#9a7a5a">M. · San Giorgio</text></svg>
